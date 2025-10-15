@@ -1,34 +1,25 @@
 package Auxiliar;
 
+import Controler.Cenario;
 import java.awt.Graphics;
-import java.io.Serializable;
 import javax.swing.ImageIcon;
-import Controler.Tela;
 
-public class Desenho implements Serializable {
-
-    static Tela jCenario;
-
-    public static void setCenario(Tela umJCenario) {
-        jCenario = umJCenario;
+public class Desenho {
+    private static Cenario cenario; 
+    
+    public static void setCenario(Cenario umCenario){
+        cenario = umCenario;
     }
-
-    public static Tela acessoATelaDoJogo() {
-        return jCenario;
+    
+    /**
+     * MUDANÇA: Este método agora recebe coordenadas de PIXEL (x, y)
+     * e desenha a imagem diretamente nessas coordenadas.
+     * @param g O contexto gráfico ("pincel").
+     * @param i A imagem a ser desenhada.
+     * @param x A coordenada X em pixels.
+     * @param y A coordenada Y em pixels.
+     */
+    public static void desenhar(Graphics g, ImageIcon i, int x, int y) {
+        i.paintIcon(cenario, g, x, y);
     }
-
-    public static Graphics getGraphicsDaTela() {
-        return jCenario.getGraphicsBuffer();
-    }
-
-    public static void desenhar(ImageIcon iImage, int iColuna, int iLinha) {
-        int telaX = (iColuna - jCenario.getCameraColuna()) * Consts.CELL_SIDE;
-        int telaY = (iLinha - jCenario.getCameraLinha()) * Consts.CELL_SIDE;
-
-        if (telaX >= 0 && telaX < Consts.RES * Consts.CELL_SIDE
-                && telaY >= 0 && telaY < Consts.RES * Consts.CELL_SIDE) {
-            iImage.paintIcon(jCenario, getGraphicsDaTela(), telaX, telaY);
-        }
-    }
-
 }

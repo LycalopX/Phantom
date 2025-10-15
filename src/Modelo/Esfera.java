@@ -1,6 +1,7 @@
 package Modelo;
 
 import Auxiliar.Desenho;
+import java.awt.Graphics;
 
 /**
  *
@@ -13,7 +14,7 @@ public class Esfera extends Personagem{
         this.bTransponivel = false;
     }
 
-    public void autoDesenho() {
-        super.autoDesenho();
+    public void autoDesenho(Graphics g) {
+        super.autoDesenho(g);
     }    
 }

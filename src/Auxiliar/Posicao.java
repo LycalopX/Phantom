@@ -26,6 +26,14 @@ public class Posicao implements Serializable {
 
         return true;
     }
+    /**
+     * Cria e retorna uma nova instância de Posição com os mesmos
+     * valores de linha e coluna.
+     * @return Uma cópia do objeto Posição.
+     */
+    public Posicao copia() {
+        return new Posicao(this.linha, this.coluna);
+    }
 
     public int getLinha() {
         return linha;

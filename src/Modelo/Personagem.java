@@ -2,30 +2,28 @@ package Modelo;
 
 import Auxiliar.Consts;
 import Auxiliar.Desenho;
-import Controler.Tela;
-import auxiliar.Posicao;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 public abstract class Personagem implements Serializable {
 
     protected ImageIcon iImage;
-    protected Posicao pPosicao;
-    protected boolean bTransponivel; /*Pode passar por cima?*/
-    protected boolean bMortal;       /*Se encostar, morre?*/
+    public double x; // Coordenada x em unidades de grid (ex: 10.5)
+    public double y; // Coordenada y em unidades de grid (ex: 10.5)
+    public double raio;
+    
+    protected boolean bTransponivel;
+    protected boolean bMortal;
 
-    public boolean isbMortal() {
-        return bMortal;
-    }
-    protected Personagem(String sNomeImagePNG, int linha, int coluna) {
-        this.pPosicao = new Posicao(1, 1);
+    protected Personagem(String sNomeImagePNG, double x, double y) {
+        this.x = x;
+        this.y = y;
+        this.raio = (Consts.CELL_SIDE / 2.0) / Consts.CELL_SIDE; // Raio em unidades de grid
+        
         this.bTransponivel = true;
         this.bMortal = false;
         try {
@@ -38,13 +36,15 @@ public abstract class Personagem implements Serializable {
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
-        this.setPosicao(linha, coluna);
     }
 
-    public Posicao getPosicao() {
-        /*TODO: Retirar este método para que objetos externos nao possam operar
-         diretamente sobre a posição do Personagem*/
-        return pPosicao;
+    public void autoDesenho(Graphics g) {
+        // Converte as coordenadas de grid (centro do personagem) para coordenadas de pixel (canto superior esquerdo)
+        int telaX = (int)Math.round(x * Consts.CELL_SIDE) - (Consts.CELL_SIDE / 2);
+        int telaY = (int)Math.round(y * Consts.CELL_SIDE) - (Consts.CELL_SIDE / 2);
+        
+        // Agora passamos as coordenadas de PIXEL corretas para o método de desenho
+        Desenho.desenhar(g, this.iImage, telaX, telaY);
     }
 
     public boolean isbTransponivel() {
@@ -54,28 +54,8 @@ public abstract class Personagem implements Serializable {
     public void setbTransponivel(boolean bTransponivel) {
         this.bTransponivel = bTransponivel;
     }
-
-    public void autoDesenho(){
-        Desenho.desenhar(this.iImage, this.pPosicao.getColuna(), this.pPosicao.getLinha());
-    }
-
-    public boolean setPosicao(int linha, int coluna) {
-        return pPosicao.setPosicao(linha, coluna);
-    }
-
-    public boolean moveUp() {
-        return this.pPosicao.moveUp();
-    }
-
-    public boolean moveDown() {
-        return this.pPosicao.moveDown();
-    }
-
-    public boolean moveRight() {
-        return this.pPosicao.moveRight();
-    }
-
-    public boolean moveLeft() {
-        return this.pPosicao.moveLeft();
+    
+    public boolean isbMortal() {
+        return bMortal;
     }
 }

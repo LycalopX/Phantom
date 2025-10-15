@@ -1,5 +1,7 @@
 import javax.swing.*;
 import Auxiliar.ArvoreParallax;
+import Auxiliar.Projetil;
+import Auxiliar.ContadorFPS; // Importa a nova classe
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -17,13 +19,13 @@ public class TesteBackground extends JPanel implements Runnable {
     // --- CONFIGURAÇÕES GERAIS ---
     private static final String BG1_PATH = "imgs/stage1/stage_1_bg1.png";
     private static final String BG2_PATH = "imgs/stage1/stage_1_bg2.png";
-    private static final int LARGURA_TELA_INICIAL = 780;
+    private static final int LARGURA_TELA_INICIAL = 640;
     private static final int ALTURA_TELA_INICIAL = 640;
     private static final int FPS = 60;
 
-    // --- Configurações de velocidade com double e oscilação ---
+    // --- Configurações de velocidade ---
     private static final double VELOCIDADE_BASE = 2.0;
-    private static final double AMPLITUDE_VELOCIDADE = 10.0;
+    private static final double AMPLITUDE_VELOCIDADE = 1.0;
     private static final double PERIODO_ONDA = 600;
 
     // --- CONFIGURAÇÕES DA CAMADA 2 (ÁRVORES) ---
@@ -33,7 +35,7 @@ public class TesteBackground extends JPanel implements Runnable {
     private static final int NUMERO_DE_DIAGONAIS = 3;
     private static final int ESPACO_ENTRE_DIAGONAIS_X = 500;
 
-    // --- Variáveis de estado convertidas/adicionadas ---
+    // --- Variáveis de estado ---
     private BufferedImage imagemFundo1, imagemFundo2;
     private double scrollY = 0;
     private Thread gameThread;
@@ -44,17 +46,18 @@ public class TesteBackground extends JPanel implements Runnable {
     private final int[] posicoesXDasDiagonais;
     private int direcaoDoGrupo = 1;
     private boolean isInitialized = false;
-
     private double velocidadeAtual = VELOCIDADE_BASE;
     private double cicloOnda = 0;
     private boolean oscilacaoAtiva = false;
+    private final List<Projetil> projeteis = new ArrayList<>();
+    
+    // --- MUDANÇA 1: Instancia o contador de FPS ---
+    private final ContadorFPS contadorFPS = new ContadorFPS();
 
     public TesteBackground() {
         this.setPreferredSize(new Dimension(LARGURA_TELA_INICIAL, ALTURA_TELA_INICIAL));
         this.setBackground(Color.BLACK);
-        
-        // --- MUDANÇA 1: Torna o painel "focável" para que ele possa receber eventos do teclado ---
-        this.setFocusable(true); 
+        this.setFocusable(true);
 
         posicoesXDasDiagonais = new int[NUMERO_DE_DIAGONAIS];
         for (int i = 0; i < NUMERO_DE_DIAGONAIS; i++) {
@@ -67,15 +70,32 @@ public class TesteBackground extends JPanel implements Runnable {
             e.printStackTrace();
         }
 
-        // --- MUDANÇA 2: Adiciona o KeyListener diretamente ao PAINEL ---
         this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                     toggleOscilacao();
                 }
+                if (e.getKeyCode() == KeyEvent.VK_B) {
+                    spawnProjeteis(50);
+                }
             }
         });
+    }
+
+    public void spawnProjeteis(int quantidade) {
+        int centroX = getWidth() / 2;
+        int centroY = getHeight() / 2;
+        double velocidadeProjetil = 2.5;
+        int tamanhoProjetil = 12;
+        
+        System.out.println("Gerando " + quantidade + " projéteis...");
+
+        for (int i = 0; i < quantidade; i++) {
+            double angulo = (360.0 / quantidade) * i;
+            Color cor = new Color(random.nextInt(128) + 127, random.nextInt(128) + 127, 255);
+            projeteis.add(new Projetil(centroX, centroY, angulo, velocidadeProjetil, tamanhoProjetil, cor));
+        }
     }
 
     private void preencherCenarioInicial() {
@@ -102,20 +122,19 @@ public class TesteBackground extends JPanel implements Runnable {
 
     public void atualizar() {
         if (oscilacaoAtiva) {
-            double onda = Math.abs(Math.sin(cicloOnda));
+            double onda = Math.sin(cicloOnda);
             velocidadeAtual = VELOCIDADE_BASE + (onda * AMPLITUDE_VELOCIDADE);
             cicloOnda += (2 * Math.PI) / PERIODO_ONDA;
         } else {
             velocidadeAtual = VELOCIDADE_BASE;
             cicloOnda = 0;
         }
-
         scrollY += velocidadeAtual;
         distanciaTotalRolada += velocidadeAtual;
         if (scrollY >= getHeight()) {
             scrollY -= getHeight();
         }
-
+        
         if (imagemFundo2 != null && distanciaTotalRolada >= proximoSpawnY) {
             int tamanhoBase = (int) Math.round(getHeight() * 0.8);
             boolean vaiBaterNaDireita = direcaoDoGrupo == 1 && (posicoesXDasDiagonais[NUMERO_DE_DIAGONAIS - 1] + tamanhoBase) > getWidth();
@@ -136,6 +155,11 @@ public class TesteBackground extends JPanel implements Runnable {
             arvore.mover(velocidadeAtual);
         }
         arvoresNaTela.removeIf(arvore -> arvore.estaForaDaTela(getHeight()));
+
+        for (Projetil p : projeteis) {
+            p.mover();
+        }
+        projeteis.removeIf(p -> p.estaForaDaTela(getWidth(), getHeight()));
     }
     
     public void toggleOscilacao() {
@@ -154,7 +178,6 @@ public class TesteBackground extends JPanel implements Runnable {
         int yPos = (int) scrollY;
         g2d.drawImage(imagemFundo1, 0, yPos, larguraTela, alturaTela, this);
         g2d.drawImage(imagemFundo1, 0, yPos - alturaTela, larguraTela, alturaTela, this);
-
         int escuridaoGeral = 150;
         g2d.setColor(new Color(0, 0, 50, escuridaoGeral));
         g2d.fillRect(0, 0, larguraTela, alturaTela);
@@ -168,6 +191,19 @@ public class TesteBackground extends JPanel implements Runnable {
         for (ArvoreParallax arvore : arvoresNaTela) {
             arvore.desenhar(g2d, alturaTela);
         }
+
+        for (Projetil p : projeteis) {
+            p.desenhar(g2d);
+        }
+        
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("Arial", Font.BOLD, 20));
+        String textoContador = "Projéteis: " + projeteis.size();
+        g2d.drawString(textoContador, 10, 30);
+        
+        // --- MUDANÇA 2: Desenha o contador de FPS na tela ---
+        g2d.drawString(contadorFPS.getFPSString(), 10, 55);
+
         g2d.dispose();
     }
 
@@ -197,6 +233,8 @@ public class TesteBackground extends JPanel implements Runnable {
             if (delta >= 1) {
                 atualizar();
                 repaint();
+                // --- MUDANÇA 3: Atualiza o contador de FPS a cada frame ---
+                contadorFPS.atualizar();
                 delta--;
             }
         }
@@ -207,14 +245,13 @@ public class TesteBackground extends JPanel implements Runnable {
             JFrame frame = new JFrame("Cenário com Efeito Parallax");
             TesteBackground panel = new TesteBackground();
             frame.add(panel);
-            
-            // --- MUDANÇA 3: O KeyListener foi REMOVIDO do frame ---
-            
             frame.pack();
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setLocationRelativeTo(null);
             frame.setResizable(true);
             frame.setVisible(true);
+            // --- MUDANÇA 4 (CORREÇÃO): Solicita o foco para o painel ---
+            panel.requestFocusInWindow();
             panel.startGameThread();
         });
     }

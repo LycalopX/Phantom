@@ -1,0 +1,59 @@
+{
+	"folders": [
+		{
+			"name": "Phantom",
+			"path": ".."
+		},
+		{
+			"name": "Trabalho-ED3",
+			"path": "../../../../c/Trabalho-ED3"
+		},
+		{
+			"name": "Ordenador do Século",
+			"path": "../../../../c/Ordenador do Século"
+		},
+		{
+			"name": "Google CLI",
+			"path": "../../../../Google CLI"
+		},
+		{
+			"name": "Runcodes - Fosório",
+			"path": "../../../../c/Runcodes - Fosório"
+		},
+		{
+			"name": "Assembly",
+			"path": "../../../../Assembly"
+		},
+		{
+			"name": "khinsider-mp3-downloader-master",
+			"path": "../../../../../../Downloads/khinsider-mp3-downloader-master"
+		},
+		{
+			"name": "Trabalho 1",
+			"path": "../../Trabalho 1"
+		},
+		{
+			"name": "WPlace",
+			"path": "../../../../python/WPlace"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"__bit_reference": "c",
+			"__node_handle": "c",
+			"bitset": "c",
+			"__memory": "c",
+			"limits": "c",
+			"locale": "c",
+			"optional": "c",
+			"ratio": "c",
+			"tuple": "c",
+			"vector": "c",
+			"stdlib.h": "c",
+			"utils.h": "c",
+			"string.h": "c",
+			"f2.h": "c",
+			"arquivos.h": "c"
+		}
+	}
+}

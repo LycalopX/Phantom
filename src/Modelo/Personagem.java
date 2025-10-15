@@ -16,13 +16,18 @@ public abstract class Personagem implements Serializable {
     public double y; // Coordenada y em unidades de grid (ex: 10.5)
     public double raio;
     
+    protected int largura;
+    protected int altura;
+    
     protected boolean bTransponivel;
     protected boolean bMortal;
 
-    protected Personagem(String sNomeImagePNG, double x, double y) {
+    protected Personagem(String sNomeImagePNG, double x, double y, int largura, int altura) {
         this.x = x;
         this.y = y;
-        this.raio = (Consts.CELL_SIDE / 2.0) / Consts.CELL_SIDE; // Raio em unidades de grid
+        this.largura = largura;
+        this.altura = altura;
+        this.raio = (this.largura / 2.0) / Consts.CELL_SIDE; // Raio em unidades de grid
         
         this.bTransponivel = true;
         this.bMortal = false;
@@ -37,11 +42,15 @@ public abstract class Personagem implements Serializable {
             System.out.println(ex.getMessage());
         }
     }
+    
+    protected Personagem(String sNomeImagePNG, double x, double y) {
+        this(sNomeImagePNG, x, y, Consts.CELL_SIDE, Consts.CELL_SIDE);
+    }
 
     public void autoDesenho(Graphics g) {
-        // Converte as coordenadas de grid (centro do personagem) para coordenadas de pixel (canto superior esquerdo)
-        int telaX = (int)Math.round(x * Consts.CELL_SIDE) - (Consts.CELL_SIDE / 2);
-        int telaY = (int)Math.round(y * Consts.CELL_SIDE) - (Consts.CELL_SIDE / 2);
+        // O cálculo da posição de desenho agora usa a largura e altura do personagem
+        int telaX = (int)Math.round(x * Consts.CELL_SIDE) - (this.largura / 2);
+        int telaY = (int)Math.round(y * Consts.CELL_SIDE) - (this.altura / 2);
         
         // Agora passamos as coordenadas de PIXEL corretas para o método de desenho
         Desenho.desenhar(g, this.iImage, telaX, telaY);

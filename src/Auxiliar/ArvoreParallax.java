@@ -17,13 +17,15 @@ public class ArvoreParallax {
         blocos.add(new BlocoDeFolha(x, y, tamanhoBase, tamanhoBase, velocidadeBase, imagem, 0.6f, 0.1f));
 
         int tamanhoMedio = (int) (tamanhoBase * 0.8);
-        double velocidadeMedia = velocidadeBase * 1.02; 
+        double velocidadeMedia = velocidadeBase * 1.01; 
+        
         int xMedio = x + (tamanhoBase - tamanhoMedio) / 2;
         int yMedio = y - (int) (tamanhoBase * 0.15); 
+        
         blocos.add(new BlocoDeFolha(xMedio, yMedio, tamanhoMedio, tamanhoMedio, velocidadeMedia, imagem, 0.9f, 0.2f));
 
         int tamanhoPequeno = (int) (tamanhoBase * 0.6); 
-        double velocidadePequena = velocidadeBase * 1.04;
+        double velocidadePequena = velocidadeBase * 1.02;
         int xPequeno = x + (tamanhoBase - tamanhoPequeno) / 2;
         int yPequeno = y - (int) (tamanhoBase * 0.3);
         

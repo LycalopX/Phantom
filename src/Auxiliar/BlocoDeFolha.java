@@ -10,9 +10,9 @@ public class BlocoDeFolha {
     private double x, y;
     private final int largura, altura;
     private final double velocidadeOriginal; // MUDANÇA: Renomeado de 'velocidade'
+    
     private final BufferedImage imagem;
-    private final float opacidadeMaxima;
-    private final float opacidadeMinima;
+    private final float opacidadeMaxima, opacidadeMinima;
 
     public BlocoDeFolha(double x, double y, int largura, int altura, double velocidade, BufferedImage imagem, float opacidadeMaxima, float opacidadeMinima) {
         this.x = x;

@@ -7,8 +7,12 @@ import java.awt.event.KeyEvent;
 import java.util.HashSet;
 import java.util.Set;
 
+import Auxiliar.DebugManager;
+import Auxiliar.Projetil;
+import java.util.ArrayList;
+
 public class Engine implements Runnable {
-    
+
     private static final int FPS = 60;
     private Tela tela;
     private Cenario cenario;
@@ -17,21 +21,22 @@ public class Engine implements Runnable {
     private Fase faseAtual;
     private Hero hero;
     private ControleDeJogo controleDeJogo; // Sua classe de regras
-    
+    double velocidadeScroll = 2.0; // Definir a lógica de velocidade aqui
+
     private final Set<Integer> teclasPressionadas = new HashSet<>();
 
     public Engine() {
         controleDeJogo = new ControleDeJogo();
-        
+
         // 1. Inicializa o Modelo
         faseAtual = new Fase();
         hero = new Hero("hero/hero_s0.png", 10, 10);
         faseAtual.adicionarPersonagem(hero);
-        
+
         // 2. Inicializa a View
         cenario = new Cenario();
         cenario.setFase(faseAtual);
-        
+
         // 3. Inicializa a Janela Principal
         tela = new Tela();
         tela.add(cenario);
@@ -66,15 +71,25 @@ public class Engine implements Runnable {
     }
 
     private void atualizar() {
-        // Atualiza o herói com base no input
-        hero.atualizar(teclasPressionadas, controleDeJogo, faseAtual.getPersonagens());
+
+        // 1. Chama o 'atualizar' do herói e recebe o "pacote de resultados"
+        Hero.HeroUpdateResult resultadoHeroi = hero.atualizar(teclasPressionadas, controleDeJogo,
+                faseAtual.getPersonagens());
+
+        for (Projetil p : resultadoHeroi.novosProjeteis) {
+            faseAtual.adicionarProjetil(p);
+        }
+
+        if (resultadoHeroi.usouBomba) {
+            faseAtual.ativarBomba();
+        }
 
         // Atualiza a fase (scroll, inimigos, spawns)
-        double velocidadeScroll = 2.0; // Definir a lógica de velocidade aqui
         faseAtual.atualizar(velocidadeScroll);
-        
+
         // Processa colisões e outras regras
         controleDeJogo.processaTudo(faseAtual.getPersonagens());
+
     }
 
     private void configurarTeclado() {
@@ -82,9 +97,19 @@ public class Engine implements Runnable {
             @Override
             public void keyPressed(KeyEvent e) {
                 teclasPressionadas.add(e.getKeyCode());
+
+                // Verifica se a combinação F+3 foi completada
+                if (teclasPressionadas.contains(KeyEvent.VK_F) && teclasPressionadas.contains(KeyEvent.VK_3)) {
+
+                    DebugManager.toggle();
+                    teclasPressionadas.remove(KeyEvent.VK_F);
+                    teclasPressionadas.remove(KeyEvent.VK_3);
+                }
             }
+
             @Override
             public void keyReleased(KeyEvent e) {
+                // A lógica de remover a tecla quando ela é solta continua a mesma
                 teclasPressionadas.remove(e.getKeyCode());
             }
         });

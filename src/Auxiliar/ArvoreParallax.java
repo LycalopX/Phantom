@@ -33,8 +33,6 @@ public class ArvoreParallax {
         blocos.add(this.blocoTopo);
     }
 
-    // MUDANÇA: O método mover agora aceita a velocidade atual do fundo
-    // para que a velocidade relativa das árvores permaneça consistente.
     public void mover(double velocidadeAtualDoFundo) {
         // Calcula a diferença entre a velocidade atual e a velocidade com que a árvore foi criada
         double fatorDeAjuste = velocidadeAtualDoFundo / this.velocidadeBaseOriginal;

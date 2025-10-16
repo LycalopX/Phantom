@@ -14,7 +14,7 @@ public abstract class Personagem implements Serializable {
     protected ImageIcon iImage;
     public double x; // Coordenada x em unidades de grid (ex: 10.5)
     public double y; // Coordenada y em unidades de grid (ex: 10.5)
-    public double raio;
+    public double hitboxRaio;
     
     protected int largura;
     protected int altura;
@@ -22,12 +22,12 @@ public abstract class Personagem implements Serializable {
     protected boolean bTransponivel;
     protected boolean bMortal;
 
-    protected Personagem(String sNomeImagePNG, double x, double y, int largura, int altura) {
+protected Personagem(String sNomeImagePNG, double x, double y, int largura, int altura, double hitboxRaio) {
         this.x = x;
         this.y = y;
         this.largura = largura;
         this.altura = altura;
-        this.raio = (this.largura / 2.0) / Consts.CELL_SIDE; // Raio em unidades de grid
+        this.hitboxRaio = hitboxRaio; // Atribui o raio de colisão
         
         this.bTransponivel = true;
         this.bMortal = false;
@@ -43,8 +43,17 @@ public abstract class Personagem implements Serializable {
         }
     }
     
+    // Ele calcula um raio padrão baseado no tamanho. Usaremos para os inimigos.
+    protected Personagem(String sNomeImagePNG, double x, double y, int largura, int altura) {
+        this(sNomeImagePNG, x, y, largura, altura, (largura / 2.0) / Consts.CELL_SIDE);
+    }
+    
     protected Personagem(String sNomeImagePNG, double x, double y) {
         this(sNomeImagePNG, x, y, Consts.CELL_SIDE, Consts.CELL_SIDE);
+    }
+    
+    public double getHitboxRaio() {
+        return hitboxRaio;
     }
 
     public void autoDesenho(Graphics g) {

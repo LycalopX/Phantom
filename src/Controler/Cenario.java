@@ -2,12 +2,17 @@ package Controler;
 // Pacote Controler ou View
 
 import Modelo.Fase;
+import Modelo.Hero;
 import Modelo.Personagem;
 import Auxiliar.Projetil;
 import Auxiliar.ArvoreParallax;
+import Auxiliar.Consts;
+
 import java.awt.*;
 import javax.swing.*;
 import Auxiliar.ContadorFPS;
+import Auxiliar.DebugManager;
+
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
@@ -17,12 +22,12 @@ public class Cenario extends JPanel {
     private boolean exibirHUD = true;
 
     public Cenario() {
-        this.setPreferredSize(new Dimension(640, 640));
+        this.setPreferredSize(new Dimension(Consts.largura, Consts.altura));
         this.setFocusable(false);
         this.setBackground(Color.BLACK);
         this.contadorFPS = new ContadorFPS();
     }
-    
+
     public void setFase(Fase fase) {
         this.faseAtual = fase;
     }
@@ -30,10 +35,11 @@ public class Cenario extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (faseAtual == null) return;
+        if (faseAtual == null)
+            return;
 
         Graphics2D g2d = (Graphics2D) g;
-        
+
         desenharFundo(g2d);
 
         // Pede os elementos para a fase e os desenha
@@ -41,7 +47,7 @@ public class Cenario extends JPanel {
         for (ArvoreParallax arvore : faseAtual.getArvores()) {
             arvore.desenhar(g2d, getHeight());
         }
-        
+
         for (Personagem p : faseAtual.getPersonagens()) {
             p.autoDesenho(g);
         }
@@ -51,20 +57,21 @@ public class Cenario extends JPanel {
             p.desenhar(g2d);
         }
 
-        if (exibirHUD) {
+        if (DebugManager.isActive()) { // <<-- Nova linha
             desenharHUD(g2d);
         }
     }
-    
+
     private void desenharFundo(Graphics2D g2d) {
         // CORRIGIDO: Pega a imagem e a posição do scroll da faseAtual
         BufferedImage imagemFundo1 = faseAtual.getImagemFundo1();
-        if (imagemFundo1 == null) return;
-        
+        if (imagemFundo1 == null)
+            return;
+
         int yPos = (int) faseAtual.getScrollY();
         g2d.drawImage(imagemFundo1, 0, yPos, getWidth(), getHeight(), this);
         g2d.drawImage(imagemFundo1, 0, yPos - getHeight(), getWidth(), getHeight(), this);
-        
+
         int escuridaoGeral = 150;
         g2d.setColor(new Color(0, 0, 50, escuridaoGeral));
         g2d.fillRect(0, 0, getWidth(), getHeight());
@@ -76,18 +83,22 @@ public class Cenario extends JPanel {
         LinearGradientPaint gradiente = new LinearGradientPaint(start, end, fractions, colors);
         g2d.setPaint(gradiente);
         g2d.fillRect(0, 0, getWidth(), getHeight());
-        
-        // REMOVIDO: O loop de desenhar árvores era duplicado. Já é feito no paintComponent.
     }
 
     private void desenharHUD(Graphics2D g2d) {
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("Arial", Font.BOLD, 20));
-        // CORRIGIDO: Pega a lista de projéteis da faseAtual para obter o tamanho
+        
         g2d.drawString("Projéteis: " + faseAtual.getProjeteis().size(), 10, 30);
         g2d.drawString(contadorFPS.getFPSString(), 10, 55);
+
+        Personagem heroi = faseAtual.getHero(); // Você precisará criar este método
+        if (heroi instanceof Hero) { // Boa prática verificar o tipo
+            g2d.drawString("Bombas: " + ((Hero) heroi).getBombas(), 10, 80);
+        }
+
     }
-    
+
     public void atualizarContadorFPS() {
         this.contadorFPS.atualizar();
     }

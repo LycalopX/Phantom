@@ -51,8 +51,16 @@ public abstract class Personagem implements Serializable {
             // SIMPLESMENTE CARREGUE A IMAGEM ORIGINAL. NÃO REDIMENSIONE AQUI.
             iImage = new ImageIcon(new java.io.File(".").getCanonicalPath() + Consts.PATH + this.nomeSprite);
 
+            // Armazene as dimensões originais
+            this.originalSpriteWidth = iImage.getIconWidth();
+            this.originalSpriteHeight = iImage.getIconHeight();
+
         } catch (IOException ex) {
+
             System.out.println("Erro ao carregar imagem: " + ex.getMessage());
+            // Define padrões de falha
+            this.originalSpriteWidth = Consts.CELL_SIDE;
+            this.originalSpriteHeight = Consts.CELL_SIDE;
         }
     }
 
@@ -61,14 +69,28 @@ public abstract class Personagem implements Serializable {
         // Inimigos, Projéteis e o Herói vão sobrepor (override) este método.
     }
 
-    // Construtor para Inimigos/Itens (calcula hitbox automaticamente)
+    // Construtor para tamanho MANUAL (usado pelo segundo construtor do Inimigo)
     protected Personagem(String sNomeImagePNG, double x, double y, int largura, int altura) {
         this(sNomeImagePNG, x, y, largura, altura, (largura / 2.0) / Consts.CELL_SIDE);
     }
 
-    // Construtor legado (para manter compatibilidade)
+    // Construtor AUTOMÁTICO (usado pelo primeiro construtor do Inimigo)
     protected Personagem(String sNomeImagePNG, double x, double y) {
-        this(sNomeImagePNG, x, y, Consts.CELL_SIDE, Consts.CELL_SIDE);
+        this.x = x;
+        this.y = y;
+        this.nomeSprite = sNomeImagePNG;
+        this.bTransponivel = true;
+        this.bMortal = false;
+
+        // 1. Carrega a imagem E define originalSpriteWidth/Height
+        carregarImagem();
+
+        // 2. Calcula largura/altura com base na proporção global
+        this.largura = (int) (this.originalSpriteWidth * Consts.BODY_PROPORTION);
+        this.altura = (int) (this.originalSpriteHeight * Consts.BODY_PROPORTION);
+
+        // 3. Calcula a hitbox com base no novo tamanho
+        this.hitboxRaio = (this.largura / 2.0) / Consts.CELL_SIDE;
     }
 
     // O autoDesenho da classe pai só desenha o DEBUG.
@@ -89,8 +111,8 @@ public abstract class Personagem implements Serializable {
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject(); // Carrega os campos não-transient (x, y, nomeSprite, etc.)
-        carregarImagem(); // Recarrega a imagem
+        in.defaultReadObject();
+        carregarImagem(); // Recarrega a imagem E os tamanhos originais
     }
 
     public boolean isbTransponivel() {

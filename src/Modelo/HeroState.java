@@ -1,7 +1,7 @@
 // Novo Arquivo: src/Modelo/HeroState.java
 package Modelo;
 
-public enum HeroState {
+public enum HeroState implements java.io.Serializable {
     IDLE,
     STRAFING_LEFT,
     STRAFING_RIGHT,

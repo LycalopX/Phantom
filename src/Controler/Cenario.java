@@ -3,8 +3,11 @@ package Controler;
 
 import Modelo.Fase;
 import Modelo.Hero;
+import Modelo.Inimigo;
+import Modelo.Item;
 import Modelo.Personagem;
-import Auxiliar.Projetil;
+import Modelo.Projetil;
+import Auxiliar.TipoProjetil;
 import Auxiliar.ArvoreParallax;
 import Auxiliar.Consts;
 
@@ -19,7 +22,6 @@ import java.awt.image.BufferedImage;
 public class Cenario extends JPanel {
     private Fase faseAtual;
     private ContadorFPS contadorFPS;
-    private boolean exibirHUD = true;
 
     public Cenario() {
         this.setPreferredSize(new Dimension(Consts.largura, Consts.altura));
@@ -31,33 +33,45 @@ public class Cenario extends JPanel {
     public void setFase(Fase fase) {
         this.faseAtual = fase;
     }
+    // Em Controler/Cenario.java
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (faseAtual == null)
             return;
-
         Graphics2D g2d = (Graphics2D) g;
 
+        // 1. Fundo
         desenharFundo(g2d);
-
-        // Pede os elementos para a fase e os desenha
-        // CORRIGIDO: Pega a lista de árvores da faseAtual
+        // 2. Árvores
         for (ArvoreParallax arvore : faseAtual.getArvores()) {
             arvore.desenhar(g2d, getHeight());
         }
 
+        // 3. Desenha Projéteis do JOGADOR
         for (Personagem p : faseAtual.getPersonagens()) {
-            p.autoDesenho(g);
+            if (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.JOGADOR) {
+                p.autoDesenho(g);
+            }
         }
 
-        // CORRIGIDO: Pega a lista de projéteis da faseAtual
-        for (Projetil p : faseAtual.getProjeteis()) {
-            p.desenhar(g2d);
+        // 4. Desenha o Herói e Itens
+        for (Personagem p : faseAtual.getPersonagens()) {
+            if (p instanceof Hero || p instanceof Item) {
+                p.autoDesenho(g);
+            }
         }
 
-        if (DebugManager.isActive()) { // <<-- Nova linha
+        // 5. Desenha Inimigos e Projéteis Inimigos
+        for (Personagem p : faseAtual.getPersonagens()) {
+            if (p instanceof Inimigo || (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.INIMIGO)) {
+                p.autoDesenho(g);
+            }
+        }
+
+        // 6. HUD
+        if (DebugManager.isActive()) {
             desenharHUD(g2d);
         }
     }
@@ -88,8 +102,7 @@ public class Cenario extends JPanel {
     private void desenharHUD(Graphics2D g2d) {
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("Arial", Font.BOLD, 20));
-        
-        g2d.drawString("Projéteis: " + faseAtual.getProjeteis().size(), 10, 30);
+
         g2d.drawString(contadorFPS.getFPSString(), 10, 55);
 
         Personagem heroi = faseAtual.getHero(); // Você precisará criar este método

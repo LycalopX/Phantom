@@ -8,19 +8,20 @@ import Auxiliar.TipoProjetil;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Set;
 import javax.swing.ImageIcon;
 import java.awt.Graphics2D;
-import Auxiliar.Projetil;
 import java.awt.Color;
 
 public class Hero extends Personagem {
 
-    // Para não acumular as animações em Hero.java
-    private GerenciadorDeAnimacao animador;
+    // Para não acumular as animações em Hero
+    private transient GerenciadorDeAnimacao animador;
 
-    private double VELOCIDADE_HERO = 12.0;
+    private double VELOCIDADE_HERO = 13.0;
     public double FPS = 60;
 
     private HeroState estado = HeroState.IDLE;
@@ -33,16 +34,19 @@ public class Hero extends Personagem {
     private final int duracaoInvencibilidade = 1200;
 
     public Hero(String sNomeImagePNG, double x, double y) {
+        // Chama o construtor principal de Personagem
         super(sNomeImagePNG,
                 x,
                 y,
-                Consts.CELL_SIDE * 2, // larguraVisual
-                Consts.CELL_SIDE * 2, // alturaVisual
-                (Consts.HITBOX_RAIO / Consts.CELL_SIDE) // raioEmGrid
+                (int) (Consts.CELL_SIDE * 2 * 0.8), // larguraVisual (com sua proporção)
+                (int) (Consts.CELL_SIDE * 2.5), // alturaVisual
+                (Consts.HITBOX_RAIO / Consts.CELL_SIDE) // hitboxRaio em Grid
         );
 
-        this.grabHitboxRaio = (double) (Consts.CELL_SIDE) / Consts.CELL_SIDE; // Raio de 32px em grid units.
+        // Define a grabHitbox (dividida por 2, como você fez)
+        this.grabHitboxRaio = ((double) (Consts.CELL_SIDE) / Consts.CELL_SIDE) / 2.0;
 
+        // O animador agora usa as dimensões corretas com proporção
         this.animador = new GerenciadorDeAnimacao(this.largura, this.altura);
     }
 
@@ -51,7 +55,7 @@ public class Hero extends Personagem {
     public HeroUpdateResult atualizar(Set<Integer> teclasPressionadas, ControleDeJogo cj,
             ArrayList<Personagem> personagens) {
         // Cria o objeto de resultado que será retornado
-        ArrayList<Projetil> novosProjeteis = new ArrayList<>();
+        ArrayList<Personagem> novosProjeteis = new ArrayList<>();
         boolean bombaFoiUsada = false;
 
         // Decrementa o timer de invencibilidade
@@ -161,14 +165,42 @@ public class Hero extends Personagem {
         if (cj.ehPosicaoValida(personagens, this, this.x, proximoY)) {
             this.y = proximoY;
         }
-        // Lógica de tiro
-        if (cooldownTiro > 0) {
+        if (cooldownTiro > 0)
             cooldownTiro--;
-        }
+
         if (teclasPressionadas.contains(KeyEvent.VK_K) && cooldownTiro <= 0) {
-            novosProjeteis.add(new Projetil((int) (this.x * Consts.CELL_SIDE), (int) (this.y * Consts.CELL_SIDE), -90,
-                    20, 8, Color.CYAN, TipoProjetil.JOGADOR));
+            String spriteTiro = "projectiles/hero/projectile1_hero.png";
+            double velocidadeProjetilEmGrid = 20.0 / Consts.CELL_SIDE;
+
+            // Tamanhos visuais do cometa (em pixels)
+            int larguraVisual = 80; // O lado "longo" do sprite do cometa
+            int alturaVisual = 20; // O lado "curto" do sprite do cometa
+
+            int tamanhoHitbox = 8;
+
+            novosProjeteis.add(new Projetil(
+                    spriteTiro, this.x, this.y,
+                    larguraVisual, alturaVisual, tamanhoHitbox,
+                    velocidadeProjetilEmGrid, -90,
+                    TipoProjetil.JOGADOR));
+
             cooldownTiro = tempoDeRecarga;
+        }
+
+        // Lógica do tiro teleguiado (desativada por enquanto)
+        if (teclasPressionadas.contains(KeyEvent.VK_J) && cooldownTiro <= 0) {
+            double velocidadeProjetilEmGrid = 15.0 / Consts.CELL_SIDE;
+            /*
+             * novosProjeteis.add(new ProjetilHoming(
+             * "projectiles/hero/projectile2_hero.png.png", // Imagem do tiro roxo
+             * this.x, this.y,
+             * 16,
+             * velocidadeProjetilEmGrid,
+             * -90,
+             * TipoProjetil.JOGADOR
+             * ));
+             * cooldownTiro = tempoDeRecarga;
+             */
         }
 
         return new HeroUpdateResult(novosProjeteis, bombaFoiUsada);
@@ -176,16 +208,16 @@ public class Hero extends Personagem {
 
     @Override
     public void autoDesenho(Graphics g) {
+
+        // Lógica de animação e desenho do herói
         int telaX = (int) Math.round(x * Consts.CELL_SIDE) - (this.largura / 2);
         int telaY = (int) Math.round(y * Consts.CELL_SIDE) - (this.altura / 2);
 
         Graphics2D g2d = (Graphics2D) g;
         AffineTransform transformOriginal = g2d.getTransform();
-
         ImageIcon imagemParaDesenhar = animador.getImagemAtual(estado);
 
         if (imagemParaDesenhar != null) {
-            // A lógica de espelhamento depende do estado
             if (estado == HeroState.STRAFING_RIGHT || estado == HeroState.DE_STRAFING_RIGHT) {
                 g2d.translate(telaX + largura, telaY);
                 g2d.scale(-1, 1);
@@ -194,26 +226,20 @@ public class Hero extends Personagem {
                 g2d.drawImage(imagemParaDesenhar.getImage(), telaX, telaY, largura, altura, null);
             }
         }
-
         g2d.setTransform(transformOriginal);
 
+        // Chama o autoDesenho da classe pai para desenhar o DEBUG
+        super.autoDesenho(g);
+
+        // Desenha a hitbox de COLETA (verde) se o Debug estiver ativo
         if (DebugManager.isActive()) {
-            // --- PASSO 4: DESENHAR AS HITBOXES POR CIMA (PARA DEPURAÇÃO) ---
+            g2d.setColor(new Color(22, 100, 7, 100)); // Verde transparente
             int centroX = (int) (this.x * Consts.CELL_SIDE);
             int centroY = (int) (this.y * Consts.CELL_SIDE);
-
-            // Desenha a hitbox de DANO (pequena, vermelha)
-            g2d.setColor(Color.RED);
-            int danoRaioPixels = (int) (this.hitboxRaio * Consts.CELL_SIDE);
-            g2d.fillOval(centroX - danoRaioPixels, centroY - danoRaioPixels, danoRaioPixels * 2, danoRaioPixels * 2);
-
-            // Desenha a hitbox de COLETA (grande, azul)
-            g2d.setColor(new Color(22, 100, 7, 100)); // Azul com transparência
             int coletaRaioPixels = (int) (this.grabHitboxRaio * Consts.CELL_SIDE);
             g2d.drawOval(centroX - coletaRaioPixels, centroY - coletaRaioPixels, coletaRaioPixels * 2,
                     coletaRaioPixels * 2);
         }
-
     }
 
     public int getBombas() {
@@ -223,13 +249,19 @@ public class Hero extends Personagem {
     public boolean isInvencivel() {
         return this.invencibilidadeTimer > 0;
     }
+    
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        // Recria o animador após o carregamento
+        this.animador = new GerenciadorDeAnimacao(this.largura, this.altura);
+    }
 
     // Classe interna do resultado da atualização
     public static class HeroUpdateResult {
-        public final ArrayList<Projetil> novosProjeteis;
+        public final ArrayList<Personagem> novosProjeteis;
         public final boolean usouBomba;
 
-        public HeroUpdateResult(ArrayList<Projetil> projeteis, boolean bomba) {
+        public HeroUpdateResult(ArrayList<Personagem> projeteis, boolean bomba) {
             this.novosProjeteis = projeteis;
             this.usouBomba = bomba;
         }

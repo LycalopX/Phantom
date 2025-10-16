@@ -4,8 +4,9 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.Serializable;
 
-public class ArvoreParallax {
+public class ArvoreParallax implements Serializable {
 
     private final List<BlocoDeFolha> blocos = new ArrayList<>();
     private final BlocoDeFolha blocoTopo;
@@ -42,6 +43,12 @@ public class ArvoreParallax {
 
         for (BlocoDeFolha bloco : blocos) {
             bloco.moverComAjuste(fatorDeAjuste);
+        }
+    }
+    
+    public void relinkarImagens(BufferedImage imagem) {
+        for (BlocoDeFolha bloco : blocos) {
+            bloco.setImagem(imagem);
         }
     }
 

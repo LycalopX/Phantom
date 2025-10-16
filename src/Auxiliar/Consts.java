@@ -15,7 +15,7 @@ public class Consts {
     public static final int BOMB_EFFECT_PERIOD = 30; // Efeito da bomba a cada 10 frames
 
     // Mapa
-    public static final int largura = 550, altura = 740; 
+    public static final int largura = 632, altura = 740; 
     public static final int MUNDO_LARGURA = 16; // total do mundo
     public static final int MUNDO_ALTURA = 40;
     public static final int TIMER = 10;

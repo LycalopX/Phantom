@@ -98,7 +98,7 @@ public class Fase implements Serializable {
             lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.15, true));
             lootTable.addItem(new LootItem(ItemType.BOMB, 1, 1, 0.05, true));
 
-            adicionarPersonagem(new Inimigo("inimigo.png", xInicial, -1.0, 50, lootTable)); // Começa um pouco acima da tela
+            adicionarPersonagem(new Inimigo("inimigo.png", xInicial, -1.0, lootTable));
 
             proximoSpawnInimigo = intervaloSpawnInimigo;
         } else {

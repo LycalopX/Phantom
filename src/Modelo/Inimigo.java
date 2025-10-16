@@ -5,49 +5,59 @@ import Auxiliar.Consts; // Import necessário
 import java.awt.Graphics; // Import necessário
 import java.util.ArrayList; // Import necessário
 import Auxiliar.LootTable;
-import Auxiliar.LootItem;
 
 public class Inimigo extends Personagem {
 
     public LootTable lootTable;
-    
-    public Inimigo (String sNomeImagePNG, double x, double y, LootTable lootTable) {
-        // Este construtor usa o tamanho padrão (32x32)
-        super(sNomeImagePNG, x, y); 
+
+    /**
+     * Construtor AUTOMÁTICO.
+     * O tamanho (largura/altura) será calculado automaticamente
+     * com base no tamanho do 'sNomeImagePNG' e 'Consts.BODY_PROPORTION'.
+     */
+    public Inimigo(String sNomeImagePNG, double x, double y, LootTable lootTable) {
+        // Chama o construtor automático de Personagem
+        super(sNomeImagePNG, x, y);
 
         this.bMortal = true;
         this.lootTable = lootTable;
     }
-    
-    // Construtor para inimigos com tamanhos diferentes
+
+    /**
+     * Construtor MANUAL.
+     * Permite forçar um tamanho (em pixels) para o inimigo.
+     * 
+     * @param tamanho O tamanho final (largura e altura) em pixels.
+     */
     public Inimigo(String sNomeImagePNG, double x, double y, int tamanho, LootTable lootTable) {
-        // Chama o construtor de Personagem que define o tamanho
+        // CORREÇÃO: 'proporcao * size_sprite' foi substituído por 'tamanho'
+        // Chama o construtor manual de Personagem
         super(sNomeImagePNG, x, y, tamanho, tamanho);
 
         this.bMortal = true;
         this.lootTable = lootTable;
     }
-    
+
     @Override
     public void atualizar(ArrayList<Personagem> personagens) {
         // Lógica de movimento do inimigo
         this.y += 0.02; // (Velocidade em grid, 0.2 era muito rápido)
     }
-    
+
     @Override
     public void autoDesenho(Graphics g) {
         // 1. Desenha o sprite do Inimigo
         // Converte a posição de grid (centro) para pixels (canto superior esquerdo)
-        int telaX = (int)Math.round(x * Consts.CELL_SIDE) - (this.largura / 2);
-        int telaY = (int)Math.round(y * Consts.CELL_SIDE) - (this.altura / 2);
-        
+        int telaX = (int) Math.round(x * Consts.CELL_SIDE) - (this.largura / 2);
+        int telaY = (int) Math.round(y * Consts.CELL_SIDE) - (this.altura / 2);
+
         // Desenha a imagem (iImage) que foi carregada no construtor do Personagem
         g.drawImage(iImage.getImage(), telaX, telaY, largura, altura, null);
-        
+
         // 2. Chama a superclasse (Personagem) para desenhar o círculo de debug (hitbox)
-        super.autoDesenho(g); 
+        super.autoDesenho(g);
     }
-    
+
     public LootTable getLootTable() {
         return this.lootTable;
     }

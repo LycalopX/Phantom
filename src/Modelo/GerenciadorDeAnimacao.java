@@ -10,7 +10,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
-public class GerenciadorDeAnimacao {
+public class GerenciadorDeAnimacao implements java.io.Serializable {
     // Arrays para guardar todos os sprites
     private ImageIcon[] iImagesStrafingEsquerda;
     private ImageIcon[] iImagesIdle;

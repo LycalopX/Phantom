@@ -1,7 +1,12 @@
 package Controler;
 
 import Modelo.Personagem;
+import Modelo.Projetil;
 import Modelo.Hero;
+import Modelo.Inimigo;
+import Auxiliar.TipoProjetil;
+import Modelo.Item;
+
 import java.awt.Graphics;
 import java.util.ArrayList;
 
@@ -13,12 +18,12 @@ public class ControleDeJogo {
         }
     }
 
-    public void processaTudo(ArrayList<Personagem> umaFase) {
-        if (umaFase.isEmpty())
+    public void processaTudo(ArrayList<Personagem> personagens) {
+        if (personagens.isEmpty())
             return;
 
         Hero hero = null;
-        for (Personagem p : umaFase) {
+        for (Personagem p : personagens) {
             if (p instanceof Hero) {
                 hero = (Hero) p;
                 break;
@@ -27,32 +32,66 @@ public class ControleDeJogo {
         if (hero == null)
             return;
 
-        if (hero.isInvencivel()) {
-            return;
-        }
+        // MUDANÇA 1: Criar "Listas de Remoção"
+        // Vamos marcar quem deve ser removido, e remover no final.
+        ArrayList<Personagem> objetosARemover = new ArrayList<>();
 
-        // MUDANÇA: Lógica de colisão baseada em distância (esferas)
-        for (int i = 0; i < umaFase.size(); i++) {
-            Personagem p = umaFase.get(i);
-            if (p == hero)
-                continue;
+        // Loop principal de colisão (agora podemos iterar para frente sem medo)
+        for (Personagem p1 : personagens) {
 
-            // Calcula a distância entre o centro do herói e o centro do personagem
-            double dist = Math.sqrt(Math.pow(hero.x - p.x, 2) + Math.pow(hero.y - p.y, 2));
+            // Lógica de colisão do Herói
+            if (p1 instanceof Hero) {
+                Hero h = (Hero) p1;
+                if (h.isInvencivel())
+                    continue; // Se o herói está invencível, pula suas colisões
 
-            // Se a distância for menor que a soma dos raios, há colisão
-            if (dist < hero.getHitboxRaio() + p.getHitboxRaio()) {
-                if (p.isbTransponivel()) {
-                    if (p.isbMortal()) {
-                        umaFase.remove(p);
-                        i--; // Ajusta o índice após a remoção
+                for (Personagem p2 : personagens) {
+                    if (p1 == p2)
+                        continue;
+
+                    double dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+
+                    if (p2 instanceof Item) {
+                        if (dist < h.grabHitboxRaio + p2.hitboxRaio) {
+                            System.out.println("Pegou Item!");
+                            objetosARemover.add(p2); // Marca o item para remoção
+                        }
+                    } else if (p2.isbMortal()) {
+                        if (p2 instanceof Projetil && ((Projetil) p2).getTipo() == TipoProjetil.JOGADOR) {
+                            continue;
+                        }
+                        if (dist < p1.hitboxRaio + p2.hitboxRaio) {
+                            System.out.println("HERÓI ATINGIDO!");
+                            objetosARemover.add(p2); // Marca o inimigo/projétil para remoção
+                        }
+                    }
+                }
+            }
+            // Lógica de colisão dos Projéteis do Jogador
+            else if (p1 instanceof Projetil && ((Projetil) p1).getTipo() == TipoProjetil.JOGADOR) {
+                // Se o projétil já foi marcado para remoção, pula.
+                if (objetosARemover.contains(p1))
+                    continue;
+
+                for (Personagem p2 : personagens) {
+                    if (p2 instanceof Inimigo) {
+                        double dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+
+                        if (dist < p1.hitboxRaio + p2.hitboxRaio) {
+                            System.out.println("INIMIGO ATINGIDO!");
+                            objetosARemover.add(p1); // Marca o projétil
+                            objetosARemover.add(p2); // Marca o inimigo
+                            break; // Projétil foi destruído, não precisa checar mais inimigos
+                        }
                     }
                 }
             }
         }
+
+        // MUDANÇA 2: Remover todos os objetos marcados de uma só vez
+        personagens.removeAll(objetosARemover);
     }
 
-    // MUDANÇA: Lógica de validação de posição para movimento suave
     public boolean ehPosicaoValida(ArrayList<Personagem> umaFase, Personagem personagem, double proximoX,
             double proximoY) {
         for (Personagem p : umaFase) {
@@ -62,8 +101,9 @@ public class ControleDeJogo {
 
             double dist = Math.sqrt(Math.pow(proximoX - p.x, 2) + Math.pow(proximoY - p.y, 2));
 
-            if (dist < personagem.getHitboxRaio() + p.getHitboxRaio()) {
-                return false;
+            // CORREÇÃO: Usa 'hitboxRaio' em vez de 'raio'
+            if (dist < personagem.hitboxRaio + p.hitboxRaio) {
+                return false; // Colisão detectada
             }
         }
         return true;

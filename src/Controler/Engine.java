@@ -2,13 +2,20 @@ package Controler;
 
 import Modelo.Fase;
 import Modelo.Hero;
+import Modelo.Personagem;
+import Modelo.Projetil;
+
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
 import Auxiliar.DebugManager;
-import Auxiliar.Projetil;
+
 import java.util.ArrayList;
 
 public class Engine implements Runnable {
@@ -30,7 +37,7 @@ public class Engine implements Runnable {
 
         // 1. Inicializa o Modelo
         faseAtual = new Fase();
-        hero = new Hero("hero/hero_s0.png", 10, 10);
+        hero = new Hero("hero/hero_s0.png", 10, 20);
         faseAtual.adicionarPersonagem(hero);
 
         // 2. Inicializa a View
@@ -76,10 +83,9 @@ public class Engine implements Runnable {
         Hero.HeroUpdateResult resultadoHeroi = hero.atualizar(teclasPressionadas, controleDeJogo,
                 faseAtual.getPersonagens());
 
-        for (Projetil p : resultadoHeroi.novosProjeteis) {
-            faseAtual.adicionarProjetil(p);
+        for (Personagem p : resultadoHeroi.novosProjeteis) {
+            faseAtual.adicionarPersonagem(p);
         }
-
         if (resultadoHeroi.usouBomba) {
             faseAtual.ativarBomba();
         }
@@ -87,7 +93,6 @@ public class Engine implements Runnable {
         // Atualiza a fase (scroll, inimigos, spawns)
         faseAtual.atualizar(velocidadeScroll);
 
-        // Processa colisões e outras regras
         controleDeJogo.processaTudo(faseAtual.getPersonagens());
 
     }
@@ -96,6 +101,17 @@ public class Engine implements Runnable {
         tela.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
+
+                // --- LÓGICA DE SAVE/LOAD (COM NOVAS TECLAS) ---
+                if (e.getKeyCode() == KeyEvent.VK_P) { // 'S' foi mudado para 'P'
+                    salvarJogo();
+                    return;
+                }
+                if (e.getKeyCode() == KeyEvent.VK_R) { // 'L' foi mudado para 'R'
+                    carregarJogo();
+                    return;
+                }
+
                 teclasPressionadas.add(e.getKeyCode());
 
                 // Verifica se a combinação F+3 foi completada
@@ -113,5 +129,49 @@ public class Engine implements Runnable {
                 teclasPressionadas.remove(e.getKeyCode());
             }
         });
+    }
+
+    private void salvarJogo() {
+        try {
+            // Cria um arquivo para salvar o jogo
+            FileOutputStream fos = new FileOutputStream("POO.dat");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+
+            // Salva o objeto 'faseAtual' inteiro no arquivo
+            oos.writeObject(this.faseAtual);
+
+            oos.close();
+            fos.close();
+            System.out.println(">>> JOGO SALVO!");
+        } catch (Exception e) {
+            System.out.println("ERRO AO SALVAR: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void carregarJogo() {
+        try {
+            // Lê o arquivo salvo
+            FileInputStream fis = new FileInputStream("POO.dat");
+            ObjectInputStream ois = new ObjectInputStream(fis);
+
+            // Carrega o objeto 'faseAtual' do arquivo
+            this.faseAtual = (Fase) ois.readObject();
+
+            ois.close();
+            fis.close();
+
+            // ETAPA CRUCIAL: Atualizar as referências do Engine!
+            // O Cenario precisa saber sobre a nova fase
+            cenario.setFase(this.faseAtual);
+
+            // O Engine precisa de uma referência direta para o novo Herói
+            this.hero = (Hero) this.faseAtual.getHero();
+
+            System.out.println(">>> JOGO CARREGADO!");
+        } catch (Exception e) {
+            System.out.println("ERRO AO CARREGAR: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

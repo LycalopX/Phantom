@@ -2,23 +2,23 @@ package Modelo;
 
 import Auxiliar.ArvoreParallax;
 import Auxiliar.Consts; // Adicionado para o caminho das imagens
-import Auxiliar.Projetil;
 import Auxiliar.TipoProjetil;
+import java.io.Serializable;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Random; // Adicionado para o spawn
 import javax.imageio.ImageIO;
 import java.io.File;
 
-public class Fase {
+public class Fase implements Serializable {
 
     private ArrayList<Personagem> personagens;
-    private ArrayList<Projetil> projeteis;
     private ArrayList<ArvoreParallax> arvores;
 
-    private BufferedImage imagemFundo1, imagemFundo2; // Adicionada imagemFundo2
+    private transient BufferedImage imagemFundo1, imagemFundo2;
     private double scrollY = 0;
     private double distanciaTotalRolada = 0;
 
@@ -27,6 +27,7 @@ public class Fase {
     private long proximoSpawnY = 0;
     private final int[] posicoesXDasDiagonais;
     private int direcaoDoGrupo = 1;
+
     private static final int DISTANCIA_ENTRE_ONDAS_Y = 250;
     private static final int OFFSET_DIAGONAL_X = 100;
     private static final int VARIACAO_ALEATORIA_PIXELS = 40;
@@ -39,7 +40,6 @@ public class Fase {
 
     public Fase() {
         this.personagens = new ArrayList<>();
-        this.projeteis = new ArrayList<>();
         this.arvores = new ArrayList<>();
 
         carregarRecursos(); // Método para carregar imagens
@@ -50,6 +50,21 @@ public class Fase {
         }
 
         preencherCenarioInicial();
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        // 1. Carrega todas as variáveis salvas (listas, scrollY, etc.)
+        in.defaultReadObject();
+
+        // 2. Recarrega as imagens que foram ignoradas (transient)
+        carregarRecursos();
+
+        // 3. "Re-linka" as imagens recarregadas de volta nos objetos ArvoreParallax
+        if (this.arvores != null && this.imagemFundo2 != null) {
+            for (ArvoreParallax arvore : this.arvores) {
+                arvore.relinkarImagens(this.imagemFundo2);
+            }
+        }
     }
 
     private void carregarRecursos() {
@@ -68,33 +83,34 @@ public class Fase {
         scrollY = (scrollY + velocidadeScroll) % (Consts.altura);
         distanciaTotalRolada += velocidadeScroll;
 
-        for (Projetil p : projeteis) {
-            p.mover();
-        }
-        projeteis.removeIf(p -> p.estaForaDaTela(Consts.largura, Consts.altura));
-
         atualizarArvores(velocidadeScroll);
 
         if (proximoSpawnInimigo <= 0) {
             // Cria um novo inimigo em uma posição X aleatória no topo da tela
             double xInicial = random.nextDouble() * Consts.MUNDO_LARGURA;
-            adicionarPersonagem(new Inimigo("inimigo.png", xInicial, -1.0, 100)); // Começa um pouco acima da tela
+            adicionarPersonagem(new Inimigo("inimigo.png", xInicial, -1.0, 50)); // Começa um pouco acima da tela
             proximoSpawnInimigo = intervaloSpawnInimigo;
         } else {
             proximoSpawnInimigo--;
         }
 
         // Atualiza todos os personagens (incluindo inimigos)
-        for (Personagem p : personagens) {
-            if (p instanceof Inimigo) {
-                ((Inimigo) p).atualizar();
-            }
+        for (int i = 0; i < personagens.size(); i++) {
+            Personagem p = personagens.get(i);
+            p.atualizar(personagens); // Atualiza Inimigos, Projéteis, etc.
         }
-    }
 
-    public void adicionarProjetil(Projetil p) {
-        if (p != null) { // Uma pequena verificação de segurança
-            this.projeteis.add(p);
+        for (int i = 0; i < personagens.size(); i++) {
+            Personagem p = personagens.get(i);
+            p.atualizar(personagens); // Atualiza Inimigos, Projéteis, etc.
+
+            // Lógica de limpeza de projéteis fora da tela
+            if (p instanceof Projetil) {
+                if (((Projetil) p).estaForaDaTela()) {
+                    personagens.remove(i);
+                    i--;
+                }
+            }
         }
     }
 
@@ -135,10 +151,6 @@ public class Fase {
         return this.personagens;
     }
 
-    public ArrayList<Projetil> getProjeteis() {
-        return this.projeteis;
-    }
-
     public ArrayList<ArvoreParallax> getArvores() {
         return this.arvores;
     }
@@ -161,7 +173,7 @@ public class Fase {
         // Continua gerando ondas de árvores até que a próxima posição de spawn
         // esteja abaixo da tela, garantindo que tudo esteja coberto.
         while (proximoSpawnY < Consts.altura) {
-            
+
             // Lógica de spawn copiada de 'atualizarArvores'
             boolean vaiBaterNaDireita = direcaoDoGrupo == 1
                     && (posicoesXDasDiagonais[NUMERO_DE_DIAGONAIS - 1] + tamanhoBase) > Consts.altura;
@@ -187,14 +199,9 @@ public class Fase {
     }
 
     public void ativarBomba() {
-        // Limpa todos os projéteis da tela
-        this.projeteis.clear();
 
-        this.projeteis.removeIf(p -> p.getTipo() == TipoProjetil.INIMIGO);
-
-        // (Isso assume que você tem uma classe Inimigo que herda de Personagem)
-        this.personagens.removeIf(p -> p instanceof Inimigo);
-
+        this.personagens.removeIf(p -> (p instanceof Inimigo) ||
+                (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.INIMIGO));
         System.out.println("BOMBA ATIVADA!");
     }
 

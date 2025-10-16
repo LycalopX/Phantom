@@ -4,14 +4,15 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.AlphaComposite;
 import java.awt.Composite;
+import java.io.Serializable;
 
-public class BlocoDeFolha {
+public class BlocoDeFolha implements Serializable {
 
     private double x, y;
     private final int largura, altura;
     private final double velocidadeOriginal; // MUDANÇA: Renomeado de 'velocidade'
     
-    private final BufferedImage imagem;
+    private transient BufferedImage imagem;
     private final float opacidadeMaxima, opacidadeMinima;
 
     public BlocoDeFolha(double x, double y, int largura, int altura, double velocidade, BufferedImage imagem, float opacidadeMaxima, float opacidadeMinima) {
@@ -41,6 +42,10 @@ public class BlocoDeFolha {
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alphaFinal));
         g2d.drawImage(imagem, (int)x, (int)y, this.largura, this.altura, null);
         g2d.setComposite(originalComposite);
+    }
+    
+    public void setImagem(BufferedImage imagem) {
+        this.imagem = imagem;
     }
     
     public double getY() {

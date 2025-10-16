@@ -4,20 +4,28 @@ package Modelo;
 import Auxiliar.Consts; // Import necessário
 import java.awt.Graphics; // Import necessário
 import java.util.ArrayList; // Import necessário
+import Auxiliar.LootTable;
+import Auxiliar.LootItem;
 
 public class Inimigo extends Personagem {
+
+    public LootTable lootTable;
     
-    public Inimigo (String sNomeImagePNG, double x, double y) {
+    public Inimigo (String sNomeImagePNG, double x, double y, LootTable lootTable) {
         // Este construtor usa o tamanho padrão (32x32)
         super(sNomeImagePNG, x, y); 
+
         this.bMortal = true;
+        this.lootTable = lootTable;
     }
     
     // Construtor para inimigos com tamanhos diferentes
-    public Inimigo(String sNomeImagePNG, double x, double y, int tamanho) {
+    public Inimigo(String sNomeImagePNG, double x, double y, int tamanho, LootTable lootTable) {
         // Chama o construtor de Personagem que define o tamanho
         super(sNomeImagePNG, x, y, tamanho, tamanho);
+
         this.bMortal = true;
+        this.lootTable = lootTable;
     }
     
     @Override
@@ -38,5 +46,9 @@ public class Inimigo extends Personagem {
         
         // 2. Chama a superclasse (Personagem) para desenhar o círculo de debug (hitbox)
         super.autoDesenho(g); 
+    }
+    
+    public LootTable getLootTable() {
+        return this.lootTable;
     }
 }

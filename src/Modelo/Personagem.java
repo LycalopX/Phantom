@@ -2,11 +2,11 @@ package Modelo;
 
 import Auxiliar.Consts;
 import Auxiliar.DebugManager;
+import Auxiliar.LootTable;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -23,8 +23,14 @@ public abstract class Personagem implements Serializable {
     protected int largura; // Largura visual em pixels
     protected int altura; // Altura visual em pixels
 
+    // Para aplicar a proporção a tudo
+    protected transient int originalSpriteWidth;
+    protected transient int originalSpriteHeight;
+
     protected boolean bTransponivel;
     protected boolean bMortal;
+
+    protected LootTable lootTable;
 
     // Construtor principal que define tudo
     protected Personagem(String sNomeImagePNG, double x, double y, int largura, int altura, double hitboxRaio) {
@@ -35,19 +41,16 @@ public abstract class Personagem implements Serializable {
         this.hitboxRaio = hitboxRaio;
         this.bTransponivel = true;
         this.bMortal = false;
-        
-        this.nomeSprite = sNomeImagePNG; 
+
+        this.nomeSprite = sNomeImagePNG;
         carregarImagem();
     }
 
     private void carregarImagem() {
         try {
+            // SIMPLESMENTE CARREGUE A IMAGEM ORIGINAL. NÃO REDIMENSIONE AQUI.
             iImage = new ImageIcon(new java.io.File(".").getCanonicalPath() + Consts.PATH + this.nomeSprite);
-            Image img = iImage.getImage();
-            BufferedImage bi = new BufferedImage(this.largura, this.altura, BufferedImage.TYPE_INT_ARGB);
-            Graphics g = bi.createGraphics();
-            g.drawImage(img, 0, 0, this.largura, this.altura, null);
-            iImage = new ImageIcon(bi);
+
         } catch (IOException ex) {
             System.out.println("Erro ao carregar imagem: " + ex.getMessage());
         }
@@ -84,7 +87,7 @@ public abstract class Personagem implements Serializable {
             g2d.drawOval(centroX - danoRaioPixels, centroY - danoRaioPixels, danoRaioPixels * 2, danoRaioPixels * 2);
         }
     }
-    
+
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject(); // Carrega os campos não-transient (x, y, nomeSprite, etc.)
         carregarImagem(); // Recarrega a imagem
@@ -100,5 +103,13 @@ public abstract class Personagem implements Serializable {
 
     public boolean isbMortal() {
         return bMortal;
+    }
+
+    public LootTable getLootTable() {
+        return this.lootTable;
+    }
+
+    public void animaçãoMorte() {
+        // Pode ser sobreposto por subclasses para animações específicas
     }
 }

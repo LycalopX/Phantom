@@ -4,6 +4,8 @@ import Auxiliar.ArvoreParallax;
 import Auxiliar.Consts; // Adicionado para o caminho das imagens
 import Auxiliar.TipoProjetil;
 import java.io.Serializable;
+import Auxiliar.LootItem;
+import Auxiliar.LootTable;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -35,7 +37,7 @@ public class Fase implements Serializable {
     private static final int ESPACO_ENTRE_DIAGONAIS_X = 500;
 
     private long proximoSpawnInimigo = 0;
-    private long intervaloSpawnInimigo = 120; // Spawn a cada 120 frames (2 segundos)
+    private long intervaloSpawnInimigo = 30; // Spawn a cada 120 frames (2 segundos)
     // ---------------------------------------------
 
     public Fase() {
@@ -88,7 +90,16 @@ public class Fase implements Serializable {
         if (proximoSpawnInimigo <= 0) {
             // Cria um novo inimigo em uma posição X aleatória no topo da tela
             double xInicial = random.nextDouble() * Consts.MUNDO_LARGURA;
-            adicionarPersonagem(new Inimigo("inimigo.png", xInicial, -1.0, 50)); // Começa um pouco acima da tela
+
+            LootTable lootTable = new LootTable();
+
+            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 3, 0.5, true));
+            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.3, false));
+            lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.15, true));
+            lootTable.addItem(new LootItem(ItemType.BOMB, 1, 1, 0.05, true));
+
+            adicionarPersonagem(new Inimigo("inimigo.png", xInicial, -1.0, 50, lootTable)); // Começa um pouco acima da tela
+
             proximoSpawnInimigo = intervaloSpawnInimigo;
         } else {
             proximoSpawnInimigo--;
@@ -202,7 +213,6 @@ public class Fase implements Serializable {
 
         this.personagens.removeIf(p -> (p instanceof Inimigo) ||
                 (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.INIMIGO));
-        System.out.println("BOMBA ATIVADA!");
     }
 
     public Personagem getHero() {

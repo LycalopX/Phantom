@@ -4,8 +4,11 @@ import Modelo.Personagem;
 import Modelo.Projetil;
 import Modelo.Hero;
 import Modelo.Inimigo;
+import Auxiliar.LootItem;
+import Auxiliar.LootTable;
 import Auxiliar.TipoProjetil;
 import Modelo.Item;
+import Modelo.ItemType;
 
 import java.awt.Graphics;
 import java.util.ArrayList;
@@ -18,9 +21,9 @@ public class ControleDeJogo {
         }
     }
 
-    public void processaTudo(ArrayList<Personagem> personagens) {
+    public boolean processaTudo(ArrayList<Personagem> personagens) {
         if (personagens.isEmpty())
-            return;
+            return false;
 
         Hero hero = null;
         for (Personagem p : personagens) {
@@ -30,11 +33,12 @@ public class ControleDeJogo {
             }
         }
         if (hero == null)
-            return;
+            return false;
 
         // MUDANÇA 1: Criar "Listas de Remoção"
         // Vamos marcar quem deve ser removido, e remover no final.
         ArrayList<Personagem> objetosARemover = new ArrayList<>();
+        ArrayList<Personagem> novosObjetos = new ArrayList<>();
 
         // Loop principal de colisão (agora podemos iterar para frente sem medo)
         for (Personagem p1 : personagens) {
@@ -42,8 +46,8 @@ public class ControleDeJogo {
             // Lógica de colisão do Herói
             if (p1 instanceof Hero) {
                 Hero h = (Hero) p1;
-                if (h.isInvencivel())
-                    continue; // Se o herói está invencível, pula suas colisões
+                if (h.isActive() == false)
+                    continue; // Se o herói não está ativo, pula suas colisões
 
                 for (Personagem p2 : personagens) {
                     if (p1 == p2)
@@ -53,16 +57,29 @@ public class ControleDeJogo {
 
                     if (p2 instanceof Item) {
                         if (dist < h.grabHitboxRaio + p2.hitboxRaio) {
-                            System.out.println("Pegou Item!");
+                            aplicarEfeitoDoItem(h, (Item) p2);
+
                             objetosARemover.add(p2); // Marca o item para remoção
                         }
                     } else if (p2.isbMortal()) {
                         if (p2 instanceof Projetil && ((Projetil) p2).getTipo() == TipoProjetil.JOGADOR) {
                             continue;
                         }
+
                         if (dist < p1.hitboxRaio + p2.hitboxRaio) {
-                            System.out.println("HERÓI ATINGIDO!");
-                            objetosARemover.add(p2); // Marca o inimigo/projétil para remoção
+
+                            if (!h.isInvencivel()) {
+                                h.takeDamage();
+                            }
+
+                            // Independentemente de tomar dano ou não, o inimigo/projétil é removido
+                            if (p2 instanceof Projetil) {
+                                objetosARemover.add(p2);
+                            } else if (p2 instanceof Inimigo) {
+                                // Se quiser que o inimigo seja destruído ao tocar no herói invencível
+                                objetosARemover.add(p2);
+                            }
+                            return false;
                         }
                     }
                 }
@@ -74,14 +91,26 @@ public class ControleDeJogo {
                     continue;
 
                 for (Personagem p2 : personagens) {
+                    double dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
                     if (p2 instanceof Inimigo) {
-                        double dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
 
                         if (dist < p1.hitboxRaio + p2.hitboxRaio) {
-                            System.out.println("INIMIGO ATINGIDO!");
-                            objetosARemover.add(p1); // Marca o projétil
-                            objetosARemover.add(p2); // Marca o inimigo
-                            break; // Projétil foi destruído, não precisa checar mais inimigos
+
+                            LootTable tabela = ((Inimigo) p2).getLootTable();
+                            if (tabela != null) {
+                                ArrayList<LootItem> drops = tabela.gerarDrops();
+
+                                for (LootItem dropInfo : drops) {
+                                    // Simplesmente cria o item. A gravidade no método 'atualizar' do Item
+                                    // fará com que ele comece a cair automaticamente.
+                                    Item itemCriado = new Item(dropInfo.getTipo(), p2.x, p2.y);
+                                    novosObjetos.add(itemCriado);
+                                }
+                            }
+
+                            objetosARemover.add(p1);
+                            objetosARemover.add(p2);
+                            break;
                         }
                     }
                 }
@@ -90,6 +119,8 @@ public class ControleDeJogo {
 
         // MUDANÇA 2: Remover todos os objetos marcados de uma só vez
         personagens.removeAll(objetosARemover);
+        personagens.addAll(novosObjetos);
+        return true;
     }
 
     public boolean ehPosicaoValida(ArrayList<Personagem> umaFase, Personagem personagem, double proximoX,
@@ -107,5 +138,36 @@ public class ControleDeJogo {
             }
         }
         return true;
+    }
+
+    private void aplicarEfeitoDoItem(Hero heroi, Item item) {
+        // 1. Pega o tipo do item a partir do enum
+        ItemType tipo = item.getTipo();
+
+        // 2. Usa um switch para determinar qual efeito aplicar.
+        // Isso é muito mais limpo e rápido que vários if/else.
+        switch (tipo) {
+            case MINI_POWER_UP:
+            case POWER_UP:
+            case FULL_POWER:
+                // Pega o valor do power diretamente do enum e passa para o herói
+                heroi.addPower(tipo.getPowerValue());
+                break;
+
+            case BOMB:
+                heroi.addBomb(tipo.getBombValue());
+                break;
+
+            case ONE_UP:
+                heroi.addHP(1); // Itens de vida geralmente dão um valor fixo
+                break;
+
+            case SCORE_POINT:
+                heroi.addScore(tipo.getScoreValue());
+                break;
+
+            default:
+                System.out.println("Item desconhecido: " + tipo);
+        }
     }
 }

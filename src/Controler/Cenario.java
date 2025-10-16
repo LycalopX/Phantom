@@ -12,16 +12,24 @@ import Auxiliar.ArvoreParallax;
 import Auxiliar.Consts;
 
 import java.awt.*;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import Auxiliar.ContadorFPS;
 import Auxiliar.DebugManager;
 
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class Cenario extends JPanel {
     private Fase faseAtual;
     private ContadorFPS contadorFPS;
+    private Engine.GameState estadoDoJogo;
+    private BufferedImage imagemGameOver;
+    private Font fonteGameOver;
 
     public Cenario() {
         this.setPreferredSize(new Dimension(Consts.largura, Consts.altura));
@@ -38,42 +46,51 @@ public class Cenario extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (faseAtual == null)
-            return;
-        Graphics2D g2d = (Graphics2D) g;
 
-        // 1. Fundo
-        desenharFundo(g2d);
-        // 2. Árvores
-        for (ArvoreParallax arvore : faseAtual.getArvores()) {
-            arvore.desenhar(g2d, getHeight());
-        }
+        if (estadoDoJogo == null || estadoDoJogo == Engine.GameState.JOGANDO
+                || estadoDoJogo == Engine.GameState.RESPAWNANDO) {
 
-        // 3. Desenha Projéteis do JOGADOR
-        for (Personagem p : faseAtual.getPersonagens()) {
-            if (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.JOGADOR) {
-                p.autoDesenho(g);
+            if (faseAtual == null)
+                return;
+            Graphics2D g2d = (Graphics2D) g;
+
+            // 1. Fundo
+            desenharFundo(g2d);
+            // 2. Árvores
+            for (ArvoreParallax arvore : faseAtual.getArvores()) {
+                arvore.desenhar(g2d, getHeight());
             }
-        }
 
-        // 4. Desenha o Herói e Itens
-        for (Personagem p : faseAtual.getPersonagens()) {
-            if (p instanceof Hero || p instanceof Item) {
-                p.autoDesenho(g);
+            ArrayList<Personagem> personagensParaDesenhar = new ArrayList<>(faseAtual.getPersonagens());
+
+            // 3. Desenha Projéteis do JOGADOR
+            for (Personagem p : personagensParaDesenhar) {
+                if (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.JOGADOR) {
+                    p.autoDesenho(g);
+                }
             }
-        }
 
-        // 5. Desenha Inimigos e Projéteis Inimigos
-        for (Personagem p : faseAtual.getPersonagens()) {
-            if (p instanceof Inimigo || (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.INIMIGO)) {
-                p.autoDesenho(g);
+            for (Personagem p : personagensParaDesenhar) {
+                if (p instanceof Hero || p instanceof Item) {
+                    p.autoDesenho(g);
+                }
             }
+
+            for (Personagem p : personagensParaDesenhar) {
+                if (p instanceof Inimigo
+                        || (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.INIMIGO)) {
+                    p.autoDesenho(g);
+                }
+            }
+
+            // 6. HUD
+            if (DebugManager.isActive()) {
+                desenharHUD(g2d);
+            }
+        } else if (estadoDoJogo == Engine.GameState.GAME_OVER) {
+            desenharTelaGameOver(g); // << NOVO: Chama o método de desenho do Game Over
         }
 
-        // 6. HUD
-        if (DebugManager.isActive()) {
-            desenharHUD(g2d);
-        }
     }
 
     private void desenharFundo(Graphics2D g2d) {
@@ -107,9 +124,44 @@ public class Cenario extends JPanel {
 
         Personagem heroi = faseAtual.getHero(); // Você precisará criar este método
         if (heroi instanceof Hero) { // Boa prática verificar o tipo
-            g2d.drawString("Bombas: " + ((Hero) heroi).getBombas(), 10, 80);
+            Hero h = (Hero) heroi;
+            g2d.drawString("Bombas: " + h.getBombas(), 10, 80);
+            g2d.drawString("HP: " + h.getHP(), 10, 100);
+            g2d.drawString("Power: " + h.getPower(), 10, 120);
+            g2d.drawString("Score: " + h.getScore(), 10, 140);
         }
 
+    }
+
+    public void setEstadoDoJogo(Engine.GameState estado) { // << Adapte o GameState para ser visível publicamente na
+                                                           // Engine
+        this.estadoDoJogo = estado;
+    }
+
+    private void desenharTelaGameOver(Graphics g) {
+        // 1. Desenha a imagem de fundo
+        if (imagemGameOver != null) {
+            g.drawImage(imagemGameOver, 0, 0, getWidth(), getHeight(), this);
+        } else {
+            // Fallback para um fundo preto se a imagem não carregar
+            g.setColor(Color.BLACK);
+            g.fillRect(0, 0, getWidth(), getHeight());
+        }
+
+        carregarImagensGameOver();
+    }
+
+    private void carregarImagensGameOver() {
+        try {
+            
+            String basePath = new File(".").getCanonicalPath() + Consts.PATH;
+            imagemGameOver = ImageIO.read(new File(basePath + "gameover.png"));
+
+        } catch (IOException e) {
+            System.out.println("Erro ao carregar imagem de Game Over: " + e.getMessage());
+            e.printStackTrace();
+            imagemGameOver = null; // Garante que é null se falhar
+        }
     }
 
     public void atualizarContadorFPS() {

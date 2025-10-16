@@ -1,7 +1,7 @@
 // Novo Arquivo: src/Auxiliar/TipoProjetil.java
 package Auxiliar;
 
-public enum TipoProjetil implements java.io.Serializable {
+public enum TipoProjetil {
     JOGADOR, // Disparado pelo herói
     INIMIGO    // Disparado por um inimigo
 }

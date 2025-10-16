@@ -2,19 +2,12 @@ package Modelo;
 
 import Auxiliar.Consts;
 import Auxiliar.TipoProjetil;
-import Auxiliar.DebugManager;
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.geom.AffineTransform; // Import necessário para rotação
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 
 public class Projetil extends Personagem {
     

@@ -1,7 +1,6 @@
 // Em Modelo/ProjetilHoming.java
 package Modelo;
 
-import Auxiliar.Consts;
 import Auxiliar.TipoProjetil;
 import java.util.ArrayList;
 

@@ -17,11 +17,19 @@ import java.awt.Graphics2D;
 import java.awt.Color;
 
 public class Hero extends Personagem {
+    private int HP = 3;
+    private int bombas = 3;
+    private int invencibilidadeTimer = 0; // Frames restantes de invencibilidade
+    private int power = 0;
+    private int score = 0;
+
+    // Caso esteja respawnando ou morto
+    private boolean isActive = true;
 
     // Para não acumular as animações em Hero
     private transient GerenciadorDeAnimacao animador;
 
-    private double VELOCIDADE_HERO = 13.0;
+    private double VELOCIDADE_HERO = 14.0;
     public double FPS = 60;
 
     private HeroState estado = HeroState.IDLE;
@@ -29,24 +37,25 @@ public class Hero extends Personagem {
     private final int tempoDeRecarga = 5;
 
     public double grabHitboxRaio;
-    private int bombas = 3;
-    private int invencibilidadeTimer = 0;
-    private final int duracaoInvencibilidade = 1200;
+    // Invincibilidade da bomba
+    private final int duracaoInvencibilidadeBomba = 600;
+
+    // Invencibilidade ao levar dano
+    private final int duracaoInvencibilidadeRespawn = 180;
 
     public Hero(String sNomeImagePNG, double x, double y) {
         // Chama o construtor principal de Personagem
         super(sNomeImagePNG,
                 x,
                 y,
-                (int) (Consts.CELL_SIDE * 2 * 0.8), // larguraVisual (com sua proporção)
-                (int) (Consts.CELL_SIDE * 2.5), // alturaVisual
+                (int) (Consts.CELL_SIDE * 0.64 * Consts.BODY_PROPORTION), // larguraVisual (com sua proporção)
+                (int) (Consts.CELL_SIDE * Consts.BODY_PROPORTION), // alturaVisual
                 (Consts.HITBOX_RAIO / Consts.CELL_SIDE) // hitboxRaio em Grid
         );
 
         // Define a grabHitbox (dividida por 2, como você fez)
         this.grabHitboxRaio = ((double) (Consts.CELL_SIDE) / Consts.CELL_SIDE) / 2.0;
 
-        // O animador agora usa as dimensões corretas com proporção
         this.animador = new GerenciadorDeAnimacao(this.largura, this.altura);
     }
 
@@ -56,11 +65,14 @@ public class Hero extends Personagem {
             ArrayList<Personagem> personagens) {
         // Cria o objeto de resultado que será retornado
         ArrayList<Personagem> novosProjeteis = new ArrayList<>();
-        boolean bombaFoiUsada = false;
+        int inimigosMorremTimer = 0;
 
         // Decrementa o timer de invencibilidade
         if (invencibilidadeTimer > 0) {
             invencibilidadeTimer--;
+        }
+        if (inimigosMorremTimer > 0) {
+            inimigosMorremTimer--;
         }
 
         // --- LÓGICA DE MOVIMENTO (CALCULADA APENAS UMA VEZ) ---
@@ -79,12 +91,10 @@ public class Hero extends Personagem {
 
         // Lógica de bomba
         if (teclasPressionadas.contains(KeyEvent.VK_L) && bombas > 0 && invencibilidadeTimer == 0) {
-            bombaFoiUsada = true;
             bombas--;
-            invencibilidadeTimer = duracaoInvencibilidade;
-        }
-        if (invencibilidadeTimer % 30 == 0 && invencibilidadeTimer > 0) {
-            bombaFoiUsada = true; // Garantir que a bomba não seja usada novamente
+            invencibilidadeTimer = duracaoInvencibilidadeBomba;
+            inimigosMorremTimer = duracaoInvencibilidadeBomba; // Temporizador para fazer inimigos morrerem por 30
+                                                               // frames
         }
 
         // Lógica de Animação
@@ -203,11 +213,15 @@ public class Hero extends Personagem {
              */
         }
 
-        return new HeroUpdateResult(novosProjeteis, bombaFoiUsada);
+        return new HeroUpdateResult(novosProjeteis, inimigosMorremTimer);
     }
 
     @Override
     public void autoDesenho(Graphics g) {
+
+        if (!this.isActive) {
+            return; // Não desenha se não estiver ativo
+        }
 
         // Lógica de animação e desenho do herói
         int telaX = (int) Math.round(x * Consts.CELL_SIDE) - (this.largura / 2);
@@ -242,14 +256,52 @@ public class Hero extends Personagem {
         }
     }
 
+    public void deactivate() {
+        this.isActive = false;
+    }
+
+    // Getter para o ControleDeJogo saber se ignora o herói
+    public boolean isActive() {
+        return this.isActive;
+    }
+
+    public void respawn() {
+        this.x = Consts.respawnX;
+        this.y = Consts.respawnY;
+        this.bombas = 3;
+        this.power = 0;
+        this.invencibilidadeTimer = duracaoInvencibilidadeRespawn;
+        this.estado = HeroState.IDLE;
+        this.isActive = true;
+    }
+
     public int getBombas() {
         return this.bombas;
+    }
+
+    public int getHP() {
+        return this.HP;
+    }
+
+    public int getPower() {
+        return this.power;
+    }
+
+    public int getScore() {
+        return this.score;
     }
 
     public boolean isInvencivel() {
         return this.invencibilidadeTimer > 0;
     }
-    
+
+    public void takeDamage() {
+        if (invencibilidadeTimer == 0) {
+            HP--;
+            invencibilidadeTimer = duracaoInvencibilidadeRespawn;
+        }
+    }
+
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         // Recria o animador após o carregamento
@@ -259,11 +311,28 @@ public class Hero extends Personagem {
     // Classe interna do resultado da atualização
     public static class HeroUpdateResult {
         public final ArrayList<Personagem> novosProjeteis;
-        public final boolean usouBomba;
+        public final int inimigosMorremTimer;
 
-        public HeroUpdateResult(ArrayList<Personagem> projeteis, boolean bomba) {
+        public HeroUpdateResult(ArrayList<Personagem> projeteis, int inimigosMorremTimer) {
             this.novosProjeteis = projeteis;
-            this.usouBomba = bomba;
+            this.inimigosMorremTimer = inimigosMorremTimer;
         }
     }
+
+    public void addPower(int quantidade) {
+        this.power += quantidade;
+    }
+
+    public void addBomb(int quantidade) {
+        this.bombas += quantidade;
+    }
+
+    public void addHP(int quantidade) {
+        this.HP += quantidade;
+    }
+
+    public void addScore(int quantidade) {
+        this.score += quantidade;
+    }
+
 }

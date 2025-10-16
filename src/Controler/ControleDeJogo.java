@@ -14,8 +14,9 @@ public class ControleDeJogo {
     }
 
     public void processaTudo(ArrayList<Personagem> umaFase) {
-        if (umaFase.isEmpty()) return;
-        
+        if (umaFase.isEmpty())
+            return;
+
         Hero hero = null;
         for (Personagem p : umaFase) {
             if (p instanceof Hero) {
@@ -23,18 +24,24 @@ public class ControleDeJogo {
                 break;
             }
         }
-        if (hero == null) return;
+        if (hero == null)
+            return;
+
+        if (hero.isInvencivel()) {
+            return;
+        }
 
         // MUDANÇA: Lógica de colisão baseada em distância (esferas)
         for (int i = 0; i < umaFase.size(); i++) {
             Personagem p = umaFase.get(i);
-            if (p == hero) continue;
+            if (p == hero)
+                continue;
 
             // Calcula a distância entre o centro do herói e o centro do personagem
             double dist = Math.sqrt(Math.pow(hero.x - p.x, 2) + Math.pow(hero.y - p.y, 2));
-            
+
             // Se a distância for menor que a soma dos raios, há colisão
-            if (dist < hero.raio + p.raio) {
+            if (dist < hero.getHitboxRaio() + p.getHitboxRaio()) {
                 if (p.isbTransponivel()) {
                     if (p.isbMortal()) {
                         umaFase.remove(p);
@@ -44,9 +51,10 @@ public class ControleDeJogo {
             }
         }
     }
-    
+
     // MUDANÇA: Lógica de validação de posição para movimento suave
-    public boolean ehPosicaoValida(ArrayList<Personagem> umaFase, Personagem personagem, double proximoX, double proximoY) {
+    public boolean ehPosicaoValida(ArrayList<Personagem> umaFase, Personagem personagem, double proximoX,
+            double proximoY) {
         for (Personagem p : umaFase) {
             if (p == personagem || p.isbTransponivel()) {
                 continue;
@@ -54,8 +62,8 @@ public class ControleDeJogo {
 
             double dist = Math.sqrt(Math.pow(proximoX - p.x, 2) + Math.pow(proximoY - p.y, 2));
 
-            if (dist < personagem.raio + p.raio) {
-                return false; // Colisão detectada
+            if (dist < personagem.getHitboxRaio() + p.getHitboxRaio()) {
+                return false;
             }
         }
         return true;

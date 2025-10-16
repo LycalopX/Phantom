@@ -5,7 +5,6 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/Users/alexweber/Desktop/Programs/Java/POO/Phantom/src/Modelo/Hero.java</file>
-            <file>file:/Users/alexweber/Desktop/Programs/Java/POO/Phantom/src/Controler/Cenario.java</file>
             <file>file:/Users/alexweber/Desktop/Programs/Java/POO/Phantom/src/Auxiliar/BlocoDeFolha.java</file>
             <file>file:/Users/alexweber/Desktop/Programs/Java/POO/Phantom/src/Auxiliar/ArvoreParallax.java</file>
             <file>file:/Users/alexweber/Desktop/Programs/Java/POO/Phantom/src/Auxiliar/Desenho.java</file>
@@ -16,12 +15,12 @@
             <file>file:/Users/alexweber/Desktop/Programs/Java/POO/Phantom/src/Main.java</file>
             <file>file:/Users/alexweber/Desktop/Programs/Java/POO/Phantom/src/Modelo/Personagem.java</file>
             <file>file:/Users/alexweber/Desktop/Programs/Java/POO/Phantom/src/Modelo/Esfera.java</file>
-            <file>file:/Users/alexweber/Desktop/Programs/Java/POO/Phantom/src/Modelo/BichinhoVaiVemHorizontal.java</file>
-            <file>file:/Users/alexweber/Desktop/Programs/Java/POO/Phantom/src/Modelo/BichinhoVaiVemVertical.java</file>
-            <file>file:/Users/alexweber/Desktop/Programs/Java/POO/Phantom/src/Modelo/ZigueZague.java</file>
-            <file>file:/Users/alexweber/Desktop/Programs/Java/POO/Phantom/src/Modelo/Chaser.java</file>
             <file>file:/Users/alexweber/Desktop/Programs/Java/POO/Phantom/src/Controler/Tela.java</file>
             <file>file:/Users/alexweber/Desktop/Programs/Java/POO/Phantom/src/Auxiliar/Consts.java</file>
+            <file>file:/Users/alexweber/Desktop/Programs/Java/POO/Phantom/src/Modelo/Fase.java</file>
+            <file>file:/Users/alexweber/Desktop/Programs/Java/POO/Phantom/src/Controler/Cenario.java</file>
+            <file>file:/Users/alexweber/Desktop/Programs/Java/POO/Phantom/src/Controler/Engine.java</file>
+            <file>file:/Users/alexweber/Desktop/Programs/Java/POO/Phantom/src/Modelo/Inimigo.java</file>
         </group>
     </open-files>
 </project-private>

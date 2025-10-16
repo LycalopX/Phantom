@@ -9,6 +9,7 @@ public class Projetil {
     private final double dx, dy; // Vetor de movimento (delta x, delta y)
     private final int tamanho;
     private final Color cor;
+    private TipoProjetil tipo;
 
     /**
      * Cria um novo projétil.
@@ -19,11 +20,12 @@ public class Projetil {
      * @param tamanho O diâmetro do projétil.
      * @param cor A cor do projétil.
      */
-    public Projetil(double x, double y, double anguloEmGraus, double velocidade, int tamanho, Color cor) {
+    public Projetil(double x, double y, double anguloEmGraus, double velocidade, int tamanho, Color cor, TipoProjetil tipo) {
         this.x = x;
         this.y = y;
         this.tamanho = tamanho;
         this.cor = cor;
+        this.tipo = tipo;
 
         // Converte o ângulo e a velocidade em um vetor de movimento (dx, dy)
         double anguloEmRadianos = Math.toRadians(anguloEmGraus);
@@ -48,5 +50,9 @@ public class Projetil {
     public boolean estaForaDaTela(int larguraTela, int alturaTela) {
         return (this.x + this.tamanho < 0 || this.x > larguraTela ||
                 this.y + this.tamanho < 0 || this.y > alturaTela);
+    }
+    
+    public TipoProjetil getTipo() {
+        return this.tipo;
     }
 }

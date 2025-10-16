@@ -2,209 +2,236 @@ package Modelo;
 
 import Controler.ControleDeJogo;
 import Auxiliar.Consts;
+import Auxiliar.DebugManager;
+import Auxiliar.TipoProjetil;
+
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import java.awt.Graphics2D;
+import Auxiliar.Projetil;
+import java.awt.Color;
 
 public class Hero extends Personagem {
 
-    // --- Sprites e Animações ---
-    private ImageIcon[] iImagesStrafingEsquerda;  // Animação de transição para o strafe
-    private ImageIcon[] iImagesIdle;              // Animação parado
-    private ImageIcon[] iImagesStrafingMax;       // NOVO: Animação de loop no strafe máximo
+    // Para não acumular as animações em Hero.java
+    private GerenciadorDeAnimacao animador;
 
-    // --- Controle de Animação de Strafing (Transição) ---
-    private int frameAtualStrafing = 0;
-    private int delayFrameStrafing = 0;
-    private static final int MAX_FRAMES_STRAFING = 4; // São 4 frames (s1 a s4)
-    private static final int DELAY_STRAFING = 4;      // Velocidade da transição
+    private double VELOCIDADE_HERO = 12.0;
+    public double FPS = 60;
 
-    // --- NOVO: Controle de Animação de Strafing Máximo (Loop) ---
-    private int frameAtualStrafingMax = 0;
-    private int delayFrameStrafingMax = 0;
-    private static final int MAX_FRAMES_STRAFING_MAX = 4; // Assumindo 4 frames no seu novo sheet
-    private static final int DELAY_STRAFING_MAX = 8;      // Velocidade do loop
+    private HeroState estado = HeroState.IDLE;
+    private int cooldownTiro = 0;
+    private final int tempoDeRecarga = 5;
 
-    // --- Controle de Animação Parada (Idle) ---
-    private int frameAtualIdle = 0;
-    private int delayFrameIdle = 0;
-    private static final int MAX_FRAMES_IDLE = 4;
-    private static final int DELAY_IDLE = 8;
-
-    private int direcaoHorizontal = 0;
+    public double grabHitboxRaio;
+    private int bombas = 3;
+    private int invencibilidadeTimer = 0;
+    private final int duracaoInvencibilidade = 1200;
 
     public Hero(String sNomeImagePNG, double x, double y) {
-        super(sNomeImagePNG, x, y, Consts.CELL_SIDE * 2, Consts.CELL_SIDE * 2);
+        super(sNomeImagePNG,
+                x,
+                y,
+                Consts.CELL_SIDE * 2, // larguraVisual
+                Consts.CELL_SIDE * 2, // alturaVisual
+                (Consts.HITBOX_RAIO / Consts.CELL_SIDE) // raioEmGrid
+        );
 
-        // Carrega os sprites de strafing de transição
-        iImagesStrafingEsquerda = new ImageIcon[MAX_FRAMES_STRAFING];
-        for (int i = 0; i < MAX_FRAMES_STRAFING; i++) {
-            String nomeDoArquivo = "hero/hero_s" + (i + 1) + ".png";
-            iImagesStrafingEsquerda[i] = carregarImagem(nomeDoArquivo);
-        }
+        this.grabHitboxRaio = (double) (Consts.CELL_SIDE) / Consts.CELL_SIDE; // Raio de 32px em grid units.
 
-        // Carrega os sprites de idle
-        iImagesIdle = carregarFramesDoSpriteSheet("hero/hero_standing_still.png", MAX_FRAMES_IDLE);
-        
-        iImagesStrafingMax = carregarFramesDoSpriteSheet("hero/hero_strafing_max.png", MAX_FRAMES_STRAFING_MAX);
-    }
-    
-    private ImageIcon carregarImagem(String nomeArquivo) {
-        // Este método está correto, carrega um arquivo de imagem único
-        try {
-            ImageIcon imagem = new ImageIcon(new java.io.File(".").getCanonicalPath() + Consts.PATH + nomeArquivo);
-            Image img = imagem.getImage();
-            BufferedImage bi = new BufferedImage(this.largura, this.altura, BufferedImage.TYPE_INT_ARGB);
-            Graphics g = bi.createGraphics();
-            g.drawImage(img, 0, 0, this.largura, this.altura, null);
-            g.dispose();
-            return new ImageIcon(bi);
-        } catch (IOException ex) {
-            System.out.println("Erro ao carregar imagem: " + ex.getMessage());
-            return null;
-        }
-    }
-
-    private ImageIcon[] carregarFramesDoSpriteSheet(String nomeArquivo, int numFrames) {
-        // Este método carrega um spritesheet e o divide em frames
-        try {
-            String caminhoCompleto = new java.io.File(".").getCanonicalPath() + Consts.PATH + nomeArquivo;
-            BufferedImage spriteSheet = ImageIO.read(new File(caminhoCompleto));
-            
-            ImageIcon[] frames = new ImageIcon[numFrames];
-            
-            final int gap = 2;        
-            int spriteLargura = (spriteSheet.getWidth() - (gap * (numFrames - 1))) / numFrames;
-            int spriteAltura = spriteSheet.getHeight();
-        
-            for (int i = 0; i < numFrames; i++) {
-                int startX = i * (spriteLargura + gap);
-                
-                BufferedImage frameImg = spriteSheet.getSubimage(startX, 0, spriteLargura, spriteAltura);
-                           
-                BufferedImage frameRedimensionado = new BufferedImage(this.largura, this.altura, BufferedImage.TYPE_INT_ARGB);
-                Graphics g = frameRedimensionado.createGraphics();
-                g.drawImage(frameImg, 0, 0, this.largura, this.altura, null);
-                g.dispose();
-
-                frames[i] = new ImageIcon(frameRedimensionado);
-            }
-            return frames;
-        } catch (IOException ex) {
-            System.out.println("Erro ao carregar spritesheet: " + ex.getMessage());
-            return null;
-        } catch (Exception ex) { // Captura outros possíveis erros, como o de 'getSubimage'
-            System.out.println("Erro ao recortar o spritesheet: " + ex.getMessage());
-            ex.printStackTrace(); // Imprime mais detalhes do erro
-            return null;
-        }
+        this.animador = new GerenciadorDeAnimacao(this.largura, this.altura);
     }
 
     // --- Lógica Principal ---
-    public void atualizar(Set<Integer> teclasPressionadas, ControleDeJogo cj, ArrayList<Personagem> personagens) {
-        double VELOCIDADE_HERO = 9.0;
-        double FPS = 60;
+
+    public HeroUpdateResult atualizar(Set<Integer> teclasPressionadas, ControleDeJogo cj,
+            ArrayList<Personagem> personagens) {
+        // Cria o objeto de resultado que será retornado
+        ArrayList<Projetil> novosProjeteis = new ArrayList<>();
+        boolean bombaFoiUsada = false;
+
+        // Decrementa o timer de invencibilidade
+        if (invencibilidadeTimer > 0) {
+            invencibilidadeTimer--;
+        }
+
+        // --- LÓGICA DE MOVIMENTO (CALCULADA APENAS UMA VEZ) ---
         double delta = VELOCIDADE_HERO / FPS;
         double dx = 0, dy = 0;
 
-        if (teclasPressionadas.contains(KeyEvent.VK_UP)) dy -= delta;
-        if (teclasPressionadas.contains(KeyEvent.VK_DOWN)) dy += delta;
+        // Movimentação
+        if (teclasPressionadas.contains(KeyEvent.VK_W))
+            dy -= delta;
+        if (teclasPressionadas.contains(KeyEvent.VK_S))
+            dy += delta;
+        if (teclasPressionadas.contains(KeyEvent.VK_A))
+            dx -= delta;
+        if (teclasPressionadas.contains(KeyEvent.VK_D))
+            dx += delta;
 
-        boolean isMovingHorizontally = teclasPressionadas.contains(KeyEvent.VK_LEFT) || teclasPressionadas.contains(KeyEvent.VK_RIGHT);
-
-        if (isMovingHorizontally) {
-            if (teclasPressionadas.contains(KeyEvent.VK_LEFT)) {
-                dx -= delta;
-                direcaoHorizontal = -1;
-            } else {
-                dx += delta;
-                direcaoHorizontal = 1;
-            }
-
-            // Lógica da animação de duas fases
-            if (frameAtualStrafing < MAX_FRAMES_STRAFING - 1) {
-                // FASE 1: Animação de transição
-                delayFrameStrafing++;
-                if (delayFrameStrafing >= DELAY_STRAFING) {
-                    frameAtualStrafing++;
-                    delayFrameStrafing = 0;
-                }
-            } else {
-                // FASE 2: Animação de loop no máximo
-                delayFrameStrafingMax++;
-                if (delayFrameStrafingMax >= DELAY_STRAFING_MAX) {
-                    frameAtualStrafingMax = (frameAtualStrafingMax + 1) % MAX_FRAMES_STRAFING_MAX;
-                    delayFrameStrafingMax = 0;
-                }
-            }
-        } else {
-            // Se não está se movendo para os lados, reseta TUDO
-            direcaoHorizontal = 0;
-            frameAtualStrafing = 0;
-            delayFrameStrafing = 0;
-            frameAtualStrafingMax = 0;
-            delayFrameStrafingMax = 0;
-            
-            // Animação de Idle
-            delayFrameIdle++;
-            if (delayFrameIdle >= DELAY_IDLE) {
-                frameAtualIdle = (frameAtualIdle + 1) % MAX_FRAMES_IDLE;
-                delayFrameIdle = 0;
-            }
+        // Lógica de bomba
+        if (teclasPressionadas.contains(KeyEvent.VK_L) && bombas > 0 && invencibilidadeTimer == 0) {
+            bombaFoiUsada = true;
+            bombas--;
+            invencibilidadeTimer = duracaoInvencibilidade;
+        }
+        if (invencibilidadeTimer % 30 == 0 && invencibilidadeTimer > 0) {
+            bombaFoiUsada = true; // Garantir que a bomba não seja usada novamente
         }
 
+        // Lógica de Animação
+        boolean isMovingLeft = teclasPressionadas.contains(KeyEvent.VK_A);
+        boolean isMovingRight = teclasPressionadas.contains(KeyEvent.VK_D);
+
+        switch (estado) {
+            case IDLE:
+                if (isMovingLeft)
+                    estado = HeroState.STRAFING_LEFT;
+                else if (isMovingRight)
+                    estado = HeroState.STRAFING_RIGHT;
+                break;
+            case STRAFING_LEFT:
+                if (!isMovingLeft) {
+                    estado = HeroState.DE_STRAFING_LEFT;
+                    animador.iniciarDeStrafing();
+                } else if (isMovingRight) {
+                    estado = HeroState.STRAFING_RIGHT;
+                }
+                break;
+            case STRAFING_RIGHT:
+                if (!isMovingRight) {
+                    estado = HeroState.DE_STRAFING_RIGHT;
+                    animador.iniciarDeStrafing();
+                } else if (isMovingLeft) {
+                    estado = HeroState.STRAFING_LEFT;
+                }
+                break;
+            case DE_STRAFING_LEFT:
+                if (isMovingRight)
+                    estado = HeroState.STRAFING_RIGHT;
+                else if (isMovingLeft)
+                    estado = HeroState.STRAFING_LEFT;
+                break;
+            case DE_STRAFING_RIGHT:
+                if (isMovingLeft)
+                    estado = HeroState.STRAFING_LEFT;
+                else if (isMovingRight)
+                    estado = HeroState.STRAFING_RIGHT;
+                break;
+        }
+
+        // Atualiza o animador e verifica se a animação de retorno terminou
+        boolean animacaoDeRetornoTerminou = animador.atualizar(estado);
+
+        if (animacaoDeRetornoTerminou) {
+            estado = HeroState.IDLE; // Volta ao estado parado
+        }
+
+        // --- APLICAÇÃO DO MOVIMENTO E LÓGICA DO JOGO ---
         if (dx != 0 && dy != 0) {
             dx /= Math.sqrt(2);
             dy /= Math.sqrt(2);
         }
-        if (cj.ehPosicaoValida(personagens, this, this.x + dx, this.y + dy)) {
-            this.x += dx;
-            this.y += dy;
+
+        double proximoX = this.x + dx;
+        double proximoY = this.y + dy;
+
+        double limiteEsquerda = this.hitboxRaio;
+        double limiteDireita = ((double) Consts.largura / Consts.CELL_SIDE) - this.hitboxRaio;
+        double limiteTopo = this.hitboxRaio;
+        double limiteBaixo = ((double) Consts.altura / Consts.CELL_SIDE) - this.hitboxRaio;
+
+        if (proximoX < limiteEsquerda)
+            proximoX = limiteEsquerda;
+        if (proximoX > limiteDireita)
+            proximoX = limiteDireita;
+        if (proximoY < limiteTopo)
+            proximoY = limiteTopo;
+        if (proximoY > limiteBaixo)
+            proximoY = limiteBaixo;
+
+        // Tenta mover nos eixos separados
+        if (cj.ehPosicaoValida(personagens, this, proximoX, this.y)) {
+            this.x = proximoX;
         }
+        if (cj.ehPosicaoValida(personagens, this, this.x, proximoY)) {
+            this.y = proximoY;
+        }
+        // Lógica de tiro
+        if (cooldownTiro > 0) {
+            cooldownTiro--;
+        }
+        if (teclasPressionadas.contains(KeyEvent.VK_K) && cooldownTiro <= 0) {
+            novosProjeteis.add(new Projetil((int) (this.x * Consts.CELL_SIDE), (int) (this.y * Consts.CELL_SIDE), -90,
+                    20, 8, Color.CYAN, TipoProjetil.JOGADOR));
+            cooldownTiro = tempoDeRecarga;
+        }
+
+        return new HeroUpdateResult(novosProjeteis, bombaFoiUsada);
     }
-    
+
     @Override
     public void autoDesenho(Graphics g) {
-        int telaX = (int)Math.round(x * Consts.CELL_SIDE) - (this.largura / 2);
-        int telaY = (int)Math.round(y * Consts.CELL_SIDE) - (this.altura / 2);
-        
+        int telaX = (int) Math.round(x * Consts.CELL_SIDE) - (this.largura / 2);
+        int telaY = (int) Math.round(y * Consts.CELL_SIDE) - (this.altura / 2);
+
         Graphics2D g2d = (Graphics2D) g;
         AffineTransform transformOriginal = g2d.getTransform();
 
-        ImageIcon imagemParaDesenhar = null;
+        ImageIcon imagemParaDesenhar = animador.getImagemAtual(estado);
 
-        if (direcaoHorizontal != 0) {
-            // Decidir qual animação de strafe usar (transição ou loop máximo)
-            if (frameAtualStrafing < MAX_FRAMES_STRAFING - 1) {
-                imagemParaDesenhar = iImagesStrafingEsquerda[frameAtualStrafing];
-            } else {
-                imagemParaDesenhar = iImagesStrafingMax[frameAtualStrafingMax];
-            }
-        } else {
-            // Usar animação de Idle
-            imagemParaDesenhar = iImagesIdle[frameAtualIdle];
-        }
-
-        // Desenhar a imagem selecionada
         if (imagemParaDesenhar != null) {
-            if (direcaoHorizontal == 1) { // Espelhar se for para a direita
+            // A lógica de espelhamento depende do estado
+            if (estado == HeroState.STRAFING_RIGHT || estado == HeroState.DE_STRAFING_RIGHT) {
                 g2d.translate(telaX + largura, telaY);
-                g2d.scale(-1, 1); 
+                g2d.scale(-1, 1);
                 g2d.drawImage(imagemParaDesenhar.getImage(), 0, 0, largura, altura, null);
-            } else { // Desenho normal (esquerda ou parado)
+            } else {
                 g2d.drawImage(imagemParaDesenhar.getImage(), telaX, telaY, largura, altura, null);
             }
         }
-        
+
         g2d.setTransform(transformOriginal);
+
+        if (DebugManager.isActive()) {
+            // --- PASSO 4: DESENHAR AS HITBOXES POR CIMA (PARA DEPURAÇÃO) ---
+            int centroX = (int) (this.x * Consts.CELL_SIDE);
+            int centroY = (int) (this.y * Consts.CELL_SIDE);
+
+            // Desenha a hitbox de DANO (pequena, vermelha)
+            g2d.setColor(Color.RED);
+            int danoRaioPixels = (int) (this.hitboxRaio * Consts.CELL_SIDE);
+            g2d.fillOval(centroX - danoRaioPixels, centroY - danoRaioPixels, danoRaioPixels * 2, danoRaioPixels * 2);
+
+            // Desenha a hitbox de COLETA (grande, azul)
+            g2d.setColor(new Color(22, 100, 7, 100)); // Azul com transparência
+            int coletaRaioPixels = (int) (this.grabHitboxRaio * Consts.CELL_SIDE);
+            g2d.drawOval(centroX - coletaRaioPixels, centroY - coletaRaioPixels, coletaRaioPixels * 2,
+                    coletaRaioPixels * 2);
+        }
+
+    }
+
+    public int getBombas() {
+        return this.bombas;
+    }
+
+    public boolean isInvencivel() {
+        return this.invencibilidadeTimer > 0;
+    }
+
+    // Classe interna do resultado da atualização
+    public static class HeroUpdateResult {
+        public final ArrayList<Projetil> novosProjeteis;
+        public final boolean usouBomba;
+
+        public HeroUpdateResult(ArrayList<Projetil> projeteis, boolean bomba) {
+            this.novosProjeteis = projeteis;
+            this.usouBomba = bomba;
+        }
     }
 }

@@ -12,7 +12,6 @@ public class LootItem implements Serializable {
     private final int quantidadeMin;
     private final int quantidadeMax;
 
-    private boolean thrown;
     private boolean attractToHero = false;
 
     public LootItem(ItemType item, int quantidadeMin, int quantidadeMax, double probabilidade, boolean thrown, boolean attractToHero) {
@@ -21,7 +20,6 @@ public class LootItem implements Serializable {
         this.quantidadeMin = quantidadeMin;
         this.quantidadeMax = quantidadeMax;
         this.probabilidade = probabilidade;
-        this.thrown = thrown;
         this.attractToHero = attractToHero;
     }
 

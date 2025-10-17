@@ -75,9 +75,9 @@ public class Inimigo extends Personagem {
         this.vida -= damage;
         System.out.println("Inimigo tomou " + damage + " de dano. Vida restante: " + this.vida);
 
-        if (this.vida < 0) {
+        if (this.vida <= 0) {
             this.vida = 0;
-            // Lógica para lidar com a morte do inimigo (ex: drop de loot)
+            deactivate(); // Desativa o inimigo, marcando-o para remoção.
         }
     }
 }

@@ -17,13 +17,12 @@ public class Projetil extends Personagem {
     protected double velocidade;
     protected double anguloRad;
     protected TipoProjetil tipo;
-    
-    protected boolean isActive = false;
 
     public Projetil(String sNomeImagePNG) {
         super(sNomeImagePNG, 0, 0); // Posição inicial não importa
         this.bMortal = true;
         this.bTransponivel = true; // Projéteis devem ser transponíveis para não bloquearem uns aos outros
+        deactivate();
     }
 
     public void reset(double x, double y, int largura, int altura, double hitboxRaio,
@@ -36,12 +35,12 @@ public class Projetil extends Personagem {
         this.velocidade = velocidadeGrid;
         this.anguloRad = Math.toRadians(angulo);
         this.tipo = tipo;
-        this.isActive = true;
+        activate();
     }
 
     @Override
     public void atualizar(ArrayList<Personagem> personagens, Hero hero) {
-        if (!isActive)
+        if (!isActive())
             return; // Se estiver inativo, não faz nada
 
         this.x += Math.cos(this.anguloRad) * this.velocidade;
@@ -51,7 +50,8 @@ public class Projetil extends Personagem {
     // MUDANÇA 2: O método de desenho agora aplica ROTAÇÃO
     @Override
     public void autoDesenho(Graphics g) {
-        if (!isActive) return;
+        if (!isActive()) return;
+        System.out.println("Desenhando projétil em " + x + ", " + y);
 
         Graphics2D g2d = (Graphics2D) g;
 
@@ -93,21 +93,21 @@ public class Projetil extends Personagem {
 
     // Método para a Fase checar se o projétil saiu da tela
     public boolean estaForaDaTela() {
-        if (!isActive) return false;
+        if (!isActive()) return false;
         double limiteX = (double) Consts.largura / Consts.CELL_SIDE;
         double limiteY = (double) Consts.altura / Consts.CELL_SIDE;
         return (x < 0 || x > limiteX || y < -1 || y > limiteY);
     }
 
+    public void deactivate() {
+        super.deactivate(); // Usa o método da classe pai
+    }
+    
+    public void activate() {
+        super.activate(); // Usa o método da classe pai
+    }
+
     public TipoProjetil getTipo() {
         return this.tipo;
-    }
-
-    public boolean isActive() {
-        return this.isActive;
-    }
-
-    public void deactivate() {
-        this.isActive = false;
     }
 }

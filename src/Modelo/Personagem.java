@@ -19,6 +19,7 @@ public abstract class Personagem implements Serializable {
     protected transient ImageIcon iImage;
     private String nomeSprite;
     public double x, y; // Coordenadas de grid
+    protected boolean isActive = true;
     public double hitboxRaio; // Raio de colisão em grid
     protected double vida = 1;
 
@@ -151,4 +152,8 @@ public abstract class Personagem implements Serializable {
     public int getLargura() {
         return this.largura;
     }
+    
+    public boolean isActive() { return this.isActive; }
+    public void activate() { this.isActive = true; }
+    public void deactivate() { this.isActive = false; }
 }

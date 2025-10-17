@@ -4,6 +4,16 @@ import java.io.File;
 import java.awt.event.KeyEvent;
 
 public class Consts {
+
+    // Mapa
+    public static final int largura = 837, altura = 740; 
+    public static final int MUNDO_LARGURA = 45; // total do mundo
+    public static final int MUNDO_ALTURA = 40;
+    public static final int TIMER = 10;
+    public static final int RES = 20; 
+    public static final int CELL_SIDE = 32;
+    public static final int FPS = 60;
+
     // Caminho das imagens
     public static final String PATH = File.separator + "imgs" + File.separator;
     public static final int PERIOD = 80;   
@@ -11,8 +21,8 @@ public class Consts {
 
     // Configurações player
     public static final double HITBOX_RAIO = 4;
-    public static final int respawnX = 10;
-    public static final int respawnY = 20;
+    public static final int respawnX = (largura / CELL_SIDE) / 2;
+    public static final int respawnY = (int) ((altura / CELL_SIDE) * 0.9);
     public static final double HERO_VELOCITY = 10.0;
     public static final int DANO_BALA = 40 ;
     public static final int DANO_BALA_TELEGUIADA = 3;
@@ -29,16 +39,5 @@ public class Consts {
     public static final int KEY_SAVE = KeyEvent.VK_P;
     public static final int KEY_LOAD = KeyEvent.VK_R;
     public static final int KEY_RESTART = KeyEvent.VK_R;
-
-
-    // Mapa
-    public static final int largura = 837, altura = 740; 
-    public static final int MUNDO_LARGURA = 16; // total do mundo
-    public static final int MUNDO_ALTURA = 40;
-    public static final int TIMER = 10;
-    public static final int RES = 20; 
-    public static final int CELL_SIDE = 32;
-    public static final int FPS = 60;
-
 
 }

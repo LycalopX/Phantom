@@ -48,10 +48,10 @@ public class ScriptFase1 extends ScriptDeFase {
             double xInicial = random.nextDouble() * Consts.MUNDO_LARGURA;
             LootTable lootTable = new LootTable();
 
-            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 3, 0.5, true));
-            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.3, false));
-            lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.15, true));
-            lootTable.addItem(new LootItem(ItemType.BOMB, 1, 1, 0.05, true));
+            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 3, 0.5, true, false));
+            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.3, false, false));
+            lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.15, true, false));
+            lootTable.addItem(new LootItem(ItemType.BOMB, 1, 1, 0.05, true, false));
 
             fase.adicionarPersonagem(new Inimigo("inimigo.png", xInicial, -1.0, lootTable, 100));
             proximoSpawnInimigo = intervaloSpawnInimigo;
@@ -109,7 +109,7 @@ public class ScriptFase1 extends ScriptDeFase {
         int tamanhoBase = (int) Math.round(Consts.altura * 0.8);
 
         while (proximoSpawnY < Consts.altura) {
-            
+
             boolean vaiBaterNaDireita = direcaoDoGrupo == 1
                     && (posicoesXDasDiagonais[NUMERO_DE_DIAGONAIS - 1] + tamanhoBase) > Consts.altura;
             boolean vaiBaterNaEsquerda = direcaoDoGrupo == -1 && posicoesXDasDiagonais[0] < 0;

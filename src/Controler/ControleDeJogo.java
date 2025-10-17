@@ -5,6 +5,7 @@ import Modelo.Hero.Hero;
 import Modelo.Inimigos.Inimigo;
 import Modelo.Items.Item;
 import Modelo.Items.ItemType;
+import Modelo.Projeteis.BombaProjetil;
 import Modelo.Projeteis.Projetil;
 import Auxiliar.Quadtree;
 import Auxiliar.LootItem;
@@ -62,21 +63,6 @@ public class ControleDeJogo {
         ArrayList<Personagem> objetosARemover = new ArrayList<>();
         ArrayList<Personagem> novosObjetos = new ArrayList<>();
 
-        // Se a bomba do herói estiver ativa, marque todos os inimigos e seus projéteis.
-        if (hero.isBombaAtiva()) {
-            for (Personagem p : personagens) {
-                if (p instanceof Inimigo) {
-                    ((Inimigo) p).takeDamage(9999); // Mata o inimigo instantaneamente
-                    objetosARemover.add(p);
-                }
-                if (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.INIMIGO) {
-                    // Adiciona à lista de remoção (sem checagem de duplicata, removeAll lidará com
-                    // isso)
-                    objetosARemover.add(p);
-                }
-            }
-        }
-
         // --- LÓGICA DE COLISÃO COM QUADTREE ---
         List<Personagem> vizinhosPotenciais = new ArrayList<>();
         for (Personagem p1 : personagens) {
@@ -118,8 +104,17 @@ public class ControleDeJogo {
 
         // Adiciona novos objetos (loot) e remove os "mortos"
         personagens.addAll(novosObjetos);
-        personagens.removeIf(p -> p instanceof Inimigo && ((Inimigo) p).getVida() <= 0);
-        personagens.removeIf(p -> p instanceof Item && !((Item) p).isActive()); // Itens coletados
+
+        personagens.removeIf(p -> {
+            // A regra principal: NUNCA remova um projétil da lista.
+            // Eles são gerenciados pela ProjetilPool e apenas desativados/reativados.
+            if (p instanceof Projetil) {
+                return false;
+            }
+            // Para todos os outros personagens (Inimigos, Itens, etc.),
+            // remova-os se não estiverem mais ativos.
+            return !isPersonagemAtivo(p);
+        });
 
         return hero.getHP() > 0;
     }
@@ -207,6 +202,22 @@ public class ControleDeJogo {
         } else if (p2 instanceof Hero && p1 instanceof Item) {
             aplicarEfeitoDoItem((Hero) p2, (Item) p1);
         }
+
+        // --- COLISÃO: BOMBA E INIMIGO ---
+        if (p1 instanceof BombaProjetil && p2 instanceof Inimigo) {
+            ((Inimigo) p2).takeDamage(9999);
+        } else if (p2 instanceof BombaProjetil && p1 instanceof Inimigo) {
+            ((Inimigo) p1).takeDamage(9999);
+        }
+
+        // --- COLISÃO: BOMBA E PROJÉTIL INIMIGO ---
+        if (p1 instanceof BombaProjetil && p2 instanceof Projetil
+                && ((Projetil) p2).getTipo() == TipoProjetil.INIMIGO) {
+            ((Projetil) p2).deactivate();
+        } else if (p2 instanceof BombaProjetil && p1 instanceof Projetil
+                && ((Projetil) p1).getTipo() == TipoProjetil.INIMIGO) {
+            ((Projetil) p1).deactivate();
+        }
     }
 
     // --- MÉTODOS AUXILIARES DE COLISÃO ---
@@ -242,17 +253,17 @@ public class ControleDeJogo {
     }
 
     // --- MÉTODOS DE UTILIDADE ---
-
     private boolean isPersonagemAtivo(Personagem p) {
+        // Regras especiais para classes com a flag 'isActive'
         if (p instanceof Projetil)
             return ((Projetil) p).isActive();
         if (p instanceof Hero)
             return ((Hero) p).isActive();
         if (p instanceof Item)
             return ((Item) p).isActive();
-        if (p instanceof Inimigo)
-            return ((Inimigo) p).getVida() > 0;
-        return true;
+
+        // Regra geral para todas as outras classes (Inimigo, BombaProjetil)
+        return p.getVida() > 0;
     }
 
     private Hero findHero(ArrayList<Personagem> personagens) {

@@ -7,6 +7,7 @@ import Modelo.Hero.Hero;
 import Modelo.Inimigos.Inimigo;
 import Modelo.Items.Item;
 import Modelo.Projeteis.Projetil;
+import Modelo.Projeteis.BombaProjetil;
 import Auxiliar.TipoProjetil;
 import Auxiliar.ArvoreParallax;
 import Auxiliar.Consts;
@@ -29,7 +30,7 @@ public class Cenario extends JPanel {
     private ContadorFPS contadorFPS;
     private Engine.GameState estadoDoJogo;
     private BufferedImage imagemGameOver;
-    
+
     public Cenario() {
         this.setPreferredSize(new Dimension(Consts.largura, Consts.altura));
         this.setFocusable(false);
@@ -70,7 +71,7 @@ public class Cenario extends JPanel {
             }
 
             for (Personagem p : personagensParaDesenhar) {
-                if (p instanceof Hero || p instanceof Item) {
+                if (p instanceof Hero || p instanceof Item || p instanceof BombaProjetil) {
                     p.autoDesenho(g);
                 }
             }
@@ -153,7 +154,7 @@ public class Cenario extends JPanel {
 
     private void carregarImagensGameOver() {
         try {
-            
+
             String basePath = new File(".").getCanonicalPath() + Consts.PATH;
             imagemGameOver = ImageIO.read(new File(basePath + "gameover.png"));
 

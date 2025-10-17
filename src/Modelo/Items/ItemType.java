@@ -8,7 +8,8 @@ public enum ItemType {
     POWER_UP(32, 0, 100, 30, 0),
     BOMB(48, 0, 0, 0, 1),
     FULL_POWER(64, 0, 0, 300, 0),
-    ONE_UP(80, 0, 0, 0, 0);
+    ONE_UP(80, 0, 0, 0, 0),
+    BOMB_SCORE(96, 0, 20, 0, 1);
 
     // Adicione outros itens aqui no futuro
 

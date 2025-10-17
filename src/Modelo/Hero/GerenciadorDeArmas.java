@@ -41,6 +41,7 @@ public class GerenciadorDeArmas implements Serializable {
      * @return Uma lista de novos projéteis a serem adicionados à fase.
      */
     public void disparar(double x, double y, int power, Fase fase) {
+        System.out.println("DEBUG 3 [Armas]: Método disparar() chamado. Cooldown: " + cooldownTiroPrincipal);
 
         ProjetilPool pool = fase.getProjetilPool();
         int tamanhoHitbox = 8;

@@ -3,9 +3,11 @@
 package Controler;
 
 import java.util.Set;
+import java.awt.event.KeyEvent;
 
 import Auxiliar.Consts;
 import Modelo.Fases.Fase;
+import Modelo.Projeteis.BombaProjetil;
 import Modelo.Hero.GerenciadorDeArmas;
 import Modelo.Hero.Hero;
 
@@ -19,20 +21,27 @@ public class ControladorDoHeroi {
      * @param fase   A fase atual do jogo.
      * @param cj     O objeto de controle de jogo para validações.
      */
+
+    // Em Controler/ControladorDoHeroi.java
     public void processarInput(Set<Integer> teclas, Hero heroi, Fase fase, ControleDeJogo cj) {
         // --- LÓGICA DE MOVIMENTO ---
         double delta = Consts.HERO_VELOCITY / 60.0;
         double dx = 0, dy = 0;
 
-        if (teclas.contains(Consts.KEY_UP))
-            dy -= delta; // Usando KeyEvent diretamente para clareza
-        if (teclas.contains(Consts.KEY_DOWN))
-            dy += delta;
-        if (teclas.contains(Consts.KEY_LEFT))
-            dx -= delta;
-        if (teclas.contains(Consts.KEY_RIGHT))
-            dx += delta;
+        // Lógica do Modo Foco (Shift)
+        boolean isFocoAtivo = teclas.contains(KeyEvent.VK_SHIFT);
+        double velocidadeAtual = isFocoAtivo ? delta / 2.0 : delta;
 
+        if (teclas.contains(Consts.KEY_UP))
+            dy -= velocidadeAtual;
+        if (teclas.contains(Consts.KEY_DOWN))
+            dy += velocidadeAtual;
+        if (teclas.contains(Consts.KEY_LEFT))
+            dx -= velocidadeAtual;
+        if (teclas.contains(Consts.KEY_RIGHT))
+            dx += velocidadeAtual;
+
+        // Normaliza o movimento diagonal para não ser mais rápido
         if (dx != 0 && dy != 0) {
             dx /= Math.sqrt(2);
             dy /= Math.sqrt(2);
@@ -57,7 +66,6 @@ public class ControladorDoHeroi {
             proximoY = limiteBaixo;
 
         // Validação de Colisão com Personagens
-        // Movimento separado nos eixos para "deslizar" nas paredes
         double xFinal = heroi.x, yFinal = heroi.y;
         if (cj.ehPosicaoValida(fase.getPersonagens(), heroi, proximoX, heroi.y)) {
             xFinal = proximoX;
@@ -65,26 +73,30 @@ public class ControladorDoHeroi {
         if (cj.ehPosicaoValida(fase.getPersonagens(), heroi, heroi.x, proximoY)) {
             yFinal = proximoY;
         }
-
         heroi.mover(xFinal, yFinal);
 
         // --- LÓGICA DE ANIMAÇÃO ---
         boolean isMovingLeft = teclas.contains(Consts.KEY_LEFT);
         boolean isMovingRight = teclas.contains(Consts.KEY_RIGHT);
-        heroi.atualizar(isMovingLeft, isMovingRight); // Passa o estado do movimento para o herói atualizar sua animação
+        heroi.atualizarAnimacao(isMovingLeft, isMovingRight);
 
-        // --- LÓGICA DE AÇÕES ---
+        // --- LÓGICA DE TIRO ---
         if (teclas.contains(Consts.KEY_SHOOT)) {
-            // 1. Pega o sistema de armas do herói
-            GerenciadorDeArmas armas = heroi.getSistemaDeArmas();
+            System.out.println("DEBUG 2: Lógica de TIRO alcançada!");
 
-            // 2. Chama o 'disparar' com TODOS os parâmetros necessários, incluindo a 'fase'
+            GerenciadorDeArmas armas = heroi.getSistemaDeArmas();
             armas.disparar(heroi.x, heroi.y, heroi.getPower(), fase);
         }
 
+        // --- LÓGICA DE BOMBA ---
         if (teclas.contains(Consts.KEY_BOMB) && heroi.getBombas() > 0 && !heroi.isInvencivel()) {
-            // O herói agora apenas "ativa" seu próprio estado de bomba.
-            heroi.usarBomba();
+            System.out.println("DEBUG 3: Lógica de BOMBA alcançada!");
+            
+            BombaProjetil bomba = heroi.usarBomba();
+            if (bomba != null) {
+                fase.adicionarPersonagem(bomba);
+            }
         }
     }
+
 }

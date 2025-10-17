@@ -3,6 +3,7 @@ package Modelo.Projeteis;
 import Auxiliar.Consts;
 import Auxiliar.TipoProjetil;
 import Modelo.Personagem;
+import Modelo.Hero.Hero;
 
 import java.awt.AlphaComposite;
 import java.awt.Composite;
@@ -39,7 +40,7 @@ public class Projetil extends Personagem {
     }
 
     @Override
-    public void atualizar(ArrayList<Personagem> personagens) {
+    public void atualizar(ArrayList<Personagem> personagens, Hero hero) {
         if (!isActive)
             return; // Se estiver inativo, não faz nada
 

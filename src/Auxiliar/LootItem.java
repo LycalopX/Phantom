@@ -13,14 +13,16 @@ public class LootItem implements Serializable {
     private final int quantidadeMax;
 
     private boolean thrown;
+    private boolean attractToHero = false;
 
-    public LootItem(ItemType item, int quantidadeMin, int quantidadeMax, double probabilidade, boolean thrown) {
+    public LootItem(ItemType item, int quantidadeMin, int quantidadeMax, double probabilidade, boolean thrown, boolean attractToHero) {
         this.item = item;
 
         this.quantidadeMin = quantidadeMin;
         this.quantidadeMax = quantidadeMax;
         this.probabilidade = probabilidade;
         this.thrown = thrown;
+        this.attractToHero = attractToHero;
     }
 
     public double getProbabilidade() {
@@ -35,8 +37,8 @@ public class LootItem implements Serializable {
         return quantidadeMax;
     }
     
-    public boolean isToBeThrown() {
-        return thrown;
+    public boolean isAttractToHero() {
+        return attractToHero;
     }
 
     public ItemType getTipo() {

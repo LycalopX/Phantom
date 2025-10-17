@@ -6,6 +6,7 @@ import java.awt.Graphics; // Import necessário
 import java.util.ArrayList; // Import necessário
 import Auxiliar.LootTable;
 import Modelo.Personagem;
+import Modelo.Hero.Hero;
 
 public class Inimigo extends Personagem {
 
@@ -43,7 +44,7 @@ public class Inimigo extends Personagem {
     }
 
     @Override
-    public void atualizar(ArrayList<Personagem> personagens) {
+    public void atualizar(ArrayList<Personagem> personagens, Hero hero) {
         // Lógica de movimento do inimigo
         this.y += 0.02; // (Velocidade em grid, 0.2 era muito rápido)
     }

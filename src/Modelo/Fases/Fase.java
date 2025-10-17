@@ -97,7 +97,7 @@ public class Fase implements Serializable {
         // Atualiza todos os personagens (herói, inimigos, projéteis)
         for (int i = 0; i < personagens.size(); i++) {
             Personagem p = personagens.get(i);
-            p.atualizar(personagens); // Atualiza Inimigos, Projéteis, etc.
+            p.atualizar(personagens, (Hero) getHero()); // Atualiza Inimigos, Projéteis, etc.
 
             if (p instanceof Projetil) {
                 Projetil proj = (Projetil) p;
@@ -135,6 +135,8 @@ public class Fase implements Serializable {
     }
 
     public void adicionarPersonagem(Personagem p) {
+        System.out.println("DEBUG 4: Personagem adicionado à fase: " + p.getClass().getSimpleName()); // <--- ADICIONE AQUI
+        
         this.personagens.add(p);
     }
 

@@ -3,6 +3,7 @@ package Modelo.Projeteis;
 import Auxiliar.TipoProjetil;
 import Modelo.Personagem;
 import Modelo.Inimigos.Inimigo;
+import Modelo.Hero.Hero;
 
 import java.util.ArrayList;
 
@@ -49,7 +50,7 @@ public class ProjetilHoming extends Projetil {
      * O método 'atualizar' agora é uma máquina de estados.
      */
     @Override
-    public void atualizar(ArrayList<Personagem> personagens) {
+    public void atualizar(ArrayList<Personagem> personagens, Hero hero) {
         if (!isActive()) return;
 
         // --- LÓGICA DA MÁQUINA DE ESTADOS ---
@@ -75,7 +76,7 @@ public class ProjetilHoming extends Projetil {
         }
 
         // A chamada 'super.atualizar()' move o projétil na sua direção atual
-        super.atualizar(personagens);
+        super.atualizar(personagens, hero);
     }
 
     private void ajustarAnguloParaOAlvo() {

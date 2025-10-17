@@ -1,12 +1,12 @@
 package Controler;
 // Pacote Controler ou View
 
-import Modelo.Fase;
-import Modelo.Hero;
-import Modelo.Inimigo;
-import Modelo.Item;
 import Modelo.Personagem;
-import Modelo.Projetil;
+import Modelo.Fases.Fase;
+import Modelo.Hero.Hero;
+import Modelo.Inimigos.Inimigo;
+import Modelo.Items.Item;
+import Modelo.Projeteis.Projetil;
 import Auxiliar.TipoProjetil;
 import Auxiliar.ArvoreParallax;
 import Auxiliar.Consts;
@@ -29,8 +29,7 @@ public class Cenario extends JPanel {
     private ContadorFPS contadorFPS;
     private Engine.GameState estadoDoJogo;
     private BufferedImage imagemGameOver;
-    private Font fonteGameOver;
-
+    
     public Cenario() {
         this.setPreferredSize(new Dimension(Consts.largura, Consts.altura));
         this.setFocusable(false);
@@ -129,6 +128,7 @@ public class Cenario extends JPanel {
             g2d.drawString("HP: " + h.getHP(), 10, 100);
             g2d.drawString("Power: " + h.getPower(), 10, 120);
             g2d.drawString("Score: " + h.getScore(), 10, 140);
+            g2d.drawString("Mísseis: " + h.getNivelDeMisseis(), 10, 160);
         }
 
     }

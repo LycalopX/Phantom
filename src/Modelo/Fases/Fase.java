@@ -1,0 +1,146 @@
+// Em Modelo/Fases/Fase.java
+package Modelo.Fases;
+
+import Modelo.Personagem;
+import Modelo.Hero.Hero;
+import Modelo.Projeteis.Projetil;
+import Auxiliar.ArvoreParallax;
+import Auxiliar.Consts;
+import java.io.Serializable;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import javax.imageio.ImageIO;
+import java.io.File;
+
+/**
+ * A classe Fase agora é um "contêiner" ou "palco".
+ * Ela guarda os personagens e o estado do cenário (scroll),
+ * mas DELEGA toda a lógica de spawn (eventos) para o seu ScriptDeFase.
+ */
+public class Fase implements Serializable {
+
+    private ArrayList<Personagem> personagens;
+    private ArrayList<ArvoreParallax> arvores;
+    private ScriptDeFase scriptDaFase;
+
+    private transient BufferedImage imagemFundo1, imagemFundo2;
+    private double scrollY = 0;
+    private double distanciaTotalRolada = 0;
+
+    // --- TODAS AS VARIÁVEIS DE SPAWN (random, proximoSpawnY, etc.) FORAM REMOVIDAS ---
+    // A responsabilidade agora é 100% do Script.
+
+    public Fase(ScriptDeFase script) {
+        this.personagens = new ArrayList<>();
+        this.arvores = new ArrayList<>();
+        this.scriptDaFase = script;
+
+        carregarRecursos(); // Carrega as imagens transient
+
+        // O Script agora é responsável por preencher o cenário inicial
+        if (this.scriptDaFase != null) {
+            this.scriptDaFase.preencherCenarioInicial(this);
+        }
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        carregarRecursos();
+        
+        // Relinka as imagens nas árvores (a lógica do script já foi carregada)
+        if (this.arvores != null && this.imagemFundo2 != null) {
+            for (ArvoreParallax arvore : this.arvores) {
+                arvore.relinkarImagens(this.imagemFundo2);
+            }
+        }
+    }
+
+    private void carregarRecursos() {
+        try {
+            String basePath = new java.io.File(".").getCanonicalPath() + Consts.PATH;
+            imagemFundo1 = ImageIO.read(new File(basePath + "stage1/stage_1_bg1.png"));
+            imagemFundo2 = ImageIO.read(new File(basePath + "stage1/stage_1_bg2.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * O método 'atualizar' agora delega os spawns e gerencia os objetos existentes.
+     */
+    public void atualizar(double velocidadeScroll) {
+        // 1. Atualiza o estado interno do cenário
+        scrollY = (scrollY + velocidadeScroll) % (Consts.altura);
+        distanciaTotalRolada += velocidadeScroll;
+
+        // 2. DELEGA toda a lógica de spawn (inimigos e árvores) para o script
+        if (this.scriptDaFase != null) {
+            // CORREÇÃO: Chama o método 'atualizar' correto com os dois parâmetros
+            this.scriptDaFase.atualizar(this, velocidadeScroll);
+        }
+
+        // 3. Atualiza os objetos que JÁ EXISTEM na fase
+        
+        // Move e remove as árvores
+        for (ArvoreParallax arvore : arvores) {
+            arvore.mover(velocidadeScroll);
+        }
+        arvores.removeIf(arvore -> arvore.estaForaDaTela(Consts.altura));
+
+        // Atualiza todos os personagens (herói, inimigos, projéteis)
+        for (int i = 0; i < personagens.size(); i++) {
+            Personagem p = personagens.get(i);
+            p.atualizar(personagens); // Chama o 'atualizar' de cada personagem
+
+            // Limpa projéteis que saíram da tela
+            if (p instanceof Projetil) {
+                if (((Projetil) p).estaForaDaTela()) {
+                    personagens.remove(i);
+                    i--; // Ajusta o índice após a remoção
+                }
+            }
+        }
+    }
+
+    // --- OS MÉTODOS preencherCenarioInicial() e atualizarArvores() FORAM REMOVIDOS ---
+    // A lógica deles agora vive em ScriptFase1.java.
+
+    // --- GETTERS E SETTERS ---
+
+    public ArrayList<Personagem> getPersonagens() { return this.personagens; }
+    public ArrayList<ArvoreParallax> getArvores() { return this.arvores; }
+    public BufferedImage getImagemFundo1() { return this.imagemFundo1; }
+    public double getScrollY() { return this.scrollY; }
+    public void adicionarPersonagem(Personagem p) { this.personagens.add(p); }
+
+    // --- NOVOS GETTERS NECESSÁRIOS PARA O SCRIPT FUNCIONAR ---
+    
+    /**
+     * O Script precisa desta imagem para criar novas árvores.
+     * @return A imagem de textura das árvores.
+     */
+    public BufferedImage getImagemFundo2() {
+        return this.imagemFundo2;
+    }
+
+    /**
+     * O Script precisa saber a distância rolada para decidir quando spawnar.
+     * @return A distância total que o cenário já rolou.
+     */
+    public double getDistanciaTotalRolada() {
+        return this.distanciaTotalRolada;
+    }
+
+    // --- Métodos de utilidade ---
+
+    public Personagem getHero() {
+        for (Personagem p : personagens) {
+            if (p instanceof Hero) {
+                return p;
+            }
+        }
+        return null;
+    }
+}

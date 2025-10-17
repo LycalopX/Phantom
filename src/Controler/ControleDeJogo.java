@@ -1,14 +1,15 @@
 package Controler;
 
 import Modelo.Personagem;
-import Modelo.Projetil;
-import Modelo.Hero;
-import Modelo.Inimigo;
+import Modelo.Hero.Hero;
+import Modelo.Inimigos.Inimigo;
+import Modelo.Items.Item;
+import Modelo.Items.ItemType;
+import Modelo.Projeteis.Projetil;
 import Auxiliar.LootItem;
 import Auxiliar.LootTable;
 import Auxiliar.TipoProjetil;
-import Modelo.Item;
-import Modelo.ItemType;
+import Auxiliar.Consts;
 
 import java.awt.Graphics;
 import java.util.ArrayList;
@@ -39,6 +40,20 @@ public class ControleDeJogo {
         // Vamos marcar quem deve ser removido, e remover no final.
         ArrayList<Personagem> objetosARemover = new ArrayList<>();
         ArrayList<Personagem> novosObjetos = new ArrayList<>();
+
+        // Se a bomba do herói estiver ativa, marque todos os inimigos e seus projéteis.
+        if (hero.isBombaAtiva()) {
+            for (Personagem p : personagens) {
+                if (p instanceof Inimigo) {
+                    ((Inimigo) p).takeDamage(9999); // Mata o inimigo instantaneamente
+                    objetosARemover.add(p);
+                }
+                if (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.INIMIGO) {
+                    // Adiciona à lista de remoção (sem checagem de duplicata, removeAll lidará com isso)
+                    objetosARemover.add(p);
+                }
+            }
+        }
 
         // Loop principal de colisão (agora podemos iterar para frente sem medo)
         for (Personagem p1 : personagens) {
@@ -72,13 +87,8 @@ public class ControleDeJogo {
                                 h.takeDamage();
                             }
 
-                            // Independentemente de tomar dano ou não, o inimigo/projétil é removido
-                            if (p2 instanceof Projetil) {
-                                objetosARemover.add(p2);
-                            } else if (p2 instanceof Inimigo) {
-                                // Se quiser que o inimigo seja destruído ao tocar no herói invencível
-                                objetosARemover.add(p2);
-                            }
+                            objetosARemover.add(p2);
+
                             return false;
                         }
                     }
@@ -109,7 +119,13 @@ public class ControleDeJogo {
                             }
 
                             objetosARemover.add(p1);
-                            objetosARemover.add(p2);
+
+                            ((Inimigo) p2).takeDamage(Consts.DANO_BALA);
+
+                            if (((Inimigo) p2).getVida() <= 0) {
+                                objetosARemover.add(p2);
+                            }
+
                             break;
                         }
                     }

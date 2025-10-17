@@ -1,18 +1,35 @@
 package Auxiliar;
 
 import java.io.File;
+import java.awt.event.KeyEvent;
 
 public class Consts {
     // Caminho das imagens
     public static final String PATH = File.separator + "imgs" + File.separator;
     public static final int PERIOD = 80;   
-    public static final double BODY_PROPORTION = 2.37; // Proporção do sprite para o tamanho da tela
+    public static final double BODY_PROPORTION = 1.58; // Proporção do sprite para o tamanho da tela
 
     // Configurações player
     public static final double HITBOX_RAIO = 4;
     public static final int respawnX = 10;
     public static final int respawnY = 20;
-    public static final int BOMB_EFFECT_PERIOD = 30; // Efeito da bomba a cada 10 frames
+    public static final double HERO_VELOCITY = 14.0;
+    public static final int DANO_BALA = 40 ;
+    public static final int DANO_BALA_TELEGUIADA = 3;
+    public static final int REQ_MISSIL_POWER = 120;
+    public static final int REQ_TIROS_POWER = 150;
+
+    // Movimentação Player
+    public static final int KEY_UP = KeyEvent.VK_W;
+    public static final int KEY_DOWN = KeyEvent.VK_S;
+    public static final int KEY_LEFT = KeyEvent.VK_A;
+    public static final int KEY_RIGHT = KeyEvent.VK_D;
+    public static final int KEY_SHOOT = KeyEvent.VK_K;
+    public static final int KEY_BOMB = KeyEvent.VK_L;
+    public static final int KEY_SAVE = KeyEvent.VK_P;
+    public static final int KEY_LOAD = KeyEvent.VK_R;
+    public static final int KEY_RESTART = KeyEvent.VK_R;
+
 
     // Mapa
     public static final int largura = 632, altura = 740; 
@@ -21,6 +38,7 @@ public class Consts {
     public static final int TIMER = 10;
     public static final int RES = 20; 
     public static final int CELL_SIDE = 32;
+    public static final int FPS = 60;
 
 
 }

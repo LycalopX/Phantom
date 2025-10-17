@@ -59,7 +59,7 @@ public class Item extends Personagem {
     @Override
     public void atualizar(ArrayList<Personagem> personagens, Hero hero) {
         // Se o herói existe e a bomba está ativa, ativa a atração
-        if (hero != null && hero.isBombaAtiva()) {
+        if (hero != null && hero.isBombing()) {
             double dx = hero.x - this.x;
             double dy = hero.y - this.y;
 

@@ -6,6 +6,7 @@ import java.util.Set;
 import java.awt.event.KeyEvent;
 
 import Auxiliar.Consts;
+import Controler.Engine.GameState;
 import Modelo.Fases.Fase;
 import Modelo.Projeteis.BombaProjetil;
 import Modelo.Hero.GerenciadorDeArmas;
@@ -23,78 +24,82 @@ public class ControladorDoHeroi {
      */
 
     // Em Controler/ControladorDoHeroi.java
-    public void processarInput(Set<Integer> teclas, Hero heroi, Fase fase, ControleDeJogo cj) {
-        // --- LÓGICA DE MOVIMENTO ---
-        double delta = Consts.HERO_VELOCITY / 60.0;
-        double dx = 0, dy = 0;
+    public void processarInput(Set<Integer> teclas, Hero heroi, Fase fase, ControleDeJogo cj, GameState estadoAtual) {
 
-        // Lógica do Modo Foco (Shift)
-        boolean isFocoAtivo = teclas.contains(KeyEvent.VK_SHIFT);
-        double velocidadeAtual = isFocoAtivo ? delta / 2.0 : delta;
+        if (estadoAtual == GameState.JOGANDO) {
 
-        if (teclas.contains(Consts.KEY_UP))
-            dy -= velocidadeAtual;
-        if (teclas.contains(Consts.KEY_DOWN))
-            dy += velocidadeAtual;
-        if (teclas.contains(Consts.KEY_LEFT))
-            dx -= velocidadeAtual;
-        if (teclas.contains(Consts.KEY_RIGHT))
-            dx += velocidadeAtual;
+            // --- LÓGICA DE MOVIMENTO ---
+            double delta = Consts.HERO_VELOCITY / 60.0;
+            double dx = 0, dy = 0;
 
-        // Normaliza o movimento diagonal para não ser mais rápido
-        if (dx != 0 && dy != 0) {
-            dx /= Math.sqrt(2);
-            dy /= Math.sqrt(2);
-        }
+            // Lógica do Modo Foco (Shift)
+            boolean isFocoAtivo = teclas.contains(KeyEvent.VK_SHIFT);
+            double velocidadeAtual = isFocoAtivo ? delta / 2.0 : delta;
 
-        double proximoX = heroi.x + dx;
-        double proximoY = heroi.y + dy;
+            if (teclas.contains(Consts.KEY_UP))
+                dy -= velocidadeAtual;
+            if (teclas.contains(Consts.KEY_DOWN))
+                dy += velocidadeAtual;
+            if (teclas.contains(Consts.KEY_LEFT))
+                dx -= velocidadeAtual;
+            if (teclas.contains(Consts.KEY_RIGHT))
+                dx += velocidadeAtual;
 
-        // Validação de Limites da Tela
-        double limiteEsquerda = heroi.hitboxRaio;
-        double limiteDireita = ((double) Consts.largura / Consts.CELL_SIDE) - heroi.hitboxRaio;
-        double limiteTopo = heroi.hitboxRaio;
-        double limiteBaixo = ((double) Consts.altura / Consts.CELL_SIDE) - heroi.hitboxRaio;
+            // Normaliza o movimento diagonal para não ser mais rápido
+            if (dx != 0 && dy != 0) {
+                dx /= Math.sqrt(2);
+                dy /= Math.sqrt(2);
+            }
 
-        if (proximoX < limiteEsquerda)
-            proximoX = limiteEsquerda;
-        if (proximoX > limiteDireita)
-            proximoX = limiteDireita;
-        if (proximoY < limiteTopo)
-            proximoY = limiteTopo;
-        if (proximoY > limiteBaixo)
-            proximoY = limiteBaixo;
+            double proximoX = heroi.x + dx;
+            double proximoY = heroi.y + dy;
 
-        // Validação de Colisão com Personagens
-        double xFinal = heroi.x, yFinal = heroi.y;
-        if (cj.ehPosicaoValida(fase.getPersonagens(), heroi, proximoX, heroi.y)) {
-            xFinal = proximoX;
-        }
-        if (cj.ehPosicaoValida(fase.getPersonagens(), heroi, heroi.x, proximoY)) {
-            yFinal = proximoY;
-        }
-        heroi.mover(xFinal, yFinal);
+            // Validação de Limites da Tela
+            double limiteEsquerda = heroi.hitboxRaio;
+            double limiteDireita = ((double) Consts.largura / Consts.CELL_SIDE) - heroi.hitboxRaio;
+            double limiteTopo = heroi.hitboxRaio;
+            double limiteBaixo = ((double) Consts.altura / Consts.CELL_SIDE) - heroi.hitboxRaio;
 
-        // --- LÓGICA DE ANIMAÇÃO ---
-        boolean isMovingLeft = teclas.contains(Consts.KEY_LEFT);
-        boolean isMovingRight = teclas.contains(Consts.KEY_RIGHT);
-        heroi.atualizarAnimacao(isMovingLeft, isMovingRight);
+            if (proximoX < limiteEsquerda)
+                proximoX = limiteEsquerda;
+            if (proximoX > limiteDireita)
+                proximoX = limiteDireita;
+            if (proximoY < limiteTopo)
+                proximoY = limiteTopo;
+            if (proximoY > limiteBaixo)
+                proximoY = limiteBaixo;
 
-        // --- LÓGICA DE TIRO ---
-        if (teclas.contains(Consts.KEY_SHOOT)) {
-            System.out.println("DEBUG 2: Lógica de TIRO alcançada!");
+            // Validação de Colisão com Personagens
+            double xFinal = heroi.x, yFinal = heroi.y;
+            if (cj.ehPosicaoValida(fase.getPersonagens(), heroi, proximoX, heroi.y)) {
+                xFinal = proximoX;
+            }
+            if (cj.ehPosicaoValida(fase.getPersonagens(), heroi, heroi.x, proximoY)) {
+                yFinal = proximoY;
+            }
+            heroi.mover(xFinal, yFinal);
 
-            GerenciadorDeArmas armas = heroi.getSistemaDeArmas();
-            armas.disparar(heroi.x, heroi.y, heroi.getPower(), fase);
-        }
+            // --- LÓGICA DE ANIMAÇÃO ---
+            boolean isMovingLeft = teclas.contains(Consts.KEY_LEFT);
+            boolean isMovingRight = teclas.contains(Consts.KEY_RIGHT);
+            heroi.atualizarAnimacao(isMovingLeft, isMovingRight);
 
-        // --- LÓGICA DE BOMBA ---
-        if (teclas.contains(Consts.KEY_BOMB) && heroi.getBombas() > 0 && !heroi.isInvencivel()) {
-            System.out.println("DEBUG 3: Lógica de BOMBA alcançada!");
-            
-            BombaProjetil bomba = heroi.usarBomba();
-            if (bomba != null) {
-                fase.adicionarPersonagem(bomba);
+            // --- LÓGICA DE TIRO ---
+            if (teclas.contains(Consts.KEY_SHOOT)) {
+                System.out.println("DEBUG 2: Lógica de TIRO alcançada!");
+
+                GerenciadorDeArmas armas = heroi.getSistemaDeArmas();
+                armas.disparar(heroi.x, heroi.y, heroi.getPower(), fase);
+            }
+
+            // --- LÓGICA DE BOMBA ---
+            if (teclas.contains(Consts.KEY_BOMB) && heroi.getBombas() > 0 && !heroi.isInvencivel()) {
+                System.out.println("DEBUG 3: Lógica de BOMBA alcançada!");
+
+                BombaProjetil bomba = heroi.usarBomba();
+                if (bomba != null) {
+                    fase.adicionarPersonagem(bomba);
+                }
             }
         }
     }

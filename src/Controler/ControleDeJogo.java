@@ -43,8 +43,18 @@ public class ControleDeJogo {
                 break;
             }
         }
+
         if (hero == null)
             return false;
+
+        if (hero.isBombing()) {
+            for (Personagem p : personagens) {
+                if (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.INIMIGO) {
+                    ((Projetil) p).deactivate();
+                    // Aqui você poderia adicionar a lógica para converter a bala em um item
+                }
+            }
+        }
 
         quadtree.clear();
         for (Personagem p : personagens) {
@@ -116,7 +126,7 @@ public class ControleDeJogo {
             return !isPersonagemAtivo(p);
         });
 
-        return hero.getHP() > 0;
+        return !hero.isDanoPendente();
     }
 
     public boolean ehPosicaoValida(ArrayList<Personagem> umaFase, Personagem personagem, double proximoX,
@@ -222,15 +232,13 @@ public class ControleDeJogo {
 
     // --- MÉTODOS AUXILIARES DE COLISÃO ---
     private void colisaoHeroiInimigo(Hero h, Inimigo i) {
-        if (!h.isInvencivel()) {
-            h.takeDamage();
-            i.takeDamage(9999); // Inimigo também morre na colisão
+        if (h.takeDamage()) { // takeDamage() retorna true se o hit foi válido
+            i.takeDamage(9999);
         }
     }
 
     private void colisaoHeroiProjetilInimigo(Hero h, Projetil p) {
-        if (!h.isInvencivel()) {
-            h.takeDamage();
+        if (h.takeDamage()) { // takeDamage() retorna true se o hit foi válido
             p.deactivate();
         }
     }

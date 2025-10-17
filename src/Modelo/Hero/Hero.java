@@ -23,6 +23,7 @@ public class Hero extends Personagem {
     private int bombas = 3;
     private int power = 0;
     private int score = 0;
+    private boolean danoPendente = false;
 
     private int invencibilidadeTimer = 0;
     private int efeitoBombaTimer = 0;
@@ -30,10 +31,14 @@ public class Hero extends Personagem {
     public double grabHitboxRaio;
     private boolean isActive = true;
 
+    private boolean isBombing = false;
+    private int invincibilidadeTimer = 0;
+    private int bombTimer = 0;
+    private final int DURACAO_BOMBA_FRAMES = 180; // 3 segundos de bomba
+    private final int duracaoInvencibilidadeRespawn = 120; // 2 segundos
+
     private transient GerenciadorDeAnimacao animador;
     private GerenciadorDeArmas sistemaDeArmas;
-    private final int DURACAO_BOMBA_FRAMES = 300;
-    private final int duracaoInvencibilidadeRespawn = 120;
 
     // Para animação
     private HeroState estado = HeroState.IDLE;
@@ -56,13 +61,27 @@ public class Hero extends Personagem {
      */
     @Override
     public void atualizar(ArrayList<Personagem> personagens, Hero hero) {
-        // 1. Atualiza timers de invencibilidade e bomba
-        if (invencibilidadeTimer > 0)
-            invencibilidadeTimer--;
-        if (efeitoBombaTimer > 0)
-            efeitoBombaTimer--;
-
+        if (invincibilidadeTimer > 0)
+            invincibilidadeTimer--;
+        if (bombTimer > 0) {
+            bombTimer--;
+            if (bombTimer <= 0) {
+                isBombing = false; // A bomba acabou
+                invincibilidadeTimer = 30; // Pequena janela de invencibilidade pós-bomba
+            }
+        }
         sistemaDeArmas.atualizarTimers();
+    }
+
+    public BombaProjetil activateBomb() {
+        if (bombas > 0 && !isBombing) {
+            this.bombas--;
+            this.isBombing = true;
+            this.bombTimer = DURACAO_BOMBA_FRAMES;
+            this.invencibilidadeTimer = DURACAO_BOMBA_FRAMES;
+            return new BombaProjetil(this.x, this.y);
+        }
+        return null;
     }
 
     /**
@@ -182,8 +201,10 @@ public class Hero extends Personagem {
      * @return O objeto BombaProjetil, ou null se não houver bombas.
      */
     public BombaProjetil usarBomba() {
-        System.out.println("DEBUG 3 [Hero]: Método usarBomba() executado. Bombas restantes: " + (this.bombas - 1)); // <--- ADICIONE AQUI
-        
+        System.out.println("DEBUG 3 [Hero]: Método usarBomba() executado. Bombas restantes: " + (this.bombas - 1)); // <---
+                                                                                                                    // ADICIONE
+                                                                                                                    // AQUI
+
         if (getBombas() > 0) {
             this.bombas--;
             this.invencibilidadeTimer = DURACAO_BOMBA_FRAMES;
@@ -201,21 +222,46 @@ public class Hero extends Personagem {
         }
     }
 
-    // GETTERS E SETTERS SIMPLES
-    public void takeDamage() {
-        if (invencibilidadeTimer == 0) {
-            HP--;
-            invencibilidadeTimer = duracaoInvencibilidadeRespawn;
-
-            if (HP > 0) {
-                // ele se desativa para sinalizar ao Engine que precisa respawnar.
-                this.deactivate();
-            }
+    /**
+     * Efetivamente aplica o dano e as penalidades da morte.
+     * Chamado pelo Engine DEPOIS que a janela de deathbomb se fecha.
+     */
+    public void processarMorte() {
+        if (danoPendente) {
+            this.HP--;
+            this.power = 0; // Zera o poder ao morrer
+            this.deactivate(); // Desativa o herói para o respawn
+            this.danoPendente = false; // Reseta a flag
         }
+    }
+
+    /**
+     * Cancela um dano pendente.
+     * Chamado pelo Engine quando uma deathbomb é bem-sucedida.
+     */
+    public void cancelarDano() {
+        this.danoPendente = false;
+    }
+
+    // GETTERS E SETTERS SIMPLES
+    public boolean takeDamage() {
+        if (isInvencivel() || danoPendente) {
+            return false; // Não foi atingido ou já está esperando a morte
+        }
+        this.danoPendente = true; // Apenas levanta a flag!
+        return true; // Sinaliza para o ControleDeJogo que um hit ocorreu
     }
 
     public boolean isActive() {
         return this.isActive;
+    }
+
+    public boolean isDanoPendente() {
+        return this.danoPendente;
+    }
+
+    public boolean isBombing() {
+        return this.isBombing;
     }
 
     public void deactivate() {
@@ -260,9 +306,5 @@ public class Hero extends Personagem {
 
     public int getNivelDeMisseis() {
         return this.sistemaDeArmas.getNivelDeMisseis(this.power);
-    }
-
-    public boolean isBombaAtiva() {
-        return this.efeitoBombaTimer > 0;
     }
 }

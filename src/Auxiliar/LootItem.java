@@ -1,7 +1,8 @@
 package Auxiliar;
 
-import Modelo.ItemType;
 import java.io.Serializable;
+
+import Modelo.Items.ItemType;
 
 public class LootItem implements Serializable {
 

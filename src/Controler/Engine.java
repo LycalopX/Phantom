@@ -1,10 +1,9 @@
 package Controler;
 
-import Modelo.Fase;
-import Modelo.Hero;
-import Modelo.Item;
-import Modelo.ItemType;
-import Modelo.Personagem;
+import Modelo.Fases.Fase;
+import Modelo.Hero.Hero;
+import Modelo.Items.Item;
+import Modelo.Items.ItemType;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -25,10 +24,18 @@ public class Engine implements Runnable {
     private Cenario cenario;
     private Thread gameThread;
 
-    private Fase faseAtual;
-    private Hero hero;
-    private ControleDeJogo controleDeJogo; // Sua classe de regras
-    double velocidadeScroll = 2.0; // Definir a lógica de velocidade aqui
+    // Componentes principais do padrão MVC
+    private Fase faseAtual; // Modelo
+    private Hero hero; // Modelo (referência direta para facilitar)
+    private ControleDeJogo controleDeJogo; // Controlador de Regras
+    private ControladorDoHeroi controladorHeroi; // Controlador de Input
+    private GerenciadorDeFases gerenciadorDeFases;
+
+    private GameState estadoAtual = GameState.JOGANDO;
+    private int respawnTimer = 0;
+    private final int TEMPO_DE_RESPAWN = 60; // 1 segundo
+    private final Set<Integer> teclasPressionadas = new HashSet<>();
+    private final double velocidadeScroll = 2.0;
 
     public enum GameState {
         JOGANDO,
@@ -36,53 +43,49 @@ public class Engine implements Runnable {
         GAME_OVER
     }
 
-    private GameState estadoAtual = GameState.JOGANDO;
-
-    private int respawnTimer = 0;
-    private final int TEMPO_DE_RESPAWN = 120;
-
-    private final Set<Integer> teclasPressionadas = new HashSet<>();
-
     public Engine() {
+        // 1. Inicializa os Controladores
         controleDeJogo = new ControleDeJogo();
+        controladorHeroi = new ControladorDoHeroi();
 
-        // 1. Inicializa o Modelo
-        faseAtual = new Fase();
-        hero = new Hero("hero/hero_s0.png", Consts.respawnX, Consts.respawnY);
-        faseAtual.adicionarPersonagem(hero);
+        // 2. Inicializa o Gerenciador de Fases
+        this.gerenciadorDeFases = new GerenciadorDeFases();
 
-        // 2. Inicializa a View
+        // 3. Pede a primeira fase para o gerenciador
+        this.faseAtual = gerenciadorDeFases.carregarFase();
+
+        this.hero = new Hero("hero/hero_s0.png", Consts.respawnX, Consts.respawnY);
+        this.faseAtual.adicionarPersonagem(hero);
+
+        // 3. Inicializa a Visão (View)
         cenario = new Cenario();
         cenario.setFase(faseAtual);
         cenario.setEstadoDoJogo(estadoAtual);
 
-        // 3. Inicializa a Janela Principal
+        // 4. Configura a Janela Principal
         tela = new Tela();
         tela.add(cenario);
+        configurarTeclado(); // Configura o listener de teclado
         tela.pack();
         tela.setLocationRelativeTo(null);
         tela.setVisible(true);
-
-        configurarTeclado();
     }
 
-    public void startGameThread() {
-        gameThread = new Thread(this);
-        gameThread.start();
-    }
-
+    // O loop de jogo (run) permanece o mesmo, ele é o "coração" que pulsa a 60 FPS
     @Override
     public void run() {
         double drawInterval = 1000000000.0 / FPS;
         double delta = 0;
         long lastTime = System.nanoTime();
+
         while (gameThread != null) {
             long currentTime = System.nanoTime();
             delta += (currentTime - lastTime) / drawInterval;
             lastTime = currentTime;
+
             if (delta >= 1) {
-                atualizar();
-                cenario.repaint();
+                atualizar(); // Atualiza a lógica
+                cenario.repaint(); // Redesenha a tela
                 cenario.atualizarContadorFPS();
                 delta--;
             }
@@ -90,127 +93,127 @@ public class Engine implements Runnable {
     }
 
     private void atualizar() {
-
         switch (estadoAtual) {
             case JOGANDO:
-                // 1. Chama o 'atualizar' do herói e recebe o "pacote de resultados"
-                Hero.HeroUpdateResult resultadoHeroi = hero.atualizar(teclasPressionadas, controleDeJogo,
-                        faseAtual.getPersonagens());
+                // 1. INPUT: O controlador lê as teclas e comanda o herói (movimento, tiro,
+                // bomba).
+                controladorHeroi.processarInput(teclasPressionadas, hero, faseAtual, controleDeJogo);
 
-                for (Personagem p : resultadoHeroi.novosProjeteis) {
-                    faseAtual.adicionarPersonagem(p);
-                }
-                if (resultadoHeroi.inimigosMorremTimer > 0
-                        && (resultadoHeroi.inimigosMorremTimer % Consts.BOMB_EFFECT_PERIOD == 0)) {
-                    faseAtual.ativarBomba();
-                }
-                // Atualiza a fase (scroll, inimigos, spawns)
+                // 2. MODELO: A fase atualiza seus componentes (scroll, spawn de inimigos,
+                // movimento dos inimigos).
                 faseAtual.atualizar(velocidadeScroll);
 
-                // processaTudo agora nos diz se o herói perdeu a última vida
-                boolean heroiSobreviveuAoFrame = controleDeJogo.processaTudo(faseAtual.getPersonagens());
+                // 3. REGRAS: O controle de jogo processa colisões e interações.
+                controleDeJogo.processaTudo(faseAtual.getPersonagens());
 
-                if (!heroiSobreviveuAoFrame) {
-                    // O herói foi atingido e seu HP chegou a 0 ou menos
+                // 4. ESTADO GLOBAL: O Engine verifica se o herói morreu.
+                if (hero.getHP() <= 0) {
+                    dropItensAoMorrer();
+                    hero.deactivate();
+                    estadoAtual = GameState.GAME_OVER; // MUDANÇA: Ir direto para GAME_OVER
 
-                    int powerAtual = hero.getPower();
-                    int itensADropar = powerAtual / 10; // Exemplo: 1 item a cada 10 de power
-
-                    for (int i = 0; i < itensADropar; i++) {
-                        // Cria um item MINI_POWER_UP na posição do herói
-                        Item itemDropado = new Item(ItemType.MINI_POWER_UP, hero.x, hero.y);
-
-                        // Lança o item para cima em um ângulo aleatório
-                        double angulo = -30 - (Math.random() * 120); // Leque para cima
-                        double forca = 0.15;
-                        itemDropado.lancarItem(angulo, forca);
-
-                        // Adiciona o item à fase (precisamos de um método para isso)
-                        faseAtual.adicionarPersonagem(itemDropado);
-                    }
-
-                    if (hero.getHP() > 0) {
-                        estadoAtual = GameState.RESPAWNANDO;
-                        respawnTimer = TEMPO_DE_RESPAWN;
-
-                        hero.deactivate();
-
-                    } else {
-                        estadoAtual = GameState.GAME_OVER;
-                        hero.deactivate();
-                    }
+                } else if (!hero.isActive()) { // Se o herói tomou dano mas não morreu
+                    dropItensAoMorrer();
+                    estadoAtual = GameState.RESPAWNANDO;
+                    respawnTimer = TEMPO_DE_RESPAWN;
                 }
                 break;
 
             case RESPAWNANDO:
+                // Durante o respawn, o jogo continua rodando no fundo
                 faseAtual.atualizar(velocidadeScroll);
                 controleDeJogo.processaTudo(faseAtual.getPersonagens());
 
-                // Lógica que roda durante a contagem para o respawn
                 respawnTimer--;
                 if (respawnTimer <= 0) {
-                    // Chama respawn do herói
                     hero.respawn();
-
                     estadoAtual = GameState.JOGANDO;
                 }
                 break;
 
             case GAME_OVER:
+                // O jogo para. Nenhuma lógica de atualização é executada.
                 break;
         }
+        // Informa a view qual é o estado atual do jogo para que ela possa desenhar a
+        // tela correta
         cenario.setEstadoDoJogo(estadoAtual);
+    }
 
+    private void dropItensAoMorrer() {
+        int powerAtual = hero.getPower();
+        int itensADropar = powerAtual / 10; // Ex: 1 item a cada 10 de power
+
+        for (int i = 0; i < itensADropar; i++) {
+            Item itemDropado = new Item(ItemType.MINI_POWER_UP, hero.x, hero.y);
+            double angulo = -30 - (Math.random() * 120); // Leque para cima
+            double forca = 0.15;
+            itemDropado.lancarItem(angulo, forca);
+            faseAtual.adicionarPersonagem(itemDropado);
+        }
+    }
+
+    // Métodos de salvar, carregar, reiniciar e configurar teclado permanecem
+    // praticamente os mesmos.
+    // Apenas uma correção crucial no carregarJogo:
+    private void carregarJogo() {
+        try {
+            FileInputStream fis = new FileInputStream("POO.dat");
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            this.faseAtual = (Fase) ois.readObject();
+            ois.close();
+            fis.close();
+
+            // ATUALIZA AS REFERÊNCIAS CRUCIAIS APÓS CARREGAR
+            cenario.setFase(this.faseAtual);
+            this.hero = (Hero) this.faseAtual.getHero(); // Garante que o Engine está controlando o herói correto
+
+            System.out.println(">>> JOGO CARREGADO!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ... O resto da sua classe Engine (startGameThread, reiniciarJogo,
+    // configurarTeclado, salvarJogo) ...
+    public void startGameThread() {
+        gameThread = new Thread(this);
+        gameThread.start();
     }
 
     private void reiniciarJogo() {
-        // 1. Reseta o estado da Engine
         estadoAtual = GameState.JOGANDO;
         respawnTimer = 0;
-
-        // 2. Reseta a Fase e o Herói
-        faseAtual = new Fase(); // Cria uma nova fase, com novos inimigos, etc.
-        hero = new Hero("hero/hero_s0.png", Consts.respawnX, Consts.respawnY); // Cria um novo herói
+        
+        gerenciadorDeFases.resetar();
+        faseAtual = gerenciadorDeFases.carregarFase(); // Carrega a Fase 1
+        hero = new Hero("hero/hero_s0.png", Consts.respawnX, Consts.respawnY);
         faseAtual.adicionarPersonagem(hero);
 
-        // 3. Atualiza as referências no Cenario
         cenario.setFase(faseAtual);
         cenario.setEstadoDoJogo(estadoAtual);
-
-        // 4. Garante que o GameThread está rodando se não estiver
-        if (gameThread == null || !gameThread.isAlive()) {
-            startGameThread();
-        }
     }
 
     private void configurarTeclado() {
         tela.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                
-                // Lógica para reiniciar o jogo quando estiver em GAME_OVER
-                if (estadoAtual == GameState.GAME_OVER && e.getKeyCode() == KeyEvent.VK_R) {
+                if (estadoAtual == GameState.GAME_OVER && e.getKeyCode() == Consts.KEY_RESTART) {
                     reiniciarJogo();
                     return;
                 }
-
-                teclasPressionadas.add(e.getKeyCode());
-
-                // --- LÓGICA DE SAVE/LOAD (COM NOVAS TECLAS) ---
-                if (e.getKeyCode() == KeyEvent.VK_P) { // 'S' foi mudado para 'P'
+                if (e.getKeyCode() == Consts.KEY_SAVE) {
                     salvarJogo();
                     return;
                 }
-                if (e.getKeyCode() == KeyEvent.VK_R) { // 'L' foi mudado para 'R'
+                if (e.getKeyCode() == Consts.KEY_LOAD) {
                     carregarJogo();
                     return;
-                }
+                } // Mudei para 'O' para não conflitar com o 'R' de reiniciar
 
                 teclasPressionadas.add(e.getKeyCode());
 
-                // Verifica se a combinação F+3 foi completada
                 if (teclasPressionadas.contains(KeyEvent.VK_F) && teclasPressionadas.contains(KeyEvent.VK_3)) {
-
                     DebugManager.toggle();
                     teclasPressionadas.remove(KeyEvent.VK_F);
                     teclasPressionadas.remove(KeyEvent.VK_3);
@@ -219,7 +222,6 @@ public class Engine implements Runnable {
 
             @Override
             public void keyReleased(KeyEvent e) {
-                // A lógica de remover a tecla quando ela é solta continua a mesma
                 teclasPressionadas.remove(e.getKeyCode());
             }
         });
@@ -227,45 +229,27 @@ public class Engine implements Runnable {
 
     private void salvarJogo() {
         try {
-            // Cria um arquivo para salvar o jogo
             FileOutputStream fos = new FileOutputStream("POO.dat");
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-
-            // Salva o objeto 'faseAtual' inteiro no arquivo
             oos.writeObject(this.faseAtual);
-
             oos.close();
             fos.close();
             System.out.println(">>> JOGO SALVO!");
         } catch (Exception e) {
-            System.out.println("ERRO AO SALVAR: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private void carregarJogo() {
-        try {
-            // Lê o arquivo salvo
-            FileInputStream fis = new FileInputStream("POO.dat");
-            ObjectInputStream ois = new ObjectInputStream(fis);
+    public void carregarProximaFase() {
+        // (Você precisará de uma lógica para detectar o fim da fase,
+        // por exemplo, distanciaTotalRolada > 10000 ou um boss morrer)
 
-            // Carrega o objeto 'faseAtual' do arquivo
-            this.faseAtual = (Fase) ois.readObject();
+        this.faseAtual = gerenciadorDeFases.proximaFase();
 
-            ois.close();
-            fis.close();
+        // Adiciona o herói (e outros elementos persistentes) à nova fase
+        this.faseAtual.adicionarPersonagem(hero);
 
-            // ETAPA CRUCIAL: Atualizar as referências do Engine!
-            // O Cenario precisa saber sobre a nova fase
-            cenario.setFase(this.faseAtual);
-
-            // O Engine precisa de uma referência direta para o novo Herói
-            this.hero = (Hero) this.faseAtual.getHero();
-
-            System.out.println(">>> JOGO CARREGADO!");
-        } catch (Exception e) {
-            System.out.println("ERRO AO CARREGAR: " + e.getMessage());
-            e.printStackTrace();
-        }
+        // Atualiza a visão
+        cenario.setFase(this.faseAtual);
     }
 }

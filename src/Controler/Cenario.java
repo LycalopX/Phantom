@@ -120,11 +120,12 @@ public class Cenario extends JPanel {
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("Arial", Font.BOLD, 20));
 
-        g2d.drawString(contadorFPS.getFPSString(), 10, 55);
+        g2d.drawString(contadorFPS.getFPSString(), 10, 60);
 
         Personagem heroi = faseAtual.getHero(); // Você precisará criar este método
         if (heroi instanceof Hero) { // Boa prática verificar o tipo
             Hero h = (Hero) heroi;
+
             g2d.drawString("Bombas: " + h.getBombas(), 10, 80);
             g2d.drawString("HP: " + h.getHP(), 10, 100);
             g2d.drawString("Power: " + h.getPower(), 10, 120);

@@ -60,13 +60,12 @@ public class ControleDeJogo {
         }
 
         // Vamos marcar quem deve ser removido, e remover no final.
-        ArrayList<Personagem> objetosARemover = new ArrayList<>();
         ArrayList<Personagem> novosObjetos = new ArrayList<>();
 
         // --- LÓGICA DE COLISÃO COM QUADTREE ---
         List<Personagem> vizinhosPotenciais = new ArrayList<>();
         for (Personagem p1 : personagens) {
-            if (!isPersonagemAtivo(p1))
+            if (!p1.isActive())
                 continue;
 
             // Reinicia e olha de volta a lista de vizinhos potenciais
@@ -74,7 +73,7 @@ public class ControleDeJogo {
             quadtree.retrieve(vizinhosPotenciais, p1);
 
             for (Personagem p2 : vizinhosPotenciais) {
-                if (p1.hashCode() >= p2.hashCode() || !isPersonagemAtivo(p2))
+                if (p1.hashCode() >= p2.hashCode() || !p2.isActive())
                     continue;
 
                 double somaRaios;
@@ -106,14 +105,13 @@ public class ControleDeJogo {
         personagens.addAll(novosObjetos);
 
         personagens.removeIf(p -> {
-            // A regra principal: NUNCA remova um projétil da lista.
-            // Eles são gerenciados pela ProjetilPool e apenas desativados/reativados.
-            if (p instanceof Projetil) {
+            // A regra principal: NUNCA remova um projétil OU O HERÓI da lista.
+            if (p instanceof Projetil || p instanceof Hero) {
                 return false;
             }
             // Para todos os outros personagens (Inimigos, Itens, etc.),
             // remova-os se não estiverem mais ativos.
-            return !isPersonagemAtivo(p);
+            return !p.isActive();
         });
 
         return hero.getHP() > 0;
@@ -250,20 +248,6 @@ public class ControleDeJogo {
                 }
             }
         }
-    }
-
-    // --- MÉTODOS DE UTILIDADE ---
-    private boolean isPersonagemAtivo(Personagem p) {
-        // Regras especiais para classes com a flag 'isActive'
-        if (p instanceof Projetil)
-            return ((Projetil) p).isActive();
-        if (p instanceof Hero)
-            return ((Hero) p).isActive();
-        if (p instanceof Item)
-            return ((Item) p).isActive();
-
-        // Regra geral para todas as outras classes (Inimigo, BombaProjetil)
-        return p.getVida() > 0;
     }
 
     private Hero findHero(ArrayList<Personagem> personagens) {

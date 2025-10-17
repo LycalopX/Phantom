@@ -28,7 +28,6 @@ public class Hero extends Personagem {
     private int efeitoBombaTimer = 0;
 
     public double grabHitboxRaio;
-    private boolean isActive = true;
 
     private transient GerenciadorDeAnimacao animador;
     private GerenciadorDeArmas sistemaDeArmas;
@@ -48,6 +47,8 @@ public class Hero extends Personagem {
         // Inicializa os componentes
         this.animador = new GerenciadorDeAnimacao(this.largura, this.altura);
         this.sistemaDeArmas = new GerenciadorDeArmas();
+
+        activate();
     }
 
     /**
@@ -133,7 +134,7 @@ public class Hero extends Personagem {
 
     @Override
     public void autoDesenho(Graphics g) {
-        if (!this.isActive)
+        if (!isActive())
             return;
 
         int telaX = (int) Math.round(x * Consts.CELL_SIDE) - (this.largura / 2);
@@ -172,7 +173,7 @@ public class Hero extends Personagem {
         this.power = 0;
         this.invencibilidadeTimer = duracaoInvencibilidadeRespawn;
         this.estado = HeroState.IDLE;
-        this.isActive = true;
+        super.activate();
     }
 
     /**
@@ -209,17 +210,17 @@ public class Hero extends Personagem {
 
             if (HP > 0) {
                 // ele se desativa para sinalizar ao Engine que precisa respawnar.
-                this.deactivate();
+                super.deactivate();
             }
         }
     }
 
-    public boolean isActive() {
-        return this.isActive;
-    }
-
     public void deactivate() {
-        this.isActive = false;
+        super.deactivate(); // Usa o método da classe pai
+    }
+    
+    public void activate() {
+        super.activate(); // Usa o método da classe pai
     }
 
     public int getBombas() {

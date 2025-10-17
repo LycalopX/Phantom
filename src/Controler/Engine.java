@@ -92,7 +92,7 @@ public class Engine implements Runnable {
         }
     }
 
-    private void atualizar() {
+    private synchronized void atualizar() {
         switch (estadoAtual) {
             case JOGANDO:
                 // 1. INPUT: O controlador lê as teclas e comanda o herói (movimento, tiro,
@@ -153,10 +153,7 @@ public class Engine implements Runnable {
         }
     }
 
-    // Métodos de salvar, carregar, reiniciar e configurar teclado permanecem
-    // praticamente os mesmos.
-    // Apenas uma correção crucial no carregarJogo:
-    private void carregarJogo() {
+    private synchronized void carregarJogo() {
         try {
             FileInputStream fis = new FileInputStream("POO.dat");
             ObjectInputStream ois = new ObjectInputStream(fis);
@@ -184,7 +181,7 @@ public class Engine implements Runnable {
     private void reiniciarJogo() {
         estadoAtual = GameState.JOGANDO;
         respawnTimer = 0;
-        
+
         gerenciadorDeFases.resetar();
         faseAtual = gerenciadorDeFases.carregarFase(); // Carrega a Fase 1
         hero = new Hero("hero/hero_s0.png", Consts.respawnX, Consts.respawnY);
@@ -199,7 +196,7 @@ public class Engine implements Runnable {
             @Override
             public void keyPressed(KeyEvent e) {
                 System.out.println("DEBUG 1: Tecla Pressionada - Código: " + e.getKeyCode());
-                
+
                 if (estadoAtual == GameState.GAME_OVER && e.getKeyCode() == Consts.KEY_RESTART) {
                     reiniciarJogo();
                     return;
@@ -229,7 +226,7 @@ public class Engine implements Runnable {
         });
     }
 
-    private void salvarJogo() {
+    private synchronized void salvarJogo() {
         try {
             FileOutputStream fos = new FileOutputStream("POO.dat");
             ObjectOutputStream oos = new ObjectOutputStream(fos);

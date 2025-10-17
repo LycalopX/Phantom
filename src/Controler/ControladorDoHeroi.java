@@ -3,10 +3,8 @@
 package Controler;
 
 import java.util.Set;
-import java.util.ArrayList;
 
 import Auxiliar.Consts;
-import Modelo.Personagem;
 import Modelo.Fases.Fase;
 import Modelo.Hero.GerenciadorDeArmas;
 import Modelo.Hero.Hero;

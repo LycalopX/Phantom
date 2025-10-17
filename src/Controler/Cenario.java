@@ -87,7 +87,7 @@ public class Cenario extends JPanel {
                 desenharHUD(g2d);
             }
         } else if (estadoDoJogo == Engine.GameState.GAME_OVER) {
-            desenharTelaGameOver(g); // << NOVO: Chama o método de desenho do Game Over
+            desenharTelaGameOver(g); // Chama o método de desenho do Game Over
         }
 
     }

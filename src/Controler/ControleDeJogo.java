@@ -49,7 +49,8 @@ public class ControleDeJogo {
                     objetosARemover.add(p);
                 }
                 if (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.INIMIGO) {
-                    // Adiciona à lista de remoção (sem checagem de duplicata, removeAll lidará com isso)
+                    // Adiciona à lista de remoção (sem checagem de duplicata, removeAll lidará com
+                    // isso)
                     objetosARemover.add(p);
                 }
             }
@@ -67,21 +68,24 @@ public class ControleDeJogo {
                 for (Personagem p2 : personagens) {
                     if (p1 == p2)
                         continue;
-
-                    double dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+                    double dx = p1.x - p2.x;
+                    double dy = p1.y - p2.y;
+                    double somaRaios = p1.hitboxRaio + p2.hitboxRaio;
+                    // Compara o quadrado da distância com o quadrado da soma dos raios
 
                     if (p2 instanceof Item) {
-                        if (dist < h.grabHitboxRaio + p2.hitboxRaio) {
+                        if ((dx * dx) + (dy * dy) < (somaRaios * somaRaios)) {
                             aplicarEfeitoDoItem(h, (Item) p2);
 
                             objetosARemover.add(p2); // Marca o item para remoção
                         }
+
                     } else if (p2.isbMortal()) {
                         if (p2 instanceof Projetil && ((Projetil) p2).getTipo() == TipoProjetil.JOGADOR) {
                             continue;
                         }
 
-                        if (dist < p1.hitboxRaio + p2.hitboxRaio) {
+                        if ((dx * dx) + (dy * dy) < (somaRaios * somaRaios)) {
 
                             if (!h.isInvencivel()) {
                                 h.takeDamage();
@@ -101,10 +105,15 @@ public class ControleDeJogo {
                     continue;
 
                 for (Personagem p2 : personagens) {
-                    double dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+
+                    double dx = p1.x - p2.x;
+                    double dy = p1.y - p2.y;
+                    double somaRaios = p1.hitboxRaio + p2.hitboxRaio;
+                    // Compara o quadrado da distância com o quadrado da
+
                     if (p2 instanceof Inimigo) {
 
-                        if (dist < p1.hitboxRaio + p2.hitboxRaio) {
+                        if ((dx * dx) + (dy * dy) < (somaRaios * somaRaios)) {
 
                             LootTable tabela = ((Inimigo) p2).getLootTable();
                             if (tabela != null) {
@@ -117,8 +126,8 @@ public class ControleDeJogo {
                                     novosObjetos.add(itemCriado);
                                 }
                             }
-
-                            objetosARemover.add(p1);
+                            
+                            ((Projetil) p1).deactivate();
 
                             ((Inimigo) p2).takeDamage(Consts.DANO_BALA);
 
@@ -146,10 +155,11 @@ public class ControleDeJogo {
                 continue;
             }
 
-            double dist = Math.sqrt(Math.pow(proximoX - p.x, 2) + Math.pow(proximoY - p.y, 2));
+            double dx = proximoX - p.x;
+            double dy = proximoY - p.y;
+            double somaRaios = personagem.hitboxRaio + p.hitboxRaio;
 
-            // CORREÇÃO: Usa 'hitboxRaio' em vez de 'raio'
-            if (dist < personagem.hitboxRaio + p.hitboxRaio) {
+            if ((dx * dx) + (dy * dy) < (somaRaios * somaRaios)) {
                 return false; // Colisão detectada
             }
         }

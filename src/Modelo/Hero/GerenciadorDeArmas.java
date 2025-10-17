@@ -3,12 +3,12 @@
 package Modelo.Hero;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import Auxiliar.Consts;
 import Auxiliar.TipoProjetil;
-import Modelo.Personagem;
+import Modelo.Fases.Fase;
 import Modelo.Projeteis.Projetil;
 import Modelo.Projeteis.ProjetilHoming;
+import Modelo.Projeteis.ProjetilPool;
 
 public class GerenciadorDeArmas implements Serializable {
 
@@ -40,41 +40,52 @@ public class GerenciadorDeArmas implements Serializable {
      * @param power Quantidade de poder do Herói.
      * @return Uma lista de novos projéteis a serem adicionados à fase.
      */
-    public ArrayList<Personagem> disparar(double x, double y, int power) {
-        ArrayList<Personagem> novosProjeteis = new ArrayList<>();
+    public void disparar(double x, double y, int power, Fase fase) {
 
-        // 1. Tenta disparar os Mísseis Teleguiados
-        int nivelDeMisseis = getNivelDeMisseis(power);
+        ProjetilPool pool = fase.getProjetilPool();
+        int tamanhoHitbox = 8;
+        double raioHitbox = tamanhoHitbox / Consts.CELL_SIDE;
+        if (pool == null)
+            return;
 
-        if (nivelDeMisseis >= 1 && cooldownMisseis <= 0) {
-            adicionarMisseisTeleguiados(novosProjeteis, x, y, nivelDeMisseis);
-            cooldownMisseis = MISSILE_COOLDOWN_TIME; // Reinicia o cooldown dos mísseis
+        // Dispara os Mísseis
+        if (getNivelDeMisseis(power) >= 1 && cooldownMisseis <= 0) {
+            adicionarMisseisTeleguiados(x, y, getNivelDeMisseis(power), fase, raioHitbox);
+            cooldownMisseis = MISSILE_COOLDOWN_TIME;
         }
 
         // 2. Tenta disparar o Tiro Principal
         if (cooldownTiroPrincipal <= 0) {
-            String spriteTiro = "projectiles/hero/projectile1_hero.png";
-            double velocidadeProjetilEmGrid = 10.0 / Consts.CELL_SIDE;
+            double velocidadeProjetilEmGrid = 50.0 / Consts.CELL_SIDE;
             int nivelDeTiroBase = getNivelTiroBase(power);
 
             double velocidadeFinal = velocidadeProjetilEmGrid * (1 + (nivelDeTiroBase - 1) * 0.2);
 
             int larguraVisual = 80;
             int alturaVisual = 20;
-            int tamanhoHitbox = 8;
 
             // Tiro Central
-            novosProjeteis.add(new Projetil(spriteTiro, x, y, larguraVisual, alturaVisual, tamanhoHitbox,
-                    velocidadeFinal, -90, TipoProjetil.JOGADOR));
+            Projetil p1 = pool.getProjetilNormal();
+            if (p1 != null) {
+                p1.reset(x, y, larguraVisual, alturaVisual, raioHitbox,
+                        velocidadeFinal, -90, TipoProjetil.JOGADOR);
+            }
 
             // Tiros Laterais (se tiver nível 3)
             if (nivelDeTiroBase >= 3) {
                 double offsetX = 0.5; // Distância lateral do centro do herói
 
-                novosProjeteis.add(new Projetil(spriteTiro, x - offsetX, y, larguraVisual, alturaVisual, tamanhoHitbox,
-                        velocidadeFinal, -105, TipoProjetil.JOGADOR));
-                novosProjeteis.add(new Projetil(spriteTiro, x + offsetX, y, larguraVisual, alturaVisual, tamanhoHitbox,
-                        velocidadeFinal, -75, TipoProjetil.JOGADOR));
+                Projetil p2 = pool.getProjetilNormal();
+                if (p2 != null) {
+                    p2.reset(x - offsetX, y, larguraVisual, alturaVisual, raioHitbox,
+                            velocidadeFinal, -105, TipoProjetil.JOGADOR);
+                }
+
+                Projetil p3 = pool.getProjetilNormal();
+                if (p3 != null) {
+                    p3.reset(x + offsetX, y, larguraVisual, alturaVisual, raioHitbox,
+                            velocidadeFinal, -75, TipoProjetil.JOGADOR);
+                }
             }
 
             // A cadência de tiro aumenta com o poder (cooldown diminui)
@@ -82,36 +93,41 @@ public class GerenciadorDeArmas implements Serializable {
             cooldownTiroPrincipal = Math.max(cooldownFinal, 2); // Garante um cooldown mínimo
         }
 
-        return novosProjeteis;
+        return;
     }
 
-    private void adicionarMisseisTeleguiados(ArrayList<Personagem> listaDeProjeteis, double x, double y,
-            int nivelDeMisseis) {
+    private void adicionarMisseisTeleguiados(double x, double y, int nivelDeMisseis, Fase fase, double raioHitbox) {
 
-        double velocidadeBase = 4.0 / Consts.CELL_SIDE;
+        ProjetilPool pool = fase.getProjetilPool();
+
+        double velocidadeBase = 8.0 / Consts.CELL_SIDE;
         double velocidadeFinal = velocidadeBase * (1 + (nivelDeMisseis - 1) * 0.2);
         int tamanhoDoMissil = 20;
 
         for (int i = 0; i < nivelDeMisseis; i++) {
-            double anguloEsquerda = -90 - 45 - (i * 10);
-            double anguloDireita = -90 + 45 + (i * 10);
+            double anguloEsquerda = -90 - 30 - (i * 10);
+            double anguloDireita = -90 + 30 + (i * 10);
             double offsetX = 0.3 * (i + 1);
 
-            // Míssil da Esquerda
-            listaDeProjeteis.add(new ProjetilHoming("projectiles/hero/projectile2_hero.png", x - offsetX, y,
-                    tamanhoDoMissil, tamanhoDoMissil, 16, velocidadeFinal, anguloEsquerda, TipoProjetil.JOGADOR));
-            // Míssil da Direita
-            listaDeProjeteis.add(new ProjetilHoming("projectiles/hero/projectile2_hero.png", x + offsetX, y,
-                    tamanhoDoMissil, tamanhoDoMissil, 16, velocidadeFinal, anguloDireita, TipoProjetil.JOGADOR));
+            ProjetilHoming pEsquerdo = pool.getProjetilHoming();
+            if (pEsquerdo != null) {
+                pEsquerdo.resetHoming(x - offsetX, y, tamanhoDoMissil, tamanhoDoMissil, raioHitbox,
+                        velocidadeFinal, anguloEsquerda, TipoProjetil.JOGADOR);
+            }
+
+            // 2. Pega um projétil COMPLETAMENTE DIFERENTE e o armazena em 'pDireito'
+            ProjetilHoming pDireito = pool.getProjetilHoming();
+            if (pDireito != null) {
+                pDireito.resetHoming(x + offsetX, y, tamanhoDoMissil, tamanhoDoMissil, raioHitbox,
+                        velocidadeFinal, anguloDireita, TipoProjetil.JOGADOR);
+            }
         }
     }
 
-    // MÉTODOS DE UTILIDADE (privados e estáticos, pois não dependem do estado do
-    // objeto)
     public int getNivelDeMisseis(int power) {
         return Math.min(power / Consts.REQ_MISSIL_POWER, 4);
     }
-    
+
     public int getNivelTiroBase(int power) {
         return Math.min(power / Consts.REQ_TIROS_POWER, 3);
     }

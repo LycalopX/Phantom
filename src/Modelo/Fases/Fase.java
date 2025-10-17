@@ -4,6 +4,7 @@ package Modelo.Fases;
 import Modelo.Personagem;
 import Modelo.Hero.Hero;
 import Modelo.Projeteis.Projetil;
+import Modelo.Projeteis.ProjetilPool;
 import Auxiliar.ArvoreParallax;
 import Auxiliar.Consts;
 import java.io.Serializable;
@@ -24,20 +25,24 @@ public class Fase implements Serializable {
     private ArrayList<Personagem> personagens;
     private ArrayList<ArvoreParallax> arvores;
     private ScriptDeFase scriptDaFase;
+    private ProjetilPool projetilPool;
 
     private transient BufferedImage imagemFundo1, imagemFundo2;
     private double scrollY = 0;
     private double distanciaTotalRolada = 0;
 
-    // --- TODAS AS VARIÁVEIS DE SPAWN (random, proximoSpawnY, etc.) FORAM REMOVIDAS ---
+    // --- TODAS AS VARIÁVEIS DE SPAWN (random, proximoSpawnY, etc.) FORAM REMOVIDAS
+    // ---
     // A responsabilidade agora é 100% do Script.
 
     public Fase(ScriptDeFase script) {
         this.personagens = new ArrayList<>();
+        this.projetilPool = new ProjetilPool(300, 100);
         this.arvores = new ArrayList<>();
         this.scriptDaFase = script;
 
         carregarRecursos(); // Carrega as imagens transient
+        this.personagens.addAll(projetilPool.getTodosOsProjeteis());
 
         // O Script agora é responsável por preencher o cenário inicial
         if (this.scriptDaFase != null) {
@@ -48,7 +53,7 @@ public class Fase implements Serializable {
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         carregarRecursos();
-        
+
         // Relinka as imagens nas árvores (a lógica do script já foi carregada)
         if (this.arvores != null && this.imagemFundo2 != null) {
             for (ArvoreParallax arvore : this.arvores) {
@@ -82,7 +87,7 @@ public class Fase implements Serializable {
         }
 
         // 3. Atualiza os objetos que JÁ EXISTEM na fase
-        
+
         // Move e remove as árvores
         for (ArvoreParallax arvore : arvores) {
             arvore.mover(velocidadeScroll);
@@ -92,33 +97,52 @@ public class Fase implements Serializable {
         // Atualiza todos os personagens (herói, inimigos, projéteis)
         for (int i = 0; i < personagens.size(); i++) {
             Personagem p = personagens.get(i);
-            p.atualizar(personagens); // Chama o 'atualizar' de cada personagem
+            p.atualizar(personagens); // Atualiza Inimigos, Projéteis, etc.
 
-            // Limpa projéteis que saíram da tela
             if (p instanceof Projetil) {
-                if (((Projetil) p).estaForaDaTela()) {
-                    personagens.remove(i);
-                    i--; // Ajusta o índice após a remoção
+                Projetil proj = (Projetil) p;
+                if (proj.isActive() && proj.estaForaDaTela()) {
+                    
+                    proj.deactivate(); // Apenas desativa
                 }
             }
         }
     }
-
-    // --- OS MÉTODOS preencherCenarioInicial() e atualizarArvores() FORAM REMOVIDOS ---
+    // --- OS MÉTODOS preencherCenarioInicial() e atualizarArvores() FORAM REMOVIDOS
+    // ---
     // A lógica deles agora vive em ScriptFase1.java.
 
     // --- GETTERS E SETTERS ---
 
-    public ArrayList<Personagem> getPersonagens() { return this.personagens; }
-    public ArrayList<ArvoreParallax> getArvores() { return this.arvores; }
-    public BufferedImage getImagemFundo1() { return this.imagemFundo1; }
-    public double getScrollY() { return this.scrollY; }
-    public void adicionarPersonagem(Personagem p) { this.personagens.add(p); }
+    public ProjetilPool getProjetilPool() {
+        return this.projetilPool;
+    }
+
+    public ArrayList<Personagem> getPersonagens() {
+        return this.personagens;
+    }
+
+    public ArrayList<ArvoreParallax> getArvores() {
+        return this.arvores;
+    }
+
+    public BufferedImage getImagemFundo1() {
+        return this.imagemFundo1;
+    }
+
+    public double getScrollY() {
+        return this.scrollY;
+    }
+
+    public void adicionarPersonagem(Personagem p) {
+        this.personagens.add(p);
+    }
 
     // --- NOVOS GETTERS NECESSÁRIOS PARA O SCRIPT FUNCIONAR ---
-    
+
     /**
      * O Script precisa desta imagem para criar novas árvores.
+     * 
      * @return A imagem de textura das árvores.
      */
     public BufferedImage getImagemFundo2() {
@@ -127,6 +151,7 @@ public class Fase implements Serializable {
 
     /**
      * O Script precisa saber a distância rolada para decidir quando spawnar.
+     * 
      * @return A distância total que o cenário já rolou.
      */
     public double getDistanciaTotalRolada() {

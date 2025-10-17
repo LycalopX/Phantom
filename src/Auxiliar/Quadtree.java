@@ -111,13 +111,33 @@ public class Quadtree {
         }
     }
 
-    /** Retorna todos os objetos que podem colidir com o objeto dado */
+    /**
+     * Retorna todos os objetos que podem colidir com o objeto dado.
+     * VERSÃO CORRIGIDA que lida com objetos em fronteiras.
+     */
     public List<Personagem> retrieve(List<Personagem> returnObjects, Personagem p) {
-        int index = getIndex(p);
-        if (index != -1 && nodes[0] != null) {
-            nodes[index].retrieve(returnObjects, p);
+        // Se este nó tem filhos, descubra onde o objeto p se encaixa
+        if (nodes[0] != null) {
+            int index = getIndex(p);
+
+            // Se o objeto 'p' cabe completamente em um quadrante filho,
+            // apenas busque nesse quadrante.
+            if (index != -1) {
+                nodes[index].retrieve(returnObjects, p);
+            }
+            // SENÃO (se 'p' está em uma fronteira e não coube em nenhum filho)
+            else {
+                // O objeto pode estar colidindo com qualquer um dos quadrantes filhos.
+                // Busque em TODOS eles.
+                for (int i = 0; i < nodes.length; i++) {
+                    nodes[i].retrieve(returnObjects, p);
+                }
+            }
         }
+
+        // Adiciona todos os objetos que pertencem a ESTE nó (nó pai)
         returnObjects.addAll(objects);
+
         return returnObjects;
     }
 }

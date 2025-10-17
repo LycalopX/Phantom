@@ -3,6 +3,7 @@ package Modelo;
 import Auxiliar.Consts;
 import Auxiliar.DebugManager;
 import Auxiliar.LootTable;
+import Modelo.Hero.Hero;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -19,6 +20,7 @@ public abstract class Personagem implements Serializable {
     private String nomeSprite;
     public double x, y; // Coordenadas de grid
     public double hitboxRaio; // Raio de colisão em grid
+    protected double vida = 1;
 
     protected int largura; // Largura visual em pixels
     protected int altura; // Altura visual em pixels
@@ -64,7 +66,7 @@ public abstract class Personagem implements Serializable {
         }
     }
 
-    public void atualizar(ArrayList<Personagem> personagens) {
+    public void atualizar(ArrayList<Personagem> personagens, Hero hero) {
         // Por padrão, personagens estáticos não fazem nada.
         // Inimigos, Projéteis e o Herói vão sobrepor (override) este método.
     }
@@ -130,11 +132,18 @@ public abstract class Personagem implements Serializable {
     public LootTable getLootTable() {
         return this.lootTable;
     }
+    
+    public double getVida() {
+        return this.vida;
+    }
+    public void setVida(double vida) {
+        this.vida = vida;
+    }
 
     public void animaçãoMorte() {
         // Pode ser sobreposto por subclasses para animações específicas
     }
-    
+
     public int getAltura() {
         return this.altura;
     }

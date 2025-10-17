@@ -13,7 +13,7 @@ public class Consts {
     public static final double HITBOX_RAIO = 4;
     public static final int respawnX = 10;
     public static final int respawnY = 20;
-    public static final double HERO_VELOCITY = 14.0;
+    public static final double HERO_VELOCITY = 10.0;
     public static final int DANO_BALA = 40 ;
     public static final int DANO_BALA_TELEGUIADA = 3;
     public static final int REQ_MISSIL_POWER = 120;
@@ -32,7 +32,7 @@ public class Consts {
 
 
     // Mapa
-    public static final int largura = 632, altura = 740; 
+    public static final int largura = 837, altura = 740; 
     public static final int MUNDO_LARGURA = 16; // total do mundo
     public static final int MUNDO_ALTURA = 40;
     public static final int TIMER = 10;

@@ -5,11 +5,14 @@ package Modelo.Hero;
 import Auxiliar.Consts;
 import Auxiliar.DebugManager;
 import Modelo.Personagem;
+import Modelo.Projeteis.BombaProjetil;
 
 import java.awt.Graphics;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
+
 import javax.swing.ImageIcon;
 import java.awt.Graphics2D;
 import java.awt.Color;
@@ -22,7 +25,7 @@ public class Hero extends Personagem {
     private int score = 0;
 
     private int invencibilidadeTimer = 0;
-    private int inimigosMorremTimer = 0;
+    private int efeitoBombaTimer = 0;
 
     public double grabHitboxRaio;
     private boolean isActive = true;
@@ -39,7 +42,6 @@ public class Hero extends Personagem {
         super(sNomeImagePNG, x, y, (int) (Consts.CELL_SIDE * Consts.BODY_PROPORTION),
                 (int) (Consts.CELL_SIDE * 1.56 * Consts.BODY_PROPORTION), (Consts.HITBOX_RAIO / Consts.CELL_SIDE));
 
-
         int tamanhoHitboxColeta = 100; // Exemplo: 80 pixels de diâmetro
         this.grabHitboxRaio = ((double) (tamanhoHitboxColeta / 2) / Consts.CELL_SIDE) / 2.0;
 
@@ -52,14 +54,22 @@ public class Hero extends Personagem {
      * Atualiza o estado interno do Herói que não depende de input.
      * (Timers, animações, etc.)
      */
-    public void atualizar(boolean isMovingLeft, boolean isMovingRight) {
-        // 1. Atualiza timers internos
+    @Override
+    public void atualizar(ArrayList<Personagem> personagens, Hero hero) {
+        // 1. Atualiza timers de invencibilidade e bomba
         if (invencibilidadeTimer > 0)
             invencibilidadeTimer--;
-        if (inimigosMorremTimer > 0)
-            inimigosMorremTimer--;
+        if (efeitoBombaTimer > 0)
+            efeitoBombaTimer--;
 
         sistemaDeArmas.atualizarTimers();
+    }
+
+    /**
+     * Atualiza apenas a lógica de animação com base no input do jogador.
+     * É chamado pelo ControladorDoHeroi.
+     */
+    public void atualizarAnimacao(boolean isMovingLeft, boolean isMovingRight) {
 
         // 2. Lógica de atualização da animação
         switch (estado) {
@@ -165,10 +175,22 @@ public class Hero extends Personagem {
         this.isActive = true;
     }
 
-    public void usarBomba() {
-        this.bombas--;
-        this.invencibilidadeTimer = DURACAO_BOMBA_FRAMES; // Usar uma constante apropriada
-        this.inimigosMorremTimer = DURACAO_BOMBA_FRAMES;
+    /**
+     * Cria e retorna um objeto BombaProjetil para ser adicionado à fase.
+     * Também ativa os timers de invencibilidade e atração de itens.
+     * 
+     * @return O objeto BombaProjetil, ou null se não houver bombas.
+     */
+    public BombaProjetil usarBomba() {
+        System.out.println("DEBUG 3 [Hero]: Método usarBomba() executado. Bombas restantes: " + (this.bombas - 1)); // <--- ADICIONE AQUI
+        
+        if (getBombas() > 0) {
+            this.bombas--;
+            this.invencibilidadeTimer = DURACAO_BOMBA_FRAMES;
+            this.efeitoBombaTimer = DURACAO_BOMBA_FRAMES;
+            return new BombaProjetil(this.x, this.y);
+        }
+        return null;
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -184,11 +206,12 @@ public class Hero extends Personagem {
         if (invencibilidadeTimer == 0) {
             HP--;
             invencibilidadeTimer = duracaoInvencibilidadeRespawn;
-        }
-    }
 
-    public boolean isBombaAtiva() {
-        return this.inimigosMorremTimer > 0;
+            if (HP > 0) {
+                // ele se desativa para sinalizar ao Engine que precisa respawnar.
+                this.deactivate();
+            }
+        }
     }
 
     public boolean isActive() {
@@ -235,11 +258,11 @@ public class Hero extends Personagem {
         this.score += quantidade;
     }
 
-    public int getInimigosMorremTimer() {
-        return this.inimigosMorremTimer;
-    }
-
     public int getNivelDeMisseis() {
         return this.sistemaDeArmas.getNivelDeMisseis(this.power);
+    }
+
+    public boolean isBombaAtiva() {
+        return this.efeitoBombaTimer > 0;
     }
 }

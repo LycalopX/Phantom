@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class LootTable implements Serializable {
-    
+
     private final ArrayList<LootItem> itens;
     private static final Random random = new Random();
 

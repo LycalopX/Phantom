@@ -198,6 +198,8 @@ public class Engine implements Runnable {
         tela.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
+                System.out.println("DEBUG 1: Tecla Pressionada - Código: " + e.getKeyCode());
+                
                 if (estadoAtual == GameState.GAME_OVER && e.getKeyCode() == Consts.KEY_RESTART) {
                     reiniciarJogo();
                     return;

@@ -13,20 +13,36 @@ public class ProjetilHoming extends Projetil {
         INERCIA,
         PERSEGUINDO
     }
+
     private HomingState estadoAtual = HomingState.INERCIA;
 
     private Inimigo alvo;
     private double taxaDeCurva = 0.1;
 
     // Timer para a fase de inércia (em frames)
-    private int inertiaTimer = 20; // O míssil voará reto por 1/3 de segundo (20 frames)
+    private int TEMPO_INERCIA = 20;
+    private int inertiaTimer = TEMPO_INERCIA;
 
-    public ProjetilHoming(String sNomeImagePNG, double x, double y,
-                          int larguraVisual, int alturaVisual, int hitboxTamanho,
-                          double velocidadeGrid, double anguloInicial, TipoProjetil tipo) {
+    public ProjetilHoming(String sNomeImagePNG) {
+        super(sNomeImagePNG); // Chama o construtor de Projetil(String)
+    }
+    
+    /**
+     * MÉTODO RESET:
+     * Configura o míssil para um novo disparo a partir da piscina de objetos.
+     * Ele primeiro chama o reset do pai (Projetil) e depois reinicia seu
+     * próprio estado de "homing".
+     */
+    public void resetHoming(double x, double y, int largura, int altura, double hitboxRaio,
+                            double velocidadeGrid, double anguloInicial, TipoProjetil tipo) {
         
-        super(sNomeImagePNG, x, y, larguraVisual, alturaVisual, hitboxTamanho, velocidadeGrid, anguloInicial, tipo);
-        this.alvo = null;
+        // 1. Chama o reset da classe pai (Projetil) para configurar os atributos básicos
+        super.reset(x, y, largura, altura, hitboxRaio, velocidadeGrid, anguloInicial, tipo);
+
+        // 2. Reinicia o estado específico do Projétil Homing
+        this.estadoAtual = HomingState.INERCIA;
+        this.alvo = null; // Esquece o alvo anterior
+        this.inertiaTimer = TEMPO_INERCIA; // Reinicia o contador de inércia
     }
 
     /**
@@ -34,7 +50,8 @@ public class ProjetilHoming extends Projetil {
      */
     @Override
     public void atualizar(ArrayList<Personagem> personagens) {
-        
+        if (!isActive()) return;
+
         // --- LÓGICA DA MÁQUINA DE ESTADOS ---
         switch (estadoAtual) {
             case INERCIA:
@@ -57,8 +74,7 @@ public class ProjetilHoming extends Projetil {
                 break;
         }
 
-        // A chamada 'super.atualizar()' move o projétil na sua direção atual (anguloRad),
-        // independentemente do estado.
+        // A chamada 'super.atualizar()' move o projétil na sua direção atual
         super.atualizar(personagens);
     }
 
@@ -66,8 +82,10 @@ public class ProjetilHoming extends Projetil {
         double anguloParaOAlvo = Math.atan2(alvo.y - this.y, alvo.x - this.x);
         double diferencaAngulo = anguloParaOAlvo - this.anguloRad;
 
-        while (diferencaAngulo > Math.PI) diferencaAngulo -= 2 * Math.PI;
-        while (diferencaAngulo < -Math.PI) diferencaAngulo += 2 * Math.PI;
+        while (diferencaAngulo > Math.PI)
+            diferencaAngulo -= 2 * Math.PI;
+        while (diferencaAngulo < -Math.PI)
+            diferencaAngulo += 2 * Math.PI;
 
         if (Math.abs(diferencaAngulo) > taxaDeCurva) {
             this.anguloRad += Math.signum(diferencaAngulo) * taxaDeCurva;
@@ -90,5 +108,9 @@ public class ProjetilHoming extends Projetil {
             }
         }
         this.alvo = inimigoMaisProximo;
+    }
+
+    public boolean isActive() {
+        return this.isActive;
     }
 }

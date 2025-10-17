@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import Auxiliar.Consts;
 import Modelo.Personagem;
 import Modelo.Fases.Fase;
+import Modelo.Hero.GerenciadorDeArmas;
 import Modelo.Hero.Hero;
 
 public class ControladorDoHeroi {
@@ -76,10 +77,11 @@ public class ControladorDoHeroi {
 
         // --- LÓGICA DE AÇÕES ---
         if (teclas.contains(Consts.KEY_SHOOT)) {
-            ArrayList<Personagem> novosProjeteis = heroi.atirar();
-            for (Personagem p : novosProjeteis) {
-                fase.adicionarPersonagem(p);
-            }
+            // 1. Pega o sistema de armas do herói
+            GerenciadorDeArmas armas = heroi.getSistemaDeArmas();
+
+            // 2. Chama o 'disparar' com TODOS os parâmetros necessários, incluindo a 'fase'
+            armas.disparar(heroi.x, heroi.y, heroi.getPower(), fase);
         }
 
         if (teclas.contains(Consts.KEY_BOMB) && heroi.getBombas() > 0 && !heroi.isInvencivel()) {

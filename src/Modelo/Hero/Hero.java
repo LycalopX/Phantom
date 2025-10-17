@@ -5,13 +5,11 @@ package Modelo.Hero;
 import Auxiliar.Consts;
 import Auxiliar.DebugManager;
 import Modelo.Personagem;
-import Modelo.Hero.GerenciadorDeArmas;
 
 import java.awt.Graphics;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import java.awt.Graphics2D;
 import java.awt.Color;
@@ -40,7 +38,10 @@ public class Hero extends Personagem {
     public Hero(String sNomeImagePNG, double x, double y) {
         super(sNomeImagePNG, x, y, (int) (Consts.CELL_SIDE * Consts.BODY_PROPORTION),
                 (int) (Consts.CELL_SIDE * 1.56 * Consts.BODY_PROPORTION), (Consts.HITBOX_RAIO / Consts.CELL_SIDE));
-        this.grabHitboxRaio = ((double) (Consts.CELL_SIDE) / Consts.CELL_SIDE) / 2.0;
+
+
+        int tamanhoHitboxColeta = 100; // Exemplo: 80 pixels de diâmetro
+        this.grabHitboxRaio = ((double) (tamanhoHitboxColeta / 2) / Consts.CELL_SIDE) / 2.0;
 
         // Inicializa os componentes
         this.animador = new GerenciadorDeAnimacao(this.largura, this.altura);
@@ -104,12 +105,12 @@ public class Hero extends Personagem {
     }
 
     /**
-     * Delega a chamada de tiro para o GerenciadorDeArmas.
+     * Fornece acesso ao sistema de armas do herói.
      * 
-     * @return A lista de projéteis criados.
+     * @return A instância do GerenciadorDeArmas.
      */
-    public ArrayList<Personagem> atirar() {
-        return sistemaDeArmas.disparar(this.x, this.y, this.power);
+    public GerenciadorDeArmas getSistemaDeArmas() {
+        return this.sistemaDeArmas;
     }
 
     /**
@@ -185,7 +186,7 @@ public class Hero extends Personagem {
             invencibilidadeTimer = duracaoInvencibilidadeRespawn;
         }
     }
-    
+
     public boolean isBombaAtiva() {
         return this.inimigosMorremTimer > 0;
     }

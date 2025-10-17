@@ -44,7 +44,7 @@ public class GerenciadorDeArmas implements Serializable {
 
         ProjetilPool pool = fase.getProjetilPool();
         int tamanhoHitbox = 8;
-        double raioHitbox = tamanhoHitbox / Consts.CELL_SIDE;
+        double raioHitbox =  ((double) tamanhoHitbox / (double) Consts.CELL_SIDE);
         if (pool == null)
             return;
 

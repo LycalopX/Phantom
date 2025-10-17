@@ -134,4 +134,12 @@ public abstract class Personagem implements Serializable {
     public void animaçãoMorte() {
         // Pode ser sobreposto por subclasses para animações específicas
     }
+    
+    public int getAltura() {
+        return this.altura;
+    }
+
+    public int getLargura() {
+        return this.largura;
+    }
 }

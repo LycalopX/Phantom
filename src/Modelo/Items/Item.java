@@ -11,6 +11,7 @@ import java.awt.image.RasterFormatException;
 
 public class Item extends Personagem {
 
+    private boolean isActive = true;
     private ItemType tipo;
     private transient ImageIcon spriteRecortado;
 
@@ -123,6 +124,14 @@ public class Item extends Personagem {
             g.drawImage(spriteRecortado.getImage(), telaX, telaY, this.largura, this.altura, null);
         }
         super.autoDesenho(g);
+    }
+
+    public boolean isActive() {
+        return this.isActive;
+    }
+
+    public void deactivate() {
+        this.isActive = false;
     }
 
     public ItemType getTipo() {

@@ -28,6 +28,7 @@ public class Consts {
     public static final int REQ_MISSIL_POWER = 120;
     public static final int REQ_TIROS_POWER = 150;
     public static final double TAMANHO_PROJETEIS = 1.2;
+    public static final int SLOW_MOTION_FRAMES = 4; // Atualiza a cada 4 frames para efeito de slow motion
 
     // Movimentação Player
     public static final int KEY_UP = KeyEvent.VK_W;

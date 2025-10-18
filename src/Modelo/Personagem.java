@@ -65,11 +65,8 @@ public abstract class Personagem implements Serializable {
         }
     }
 
-    public void atualizar() {
-        // Por padrão, personagens estáticos não fazem nada.
-        // Inimigos, Projéteis e o Herói vão sobrepor (override) este método.
-    }
-
+    public abstract void atualizar(); 
+    
     // Construtor para tamanho MANUAL (usado pelo segundo construtor do Inimigo)
     protected Personagem(String sNomeImagePNG, double x, double y, int largura, int altura) {
         this(sNomeImagePNG, x, y, largura, altura, (largura / 2.0) / Consts.CELL_SIDE);

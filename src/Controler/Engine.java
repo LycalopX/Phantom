@@ -24,6 +24,9 @@ public class Engine implements Runnable {
     private Cenario cenario;
     private Thread gameThread;
 
+    // Para controle de slow motion (efeito de deathbombing)
+    private int slowMotionCounter = 0;
+
     // Componentes principais do padrão MVC
     private Fase faseAtual; // Modelo
     private Hero hero; // Modelo (referência direta para facilitar)
@@ -36,6 +39,8 @@ public class Engine implements Runnable {
     private final int TEMPO_DE_RESPAWN = 60; // 1 segundo
     private final Set<Integer> teclasPressionadas = new HashSet<>();
     private final double velocidadeScroll = 2.0;
+    private int deathbombTimer = 0;
+    private final int JANELA_DEATHBOMB = 8; // 8 frames para o jogador reagir
 
     public enum GameState {
         JOGANDO,
@@ -47,7 +52,7 @@ public class Engine implements Runnable {
     public Engine() {
         // 1. Inicializa os Controladores
         controleDeJogo = new ControleDeJogo();
-        controladorHeroi = new ControladorDoHeroi();
+        controladorHeroi = new ControladorDoHeroi(this);
 
         // 2. Inicializa o Gerenciador de Fases
         this.gerenciadorDeFases = new GerenciadorDeFases();
@@ -96,35 +101,50 @@ public class Engine implements Runnable {
     private synchronized void atualizar() {
         switch (estadoAtual) {
             case JOGANDO:
-                // 1. INPUT: O controlador lê as teclas e comanda o herói (movimento, tiro,
-                // bomba).
                 controladorHeroi.processarInput(teclasPressionadas, hero, faseAtual, controleDeJogo);
 
-                // 2. MODELO: A fase atualiza seus componentes (scroll, spawn de inimigos,
-                // movimento dos inimigos).
                 faseAtual.atualizar(velocidadeScroll);
+                boolean foiAtingido = controleDeJogo.processaTudo(faseAtual.getPersonagens());
 
-                // 3. REGRAS: O controle de jogo processa colisões e interações.
-                controleDeJogo.processaTudo(faseAtual.getPersonagens());
-
-                // 4. ESTADO GLOBAL: O Engine verifica se o herói morreu.
-                if (hero.getHP() <= 0) {
-                    dropItensAoMorrer();
-                    hero.deactivate();
-                    estadoAtual = GameState.GAME_OVER; // MUDANÇA: Ir direto para GAME_OVER
-
-                } else if (!hero.isActive()) { // Se o herói tomou dano mas não morreu
-                    dropItensAoMorrer();
-                    estadoAtual = GameState.RESPAWNANDO;
-                    respawnTimer = TEMPO_DE_RESPAWN;
+                if (foiAtingido) {
+                    estadoAtual = GameState.DEATHBOMB_WINDOW;
+                    deathbombTimer = JANELA_DEATHBOMB;
                 }
                 break;
-                
+
+            case DEATHBOMB_WINDOW:
+                // Permite que o input da bomba seja lido, mas não o de movimento/tiro
+                controladorHeroi.processarInput(teclasPressionadas, hero, faseAtual, controleDeJogo);
+                deathbombTimer--;
+                slowMotionCounter++;
+
+                if (slowMotionCounter % Consts.SLOW_MOTION_FRAMES == 0) { // Atualiza a cada 2 frames para efeito de slow motion
+                    faseAtual.atualizar(velocidadeScroll);
+                }
+
+                if (hero.isBombing()) {
+                    // O jogador usou a bomba a tempo!
+                    estadoAtual = GameState.JOGANDO;
+                } else if (deathbombTimer <= 0) {
+                    // O tempo acabou, o jogador morre de verdade.
+                    hero.processarMorte();
+                    dropItensAoMorrer();
+
+                    if (hero.getHP() <= 0) {
+                        hero.deactivate();
+                        estadoAtual = GameState.GAME_OVER;
+                    } else {
+                        estadoAtual = GameState.RESPAWNANDO;
+                        respawnTimer = TEMPO_DE_RESPAWN;
+                    }
+                }
+                break;
 
             case RESPAWNANDO:
                 // Durante o respawn, o jogo continua rodando no fundo
                 faseAtual.atualizar(velocidadeScroll);
                 controleDeJogo.processaTudo(faseAtual.getPersonagens());
+                respawnTimer--;
 
                 respawnTimer--;
                 if (respawnTimer <= 0) {
@@ -252,5 +272,9 @@ public class Engine implements Runnable {
 
         // Atualiza a visão
         cenario.setFase(this.faseAtual);
+    }
+
+    public GameState getEstadoAtual() {
+        return this.estadoAtual;
     }
 }

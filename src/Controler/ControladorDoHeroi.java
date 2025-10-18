@@ -13,6 +13,12 @@ import Modelo.Hero.Hero;
 
 public class ControladorDoHeroi {
 
+    private Engine engine;
+
+    public ControladorDoHeroi(Engine engine) {
+        this.engine = engine;
+    }
+
     /**
      * Interpreta o input do teclado e comanda o objeto Hero.
      * 
@@ -21,12 +27,12 @@ public class ControladorDoHeroi {
      * @param fase   A fase atual do jogo.
      * @param cj     O objeto de controle de jogo para validações.
      */
-
-    // Em Controler/ControladorDoHeroi.java
     public void processarInput(Set<Integer> teclas, Hero heroi, Fase fase, ControleDeJogo cj) {
         // --- LÓGICA DE MOVIMENTO ---
         double delta = Consts.HERO_VELOCITY / 60.0;
         double dx = 0, dy = 0;
+
+        Engine.GameState estadoAtual = this.engine.getEstadoAtual();
 
         // Lógica do Modo Foco (Shift)
         boolean isFocoAtivo = teclas.contains(KeyEvent.VK_SHIFT);
@@ -90,11 +96,13 @@ public class ControladorDoHeroi {
 
         // --- LÓGICA DE BOMBA ---
         if (teclas.contains(Consts.KEY_BOMB) && heroi.getBombas() > 0 && !heroi.isInvencivel()) {
-            System.out.println("DEBUG 3: Lógica de BOMBA alcançada!");
-            
-            BombaProjetil bomba = heroi.usarBomba();
-            if (bomba != null) {
-                fase.adicionarPersonagem(bomba);
+
+            if (estadoAtual == Engine.GameState.JOGANDO || estadoAtual == Engine.GameState.DEATHBOMB_WINDOW) {
+
+                BombaProjetil bomba = heroi.usarBomba();
+                if (bomba != null) {
+                    fase.adicionarPersonagem(bomba);
+                }
             }
         }
     }

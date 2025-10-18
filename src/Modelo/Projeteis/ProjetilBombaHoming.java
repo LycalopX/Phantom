@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import Modelo.Personagem;
 import Auxiliar.Consts;
@@ -99,53 +100,46 @@ public class ProjetilBombaHoming extends ProjetilHoming {
     // MÉTODO 'autoDesenho' COMPLETAMENTE REESCRITO PARA PERFORMANCE
     @Override
     public void autoDesenho(Graphics g) {
+
         if (!isActive() || iImage == null)
             return;
 
         Graphics2D g2d = (Graphics2D) g;
         Composite originalComposite = g2d.getComposite();
 
-        // Este loop agora desenha apenas as partículas do rastro.
+        // --- 1. DESENHAR O RASTRO (PERMANECE IGUAL) ---
         for (int i = 0; i < positionHistory.size(); i++) {
-
             Point2D.Double pos = positionHistory.get(i);
-
-            // Calcula a opacidade (alpha) com base na idade da partícula.
-            // O valor de alpha para a cor vai de 0 (transparente) a 255 (opaco).
-            // '200' é a opacidade máxima da partícula mais recente.
             int alpha = (int) (200 * (1.0f - (float) i / TRAIL_LENGTH));
-
-            // CORREÇÃO: Cria uma cor que já contém a informação de transparência.
-            // Isso é mais robusto e resolve o bug da opacidade.
             g2d.setColor(new Color(255, 100, 100, alpha));
-
             int telaX = (int) Math.round(pos.x * Consts.CELL_SIDE);
             int telaY = (int) Math.round(pos.y * Consts.CELL_SIDE);
-
             int particleSize = 8;
             g2d.fillOval(telaX - particleSize / 2, telaY - particleSize / 2, particleSize, particleSize);
         }
 
-        // --- 2. DESENHAR O SPRITE PRINCIPAL (COM AURA E PULSO) ---
-        // Esta lógica agora está FORA do loop e é executada apenas UMA VEZ por míssil.
+        // --- 2. DESENHAR O SPRITE PRINCIPAL (COM AS MUDANÇAS APLICADAS) ---
         int telaX = (int) Math.round(this.x * Consts.CELL_SIDE);
         int telaY = (int) Math.round(this.y * Consts.CELL_SIDE);
 
-        double scale = 1.0 + 0.1 * Math.sin(animationTimer * 0.3);
+        // MUDANÇA: Reduzimos a magnitude (0.8) e a velocidade (0.2) do pulso.
+        double scale = 1.0 + 0.8 * Math.sin(animationTimer * 0.05);
+
         int scaledWidth = (int) (this.largura * scale);
         int scaledHeight = (int) (this.altura * scale);
 
-        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.9f));
+        // AURA (desenhada primeiro, para ficar atrás do sprite)
+        float auraAlpha = 0.3f;
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, auraAlpha));
+        g.setColor(new Color(255, 120, 120));
+        g.fillOval(telaX - (scaledWidth / 2) - 4, telaY - (scaledHeight / 2) - 4, scaledWidth + 8, scaledHeight + 8);
+
+        // SPRITE (desenhado por cima da aura)
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
         g2d.drawImage(iImage.getImage(), telaX - (scaledWidth / 2), telaY - (scaledHeight / 2), scaledWidth,
                 scaledHeight, null);
 
-        // Desenha a Aura
-        float auraAlpha = 0.3f + 0.2f * (float) Math.sin(animationTimer * 0.2);
-        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, auraAlpha));
-        g.setColor(new Color(255, 50, 50));
-        g.fillOval(telaX - (scaledWidth / 2) - 4, telaY - (scaledHeight / 2) - 4, scaledWidth + 8, scaledHeight + 8);
-
-        // Restaura o composite e desenha a hitbox de debug por último
+        // Restaura o composite e desenha a hitbox de debug
         g2d.setComposite(originalComposite);
         super.autoDesenho(g);
     }

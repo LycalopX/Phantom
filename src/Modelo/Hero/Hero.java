@@ -37,16 +37,17 @@ public class Hero extends Personagem {
     private HeroState estado = HeroState.IDLE;
 
     public Hero(String sNomeImagePNG, double x, double y) {
-        super(sNomeImagePNG, x, y, (int) (Consts.CELL_SIDE * Consts.BODY_PROPORTION),
-                (int) (Consts.CELL_SIDE * 1.56 * Consts.BODY_PROPORTION), (Consts.HITBOX_RAIO / Consts.CELL_SIDE));
+        
+        super(sNomeImagePNG, x, y);
 
-        int tamanhoHitboxColeta = 100; // Exemplo: 80 pixels de diâmetro
+        this.hitboxRaio = Consts.HITBOX_RAIO / Consts.CELL_SIDE;
+
+        // O resto do construtor permanece idêntico
+        int tamanhoHitboxColeta = 100;
         this.grabHitboxRaio = ((double) (tamanhoHitboxColeta / 2) / Consts.CELL_SIDE) / 2.0;
 
-        // Inicializa os componentes
         this.animador = new GerenciadorDeAnimacao(this.largura, this.altura);
         this.sistemaDeArmas = new GerenciadorDeArmas();
-
         activate();
     }
 

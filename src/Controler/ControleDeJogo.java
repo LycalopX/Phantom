@@ -37,32 +37,63 @@ public class ControleDeJogo {
             return false;
 
         Hero hero = null;
+        BombaProjetil bombaAtiva = null;
+
         for (Personagem p : personagens) {
             if (p instanceof Hero) {
                 hero = (Hero) p;
-                break;
+            }
+            if (p instanceof BombaProjetil && p.isActive()) {
+                bombaAtiva = (BombaProjetil) p;
             }
         }
+
         if (hero == null)
             return false;
 
         quadtree.clear();
         for (Personagem p : personagens) {
-            // Apenas insere personagens ativos na Quadtree
-            if (p instanceof Projetil && !((Projetil) p).isActive())
-                continue;
-            if (p instanceof Hero && !((Hero) p).isActive())
-                continue;
-            if (p instanceof Item && !((Item) p).isActive())
-                continue;
-
-            quadtree.insert(p);
+            if (p.isActive()) {
+                quadtree.insert(p);
+            }
         }
 
         // Vamos marcar quem deve ser removido, e remover no final.
         ArrayList<Personagem> novosObjetos = new ArrayList<>();
 
-        // --- LÓGICA DE COLISÃO COM QUADTREE ---
+        // --- LÓGICA DE DANO EM ÁREA DA BOMBA ---
+        if (bombaAtiva != null) {
+
+            // 1. Converte o raio da bomba (que está em GRID) para PIXELS
+            int raioEmPixels = (int) (bombaAtiva.getRaioAtualGrid() * Consts.CELL_SIDE);
+            int diametroEmPixels = raioEmPixels * 2;
+
+            // 2. Cria um retângulo em PIXELS que representa a área de efeito da bomba
+            int bombaX = (int) (bombaAtiva.x * Consts.CELL_SIDE) - raioEmPixels;
+            int bombaY = (int) (bombaAtiva.y * Consts.CELL_SIDE) - raioEmPixels;
+            Rectangle areaDaBomba = new Rectangle(bombaX, bombaY, diametroEmPixels, diametroEmPixels);
+
+            List<Personagem> alvosProximos = new ArrayList<>();
+            // 3. Usa o método retrieve que aceita um RECTANGLE (em PIXELS)
+            quadtree.retrieve(alvosProximos, areaDaBomba);
+
+            // 4. Itera APENAS sobre os alvos próximos para a checagem final
+            for (Personagem alvo : alvosProximos) {
+                if (alvo instanceof Inimigo && alvo.isActive()) {
+                    double dx = bombaAtiva.x - alvo.x; // Distância em GRID
+                    double dy = bombaAtiva.y - alvo.y; // Distância em GRID
+                    double distanciaAoQuadrado = (dx * dx) + (dy * dy);
+                    double raioBombaAoQuadrado = bombaAtiva.getRaioAtualGrid() * bombaAtiva.getRaioAtualGrid();
+
+                    // 5. Checagem final (círculo vs círculo) em GRID para precisão
+                    if (distanciaAoQuadrado < raioBombaAoQuadrado) {
+                        ((Inimigo) alvo).takeDamage(9999);
+                    }
+                }
+            }
+        }
+
+        // --- LÓGICA DE COLISÃO COM QUADTREE (DISCRETA) ---
         List<Personagem> vizinhosPotenciais = new ArrayList<>();
         for (Personagem p1 : personagens) {
             if (!p1.isActive())
@@ -200,25 +231,10 @@ public class ControleDeJogo {
         } else if (p2 instanceof Hero && p1 instanceof Item) {
             aplicarEfeitoDoItem((Hero) p2, (Item) p1);
         }
-
-        // --- COLISÃO: BOMBA E INIMIGO ---
-        if (p1 instanceof BombaProjetil && p2 instanceof Inimigo) {
-            ((Inimigo) p2).takeDamage(9999);
-        } else if (p2 instanceof BombaProjetil && p1 instanceof Inimigo) {
-            ((Inimigo) p1).takeDamage(9999);
-        }
-
-        // --- COLISÃO: BOMBA E PROJÉTIL INIMIGO ---
-        if (p1 instanceof BombaProjetil && p2 instanceof Projetil
-                && ((Projetil) p2).getTipo() == TipoProjetil.INIMIGO) {
-            ((Projetil) p2).deactivate();
-        } else if (p2 instanceof BombaProjetil && p1 instanceof Projetil
-                && ((Projetil) p1).getTipo() == TipoProjetil.INIMIGO) {
-            ((Projetil) p1).deactivate();
-        }
     }
 
     // --- MÉTODOS AUXILIARES DE COLISÃO ---
+
     private void colisaoHeroiInimigo(Hero h, Inimigo i) {
         if (!h.isInvencivel()) {
             h.takeDamage();

@@ -140,4 +140,24 @@ public class Quadtree {
 
         return returnObjects;
     }
+
+    /**
+     * Retorna todos os objetos que podem colidir com um dado retângulo.
+     * Perfeito para buscas em área, como explosões.
+     */
+    public List<Personagem> retrieve(List<Personagem> returnObjects, Rectangle pBounds) {
+        // Se este nó tem filhos, verifique em quais deles o retângulo se sobrepõe
+        if (nodes[0] != null) {
+            for (int i = 0; i < nodes.length; i++) {
+                if (nodes[i].bounds.intersects(pBounds)) {
+                    nodes[i].retrieve(returnObjects, pBounds);
+                }
+            }
+        }
+
+        // Adiciona todos os objetos que pertencem a ESTE nó
+        returnObjects.addAll(objects);
+
+        return returnObjects;
+    }
 }

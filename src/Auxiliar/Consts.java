@@ -19,7 +19,8 @@ public class Consts {
     public static final double BODY_PROPORTION = 1.81363352; // Proporção do sprite para o tamanho da tela
 
     // Configurações player
-    public static final double HITBOX_RAIO = 11.5;
+    public static final double HITBOX_RAIO = 5.75;
+    public static final double HITBOX_RAIO_FANTASY_SEAL = 25.0;
     public static final int respawnX = (largura / CELL_SIDE) / 2;
     public static final int respawnY = (int) ((altura / CELL_SIDE) * 0.9);
     public static final double HERO_VELOCITY = 28.9764;

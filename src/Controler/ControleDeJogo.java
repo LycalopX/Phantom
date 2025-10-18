@@ -1,12 +1,14 @@
 package Controler;
 
 import Modelo.Personagem;
+import Modelo.Fases.Fase;
 import Modelo.Hero.Hero;
 import Modelo.Inimigos.Inimigo;
 import Modelo.Items.Item;
 import Modelo.Items.ItemType;
 import Modelo.Projeteis.BombaProjetil;
 import Modelo.Projeteis.Projetil;
+import Modelo.Projeteis.ProjetilBombaHoming;
 import Auxiliar.Quadtree;
 import Auxiliar.LootItem;
 import Auxiliar.LootTable;
@@ -116,11 +118,10 @@ public class ControleDeJogo {
                 // 1. Verifica se a colisão é entre um Herói e um Item
                 if ((p1 instanceof Hero && p2 instanceof Item) || (p1 instanceof Item && p2 instanceof Hero)) {
 
-                    Hero h = (p1 instanceof Hero) ? (Hero) p1 : (Hero) p2;
                     Item i = (p1 instanceof Item) ? (Item) p1 : (Item) p2;
 
                     // 2. USA A HITBOX DE COLETA (grabHitboxRaio) para o Herói
-                    somaRaios = h.grabHitboxRaio + i.hitboxRaio;
+                    somaRaios = hero.grabHitboxRaio + i.hitboxRaio;
 
                 } else {
                     // 3. Para TODAS as outras colisões (dano), usa a hitbox padrão
@@ -129,7 +130,7 @@ public class ControleDeJogo {
 
                 if ((dx * dx) + (dy * dy) < (somaRaios * somaRaios)) {
 
-                    if (handleCollision(p1, p2, novosObjetos)) {
+                    if (handleCollision(p1, p2, novosObjetos, hero)) {
                         heroiFoiAtingido = true;
                     }
                 }
@@ -206,7 +207,8 @@ public class ControleDeJogo {
     /**
      * Lida com a interação entre dois personagens que colidiram.
      */
-    private boolean handleCollision(Personagem p1, Personagem p2, ArrayList<Personagem> novosObjetos) {
+    private boolean handleCollision(Personagem p1, Personagem p2, ArrayList<Personagem> novosObjetos, Hero hero) {
+
         // --- COLISÃO: HERÓI E INIMIGO ---
         if (p1 instanceof Hero && p2 instanceof Inimigo) {
             return colisaoHeroiInimigo((Hero) p1, (Inimigo) p2);
@@ -223,10 +225,12 @@ public class ControleDeJogo {
 
         // --- COLISÃO: PROJÉTIL DO HERÓI E INIMIGO ---
         if (p1 instanceof Projetil && ((Projetil) p1).getTipo() == TipoProjetil.JOGADOR && p2 instanceof Inimigo) {
-            colisaoProjetilHeroiInimigo((Projetil) p1, (Inimigo) p2, novosObjetos);
+            colisaoProjetilHeroiInimigo((Projetil) p1, (Inimigo) p2, novosObjetos, hero);
+
         } else if (p2 instanceof Projetil && ((Projetil) p2).getTipo() == TipoProjetil.JOGADOR
                 && p1 instanceof Inimigo) {
-            colisaoProjetilHeroiInimigo((Projetil) p2, (Inimigo) p1, novosObjetos);
+
+            colisaoProjetilHeroiInimigo((Projetil) p2, (Inimigo) p1, novosObjetos, hero);
         }
 
         // --- COLISÃO: HERÓI E ITEM ---
@@ -234,6 +238,18 @@ public class ControleDeJogo {
             aplicarEfeitoDoItem((Hero) p1, (Item) p2);
         } else if (p2 instanceof Hero && p1 instanceof Item) {
             aplicarEfeitoDoItem((Hero) p2, (Item) p1);
+        }
+
+        if (p1 instanceof ProjetilBombaHoming && p2 instanceof Projetil
+                && ((Projetil) p2).getTipo() == TipoProjetil.INIMIGO) {
+            p2.deactivate(); // Destroi o projétil inimigo
+            return false; // Não conta como um "hit" no jogador, então retorna false
+        }
+        
+        if (p2 instanceof ProjetilBombaHoming && p1 instanceof Projetil
+                && ((Projetil) p1).getTipo() == TipoProjetil.INIMIGO) {
+            p1.deactivate(); // Destroi o projétil inimigo
+            return false; // Não conta como um "hit" no jogador
         }
 
         return false;
@@ -256,9 +272,13 @@ public class ControleDeJogo {
         return false;
     }
 
-    private void colisaoProjetilHeroiInimigo(Projetil p, Inimigo i, ArrayList<Personagem> novosObjetos) {
-        p.deactivate();
+    private void colisaoProjetilHeroiInimigo(Projetil p, Inimigo i, ArrayList<Personagem> novosObjetos, Hero hero) {
+
         i.takeDamage(Consts.DANO_BALA);
+
+        if (!(p instanceof ProjetilBombaHoming)) {
+            p.deactivate();
+        }
 
         if (i.getVida() <= 0) {
             // Lógica de drop de loot
@@ -266,21 +286,11 @@ public class ControleDeJogo {
             if (tabela != null) {
                 ArrayList<LootItem> drops = tabela.gerarDrops();
                 for (LootItem dropInfo : drops) {
-                    Hero hero = findHero(novosObjetos);
 
                     Item itemCriado = new Item(dropInfo.getTipo(), i.x, i.y, hero);
                     novosObjetos.add(itemCriado);
                 }
             }
         }
-    }
-
-    private Hero findHero(ArrayList<Personagem> personagens) {
-        for (Personagem p : personagens) {
-            if (p instanceof Hero) {
-                return (Hero) p;
-            }
-        }
-        return null;
     }
 }

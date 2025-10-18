@@ -1,3 +1,4 @@
+// Em src/Modelo/Projeteis/ProjetilPool.java
 package Modelo.Projeteis;
 import Modelo.Personagem;
 
@@ -5,9 +6,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class ProjetilPool implements Serializable {
-    // Duas piscinas internas, uma para cada tipo
     private ArrayList<Projetil> poolNormais;
     private ArrayList<ProjetilHoming> poolHoming;
+    private ArrayList<ProjetilBombaHoming> poolBombaHoming;
 
     public ProjetilPool(int tamanhoNormais, int tamanhoHoming, ArrayList<Personagem> personagens) {
         // Inicializa a piscina de projéteis normais
@@ -20,6 +21,14 @@ public class ProjetilPool implements Serializable {
         poolHoming = new ArrayList<>(tamanhoHoming);
         for (int i = 0; i < tamanhoHoming; i++) {
             poolHoming.add(new ProjetilHoming("projectiles/hero/projectile2_hero.png", personagens));
+        }
+
+        // Inicializa a piscina de projéteis da bomba.
+        int tamanhoBombaHoming = 64;
+        poolBombaHoming = new ArrayList<>(tamanhoBombaHoming);
+        for (int i = 0; i < tamanhoBombaHoming; i++) {
+            // Usaremos o sprite do míssil teleguiado como placeholder. Você pode mudar para um sprite novo depois.
+            poolBombaHoming.add(new ProjetilBombaHoming("projectiles/hero/talisman_bomb.png", personagens));
         }
     }
 
@@ -48,15 +57,29 @@ public class ProjetilPool implements Serializable {
         System.err.println("PISCINA DE PROJÉTEIS HOMING CHEIA!");
         return null;
     }
+
+    /**
+     * Pega um projétil de BOMBA e inativo da piscina.
+     */
+    public ProjetilBombaHoming getProjetilBombaHoming() {
+        for (ProjetilBombaHoming p : poolBombaHoming) {
+            if (!p.isActive()) {
+                return p;
+            }
+        }
+        System.err.println("PISCINA DE TALISMÃS DE BOMBA CHEIA!");
+        return null;
+    }
     
     /**
-     * Retorna TODOS os projéteis (de ambas as piscinas) para que a Fase
+     * Retorna TODOS os projéteis (de todas as piscinas) para que a Fase
      * possa adicioná-los à lista principal de renderização.
      */
     public ArrayList<Projetil> getTodosOsProjeteis() {
         ArrayList<Projetil> todos = new ArrayList<>();
         todos.addAll(poolNormais);
         todos.addAll(poolHoming);
+        todos.addAll(poolBombaHoming); // MUDANÇA: Adiciona os novos projéteis à lista geral.
         return todos;
     }
 }

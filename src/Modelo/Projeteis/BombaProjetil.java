@@ -4,7 +4,10 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import Auxiliar.Consts;
+import Modelo.Fases.Fase;
+import Modelo.Hero.Hero;
 import Modelo.Personagem;
+import Auxiliar.TipoProjetil;
 
 public class BombaProjetil extends Personagem {
     private int duracao = 20;
@@ -12,27 +15,39 @@ public class BombaProjetil extends Personagem {
     private double raioMaximoGrid;
     private double raioAtualGrid = 0;
 
-    public BombaProjetil(double x, double y) {
-        // Construtor chama o de Personagem
-        super("hero/hero_s0.png", x, y); 
+    private transient Fase faseReferencia;
+    private transient Hero heroReferencia;
+
+    public BombaProjetil(double x, double y, Fase fase, Hero hero) {
+        super("hero/hero_s0.png", x, y);
         this.bTransponivel = true;
-        this.bMortal = false; // Não é mortal para o herói
-        this.raioMaximoGrid = (Consts.largura / (double)Consts.CELL_SIDE) / 2.0;
-        this.vida = 1; // Garante que começa vivo
+        this.bMortal = false;
+        this.raioMaximoGrid = (Consts.largura / (double) Consts.CELL_SIDE) / 2.0;
+
+        this.faseReferencia = fase;
+        this.heroReferencia = hero;
     }
 
     @Override
     public void atualizar() {
         if (duracao > 0) {
             duracao--;
-            double progress = 1.0 - ((double)duracao / DURACAO_MAXIMA);
+            double progress = 1.0 - ((double) duracao / DURACAO_MAXIMA);
             raioAtualGrid = raioMaximoGrid * Math.sqrt(progress);
             this.hitboxRaio = raioAtualGrid;
         } else {
-            // Sinaliza para si mesmo ser removido
-            this.setVida(0); 
             deactivate();
         }
+    }
+
+    @Override
+    public void deactivate() {
+        // Só executa a lógica de spawn uma vez, se já estiver ativo.
+        if (isActive()) {
+            lancarMisseis();
+        }
+        // Chama o método da classe pai para definir 'isActive = false'.
+        super.deactivate();
     }
 
     @Override
@@ -41,11 +56,44 @@ public class BombaProjetil extends Personagem {
         int centroX = (int) (this.x * Consts.CELL_SIDE);
         int centroY = (int) (this.y * Consts.CELL_SIDE);
         int raioPixels = (int) (this.raioAtualGrid * Consts.CELL_SIDE);
-        
+
         g2d.setColor(new Color(255, 255, 255, 100));
         g2d.fillOval(centroX - raioPixels, centroY - raioPixels, raioPixels * 2, raioPixels * 2);
-        
+
         super.autoDesenho(g);
+    }
+
+    private void lancarMisseis() {
+        if (faseReferencia == null || heroReferencia == null)
+            return;
+
+        ProjetilPool pool = faseReferencia.getProjetilPool();
+        final int NUMERO_DE_MISSEIS = 16;
+
+        for (int i = 0; i < NUMERO_DE_MISSEIS; i++) {
+            ProjetilBombaHoming p = pool.getProjetilBombaHoming();
+            if (p != null) {
+                // Calcula o ângulo para formar um círculo (360 / 16 = 22.5 graus por míssil)
+                double anguloExpansao = i * 22.5;
+                int tamanhoDoMissil = 48;
+                double hitboxEmGrid = (tamanhoDoMissil / 2.0) / Consts.CELL_SIDE;
+                double velocidadeMissíl = 5.0 / Consts.CELL_SIDE;
+
+                // Configura o míssil para começar na posição ATUAL do herói
+                p.resetBombaHoming(
+                        heroReferencia.x,
+                        heroReferencia.y,
+                        tamanhoDoMissil, // largura
+                        tamanhoDoMissil, // altura
+                        hitboxEmGrid, // O hitboxRaio que estava faltando
+                        velocidadeMissíl, // velocidadeGrid
+                        anguloExpansao,
+                        TipoProjetil.JOGADOR);
+
+                // Adiciona o míssil configurado à fase
+                faseReferencia.adicionarPersonagem(p);
+            }
+        }
     }
 
     public double getRaioAtualGrid() {

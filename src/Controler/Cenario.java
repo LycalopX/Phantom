@@ -68,7 +68,7 @@ public class Cenario extends JPanel {
 
             if (estadoDoJogo == Engine.GameState.DEATHBOMB_WINDOW) {
                 // Define a cor para um vermelho com 80/255 de opacidade (cerca de 31%)
-                g.setColor(new Color(255, 0, 0, 80));
+                g.setColor(new Color(255, 0, 0, 30));
                 // Desenha um retângulo que cobre a tela inteira
                 g.fillRect(0, 0, getWidth(), getHeight());
             }

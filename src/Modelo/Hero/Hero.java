@@ -6,6 +6,7 @@ import Auxiliar.Consts;
 import Auxiliar.DebugManager;
 import Modelo.Personagem;
 import Modelo.Projeteis.BombaProjetil;
+import Modelo.Fases.Fase;
 
 import java.awt.Graphics;
 import java.awt.geom.AffineTransform;
@@ -30,7 +31,7 @@ public class Hero extends Personagem {
 
     private transient GerenciadorDeAnimacao animador;
     private GerenciadorDeArmas sistemaDeArmas;
-    private final int DURACAO_BOMBA_FRAMES = 300;
+    private final int DURACAO_BOMBA_FRAMES = 180;
     private final int duracaoInvencibilidadeRespawn = 120;
 
     // Para animação
@@ -181,12 +182,13 @@ public class Hero extends Personagem {
      * 
      * @return O objeto BombaProjetil, ou null se não houver bombas.
      */
-    public BombaProjetil usarBomba() {
+    public BombaProjetil usarBomba(Fase fase) {
         if (bombas > 0 && !isBombing()) { // Usa o método isBombing()
             this.bombas--;
             this.efeitoBombaTimer = DURACAO_BOMBA_FRAMES;
             this.invencibilidadeTimer = DURACAO_BOMBA_FRAMES;
-            return new BombaProjetil(this.x, this.y);
+
+            return new BombaProjetil(this.x, this.y, fase, this);
         }
         return null;
     }

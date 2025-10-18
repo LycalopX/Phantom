@@ -99,7 +99,7 @@ public class ControladorDoHeroi {
 
             if (estadoAtual == Engine.GameState.JOGANDO || estadoAtual == Engine.GameState.DEATHBOMB_WINDOW) {
 
-                BombaProjetil bomba = heroi.usarBomba();
+                BombaProjetil bomba = heroi.usarBomba(fase);
                 if (bomba != null) {
                     fase.adicionarPersonagem(bomba);
                 }

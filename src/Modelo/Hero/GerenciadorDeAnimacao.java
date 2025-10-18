@@ -146,14 +146,19 @@ public class GerenciadorDeAnimacao implements java.io.Serializable {
     // Métodos de carregamento (agora precisam de largura/altura como parâmetro)
     private ImageIcon carregarImagem(String nomeArquivo, int largura, int altura) {
         try {
-            ImageIcon imagem = new ImageIcon(new java.io.File(".").getCanonicalPath() + Consts.PATH + nomeArquivo);
+            java.net.URL imgURL = getClass().getClassLoader().getResource(Consts.PATH + nomeArquivo);
+            if (imgURL == null) {
+                System.err.println("Recurso não encontrado: " + Consts.PATH + nomeArquivo);
+                return null;
+            }
+            ImageIcon imagem = new ImageIcon(imgURL);
             Image img = imagem.getImage();
             BufferedImage bi = new BufferedImage(largura, altura, BufferedImage.TYPE_INT_ARGB);
             Graphics g = bi.createGraphics();
             g.drawImage(img, 0, 0, largura, altura, null);
             g.dispose();
             return new ImageIcon(bi);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             System.out.println("Erro ao carregar imagem: " + ex.getMessage());
             return null;
         }
@@ -161,8 +166,12 @@ public class GerenciadorDeAnimacao implements java.io.Serializable {
 
     private ImageIcon[] carregarFramesDoSpriteSheet(String nomeArquivo, int numFrames, int largura, int altura) {
         try {
-            String caminhoCompleto = new java.io.File(".").getCanonicalPath() + Consts.PATH + nomeArquivo;
-            BufferedImage spriteSheet = ImageIO.read(new File(caminhoCompleto));
+            java.net.URL imgURL = getClass().getClassLoader().getResource(Consts.PATH + nomeArquivo);
+            if (imgURL == null) {
+                System.err.println("Spritesheet não encontrado: " + Consts.PATH + nomeArquivo);
+                return null;
+            }
+            BufferedImage spriteSheet = ImageIO.read(imgURL);
 
             ImageIcon[] frames = new ImageIcon[numFrames];
             final int gap = 2;
@@ -174,14 +183,13 @@ public class GerenciadorDeAnimacao implements java.io.Serializable {
                 BufferedImage frameImg = spriteSheet.getSubimage(startX, 0, spriteLargura, spriteAltura);
                 BufferedImage frameRedimensionado = new BufferedImage(largura, altura, BufferedImage.TYPE_INT_ARGB);
                 Graphics g = frameRedimensionado.createGraphics();
-
                 g.drawImage(frameImg, 0, 0, largura, altura, null);
                 g.dispose();
                 frames[i] = new ImageIcon(frameRedimensionado);
             }
             return frames;
         } catch (Exception ex) {
-            System.out.println("Erro ao carregar/recortar spritesheet: " + ex.getMessage());
+            System.out.println("Erro ao carregar/recortar spritesheet: " + nomeArquivo + " -> " + ex.getMessage());
             return null;
         }
     }

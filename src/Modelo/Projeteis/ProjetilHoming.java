@@ -3,7 +3,6 @@ package Modelo.Projeteis;
 import Auxiliar.TipoProjetil;
 import Modelo.Personagem;
 import Modelo.Inimigos.Inimigo;
-import Modelo.Hero.Hero;
 
 import java.util.ArrayList;
 
@@ -18,14 +17,16 @@ public class ProjetilHoming extends Projetil {
     private HomingState estadoAtual = HomingState.INERCIA;
 
     private Inimigo alvo;
+    private ArrayList<Personagem> personagens;
     private double taxaDeCurva = 0.1;
 
     // Timer para a fase de inércia (em frames)
     private int TEMPO_INERCIA = 20;
     private int inertiaTimer = TEMPO_INERCIA;
 
-    public ProjetilHoming(String sNomeImagePNG) {
+    public ProjetilHoming(String sNomeImagePNG, ArrayList<Personagem> personagens) {
         super(sNomeImagePNG); // Chama o construtor de Projetil(String)
+        this.personagens = personagens;
     }
     
     /**
@@ -50,7 +51,7 @@ public class ProjetilHoming extends Projetil {
      * O método 'atualizar' agora é uma máquina de estados.
      */
     @Override
-    public void atualizar(ArrayList<Personagem> personagens, Hero hero) {
+    public void atualizar() {
         if (!isActive()) return;
 
         // --- LÓGICA DA MÁQUINA DE ESTADOS ---
@@ -76,7 +77,7 @@ public class ProjetilHoming extends Projetil {
         }
 
         // A chamada 'super.atualizar()' move o projétil na sua direção atual
-        super.atualizar(personagens, hero);
+        super.atualizar();
     }
 
     private void ajustarAnguloParaOAlvo() {

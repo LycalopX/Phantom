@@ -24,7 +24,7 @@ public class BombaProjetil extends Personagem {
     }
 
     @Override
-    public void atualizar(ArrayList<Personagem> personagens, Hero hero) {
+    public void atualizar() {
         if (duracao > 0) {
             duracao--;
             double progress = 1.0 - ((double)duracao / DURACAO_MAXIMA);
@@ -33,6 +33,7 @@ public class BombaProjetil extends Personagem {
         } else {
             // Sinaliza para si mesmo ser removido
             this.setVida(0); 
+            deactivate();
         }
     }
 

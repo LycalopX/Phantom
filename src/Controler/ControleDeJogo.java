@@ -243,7 +243,9 @@ public class ControleDeJogo {
             if (tabela != null) {
                 ArrayList<LootItem> drops = tabela.gerarDrops();
                 for (LootItem dropInfo : drops) {
-                    Item itemCriado = new Item(dropInfo.getTipo(), i.x, i.y);
+                    Hero hero = findHero(novosObjetos);
+
+                    Item itemCriado = new Item(dropInfo.getTipo(), i.x, i.y, hero);
                     novosObjetos.add(itemCriado);
                 }
             }

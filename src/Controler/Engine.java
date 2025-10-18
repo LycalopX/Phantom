@@ -145,7 +145,7 @@ public class Engine implements Runnable {
         int itensADropar = powerAtual / 10; // Ex: 1 item a cada 10 de power
 
         for (int i = 0; i < itensADropar; i++) {
-            Item itemDropado = new Item(ItemType.MINI_POWER_UP, hero.x, hero.y);
+            Item itemDropado = new Item(ItemType.MINI_POWER_UP, hero.x, hero.y, hero);
             double angulo = -30 - (Math.random() * 120); // Leque para cima
             double forca = 0.15;
             itemDropado.lancarItem(angulo, forca);

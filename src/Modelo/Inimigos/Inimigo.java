@@ -44,7 +44,7 @@ public class Inimigo extends Personagem {
     }
 
     @Override
-    public void atualizar(ArrayList<Personagem> personagens, Hero hero) {
+    public void atualizar() {
         // Lógica de movimento do inimigo
         this.y += 0.02; // (Velocidade em grid, 0.2 era muito rápido)
     }

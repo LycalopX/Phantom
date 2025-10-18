@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-import java.io.File;
 
 /**
  * A classe Fase agora é um "contêiner" ou "palco".
@@ -37,7 +36,7 @@ public class Fase implements Serializable {
 
     public Fase(ScriptDeFase script) {
         this.personagens = new ArrayList<>();
-        this.projetilPool = new ProjetilPool(300, 100);
+        this.projetilPool = new ProjetilPool(300, 100, personagens);
         this.arvores = new ArrayList<>();
         this.scriptDaFase = script;
 
@@ -63,14 +62,14 @@ public class Fase implements Serializable {
     }
 
     private void carregarRecursos() {
-        try {
-            String basePath = new java.io.File(".").getCanonicalPath() + Consts.PATH;
-            imagemFundo1 = ImageIO.read(new File(basePath + "stage1/stage_1_bg1.png"));
-            imagemFundo2 = ImageIO.read(new File(basePath + "stage1/stage_1_bg2.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    try {
+        imagemFundo1 = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage1/stage_1_bg1.png"));
+        imagemFundo2 = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage1/stage_1_bg2.png"));
+    } catch (Exception e) {
+        System.out.println("Erro ao carregar imagens de fundo da fase.");
+        e.printStackTrace();
     }
+}
 
     /**
      * O método 'atualizar' agora delega os spawns e gerencia os objetos existentes.
@@ -97,12 +96,12 @@ public class Fase implements Serializable {
         // Atualiza todos os personagens (herói, inimigos, projéteis)
         for (int i = 0; i < personagens.size(); i++) {
             Personagem p = personagens.get(i);
-            p.atualizar(personagens, (Hero) getHero()); // Atualiza Inimigos, Projéteis, etc.
+            p.atualizar(); // Atualiza Inimigos, Projéteis, etc.
 
             if (p instanceof Projetil) {
                 Projetil proj = (Projetil) p;
                 if (proj.isActive() && proj.estaForaDaTela()) {
-                    
+
                     proj.deactivate(); // Apenas desativa
                 }
             }
@@ -135,8 +134,9 @@ public class Fase implements Serializable {
     }
 
     public void adicionarPersonagem(Personagem p) {
-        System.out.println("DEBUG 4: Personagem adicionado à fase: " + p.getClass().getSimpleName()); // <--- ADICIONE AQUI
-        
+        System.out.println("DEBUG 4: Personagem adicionado à fase: " + p.getClass().getSimpleName()); // <--- ADICIONE
+                                                                                                      // AQUI
+
         this.personagens.add(p);
     }
 

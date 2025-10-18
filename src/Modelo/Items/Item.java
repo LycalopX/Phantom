@@ -14,6 +14,7 @@ public class Item extends Personagem {
 
     private ItemType tipo;
     private transient ImageIcon spriteRecortado;
+    private Hero hero;
 
     // --- FÍSICA DO ITEM ---
     private double velX = 0;
@@ -28,7 +29,7 @@ public class Item extends Personagem {
     // Duração do lançamento em frames (assumindo 60 FPS, 60 frames = 1 segundo)
     private static final int DURACAO_LANCAMENTO = 60;
 
-    public Item(ItemType tipo, double x, double y) {
+    public Item(ItemType tipo, double x, double y, Hero hero) {
 
         super("items.png",
                 x,
@@ -40,6 +41,7 @@ public class Item extends Personagem {
         this.tipo = tipo;
         this.bTransponivel = true;
         this.bMortal = false;
+        this.hero = hero;
         recortarSprite();
     }
 
@@ -56,8 +58,9 @@ public class Item extends Personagem {
     }
 
     @Override
-    public void atualizar(ArrayList<Personagem> personagens, Hero hero) {
+    public void atualizar() {
         // Se o herói existe e a bomba está ativa, ativa a atração
+
         if (hero != null && hero.isBombaAtiva()) {
             double dx = hero.x - this.x;
             double dy = hero.y - this.y;

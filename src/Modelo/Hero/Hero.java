@@ -56,7 +56,7 @@ public class Hero extends Personagem {
      * (Timers, animações, etc.)
      */
     @Override
-    public void atualizar(ArrayList<Personagem> personagens, Hero hero) {
+    public void atualizar() {
         // 1. Atualiza timers de invencibilidade e bomba
         if (invencibilidadeTimer > 0)
             invencibilidadeTimer--;

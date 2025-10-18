@@ -1,4 +1,5 @@
 package Modelo.Projeteis;
+import Modelo.Personagem;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ public class ProjetilPool implements Serializable {
     private ArrayList<Projetil> poolNormais;
     private ArrayList<ProjetilHoming> poolHoming;
 
-    public ProjetilPool(int tamanhoNormais, int tamanhoHoming) {
+    public ProjetilPool(int tamanhoNormais, int tamanhoHoming, ArrayList<Personagem> personagens) {
         // Inicializa a piscina de projéteis normais
         poolNormais = new ArrayList<>(tamanhoNormais);
         for (int i = 0; i < tamanhoNormais; i++) {
@@ -18,7 +19,7 @@ public class ProjetilPool implements Serializable {
         // Inicializa a piscina de projéteis teleguiados
         poolHoming = new ArrayList<>(tamanhoHoming);
         for (int i = 0; i < tamanhoHoming; i++) {
-            poolHoming.add(new ProjetilHoming("projectiles/hero/projectile2_hero.png"));
+            poolHoming.add(new ProjetilHoming("projectiles/hero/projectile2_hero.png", personagens));
         }
     }
 

@@ -49,4 +49,8 @@ public class BombaProjetil extends Personagem {
         
         super.autoDesenho(g);
     }
+    
+    public double getRaioAtualGrid() {
+        return this.raioAtualGrid;
+    }
 }

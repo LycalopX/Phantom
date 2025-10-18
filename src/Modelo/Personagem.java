@@ -51,23 +51,23 @@ public abstract class Personagem implements Serializable {
 
     private void carregarImagem() {
         try {
-            // SIMPLESMENTE CARREGUE A IMAGEM ORIGINAL. NÃO REDIMENSIONE AQUI.
-            iImage = new ImageIcon(new java.io.File(".").getCanonicalPath() + Consts.PATH + this.nomeSprite);
+            // Usa o ClassLoader, que é mais robusto. O caminho NÃO deve começar com '/'
+            java.net.URL imgURL = getClass().getClassLoader().getResource(Consts.PATH + this.nomeSprite);
+            if (imgURL == null) {
+                System.err.println("Recurso não encontrado: " + Consts.PATH + this.nomeSprite);
+                return;
+            }
+            iImage = new ImageIcon(imgURL);
 
-            // Armazene as dimensões originais
             this.originalSpriteWidth = iImage.getIconWidth();
             this.originalSpriteHeight = iImage.getIconHeight();
 
-        } catch (IOException ex) {
-
+        } catch (Exception ex) {
             System.out.println("Erro ao carregar imagem: " + ex.getMessage());
-            // Define padrões de falha
-            this.originalSpriteWidth = Consts.CELL_SIDE;
-            this.originalSpriteHeight = Consts.CELL_SIDE;
         }
     }
 
-    public void atualizar(ArrayList<Personagem> personagens, Hero hero) {
+    public void atualizar() {
         // Por padrão, personagens estáticos não fazem nada.
         // Inimigos, Projéteis e o Herói vão sobrepor (override) este método.
     }
@@ -133,10 +133,11 @@ public abstract class Personagem implements Serializable {
     public LootTable getLootTable() {
         return this.lootTable;
     }
-    
+
     public double getVida() {
         return this.vida;
     }
+
     public void setVida(double vida) {
         this.vida = vida;
     }
@@ -152,8 +153,16 @@ public abstract class Personagem implements Serializable {
     public int getLargura() {
         return this.largura;
     }
-    
-    public boolean isActive() { return this.isActive; }
-    public void activate() { this.isActive = true; }
-    public void deactivate() { this.isActive = false; }
+
+    public boolean isActive() {
+        return this.isActive;
+    }
+
+    public void activate() {
+        this.isActive = true;
+    }
+
+    public void deactivate() {
+        this.isActive = false;
+    }
 }

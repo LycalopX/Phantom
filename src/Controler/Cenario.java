@@ -21,8 +21,6 @@ import Auxiliar.DebugManager;
 
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class Cenario extends JPanel {
@@ -155,14 +153,12 @@ public class Cenario extends JPanel {
 
     private void carregarImagensGameOver() {
         try {
-
-            String basePath = new File(".").getCanonicalPath() + Consts.PATH;
-            imagemGameOver = ImageIO.read(new File(basePath + "gameover.png"));
-
-        } catch (IOException e) {
+            // Usa o ClassLoader
+            imagemGameOver = ImageIO.read(getClass().getClassLoader().getResource("imgs/gameover.png"));
+        } catch (Exception e) {
             System.out.println("Erro ao carregar imagem de Game Over: " + e.getMessage());
             e.printStackTrace();
-            imagemGameOver = null; // Garante que é null se falhar
+            imagemGameOver = null;
         }
     }
 

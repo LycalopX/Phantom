@@ -39,7 +39,7 @@ public class Projetil extends Personagem {
     }
 
     @Override
-    public void atualizar(ArrayList<Personagem> personagens, Hero hero) {
+    public void atualizar() {
         if (!isActive())
             return; // Se estiver inativo, não faz nada
 

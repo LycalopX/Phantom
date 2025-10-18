@@ -41,11 +41,12 @@ public class GerenciadorDeArmas implements Serializable {
      * @return Uma lista de novos projéteis a serem adicionados à fase.
      */
     public void disparar(double x, double y, int power, Fase fase) {
+
         System.out.println("DEBUG 3 [Armas]: Método disparar() chamado. Cooldown: " + cooldownTiroPrincipal);
 
         ProjetilPool pool = fase.getProjetilPool();
-        int tamanhoHitbox = 8;
-        double raioHitbox =  ((double) tamanhoHitbox / (double) Consts.CELL_SIDE);
+        double tamanhoHitbox = (8 * Consts.TAMANHO_PROJETEIS);
+        double raioHitbox = (tamanhoHitbox / (double) Consts.CELL_SIDE);
         if (pool == null)
             return;
 
@@ -57,13 +58,13 @@ public class GerenciadorDeArmas implements Serializable {
 
         // 2. Tenta disparar o Tiro Principal
         if (cooldownTiroPrincipal <= 0) {
-            double velocidadeProjetilEmGrid = 50.0 / Consts.CELL_SIDE;
+            double velocidadeProjetilEmGrid = 40.0 / Consts.CELL_SIDE;
             int nivelDeTiroBase = getNivelTiroBase(power);
 
             double velocidadeFinal = velocidadeProjetilEmGrid * (1 + (nivelDeTiroBase - 1) * 0.2);
 
-            int larguraVisual = 80;
-            int alturaVisual = 20;
+            int larguraVisual = (int) (80 * Consts.TAMANHO_PROJETEIS);
+            int alturaVisual = (int) (20 * Consts.TAMANHO_PROJETEIS);
 
             // Tiro Central
             Projetil p1 = pool.getProjetilNormal();
@@ -79,13 +80,13 @@ public class GerenciadorDeArmas implements Serializable {
                 Projetil p2 = pool.getProjetilNormal();
                 if (p2 != null) {
                     p2.reset(x - offsetX, y, larguraVisual, alturaVisual, raioHitbox,
-                            velocidadeFinal, -105, TipoProjetil.JOGADOR);
+                            velocidadeFinal, -100, TipoProjetil.JOGADOR);
                 }
 
                 Projetil p3 = pool.getProjetilNormal();
                 if (p3 != null) {
                     p3.reset(x + offsetX, y, larguraVisual, alturaVisual, raioHitbox,
-                            velocidadeFinal, -75, TipoProjetil.JOGADOR);
+                            velocidadeFinal, -80, TipoProjetil.JOGADOR);
                 }
             }
 

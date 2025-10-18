@@ -3,10 +3,8 @@ package Modelo.Projeteis;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
 import Auxiliar.Consts;
 import Modelo.Personagem;
-import Modelo.Hero.Hero;
 
 public class BombaProjetil extends Personagem {
     private int duracao = 20;
@@ -49,7 +47,7 @@ public class BombaProjetil extends Personagem {
         
         super.autoDesenho(g);
     }
-    
+
     public double getRaioAtualGrid() {
         return this.raioAtualGrid;
     }

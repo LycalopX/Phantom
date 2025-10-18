@@ -1,6 +1,5 @@
 package Auxiliar;
 
-import java.io.File;
 import java.awt.event.KeyEvent;
 
 public class Consts {

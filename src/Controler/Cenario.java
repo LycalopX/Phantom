@@ -29,6 +29,11 @@ public class Cenario extends JPanel {
     private Engine.GameState estadoDoJogo;
     private BufferedImage imagemGameOver;
 
+    // Listas para controlar a ordem de desenho
+    private final ArrayList<Personagem> ProjeteisJogador = new ArrayList<>();
+    private final ArrayList<Personagem> ProjeteisInimigos = new ArrayList<>();
+    private final ArrayList<Personagem> HeroItemBombaProjetil = new ArrayList<>();
+
     public Cenario() {
         this.setPreferredSize(new Dimension(Consts.largura, Consts.altura));
         this.setFocusable(false);
@@ -46,7 +51,7 @@ public class Cenario extends JPanel {
         super.paintComponent(g);
 
         if (estadoDoJogo == null || estadoDoJogo == Engine.GameState.JOGANDO
-                || estadoDoJogo == Engine.GameState.RESPAWNANDO) {
+                || estadoDoJogo == Engine.GameState.RESPAWNANDO || estadoDoJogo == Engine.GameState.DEATHBOMB_WINDOW) {
 
             if (faseAtual == null)
                 return;
@@ -61,24 +66,39 @@ public class Cenario extends JPanel {
 
             ArrayList<Personagem> personagensParaDesenhar = new ArrayList<>(faseAtual.getPersonagens());
 
+            if (estadoDoJogo == Engine.GameState.DEATHBOMB_WINDOW) {
+                // Define a cor para um vermelho com 80/255 de opacidade (cerca de 31%)
+                g.setColor(new Color(255, 0, 0, 80));
+                // Desenha um retângulo que cobre a tela inteira
+                g.fillRect(0, 0, getWidth(), getHeight());
+            }
+
+            ProjeteisJogador.clear();
+            HeroItemBombaProjetil.clear();
+            ProjeteisInimigos.clear();
+
             // 3. Desenha Projéteis do JOGADOR
             for (Personagem p : personagensParaDesenhar) {
                 if (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.JOGADOR) {
-                    p.autoDesenho(g);
+                    ProjeteisJogador.add(p);
                 }
-            }
-
-            for (Personagem p : personagensParaDesenhar) {
                 if (p instanceof Hero || p instanceof Item || p instanceof BombaProjetil) {
-                    p.autoDesenho(g);
+                    HeroItemBombaProjetil.add(p);
                 }
-            }
-
-            for (Personagem p : personagensParaDesenhar) {
                 if (p instanceof Inimigo
                         || (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.INIMIGO)) {
-                    p.autoDesenho(g);
+                    ProjeteisInimigos.add(p);
                 }
+            }
+
+            for (Personagem p : ProjeteisJogador) {
+                p.autoDesenho(g);
+            }
+            for (Personagem p : HeroItemBombaProjetil) {
+                p.autoDesenho(g);
+            }
+            for (Personagem p : ProjeteisInimigos) {
+                p.autoDesenho(g);
             }
 
             // 6. HUD

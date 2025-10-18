@@ -60,6 +60,7 @@ public class ControleDeJogo {
 
         // Vamos marcar quem deve ser removido, e remover no final.
         ArrayList<Personagem> novosObjetos = new ArrayList<>();
+        boolean heroiFoiAtingido = false;
 
         // --- LÓGICA DE DANO EM ÁREA DA BOMBA ---
         if (bombaAtiva != null) {
@@ -127,7 +128,10 @@ public class ControleDeJogo {
                 }
 
                 if ((dx * dx) + (dy * dy) < (somaRaios * somaRaios)) {
-                    handleCollision(p1, p2, novosObjetos);
+
+                    if (handleCollision(p1, p2, novosObjetos)) {
+                        heroiFoiAtingido = true;
+                    }
                 }
             }
         }
@@ -145,7 +149,7 @@ public class ControleDeJogo {
             return !p.isActive();
         });
 
-        return hero.getHP() > 0;
+        return heroiFoiAtingido;
     }
 
     public boolean ehPosicaoValida(ArrayList<Personagem> umaFase, Personagem personagem, double proximoX,
@@ -202,19 +206,19 @@ public class ControleDeJogo {
     /**
      * Lida com a interação entre dois personagens que colidiram.
      */
-    private void handleCollision(Personagem p1, Personagem p2, ArrayList<Personagem> novosObjetos) {
+    private boolean handleCollision(Personagem p1, Personagem p2, ArrayList<Personagem> novosObjetos) {
         // --- COLISÃO: HERÓI E INIMIGO ---
         if (p1 instanceof Hero && p2 instanceof Inimigo) {
-            colisaoHeroiInimigo((Hero) p1, (Inimigo) p2);
+            return colisaoHeroiInimigo((Hero) p1, (Inimigo) p2);
         } else if (p2 instanceof Hero && p1 instanceof Inimigo) {
-            colisaoHeroiInimigo((Hero) p2, (Inimigo) p1);
+            return colisaoHeroiInimigo((Hero) p2, (Inimigo) p1);
         }
 
         // --- COLISÃO: HERÓI E PROJÉTIL INIMIGO ---
         if (p1 instanceof Hero && p2 instanceof Projetil && ((Projetil) p2).getTipo() == TipoProjetil.INIMIGO) {
-            colisaoHeroiProjetilInimigo((Hero) p1, (Projetil) p2);
+            return colisaoHeroiProjetilInimigo((Hero) p1, (Projetil) p2);
         } else if (p2 instanceof Hero && p1 instanceof Projetil && ((Projetil) p1).getTipo() == TipoProjetil.INIMIGO) {
-            colisaoHeroiProjetilInimigo((Hero) p2, (Projetil) p1);
+            return colisaoHeroiProjetilInimigo((Hero) p2, (Projetil) p1);
         }
 
         // --- COLISÃO: PROJÉTIL DO HERÓI E INIMIGO ---
@@ -231,22 +235,25 @@ public class ControleDeJogo {
         } else if (p2 instanceof Hero && p1 instanceof Item) {
             aplicarEfeitoDoItem((Hero) p2, (Item) p1);
         }
+
+        return false;
     }
 
     // --- MÉTODOS AUXILIARES DE COLISÃO ---
 
-    private void colisaoHeroiInimigo(Hero h, Inimigo i) {
-        if (!h.isInvencivel()) {
-            h.takeDamage();
-            i.takeDamage(9999); // Inimigo também morre na colisão
+    private boolean colisaoHeroiInimigo(Hero h, Inimigo i) {
+        if (h.takeDamage()) { // takeDamage() agora retorna true se o dano for válido
+            return true; // Informa que o herói foi atingido
         }
+        return false;
     }
 
-    private void colisaoHeroiProjetilInimigo(Hero h, Projetil p) {
-        if (!h.isInvencivel()) {
-            h.takeDamage();
+    private boolean colisaoHeroiProjetilInimigo(Hero h, Projetil p) {
+        if (h.takeDamage()) {
             p.deactivate();
+            return true; // Informa que o herói foi atingido
         }
+        return false;
     }
 
     private void colisaoProjetilHeroiInimigo(Projetil p, Inimigo i, ArrayList<Personagem> novosObjetos) {

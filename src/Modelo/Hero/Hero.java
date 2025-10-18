@@ -56,7 +56,6 @@ public class Hero extends Personagem {
      */
     @Override
     public void atualizar() {
-        // 1. Atualiza timers de invencibilidade e bomba
         if (invencibilidadeTimer > 0)
             invencibilidadeTimer--;
         if (efeitoBombaTimer > 0)
@@ -182,12 +181,10 @@ public class Hero extends Personagem {
      * @return O objeto BombaProjetil, ou null se não houver bombas.
      */
     public BombaProjetil usarBomba() {
-        System.out.println("DEBUG 3 [Hero]: Método usarBomba() executado. Bombas restantes: " + (this.bombas - 1)); // <--- ADICIONE AQUI
-        
-        if (getBombas() > 0) {
+        if (bombas > 0 && !isBombing()) { // Usa o método isBombing()
             this.bombas--;
-            this.invencibilidadeTimer = DURACAO_BOMBA_FRAMES;
             this.efeitoBombaTimer = DURACAO_BOMBA_FRAMES;
+            this.invencibilidadeTimer = DURACAO_BOMBA_FRAMES;
             return new BombaProjetil(this.x, this.y);
         }
         return null;
@@ -202,22 +199,27 @@ public class Hero extends Personagem {
     }
 
     // GETTERS E SETTERS SIMPLES
-    public void takeDamage() {
-        if (invencibilidadeTimer == 0) {
-            HP--;
-            invencibilidadeTimer = duracaoInvencibilidadeRespawn;
-
-            if (HP > 0) {
-                // ele se desativa para sinalizar ao Engine que precisa respawnar.
-                super.deactivate();
-            }
+    public boolean takeDamage() {
+        if (isInvencivel()) {
+            return false;
         }
+        return true;
+    }
+
+    public void processarMorte() {
+        this.HP--;
+        this.power = 0;
+        this.deactivate();
+    }
+
+    public boolean isInvencivel() {
+        return this.invencibilidadeTimer > 0 || isBombing(); // Usa o método isBombing()
     }
 
     public void deactivate() {
         super.deactivate(); // Usa o método da classe pai
     }
-    
+
     public void activate() {
         super.activate(); // Usa o método da classe pai
     }
@@ -236,10 +238,6 @@ public class Hero extends Personagem {
 
     public int getScore() {
         return this.score;
-    }
-
-    public boolean isInvencivel() {
-        return this.invencibilidadeTimer > 0;
     }
 
     public void addPower(int quantidade) {
@@ -262,7 +260,7 @@ public class Hero extends Personagem {
         return this.sistemaDeArmas.getNivelDeMisseis(this.power);
     }
 
-    public boolean isBombaAtiva() {
+    public boolean isBombing() {
         return this.efeitoBombaTimer > 0;
     }
 }

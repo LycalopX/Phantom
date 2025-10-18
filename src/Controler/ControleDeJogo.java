@@ -1,7 +1,6 @@
 package Controler;
 
 import Modelo.Personagem;
-import Modelo.Fases.Fase;
 import Modelo.Hero.Hero;
 import Modelo.Inimigos.Inimigo;
 import Modelo.Items.Item;

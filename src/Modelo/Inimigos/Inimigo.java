@@ -1,12 +1,10 @@
 // Em Modelo/Inimigo.java
 package Modelo.Inimigos;
 
-import Auxiliar.Consts; // Import necessário
-import java.awt.Graphics; // Import necessário
-import java.util.ArrayList; // Import necessário
+import Auxiliar.Consts;
+import java.awt.Graphics;
 import Auxiliar.LootTable;
 import Modelo.Personagem;
-import Modelo.Hero.Hero;
 
 public class Inimigo extends Personagem {
 

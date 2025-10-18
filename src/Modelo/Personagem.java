@@ -3,7 +3,6 @@ package Modelo;
 import Auxiliar.Consts;
 import Auxiliar.DebugManager;
 import Auxiliar.LootTable;
-import Modelo.Hero.Hero;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -12,7 +11,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import javax.swing.ImageIcon;
-import java.util.ArrayList;
 
 public abstract class Personagem implements Serializable {
 

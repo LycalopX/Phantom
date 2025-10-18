@@ -11,7 +11,6 @@ import java.awt.Graphics;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 import java.awt.Graphics2D;

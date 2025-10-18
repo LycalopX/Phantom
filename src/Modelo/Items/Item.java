@@ -7,7 +7,6 @@ import Modelo.Hero.Hero;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
-import java.util.ArrayList;
 import java.awt.image.RasterFormatException;
 
 public class Item extends Personagem {

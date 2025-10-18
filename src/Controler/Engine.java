@@ -39,6 +39,7 @@ public class Engine implements Runnable {
 
     public enum GameState {
         JOGANDO,
+        DEATHBOMB_WINDOW,
         RESPAWNANDO,
         GAME_OVER
     }
@@ -118,6 +119,7 @@ public class Engine implements Runnable {
                     respawnTimer = TEMPO_DE_RESPAWN;
                 }
                 break;
+                
 
             case RESPAWNANDO:
                 // Durante o respawn, o jogo continua rodando no fundo

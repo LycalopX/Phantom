@@ -3,14 +3,12 @@ package Modelo.Projeteis;
 import Auxiliar.Consts;
 import Auxiliar.TipoProjetil;
 import Modelo.Personagem;
-import Modelo.Hero.Hero;
 
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
 
 public class Projetil extends Personagem {
 

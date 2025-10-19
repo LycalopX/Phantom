@@ -1,8 +1,10 @@
 package Auxiliar;
 
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javazoom.jl.player.Player;
 import kuusisto.tinysound.Music;
 import kuusisto.tinysound.Sound;
 import kuusisto.tinysound.TinySound;
@@ -12,6 +14,8 @@ public class SoundManager {
     private static SoundManager instance;
     private final Map<String, Sound> sfxMap;
     private final Map<String, Music> musicMap;
+    private final Map<String, String> mp3Map;
+    private Player mp3Player;
     
     private float globalSfxVolume = 0.1f; // Drastically reduced for testing
     private float globalMusicVolume = 0.5f; // Default music volume
@@ -28,12 +32,34 @@ public class SoundManager {
     };
 
     private static final String[] MUSIC_FILES = {
-        "Illusionary Night Ghostly Eyes.wav"
+        "Cinderella Cage ~ Kagome-Kagome.mp3",
+        "Deaf to All but the Song.mp3",
+        "Eastern Youkai Beauty.mp3",
+        "Eternal Dream ~ Mystical Maple.mp3",
+        "Eternal Night Vignette ~ Eastern Night.mp3",
+        "Evening Primrose.mp3",
+        "Extend Ash ~ Person of Hourai.mp3",
+        "Flight of the Bamboo Cutter ~ Lunatic Princess.mp3",
+        "Gensokyo Millennium ~ History of the Moon.mp3",
+        "Illusionary Night ~ Ghostly Eyes.mp3",
+        "Illusionary Night Ghostly Eyes.wav",
+        "Love-Colored Master Spark.mp3",
+        "Lunatic Eyes ~ Invisible Full Moon.mp3",
+        "Maiden's Capriccio ~ Dream Battle.mp3",
+        "Nostalgic Blood of the East ~ Old World.mp3",
+        "Plain Asia.mp3",
+        "Reach for the Moon, Immortal Smoke.mp3",
+        "Retribution for the Eternal Night ~ Imperishable Night.mp3",
+        "Song of the Night Sparrow ~ Night Bird.mp3",
+        "Voyage 1969.mp3",
+        "Voyage 1970.mp3",
+        "Wriggling Autumn Moon ~ Mooned Insect.mp3"
     };
 
     private SoundManager() {
         this.sfxMap = new ConcurrentHashMap<>();
         this.musicMap = new ConcurrentHashMap<>();
+        this.mp3Map = new ConcurrentHashMap<>();
     }
 
     public static void init() {
@@ -76,19 +102,23 @@ public class SoundManager {
         System.out.println("DEBUG: Loading music...");
         for (String musicFileName : MUSIC_FILES) {
             String musicName = musicFileName.substring(0, musicFileName.lastIndexOf('.'));
-            URL resourceUrl = SoundManager.class.getResource("/sounds/Touhou Eiyashou - Imperishable Night/" + musicFileName);
-            System.out.println("DEBUG: Attempting to load music: " + musicFileName);
-            System.out.println("DEBUG: Resource URL: " + resourceUrl);
-            if (resourceUrl == null) {
-                System.err.println("Music file not found: " + musicFileName);
-                continue;
-            }
-            Music music = TinySound.loadMusic(resourceUrl);
-            if (music != null) {
-                musicMap.put(musicName, music);
-                System.out.println("DEBUG: Successfully loaded and mapped music: " + musicName);
+            if (musicFileName.endsWith(".mp3")) {
+                mp3Map.put(musicName, musicFileName);
             } else {
-                System.err.println("DEBUG: Failed to load music object for: " + musicFileName);
+                URL resourceUrl = SoundManager.class.getResource("/sounds/Touhou Eiyashou - Imperishable Night/" + musicFileName);
+                System.out.println("DEBUG: Attempting to load music: " + musicFileName);
+                System.out.println("DEBUG: Resource URL: " + resourceUrl);
+                if (resourceUrl == null) {
+                    System.err.println("Music file not found: " + musicFileName);
+                    continue;
+                }
+                Music music = TinySound.loadMusic(resourceUrl);
+                if (music != null) {
+                    musicMap.put(musicName, music);
+                    System.out.println("DEBUG: Successfully loaded and mapped music: " + musicName);
+                } else {
+                    System.err.println("DEBUG: Failed to load music object for: " + musicFileName);
+                }
             }
         }
     }
@@ -104,22 +134,47 @@ public class SoundManager {
 
     public void playMusic(String name, boolean loop) {
         System.out.println("DEBUG: playMusic called for: " + name);
-        Music music = musicMap.get(name);
-        if (music != null) {
+        if (musicMap.containsKey(name)) {
+            Music music = musicMap.get(name);
             System.out.println("DEBUG: Music found in map. Playing...");
             if (loop) {
                 music.play(loop, globalMusicVolume);
             } else {
                 music.play(false, globalMusicVolume);
             }
+        } else if (mp3Map.containsKey(name)) {
+            playMp3("/sounds/Touhou Eiyashou - Imperishable Night/" + mp3Map.get(name));
         } else {
             System.err.println("Music not found in map: " + name);
+        }
+    }
+
+    private void playMp3(String resourceName) {
+        try {
+            InputStream is = SoundManager.class.getResourceAsStream(resourceName);
+            if (is == null) {
+                System.err.println("MP3 resource not found: " + resourceName);
+                return;
+            }
+            mp3Player = new Player(is);
+            new Thread(() -> {
+                try {
+                    mp3Player.play();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     public void stopAllMusic() {
         for (Music music : musicMap.values()) {
             music.stop();
+        }
+        if (mp3Player != null) {
+            mp3Player.close();
         }
     }
 

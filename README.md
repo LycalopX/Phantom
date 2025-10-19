@@ -6,6 +6,10 @@ Phantom is a 2D shoot 'em up game developed as a project for the Object-Oriented
 
 The objective of the game is to navigate through 5 different stages, defeating enemies and avoiding their projectiles. The player controls a character with the ability to move and shoot.
 
+## Documentation
+
+A detailed documentation of the project's architecture, packages, and classes can be found in the [DOCUMENTACAO.md](DOCUMENTACAO.md) file.
+
 ## Assets
 
 Here are some examples of the game's assets:

@@ -2,144 +2,83 @@
 
 ## Visão Geral
 
-O projeto Phantom é um jogo 2D de tiro vertical (shoot'em up) desenvolvido em Java com Swing. O jogador controla um herói que deve atirar em inimigos, desviar de projéteis e coletar itens para aumentar seu poder, bombas e pontuação. O jogo é dividido em fases, cada uma com seus próprios padrões de inimigos.
+O Projeto Phantom é um jogo de tiro 2D vertical no estilo "bullet hell", inspirado em jogos como a série Touhou Project. O jogador controla um personagem que deve desviar de uma grande quantidade de projéteis inimigos enquanto tenta derrotá-los.
 
-A arquitetura do projeto segue um padrão semelhante ao MVC (Model-View-Controller):
+## Arquitetura
 
-*   **Modelo (`Modelo`):** Contém as classes que representam os dados e a lógica de negócios do jogo, como `Hero`, `Inimigo`, `Projetil` e `Item`.
-*   **Visão (`Cenario`):** Responsável por desenhar todos os elementos do jogo na tela.
-*   **Controlador (`Controler`):** Gerencia o fluxo do jogo, o input do jogador e as regras de colisão.
+O projeto segue uma arquitetura baseada no padrão Model-View-Controller (MVC):
+
+*   **Model**: Representa os dados e a lógica de negócio do jogo. Inclui as classes para o herói, inimigos, itens, projéteis e as fases do jogo. A lógica de como cada entidade se comporta está aqui.
+*   **View**: É a representação visual do modelo. A classe `Cenario` é a principal responsável por desenhar o estado atual do jogo na tela.
+*   **Controller**: Atua como intermediário entre o Model e a View. Ele processa a entrada do usuário (teclado), atualiza o estado do jogo e comanda a View para se redesenhar. As classes `Engine`, `ControleDeJogo` e `ControladorDoHeroi` compõem esta camada.
 
 ## Estrutura de Pacotes
 
 O código-fonte está organizado nos seguintes pacotes dentro de `src/`:
 
 *   `Main.java`: Ponto de entrada da aplicação.
-*   `Auxiliar`: Classes utilitárias usadas em todo o projeto.
-*   `Controler`: Classes que controlam a lógica e o fluxo do jogo.
-*   `Modelo`: Classes que representam os objetos e as estruturas de dados do jogo.
-*   `imgs`: Contém as imagens e sprites usados no jogo.
+*   `Auxiliar`: Classes utilitárias e de suporte.
+*   `Controler`: Classes que controlam o fluxo do jogo.
+*   `Modelo`: Classes que representam os dados e a lógica do jogo.
 
-## Pacote `Controler`
+### Pacote `Auxiliar`
 
-Este pacote é o cérebro do jogo, orquestrando a interação entre o jogador, os inimigos e o ambiente.
+Contém classes que fornecem funcionalidades de suporte para o resto do projeto.
 
-### `Engine.java`
+*   `Consts`: Armazena constantes globais do jogo, como dimensões da tela, velocidade dos personagens e códigos de teclas.
+*   `Posicao`: Uma classe simples para representar coordenadas (linha, coluna) no grid do jogo.
+*   `SoundManager`: Gerencia o carregamento e a reprodução de efeitos sonoros (WAV) e música (MP3).
+*   `Quadtree`: Uma estrutura de dados para otimizar a detecção de colisões, dividindo o espaço do jogo em quadrantes.
+*   `Desenho`: Classe auxiliar para desenhar imagens na tela.
+*   `ContadorFPS`: Calcula e exibe a taxa de quadros por segundo (FPS).
+*   `DebugManager`: Controla a exibição de informações de debug, como hitboxes.
+*   `LootTable` e `LootItem`: Gerenciam o sistema de drops de itens quando um inimigo é derrotado.
+*   `TipoProjetil`: Enum que diferencia projéteis do jogador e de inimigos.
+*   `ArvoreParallax` e `BlocoDeFolha`: Controlam o efeito de parallax do cenário de fundo.
 
-A classe principal do jogo.
+### Pacote `Controler`
 
-*   Implementa `Runnable` para criar o loop principal do jogo (`game loop`).
-*   Gerencia o estado do jogo (`GameState`: `JOGANDO`, `DEATHBOMB_WINDOW`, `RESPAWNANDO`, `GAME_OVER`).
-*   Contém as instâncias dos principais componentes: `Fase`, `Hero`, `ControleDeJogo`, `ControladorDoHeroi` e `GerenciadorDeFases`.
-*   Lida com a lógica de salvar, carregar e reiniciar o jogo.
+Responsável pela lógica principal e pelo fluxo do jogo.
 
-### `ControleDeJogo.java`
+*   `Engine`: O coração do jogo. Contém o loop principal (`run`), gerencia o estado do jogo (jogando, game over, etc.) e coordena as atualizações do modelo e da visão.
+*   `ControleDeJogo`: Processa a lógica de colisões entre os personagens usando a `Quadtree` e aplica as regras do jogo.
+*   `ControladorDoHeroi`: Interpreta o input do teclado do jogador e comanda o objeto `Hero`.
+*   `Tela`: A janela principal do jogo (`JFrame`).
+*   `Cenario`: O painel (`JPanel`) onde o jogo é desenhado. É a principal classe da camada View.
+*   `GerenciadorDeFases`: Controla a transição entre as fases do jogo.
 
-Responsável pelas regras do jogo e pela detecção de colisões.
+### Pacote `Modelo`
 
-*   Usa uma `Quadtree` para otimizar a detecção de colisões entre os personagens.
-*   Processa as interações entre os objetos do jogo (herói vs. inimigo, projétil vs. inimigo, etc.).
-*   Lida com a lógica de drop de itens quando um inimigo é destruído.
+Contém as classes que representam as entidades do jogo.
 
-### `ControladorDoHeroi.java`
+*   `Personagem`: Classe abstrata base para todas as entidades que se movem e interagem no jogo (herói, inimigos, itens, projéteis).
 
-Interpreta o input do teclado do jogador e o traduz em ações para o `Hero`.
+#### Subpacote `Modelo.Hero`
 
-*   Controla o movimento do herói, incluindo o modo de foco (movimento lento).
-*   Aciona o disparo de projéteis e o uso de bombas.
+*   `Hero`: Representa o personagem do jogador. Gerencia seus status (HP, bombas, poder), movimento e animação.
+*   `GerenciadorDeAnimacao`: Controla as animações do herói com base em seu estado (parado, movendo para os lados).
+*   `GerenciadorDeArmas`: Gerencia a lógica de tiro do herói, incluindo diferentes tipos de armas e níveis de poder.
+*   `HeroState`: Enum que define os possíveis estados de animação do herói.
 
-### `Cenario.java`
+#### Subpacote `Modelo.Inimigos`
 
-A "tela" do jogo, responsável por desenhar todos os elementos visuais.
+*   `Inimigo`: Representa um personagem inimigo. Possui lógica para movimento, vida e drop de itens.
 
-*   Estende `JPanel` e sobrescreve `paintComponent` para renderizar o jogo.
-*   Desenha o fundo, os personagens, os projéteis e a interface (HUD).
+#### Subpacote `Modelo.Items`
 
-### `GerenciadorDeFases.java`
+*   `Item`: Representa um item coletável no jogo (power-up, bomba, etc.).
+*   `ItemType`: Enum que define os diferentes tipos de itens e suas propriedades.
 
-Gerencia a progressão das fases do jogo.
+#### Subpacote `Modelo.Projeteis`
 
-*   Carrega a fase atual com base no nível.
-*   Fornece a próxima fase quando a atual é concluída.
+*   `Projetil`: Classe base para todos os projéteis. Define movimento e comportamento básico.
+*   `ProjetilHoming`: Um projétil que persegue um alvo.
+*   `ProjetilBombaHoming`: Um tipo especial de projétil teleguiado criado pela bomba do herói.
+*   `BombaProjetil`: Representa a bomba do herói, que causa dano em área.
+*   `ProjetilPool`: Otimiza o uso de memória reutilizando instâncias de projéteis em vez de criar e destruir objetos constantemente.
 
-### `Tela.java`
+#### Subpacote `Modelo.Fases`
 
-A janela principal da aplicação.
-
-*   Estende `JFrame` e contém o `Cenario`.
-
-## Pacote `Modelo`
-
-Este pacote contém as classes que representam os dados e a lógica de negócios do jogo.
-
-### `Personagem.java`
-
-Classe abstrata base para todos os objetos do jogo.
-
-*   Define propriedades comuns como posição (`x`, `y`), `hitboxRaio`, imagem (`iImage`) e estado (`isActive`).
-*   Contém o método abstrato `atualizar()`, que é implementado por cada tipo de personagem.
-
-### `Hero.java`
-
-Representa o personagem do jogador.
-
-*   Gerencia os atributos do jogador: `HP`, `bombas`, `power` e `score`.
-*   Lida com a lógica de dano, invencibilidade e morte.
-*   Contém um `GerenciadorDeAnimacao` para as animações do herói e um `GerenciadorDeArmas` para os padrões de tiro.
-
-### `Inimigo.java`
-
-Representa um inimigo genérico.
-
-*   Possui `vida` e uma `LootTable` que define quais itens podem ser dropados quando o inimigo é derrotado.
-
-### `Projetil.java`
-
-Representa um projétil.
-
-*   Pode ser do tipo `JOGADOR` ou `INIMIGO`.
-*   Possui `velocidade` e `anguloRad` para determinar sua trajetória.
-
-### `Fase.java`
-
-Representa o estágio atual do jogo.
-
-*   Contém uma lista de todos os `Personagem` na fase.
-*   Gerencia o `ProjetilPool` para reutilizar objetos de projéteis.
-*   Delega a lógica de spawn de inimigos para um `ScriptDeFase`.
-
-## Pacote `Auxiliar`
-
-Contém classes e constantes de suporte.
-
-### `Consts.java`
-
-Define constantes globais usadas em todo o projeto, como dimensões da tela, velocidade dos personagens e teclas de controle.
-
-### `Quadtree.java`
-
-Implementa uma estrutura de dados de quadtree para otimizar a detecção de colisões, dividindo o espaço do jogo em quadrantes.
-
-### `Desenho.java`
-
-Classe utilitária com métodos para desenhar elementos na tela.
-
-### `Posicao.java`
-
-Representa uma posição (coordenadas x, y) no grid do jogo.
-
-## Como Executar o Jogo
-
-1.  Compile todos os arquivos `.java`.
-2.  Execute a classe `Main`.
-
-Controles:
-
-*   **Setas Direcionais:** Mover o herói.
-*   **Z:** Atirar.
-*   **X:** Usar bomba.
-*   **Shift:** Modo de foco (movimento lento).
-*   **F3:** Ativar/Desativar modo de depuração (exibe hitboxes e informações).
-*   **S:** Salvar o jogo.
-*   **L:** Carregar o jogo.
-*   **R:** Reiniciar o jogo (na tela de Game Over).
+*   `Fase`: Representa o estado de uma fase do jogo, contendo a lista de personagens, o cenário e o script da fase.
+*   `ScriptDeFase`: Classe abstrata que define a interface para os scripts de fase. Cada fase tem seu próprio script que dita o comportamento dos inimigos e do cenário.
+*   `ScriptFase1`, `ScriptFase2`, etc.: Implementações concretas de `ScriptDeFase` para cada fase do jogo.

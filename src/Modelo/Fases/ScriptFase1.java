@@ -37,7 +37,7 @@ public class ScriptFase1 extends ScriptDeFase {
         for (int i = 0; i < NUMERO_DE_DIAGONAIS; i++) {
             posicoesXDasDiagonais[i] = 50 + (i * ESPACO_ENTRE_DIAGONAIS_X);
         }
-        SoundManager.getInstance().playMusic("Illusionary Night Ghostly Eyes", true);
+        
     }
 
     /**

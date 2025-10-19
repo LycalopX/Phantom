@@ -1,3 +1,9 @@
+# Build output
 /build/
 /dist/
+
+# Other
+/nbproject/private/
+/nbproject/genfiles.properties
+/POO.dat
 Projeto-POO-2025-2.pdf

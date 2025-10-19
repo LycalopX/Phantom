@@ -179,21 +179,29 @@ public class ControleDeJogo {
         switch (tipo) {
             case MINI_POWER_UP:
             case POWER_UP:
-            case FULL_POWER:
                 // Pega o valor do power diretamente do enum e passa para o herói
                 heroi.addPower(tipo.getPowerValue());
+                Auxiliar.SoundManager.getInstance().playSfx("se_item00");
+                break;
+
+            case FULL_POWER:
+                heroi.addPower(tipo.getPowerValue());
+                Auxiliar.SoundManager.getInstance().playSfx("se_item01");
                 break;
 
             case BOMB:
                 heroi.addBomb(tipo.getBombValue());
+                Auxiliar.SoundManager.getInstance().playSfx("se_item01");
                 break;
 
             case ONE_UP:
                 heroi.addHP(1); // Itens de vida geralmente dão um valor fixo
+                Auxiliar.SoundManager.getInstance().playSfx("se_item01");
                 break;
 
             case SCORE_POINT:
                 heroi.addScore(tipo.getScoreValue());
+                Auxiliar.SoundManager.getInstance().playSfx("se_item00");
                 break;
 
             default:

@@ -91,7 +91,6 @@ public abstract class Personagem implements Serializable {
         this.hitboxRaio = (this.largura / 2.0) / Consts.CELL_SIDE;
     }
 
-    // O autoDesenho da classe pai só desenha o DEBUG.
     // A subclasse (Hero, Inimigo) DEVE desenhar seu próprio sprite.
     public void autoDesenho(Graphics g) {
         if (DebugManager.isActive()) {

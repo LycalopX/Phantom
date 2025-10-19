@@ -88,7 +88,6 @@ public class ControladorDoHeroi {
 
         // --- LÓGICA DE TIRO ---
         if (teclas.contains(Consts.KEY_SHOOT)) {
-            System.out.println("DEBUG 2: Lógica de TIRO alcançada!");
 
             GerenciadorDeArmas armas = heroi.getSistemaDeArmas();
             armas.disparar(heroi.x, heroi.y, heroi.getPower(), fase);
@@ -102,6 +101,7 @@ public class ControladorDoHeroi {
                 BombaProjetil bomba = heroi.usarBomba(fase);
                 if (bomba != null) {
                     fase.adicionarPersonagem(bomba);
+                    Auxiliar.SoundManager.getInstance().playSfx("se_gun00");
                 }
             }
         }

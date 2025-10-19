@@ -7,6 +7,7 @@ import Auxiliar.ArvoreParallax;
 import Auxiliar.Consts;
 import Auxiliar.LootItem;
 import Auxiliar.LootTable;
+import Auxiliar.SoundManager;
 import java.awt.image.BufferedImage;
 
 public class ScriptFase1 extends ScriptDeFase {
@@ -36,6 +37,7 @@ public class ScriptFase1 extends ScriptDeFase {
         for (int i = 0; i < NUMERO_DE_DIAGONAIS; i++) {
             posicoesXDasDiagonais[i] = 50 + (i * ESPACO_ENTRE_DIAGONAIS_X);
         }
+        SoundManager.getInstance().playMusic("Illusionary Night Ghostly Eyes", true);
     }
 
     /**

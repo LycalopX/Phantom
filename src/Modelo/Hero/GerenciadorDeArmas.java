@@ -42,7 +42,6 @@ public class GerenciadorDeArmas implements Serializable {
      */
     public void disparar(double x, double y, int power, Fase fase) {
 
-        System.out.println("DEBUG 3 [Armas]: Método disparar() chamado. Cooldown: " + cooldownTiroPrincipal);
 
         ProjetilPool pool = fase.getProjetilPool();
         double tamanhoHitbox = (8 * Consts.TAMANHO_PROJETEIS);
@@ -58,6 +57,7 @@ public class GerenciadorDeArmas implements Serializable {
 
         // 2. Tenta disparar o Tiro Principal
         if (cooldownTiroPrincipal <= 0) {
+            Auxiliar.SoundManager.getInstance().playSfx("se_plst00");
             double velocidadeProjetilEmGrid = 40.0 / Consts.CELL_SIDE;
             int nivelDeTiroBase = getNivelTiroBase(power);
 

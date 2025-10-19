@@ -49,7 +49,6 @@ public class Projetil extends Personagem {
     @Override
     public void autoDesenho(Graphics g) {
         if (!isActive()) return;
-        System.out.println("Desenhando projétil em " + x + ", " + y);
 
         Graphics2D g2d = (Graphics2D) g;
 

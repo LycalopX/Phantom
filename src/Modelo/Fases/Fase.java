@@ -134,8 +134,6 @@ public class Fase implements Serializable {
     }
 
     public void adicionarPersonagem(Personagem p) {
-        System.out.println("DEBUG 4: Personagem adicionado à fase: " + p.getClass().getSimpleName()); // <--- ADICIONE
-                                                                                                      // AQUI
 
         this.personagens.add(p);
     }

@@ -16,6 +16,7 @@ import java.util.Set;
 
 import Auxiliar.Consts;
 import Auxiliar.DebugManager;
+import Auxiliar.SoundManager;
 
 public class Engine implements Runnable {
 
@@ -75,6 +76,9 @@ public class Engine implements Runnable {
         tela.pack();
         tela.setLocationRelativeTo(null);
         tela.setVisible(true);
+
+        // 5. Inicia a música
+        SoundManager.getInstance().playMusic("Illusionary Night ~ Ghostly Eyes", true);
     }
 
     // O loop de jogo (run) permanece o mesmo, ele é o "coração" que pulsa a 60 FPS
@@ -204,6 +208,8 @@ public class Engine implements Runnable {
         estadoAtual = GameState.JOGANDO;
         respawnTimer = 0;
 
+        SoundManager.getInstance().stopAllMusic();
+
         gerenciadorDeFases.resetar();
         faseAtual = gerenciadorDeFases.carregarFase(); // Carrega a Fase 1
         hero = new Hero("hero/hero_s0.png", Consts.respawnX, Consts.respawnY);
@@ -211,13 +217,14 @@ public class Engine implements Runnable {
 
         cenario.setFase(faseAtual);
         cenario.setEstadoDoJogo(estadoAtual);
+
+        SoundManager.getInstance().playMusic("Illusionary Night ~ Ghostly Eyes", true);
     }
 
     private void configurarTeclado() {
         tela.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                System.out.println("DEBUG 1: Tecla Pressionada - Código: " + e.getKeyCode());
 
                 if (estadoAtual == GameState.GAME_OVER && e.getKeyCode() == Consts.KEY_RESTART) {
                     reiniciarJogo();

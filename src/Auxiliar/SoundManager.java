@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javazoom.jl.player.Player;
 import kuusisto.tinysound.Music;
 import kuusisto.tinysound.Sound;
@@ -16,6 +18,7 @@ public class SoundManager {
     private final Map<String, Music> musicMap;
     private final Map<String, String> mp3Map;
     private Player mp3Player;
+    private final ExecutorService musicExecutor;
     
     private float globalSfxVolume = 0.1f; // Drastically reduced for testing
     private float globalMusicVolume = 0.5f; // Default music volume
@@ -42,7 +45,6 @@ public class SoundManager {
         "Flight of the Bamboo Cutter ~ Lunatic Princess.mp3",
         "Gensokyo Millennium ~ History of the Moon.mp3",
         "Illusionary Night ~ Ghostly Eyes.mp3",
-        "Illusionary Night Ghostly Eyes.wav",
         "Love-Colored Master Spark.mp3",
         "Lunatic Eyes ~ Invisible Full Moon.mp3",
         "Maiden's Capriccio ~ Dream Battle.mp3",
@@ -60,6 +62,7 @@ public class SoundManager {
         this.sfxMap = new ConcurrentHashMap<>();
         this.musicMap = new ConcurrentHashMap<>();
         this.mp3Map = new ConcurrentHashMap<>();
+        this.musicExecutor = Executors.newSingleThreadExecutor();
     }
 
     public static void init() {
@@ -72,6 +75,7 @@ public class SoundManager {
 
     public static void shutdown() {
         if (instance != null) {
+            instance.musicExecutor.shutdownNow();
             TinySound.shutdown();
         }
     }
@@ -133,16 +137,16 @@ public class SoundManager {
     }
 
     public void playMusic(String name, boolean loop) {
+        // Stop all other music before playing a new one
+        stopAllMusic();
+
         System.out.println("DEBUG: playMusic called for: " + name);
         if (musicMap.containsKey(name)) {
             Music music = musicMap.get(name);
             System.out.println("DEBUG: Music found in map. Playing...");
-            if (loop) {
-                music.play(loop, globalMusicVolume);
-            } else {
-                music.play(false, globalMusicVolume);
-            }
+            music.play(loop, globalMusicVolume);
         } else if (mp3Map.containsKey(name)) {
+            // The 'loop' parameter is currently ignored by the JLayer implementation.
             playMp3("/sounds/Touhou Eiyashou - Imperishable Night/" + mp3Map.get(name));
         } else {
             System.err.println("Music not found in map: " + name);
@@ -156,14 +160,20 @@ public class SoundManager {
                 System.err.println("MP3 resource not found: " + resourceName);
                 return;
             }
-            mp3Player = new Player(is);
-            new Thread(() -> {
-                try {
-                    mp3Player.play();
-                } catch (Exception e) {
-                    e.printStackTrace();
+
+            // Assign to a final local variable to avoid race conditions
+            final Player localPlayer = new Player(is);
+            this.mp3Player = localPlayer;
+
+            musicExecutor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        localPlayer.play();
+                    } catch (Exception e) {
+                    }
                 }
-            }).start();
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }

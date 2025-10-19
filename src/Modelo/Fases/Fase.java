@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 /**
- * A classe Fase agora é um "contêiner" ou "palco".
+ * A classe Fase é um "contêiner" ou "palco".
  * Ela guarda os personagens e o estado do cenário (scroll),
  * mas DELEGA toda a lógica de spawn (eventos) para o seu ScriptDeFase.
  */
@@ -81,7 +81,6 @@ public class Fase implements Serializable {
 
         // 2. DELEGA toda a lógica de spawn (inimigos e árvores) para o script
         if (this.scriptDaFase != null) {
-            // CORREÇÃO: Chama o método 'atualizar' correto com os dois parâmetros
             this.scriptDaFase.atualizar(this, velocidadeScroll);
         }
 

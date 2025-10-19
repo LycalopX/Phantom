@@ -34,6 +34,7 @@ public class ScriptFase1 extends ScriptDeFase {
     public ScriptFase1() {
         super(); // Chama o construtor de ScriptDeFase
         posicoesXDasDiagonais = new int[NUMERO_DE_DIAGONAIS];
+        
         for (int i = 0; i < NUMERO_DE_DIAGONAIS; i++) {
             posicoesXDasDiagonais[i] = 50 + (i * ESPACO_ENTRE_DIAGONAIS_X);
         }

@@ -76,9 +76,6 @@ public class Engine implements Runnable {
         tela.pack();
         tela.setLocationRelativeTo(null);
         tela.setVisible(true);
-
-        // 5. Inicia a música
-        SoundManager.getInstance().playMusic("Illusionary Night ~ Ghostly Eyes", true);
     }
 
     // O loop de jogo (run) permanece o mesmo, ele é o "coração" que pulsa a 60 FPS

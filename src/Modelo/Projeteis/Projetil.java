@@ -1,6 +1,5 @@
 package Modelo.Projeteis;
 
-import Auxiliar.Consts;
 import Auxiliar.Projeteis.HitboxType;
 import Auxiliar.Projeteis.ProjetilTipo;
 import Auxiliar.Projeteis.TipoProjetil;
@@ -44,10 +43,10 @@ public class Projetil extends Personagem {
                 this.hitboxRaio = 0;
             }
         } else {
-            this.largura = (int) (tipoDetalhado.getSpriteWidth() * Consts.BODY_PROPORTION);
-            this.altura = (int) (tipoDetalhado.getSpriteHeight() * Consts.BODY_PROPORTION);
+            this.largura = (int) (tipoDetalhado.getSpriteWidth() * BODY_PROPORTION);
+            this.altura = (int) (tipoDetalhado.getSpriteHeight() * BODY_PROPORTION);
             if (tipoDetalhado.getHitboxType() == HitboxType.CIRCULAR) {
-                this.hitboxRaio = (tipoDetalhado.getHitboxWidth() * Consts.BODY_PROPORTION) / 2.0 / CELL_SIDE;
+                this.hitboxRaio = (tipoDetalhado.getHitboxWidth() * BODY_PROPORTION) / 2.0 / CELL_SIDE;
             } else {
                 this.hitboxRaio = 0;
             }

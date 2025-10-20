@@ -4,7 +4,7 @@ import javax.swing.ImageIcon;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.awt.Graphics;
-import Auxiliar.Consts;
+import Modelo.Personagem;
 
 public class GerenciadorDeAnimacaoInimigo {
 
@@ -24,7 +24,7 @@ public class GerenciadorDeAnimacaoInimigo {
 
     public GerenciadorDeAnimacaoInimigo() {
         if (iImagesIdle == null) {
-            int size = (int) (30 * Consts.BODY_PROPORTION);
+            int size = (int) (30.0 * Personagem.BODY_PROPORTION);
             iImagesIdle = carregarFramesDoSpriteSheet("imgs/inimigos/enemy1_spreadsheet.png", 0, MAX_FRAMES, size);
             iImagesStrafing = carregarFramesDoSpriteSheet("imgs/inimigos/enemy1_spreadsheet.png", MAX_FRAMES, MAX_FRAMES, size);
         }

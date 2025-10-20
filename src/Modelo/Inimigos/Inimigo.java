@@ -4,17 +4,20 @@ package Modelo.Inimigos;
 import java.awt.Graphics;
 import Auxiliar.LootTable;
 import Modelo.Personagem;
+import Modelo.Fases.Fase;
+
 import static Auxiliar.ConfigMapa.*;
 
 public class Inimigo extends Personagem {
 
     public LootTable lootTable;
-    public double vida = 100;
+    public double vida;
+    protected transient Fase faseReferencia;
 
     /**
      * Construtor AUTOMÁTICO.
      * O tamanho (largura/altura) será calculado automaticamente
-     * com base no tamanho do 'sNomeImagePNG' e 'Consts.BODY_PROPORTION'.
+     * com base no tamanho do 'sNomeImagePNG' e 'BODY_PROPORTION'.
      */
     public Inimigo(String sNomeImagePNG, double x, double y, LootTable lootTable, double vida) {
         // Chama o construtor automático de Personagem
@@ -45,6 +48,10 @@ public class Inimigo extends Personagem {
     public void atualizar() {
         // Lógica de movimento do inimigo
         this.y += 0.02; // (Velocidade em grid, 0.2 era muito rápido)
+    }
+    
+    public void initialize(Fase fase) {
+        this.faseReferencia = fase;
     }
 
     @Override

@@ -1,8 +1,7 @@
 package Modelo;
 
-import Auxiliar.Consts;
-import Auxiliar.LootTable;
 import Auxiliar.Debug.DebugManager;
+import Auxiliar.LootTable;
 import static Auxiliar.ConfigMapa.*;
 
 import java.awt.Color;
@@ -13,8 +12,12 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import javax.swing.ImageIcon;
 
-
 public abstract class Personagem implements Serializable {
+
+    // --- Constantes movidas de Consts.java ---
+    public static final String PATH = "imgs/";
+    public static final double BODY_PROPORTION = ((double) ALTURA_TELA) / 375; // Proporção do sprite para o tamanho da tela
+    // -------------------------------------------
 
     protected transient ImageIcon iImage;
     private String nomeSprite;
@@ -52,9 +55,9 @@ public abstract class Personagem implements Serializable {
     private void carregarImagem() {
         try {
             // Usa o ClassLoader, que é mais robusto. O caminho NÃO deve começar com '/'
-            java.net.URL imgURL = getClass().getClassLoader().getResource(Consts.PATH + this.nomeSprite);
+            java.net.URL imgURL = getClass().getClassLoader().getResource(PATH + this.nomeSprite);
             if (imgURL == null) {
-                System.err.println("Recurso não encontrado: " + Consts.PATH + this.nomeSprite);
+                System.err.println("Recurso não encontrado: " + PATH + this.nomeSprite);
                 return;
             }
             iImage = new ImageIcon(imgURL);
@@ -67,8 +70,8 @@ public abstract class Personagem implements Serializable {
         }
     }
 
-    public abstract void atualizar(); 
-    
+    public abstract void atualizar();
+
     // Construtor para tamanho MANUAL (usado pelo segundo construtor do Inimigo)
     protected Personagem(String sNomeImagePNG, double x, double y, int largura, int altura) {
         this(sNomeImagePNG, x, y, largura, altura, (largura / 2.0) / CELL_SIDE);
@@ -86,8 +89,8 @@ public abstract class Personagem implements Serializable {
         carregarImagem();
 
         // 2. Calcula largura/altura com base na proporção global
-        this.largura = (int) (this.originalSpriteWidth * Consts.BODY_PROPORTION);
-        this.altura = (int) (this.originalSpriteHeight * Consts.BODY_PROPORTION);
+        this.largura = (int) (((double) this.originalSpriteWidth) * BODY_PROPORTION);
+        this.altura = (int) (((double) this.originalSpriteHeight) * BODY_PROPORTION);
 
         // 3. Calcula a hitbox com base no novo tamanho
         this.hitboxRaio = (this.largura / 2.0) / CELL_SIDE;

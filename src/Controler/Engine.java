@@ -2,17 +2,23 @@ package Controler;
 
 import Modelo.Fases.Fase;
 import Modelo.Hero.Hero;
+import Modelo.Inimigos.FadaComum;
 import Modelo.Items.Item;
 import Modelo.Items.ItemType;
+import Modelo.Personagem;
+import Auxiliar.LootTable;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import Auxiliar.ConfigTeclado;
 import Auxiliar.SoundManager;
@@ -82,7 +88,6 @@ public class Engine implements Runnable {
         tela.setVisible(true);
     }
 
-    // O loop de jogo (run) permanece o mesmo, ele é o "coração" que pulsa a 60 FPS
     @Override
     public void run() {
         double drawInterval = 1000000000.0 / FPS;
@@ -95,8 +100,8 @@ public class Engine implements Runnable {
             lastTime = currentTime;
 
             if (delta >= 1) {
-                atualizar(); // Atualiza a lógica
-                cenario.repaint(); // Redesenha a tela
+                atualizar();
+                cenario.repaint();
                 cenario.atualizarContadorFPS();
                 delta--;
             }
@@ -107,10 +112,8 @@ public class Engine implements Runnable {
         switch (estadoAtual) {
             case JOGANDO:
                 controladorHeroi.processarInput(teclasPressionadas, hero, faseAtual, controleDeJogo);
-
                 faseAtual.atualizar(velocidadeScroll);
                 boolean foiAtingido = controleDeJogo.processaTudo(faseAtual.getPersonagens());
-
                 if (foiAtingido) {
                     estadoAtual = GameState.DEATHBOMB_WINDOW;
                     deathbombTimer = JANELA_DEATHBOMB;
@@ -118,27 +121,23 @@ public class Engine implements Runnable {
                 break;
 
             case DEATHBOMB_WINDOW:
-                // Permite que o input da bomba seja lido, mas não o de movimento/tiro
                 controladorHeroi.processarInput(teclasPressionadas, hero, faseAtual, controleDeJogo);
                 deathbombTimer--;
                 slowMotionCounter++;
-
-                if (slowMotionCounter % Hero.SLOW_MOTION_FRAMES == 0) { // Atualiza a cada 2 frames para efeito de slow motion
+                if (slowMotionCounter % Hero.SLOW_MOTION_FRAMES == 0) {
                     faseAtual.atualizar(velocidadeScroll);
                 }
-
                 if (hero.isBombing()) {
-                    // O jogador usou a bomba a tempo!
                     estadoAtual = GameState.JOGANDO;
-                } else if (deathbombTimer <= 0) {
-                    // O tempo acabou, o jogador morre de verdade.
+                }
+                else if (deathbombTimer <= 0) {
                     hero.processarMorte();
                     dropItensAoMorrer();
-
                     if (hero.getHP() <= 0) {
                         hero.deactivate();
                         estadoAtual = GameState.GAME_OVER;
-                    } else {
+                    }
+                    else {
                         estadoAtual = GameState.RESPAWNANDO;
                         respawnTimer = TEMPO_DE_RESPAWN;
                     }
@@ -146,11 +145,8 @@ public class Engine implements Runnable {
                 break;
 
             case RESPAWNANDO:
-                // Durante o respawn, o jogo continua rodando no fundo
                 faseAtual.atualizar(velocidadeScroll);
                 controleDeJogo.processaTudo(faseAtual.getPersonagens());
-                respawnTimer--;
-
                 respawnTimer--;
                 if (respawnTimer <= 0) {
                     hero.respawn();
@@ -161,21 +157,17 @@ public class Engine implements Runnable {
                 break;
 
             case GAME_OVER:
-                // O jogo para. Nenhuma lógica de atualização é executada.
                 break;
         }
-        // Informa a view qual é o estado atual do jogo para que ela possa desenhar a
-        // tela correta
         cenario.setEstadoDoJogo(estadoAtual);
     }
 
     private void dropItensAoMorrer() {
         int powerAtual = hero.getPower();
-        int itensADropar = powerAtual / 10; // Ex: 1 item a cada 10 de power
-
+        int itensADropar = powerAtual / 10;
         for (int i = 0; i < itensADropar; i++) {
             Item itemDropado = new Item(ItemType.MINI_POWER_UP, hero.x, hero.y, hero);
-            double angulo = -30 - (Math.random() * 120); // Leque para cima
+            double angulo = -30 - (Math.random() * 120);
             double forca = 0.15;
             itemDropado.lancarItem(angulo, forca);
             faseAtual.adicionarPersonagem(itemDropado);
@@ -183,25 +175,17 @@ public class Engine implements Runnable {
     }
 
     private synchronized void carregarJogo() {
-        try {
-            FileInputStream fis = new FileInputStream("POO.dat");
-            ObjectInputStream ois = new ObjectInputStream(fis);
+        try (FileInputStream fis = new FileInputStream("POO.dat");
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
             this.faseAtual = (Fase) ois.readObject();
-            ois.close();
-            fis.close();
-
-            // ATUALIZA AS REFERÊNCIAS CRUCIAIS APÓS CARREGAR
             cenario.setFase(this.faseAtual);
-            this.hero = (Hero) this.faseAtual.getHero(); // Garante que o Engine está controlando o herói correto
-
+            this.hero = (Hero) this.faseAtual.getHero();
             System.out.println(">>> JOGO CARREGADO!");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // ... O resto da sua classe Engine (startGameThread, reiniciarJogo,
-    // configurarTeclado, salvarJogo) ...
     public void startGameThread() {
         gameThread = new Thread(this);
         gameThread.start();
@@ -210,17 +194,13 @@ public class Engine implements Runnable {
     private void reiniciarJogo() {
         estadoAtual = GameState.JOGANDO;
         respawnTimer = 0;
-
         SoundManager.getInstance().stopAllMusic();
-
         gerenciadorDeFases.resetar();
-        faseAtual = gerenciadorDeFases.carregarFase(); // Carrega a Fase 1
+        faseAtual = gerenciadorDeFases.carregarFase();
         hero = new Hero("hero/hero_s0.png", RESPAWN_X, RESPAWN_Y);
         faseAtual.adicionarPersonagem(hero);
-
         cenario.setFase(faseAtual);
         cenario.setEstadoDoJogo(estadoAtual);
-
         SoundManager.getInstance().playMusic("Illusionary Night ~ Ghostly Eyes", true);
     }
 
@@ -228,11 +208,6 @@ public class Engine implements Runnable {
         tela.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-
-                if (estadoAtual == GameState.GAME_OVER && e.getKeyCode() == ConfigTeclado.KEY_RESTART) {
-                    reiniciarJogo();
-                    return;
-                }
                 if (e.getKeyCode() == ConfigTeclado.KEY_SAVE) {
                     salvarJogo();
                     return;
@@ -240,14 +215,19 @@ public class Engine implements Runnable {
                 if (e.getKeyCode() == ConfigTeclado.KEY_LOAD) {
                     carregarJogo();
                     return;
-                } // Mudei para 'O' para não conflitar com o 'R' de reiniciar
+                }
+                if (estadoAtual == GameState.GAME_OVER && e.getKeyCode() == ConfigTeclado.KEY_RESTART) {
+                    reiniciarJogo();
+                    return;
+                }
 
                 teclasPressionadas.add(e.getKeyCode());
 
                 if (teclasPressionadas.contains(KeyEvent.VK_F) && teclasPressionadas.contains(KeyEvent.VK_3)) {
                     DebugManager.toggle();
-                    teclasPressionadas.remove(KeyEvent.VK_F);
-                    teclasPressionadas.remove(KeyEvent.VK_3);
+                }
+                if (teclasPressionadas.contains(KeyEvent.VK_F) && teclasPressionadas.contains(KeyEvent.VK_4)) {
+                    salvarInimigosParaTeste();
                 }
             }
 
@@ -259,28 +239,48 @@ public class Engine implements Runnable {
     }
 
     private synchronized void salvarJogo() {
-        try {
-            FileOutputStream fos = new FileOutputStream("POO.dat");
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
+        try (FileOutputStream fos = new FileOutputStream("POO.dat");
+             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
             oos.writeObject(this.faseAtual);
-            oos.close();
-            fos.close();
             System.out.println(">>> JOGO SALVO!");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    private void salvarInimigosParaTeste() {
+        System.out.println("Salvando inimigos para teste...");
+        FadaComum fada = new FadaComum(0, 0, new LootTable(), 100, null);
+        
+        salvarPersonagemParaTeste(fada, "fada_comum.zip");
+        System.out.println("Inimigos de teste salvos na pasta do projeto.");
+    }
+
+    private void salvarPersonagemParaTeste(Personagem p, String nomeArquivo) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+                oos.writeObject(p);
+            }
+            byte[] personagemBytes = baos.toByteArray();
+
+            try (FileOutputStream fos = new FileOutputStream(nomeArquivo);
+                 ZipOutputStream zos = new ZipOutputStream(fos)) {
+                
+                ZipEntry entry = new ZipEntry(p.getClass().getSimpleName() + ".ser");
+                zos.putNextEntry(entry);
+                zos.write(personagemBytes);
+                zos.closeEntry();
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao salvar personagem para teste: " + nomeArquivo);
+            e.printStackTrace();
+        }
+    }
+
     public void carregarProximaFase() {
-        // (Você precisará de uma lógica para detectar o fim da fase,
-        // por exemplo, distanciaTotalRolada > 10000 ou um boss morrer)
-
         this.faseAtual = gerenciadorDeFases.proximaFase();
-
-        // Adiciona o herói (e outros elementos persistentes) à nova fase
         this.faseAtual.adicionarPersonagem(hero);
-
-        // Atualiza a visão
         cenario.setFase(this.faseAtual);
     }
 

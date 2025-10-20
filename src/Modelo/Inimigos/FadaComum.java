@@ -1,6 +1,5 @@
 package Modelo.Inimigos;
 
-import Auxiliar.Consts;
 import Auxiliar.LootTable;
 import Modelo.Fases.Fase;
 import Modelo.Personagem;
@@ -11,6 +10,8 @@ import Modelo.Inimigos.GerenciadorDeAnimacaoInimigo.AnimationState;
 import static Auxiliar.ConfigMapa.*;
 
 import java.awt.Graphics;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 
 public class FadaComum extends Inimigo {
 
@@ -20,9 +21,8 @@ public class FadaComum extends Inimigo {
         EXITING
     }
 
-    private transient Fase faseReferencia;
     private State currentState;
-    private double targetY = 5;
+    private double targetY = 8;
     private double initialX;
     private double amplitude = 4;
     private double frequency = 0.5;
@@ -30,18 +30,28 @@ public class FadaComum extends Inimigo {
     private int shootInterval = 60; // Atira a cada 60 frames
     private int shootDuration = 300; // Atira por 300 frames (5 segundos)
 
-    private GerenciadorDeAnimacaoInimigo animador;
+    private transient GerenciadorDeAnimacaoInimigo animador;
 
     public FadaComum(double x, double y, LootTable lootTable, double vida, Fase fase) {
-        super("", x, y, lootTable, vida);
+        super("", x, y, lootTable, 50);
         this.currentState = State.ENTERING;
         this.initialX = x;
         this.faseReferencia = fase;
         this.animador = new GerenciadorDeAnimacaoInimigo();
         
-        this.largura = (int) (30 * Consts.BODY_PROPORTION);
-        this.altura = (int) (30 * Consts.BODY_PROPORTION);
+        this.largura = (int) (30.0 * BODY_PROPORTION);
+        this.altura = (int) (30.0 * BODY_PROPORTION);
         this.hitboxRaio = (this.largura / 2.0) / CELL_SIDE;
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        this.animador = new GerenciadorDeAnimacaoInimigo();
+    }
+    
+    @Override
+    public void initialize(Fase fase) {
+        this.faseReferencia = fase;
     }
 
     @Override
@@ -51,7 +61,7 @@ public class FadaComum extends Inimigo {
         switch (currentState) {
             case ENTERING:
                 // Movimento em arco para baixo
-                y += 0.05; // Velocidade vertical
+                y += 0.1; // Velocidade vertical
                 x = initialX + Math.sin(y * frequency) * amplitude;
 
                 if (y >= targetY) {

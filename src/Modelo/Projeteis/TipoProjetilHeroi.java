@@ -4,7 +4,6 @@ import javax.swing.ImageIcon;
 
 import Auxiliar.Projeteis.HitboxType;
 import Auxiliar.Projeteis.ProjetilTipo;
-import Auxiliar.Consts;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -24,7 +23,7 @@ public enum TipoProjetilHeroi implements ProjetilTipo {
     TipoProjetilHeroi(String sNomeImagePNG, int spriteWidth, int spriteHeight, HitboxType hitboxType, int hitboxWidth) {
         this.spriteWidth = spriteWidth;
         this.spriteHeight = spriteHeight;
-        this.imagem = carregarImagem(Consts.PATH + sNomeImagePNG, spriteWidth, spriteHeight);
+        this.imagem = carregarImagem("imgs/" + sNomeImagePNG, spriteWidth, spriteHeight);
         this.hitboxType = hitboxType;
         this.hitboxWidth = hitboxWidth;
         this.hitboxHeight = hitboxWidth; // For circular, height is same as width

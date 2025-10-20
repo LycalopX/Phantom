@@ -18,8 +18,8 @@ public class Item extends Personagem {
     // --- FÍSICA DO ITEM ---
     private double velX = 0;
     private double velY = 0;
-    private static final double GRAVIDADE = 0.00195; // Pequena força para baixo. Ajuste conforme necessário.
-    private static final double MAX_FALL_SPEED = 0.042;
+    private static final double GRAVIDADE = 0.003; // Pequena força para baixo. Ajuste conforme necessário.
+    private static final double MAX_FALL_SPEED = 0.6;
     private static final double VELOCIDADE_ATRACAO = 1;
 
     private int launchTimer = 0; // Contagem de frames para o lançamento

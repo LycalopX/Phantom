@@ -22,12 +22,14 @@ public class Hero extends Personagem {
     // --- Configurações do Herói movidas de Consts.java ---
     public static final double HITBOX_RAIO = 5.75;
     public static final double HITBOX_RAIO_FANTASY_SEAL = 25.0;
-    public static final double HERO_VELOCITY = 28.9764;
+    public static final double HERO_VELOCITY = (((double) LARGURA_TELA) * 0.03763);
     public static final int DANO_BALA = 40;
     public static final int DANO_BALA_TELEGUIADA = 3;
-    public static final int REQ_MISSIL_POWER = 120; // Power necessário para aumenta o nível
-    public static final int REQ_TIROS_POWER = 150; // Power necessário para aumenta o nível
+    public static final int REQ_MISSIL_POWER = 300; // Power necessário para aumenta o nível
+    public static final int REQ_TIROS_POWER = 100; // Power necessário para aumenta o nível
     public static final int SLOW_MOTION_FRAMES = 4; // Usado na Engine
+    private final int DURACAO_BOMBA_FRAMES = 240;
+    private final int duracaoInvencibilidadeRespawn = 120;
     // -----------------------------------------------------
 
     private int HP = 3;
@@ -42,8 +44,6 @@ public class Hero extends Personagem {
 
     private transient GerenciadorDeAnimacaoHeroi animador;
     private GerenciadorDeArmasHeroi sistemaDeArmas;
-    private final int DURACAO_BOMBA_FRAMES = 180;
-    private final int duracaoInvencibilidadeRespawn = 120;
 
     // Para animação
     private HeroState estado = HeroState.IDLE;

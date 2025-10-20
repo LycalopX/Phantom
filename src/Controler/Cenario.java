@@ -12,6 +12,13 @@ import Auxiliar.ConfigMapa;
 import Auxiliar.Cenario1.ArvoreParallax;
 
 import java.awt.*;
+import java.awt.dnd.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.util.zip.ZipInputStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -40,27 +47,115 @@ public class Cenario extends JPanel {
         this.setFocusable(false);
         this.setBackground(Color.BLACK);
         this.contadorFPS = new ContadorFPS();
+        setupDropTarget();
+    }
+
+    private void setupDropTarget() {
+        new DropTarget(this, new DropTargetListener() {
+            @Override
+            public void drop(DropTargetDropEvent dtde) {
+                if (!DebugManager.isActive()) {
+                    dtde.rejectDrop();
+                    return;
+                }
+                try {
+                    dtde.acceptDrop(DnDConstants.ACTION_COPY);
+                    Transferable transferable = dtde.getTransferable();
+                    if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                        ArrayList<File> files = (ArrayList<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
+                        for (File file : files) {
+                            processarArquivoSolto(file, dtde.getLocation());
+                        }
+                    }
+                    dtde.dropComplete(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    dtde.dropComplete(false);
+                }
+            }
+
+            @Override
+            public void dragEnter(DropTargetDragEvent dtde) {
+                if (DebugManager.isActive() && dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                    dtde.acceptDrag(DnDConstants.ACTION_COPY);
+                } else {
+                    dtde.rejectDrag();
+                }
+            }
+
+            @Override
+            public void dragOver(DropTargetDragEvent dtde) {
+                if (DebugManager.isActive() && dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                    dtde.acceptDrag(DnDConstants.ACTION_COPY);
+                } else {
+                    dtde.rejectDrag();
+                }
+            }
+
+            @Override
+            public void dropActionChanged(DropTargetDragEvent dtde) {
+            }
+
+            @Override
+            public void dragExit(DropTargetEvent dte) {
+            }
+        });
+    }
+
+    private void processarArquivoSolto(File file, Point dropPoint) {
+        if (file == null || !file.getName().toLowerCase().endsWith(".zip")) {
+            return;
+        }
+
+        try (FileInputStream fis = new FileInputStream(file);
+             ZipInputStream zis = new ZipInputStream(fis);
+             ObjectInputStream ois = new ObjectInputStream(zis)) {
+
+            if (zis.getNextEntry() != null) {
+                Personagem p = (Personagem) ois.readObject();
+
+                double gridX = dropPoint.getX() / ConfigMapa.CELL_SIDE;
+                double gridY = dropPoint.getY() / ConfigMapa.CELL_SIDE;
+
+                p.x = gridX;
+                p.y = gridY;
+
+                if (faseAtual != null) {
+                    if (p instanceof Inimigo) {
+                        ((Inimigo) p).initialize(faseAtual);
+                    }
+                    faseAtual.adicionarPersonagem(p);
+                    System.out.println("Personagem " + p.getClass().getSimpleName() + " adicionado em (" + gridX + ", " + gridY + ")");
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("Falha ao processar o arquivo solto: " + file.getName());
+            e.printStackTrace();
+        }
     }
 
     public void setFase(Fase fase) {
         this.faseAtual = fase;
     }
-    // Em Controler/Cenario.java
 
     @Override
     public void paintComponent(Graphics g) {
+        System.out.println("DEBUG: paintComponent chamado."); // DEBUG
         super.paintComponent(g);
+
+        if (faseAtual == null) {
+            System.out.println("DEBUG: faseAtual é nula!"); // DEBUG
+            return;
+        }
+        System.out.println("DEBUG: Desenhando fase. Personagens: " + faseAtual.getPersonagens().size()); // DEBUG
 
         if (estadoDoJogo == null || estadoDoJogo == Engine.GameState.JOGANDO
                 || estadoDoJogo == Engine.GameState.RESPAWNANDO || estadoDoJogo == Engine.GameState.DEATHBOMB_WINDOW) {
 
-            if (faseAtual == null)
-                return;
             Graphics2D g2d = (Graphics2D) g;
 
-            // 1. Fundo
             desenharFundo(g2d);
-            // 2. Árvores
             for (ArvoreParallax arvore : faseAtual.getArvores()) {
                 arvore.desenhar(g2d, getHeight());
             }
@@ -68,9 +163,7 @@ public class Cenario extends JPanel {
             ArrayList<Personagem> personagensParaDesenhar = new ArrayList<>(faseAtual.getPersonagens());
 
             if (estadoDoJogo == Engine.GameState.DEATHBOMB_WINDOW) {
-                // Define a cor para um vermelho com 80/255 de opacidade (cerca de 31%)
                 g.setColor(new Color(255, 0, 0, 30));
-                // Desenha um retângulo que cobre a tela inteira
                 g.fillRect(0, 0, getWidth(), getHeight());
             }
 
@@ -78,7 +171,6 @@ public class Cenario extends JPanel {
             HeroItemBombaProjetil.clear();
             ProjeteisInimigos.clear();
 
-            // 3. Desenha Projéteis do JOGADOR
             for (Personagem p : personagensParaDesenhar) {
                 if (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.JOGADOR) {
                     ProjeteisJogador.add(p);
@@ -102,18 +194,16 @@ public class Cenario extends JPanel {
                 p.autoDesenho(g);
             }
 
-            // 6. HUD
             if (DebugManager.isActive()) {
                 desenharHUD(g2d);
             }
         } else if (estadoDoJogo == Engine.GameState.GAME_OVER) {
-            desenharTelaGameOver(g); // Chama o método de desenho do Game Over
+            desenharTelaGameOver(g);
         }
 
     }
 
     private void desenharFundo(Graphics2D g2d) {
-        // CORRIGIDO: Pega a imagem e a posição do scroll da faseAtual
         BufferedImage imagemFundo1 = faseAtual.getImagemFundo1();
         if (imagemFundo1 == null)
             return;
@@ -141,8 +231,8 @@ public class Cenario extends JPanel {
 
         g2d.drawString(contadorFPS.getFPSString(), 10, 60);
 
-        Personagem heroi = faseAtual.getHero(); // Você precisará criar este método
-        if (heroi instanceof Hero) { // Boa prática verificar o tipo
+        Personagem heroi = faseAtual.getHero();
+        if (heroi instanceof Hero) {
             Hero h = (Hero) heroi;
 
             g2d.drawString("Bombas: " + h.getBombas(), 10, 80);
@@ -154,17 +244,14 @@ public class Cenario extends JPanel {
 
     }
 
-    public void setEstadoDoJogo(Engine.GameState estado) { // << Adapte o GameState para ser visível publicamente na
-                                                           // Engine
+    public void setEstadoDoJogo(Engine.GameState estado) {
         this.estadoDoJogo = estado;
     }
 
     private void desenharTelaGameOver(Graphics g) {
-        // 1. Desenha a imagem de fundo
         if (imagemGameOver != null) {
             g.drawImage(imagemGameOver, 0, 0, getWidth(), getHeight(), this);
         } else {
-            // Fallback para um fundo preto se a imagem não carregar
             g.setColor(Color.BLACK);
             g.fillRect(0, 0, getWidth(), getHeight());
         }
@@ -174,12 +261,10 @@ public class Cenario extends JPanel {
 
     private void carregarImagensGameOver() {
         try {
-            // Usa o ClassLoader
             imagemGameOver = ImageIO.read(getClass().getClassLoader().getResource("imgs/gameover.png"));
         } catch (Exception e) {
             System.out.println("Erro ao carregar imagem de Game Over: " + e.getMessage());
             e.printStackTrace();
-            imagemGameOver = null;
         }
     }
 

@@ -94,8 +94,7 @@ public class Fase implements Serializable {
         arvores.removeIf(arvore -> arvore.estaForaDaTela(ALTURA_TELA));
 
         // Atualiza todos os personagens (herói, inimigos, projéteis)
-        for (int i = 0; i < personagens.size(); i++) {
-            Personagem p = personagens.get(i);
+        for (Personagem p : personagens) {
             p.atualizar(); // Atualiza Inimigos, Projéteis, etc.
 
             if (p instanceof Projetil) {

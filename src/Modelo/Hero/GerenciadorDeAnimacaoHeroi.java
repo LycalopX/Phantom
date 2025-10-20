@@ -1,6 +1,6 @@
 package Modelo.Hero;
 
-import Auxiliar.Consts;
+import Modelo.Personagem;
 
 import java.awt.Graphics;
 import java.awt.Image;
@@ -143,9 +143,9 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
     // Métodos de carregamento (agora precisam de largura/altura como parâmetro)
     private ImageIcon carregarImagem(String nomeArquivo, int largura, int altura) {
         try {
-            java.net.URL imgURL = getClass().getClassLoader().getResource(Consts.PATH + nomeArquivo);
+            java.net.URL imgURL = getClass().getClassLoader().getResource(Personagem.PATH + nomeArquivo);
             if (imgURL == null) {
-                System.err.println("Recurso não encontrado: " + Consts.PATH + nomeArquivo);
+                System.err.println("Recurso não encontrado: " + Personagem.PATH + nomeArquivo);
                 return null;
             }
             ImageIcon imagem = new ImageIcon(imgURL);
@@ -163,9 +163,9 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
 
     private ImageIcon[] carregarFramesDoSpriteSheet(String nomeArquivo, int numFrames, int largura, int altura) {
         try {
-            java.net.URL imgURL = getClass().getClassLoader().getResource(Consts.PATH + nomeArquivo);
+            java.net.URL imgURL = getClass().getClassLoader().getResource(Personagem.PATH + nomeArquivo);
             if (imgURL == null) {
-                System.err.println("Spritesheet não encontrado: " + Consts.PATH + nomeArquivo);
+                System.err.println("Spritesheet não encontrado: " + Personagem.PATH + nomeArquivo);
                 return null;
             }
             BufferedImage spriteSheet = ImageIO.read(imgURL);

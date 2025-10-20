@@ -17,7 +17,6 @@ import Auxiliar.ConfigMapa;
 
 import java.awt.Graphics;
 import java.util.ArrayList;
-import java.util.List;
 import java.awt.Rectangle;
 
 public class ControleDeJogo {
@@ -95,7 +94,7 @@ public class ControleDeJogo {
             int bombaY = (int) (bombaAtiva.y * ConfigMapa.CELL_SIDE) - raioEmPixels;
             Rectangle areaDaBomba = new Rectangle(bombaX, bombaY, diametroEmPixels, diametroEmPixels);
 
-            List<Personagem> alvosProximos = new ArrayList<>();
+            ArrayList<Personagem> alvosProximos = new ArrayList<>();
             // 3. Usa o método retrieve que aceita um RECTANGLE (em PIXELS)
             quadtree.retrieve(alvosProximos, areaDaBomba);
 
@@ -116,7 +115,7 @@ public class ControleDeJogo {
         }
 
         // --- LÓGICA DE COLISÃO COM QUADTREE (DISCRETA) ---
-        List<Personagem> vizinhosPotenciais = new ArrayList<>();
+        ArrayList<Personagem> vizinhosPotenciais = new ArrayList<>();
         for (Personagem p1 : personagens) {
             if (!p1.isActive())
                 continue;

@@ -2,7 +2,6 @@ package Auxiliar.Personagem;
 
 import Modelo.Personagem;
 import java.util.ArrayList;
-import java.util.List;
 
 import Auxiliar.ConfigMapa;
 
@@ -14,7 +13,7 @@ public class Quadtree {
     private final int MAX_LEVELS = 8; // Profundidade máxima da árvore
 
     private int level;
-    private List<Personagem> objects;
+    private ArrayList<Personagem> objects;
     private Rectangle bounds;
     private Quadtree[] nodes; // Os 4 filhos (quadrantes)
 
@@ -118,7 +117,7 @@ public class Quadtree {
      * Retorna todos os objetos que podem colidir com o objeto dado.
      * VERSÃO CORRIGIDA que lida com objetos em fronteiras.
      */
-    public List<Personagem> retrieve(List<Personagem> returnObjects, Personagem p) {
+    public ArrayList<Personagem> retrieve(ArrayList<Personagem> returnObjects, Personagem p) {
         // Se este nó tem filhos, descubra onde o objeto p se encaixa
         if (nodes[0] != null) {
             int index = getIndex(p);
@@ -148,7 +147,7 @@ public class Quadtree {
      * Retorna todos os objetos que podem colidir com um dado retângulo.
      * Perfeito para buscas em área, como explosões.
      */
-    public List<Personagem> retrieve(List<Personagem> returnObjects, Rectangle pBounds) {
+    public ArrayList<Personagem> retrieve(ArrayList<Personagem> returnObjects, Rectangle pBounds) {
         // Se este nó tem filhos, verifique em quais deles o retângulo se sobrepõe
         if (nodes[0] != null) {
             for (int i = 0; i < nodes.length; i++) {

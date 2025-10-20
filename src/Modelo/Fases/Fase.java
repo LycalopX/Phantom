@@ -5,8 +5,9 @@ import Modelo.Personagem;
 import Modelo.Hero.Hero;
 import Modelo.Projeteis.Projetil;
 import Modelo.Projeteis.ProjetilPool;
-import Auxiliar.ArvoreParallax;
-import Auxiliar.Consts;
+import Auxiliar.Cenario1.ArvoreParallax;
+import static Auxiliar.ConfigMapa.*;
+
 import java.io.Serializable;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -40,8 +41,8 @@ public class Fase implements Serializable {
         this.arvores = new ArrayList<>();
         this.scriptDaFase = script;
 
-        carregarRecursos(); // Carrega as imagens transient
         this.personagens.addAll(projetilPool.getTodosOsProjeteis());
+        carregarRecursos(); // Carrega as imagens transient
 
         // O Script agora é responsável por preencher o cenário inicial
         if (this.scriptDaFase != null) {
@@ -76,7 +77,7 @@ public class Fase implements Serializable {
      */
     public void atualizar(double velocidadeScroll) {
         // 1. Atualiza o estado interno do cenário
-        scrollY = (scrollY + velocidadeScroll) % (Consts.altura);
+        scrollY = (scrollY + velocidadeScroll) % (ALTURA_TELA);
         distanciaTotalRolada += velocidadeScroll;
 
         // 2. DELEGA toda a lógica de spawn (inimigos e árvores) para o script
@@ -90,7 +91,7 @@ public class Fase implements Serializable {
         for (ArvoreParallax arvore : arvores) {
             arvore.mover(velocidadeScroll);
         }
-        arvores.removeIf(arvore -> arvore.estaForaDaTela(Consts.altura));
+        arvores.removeIf(arvore -> arvore.estaForaDaTela(ALTURA_TELA));
 
         // Atualiza todos os personagens (herói, inimigos, projéteis)
         for (int i = 0; i < personagens.size(); i++) {

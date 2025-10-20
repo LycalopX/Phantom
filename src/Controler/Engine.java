@@ -14,13 +14,17 @@ import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
-import Auxiliar.Consts;
-import Auxiliar.DebugManager;
+import Auxiliar.ConfigTeclado;
 import Auxiliar.SoundManager;
+import Auxiliar.Debug.DebugManager;
+import static Auxiliar.ConfigMapa.*;
 
 public class Engine implements Runnable {
 
     private static final int FPS = 60;
+    private static final int RESPAWN_X = (LARGURA_TELA / CELL_SIDE) / 2;
+    private static final int RESPAWN_Y = (int) ((ALTURA_TELA / CELL_SIDE) * 0.9);
+
     private Tela tela;
     private Cenario cenario;
     private Thread gameThread;
@@ -61,7 +65,7 @@ public class Engine implements Runnable {
         // 3. Pede a primeira fase para o gerenciador
         this.faseAtual = gerenciadorDeFases.carregarFase();
 
-        this.hero = new Hero("hero/hero_s0.png", Consts.respawnX, Consts.respawnY);
+        this.hero = new Hero("hero/hero_s0.png", RESPAWN_X, RESPAWN_Y);
         this.faseAtual.adicionarPersonagem(hero);
 
         // 3. Inicializa a Visão (View)
@@ -119,7 +123,7 @@ public class Engine implements Runnable {
                 deathbombTimer--;
                 slowMotionCounter++;
 
-                if (slowMotionCounter % Consts.SLOW_MOTION_FRAMES == 0) { // Atualiza a cada 2 frames para efeito de slow motion
+                if (slowMotionCounter % Hero.SLOW_MOTION_FRAMES == 0) { // Atualiza a cada 2 frames para efeito de slow motion
                     faseAtual.atualizar(velocidadeScroll);
                 }
 
@@ -150,6 +154,8 @@ public class Engine implements Runnable {
                 respawnTimer--;
                 if (respawnTimer <= 0) {
                     hero.respawn();
+                    hero.x = RESPAWN_X;
+                    hero.y = RESPAWN_Y;
                     estadoAtual = GameState.JOGANDO;
                 }
                 break;
@@ -209,7 +215,7 @@ public class Engine implements Runnable {
 
         gerenciadorDeFases.resetar();
         faseAtual = gerenciadorDeFases.carregarFase(); // Carrega a Fase 1
-        hero = new Hero("hero/hero_s0.png", Consts.respawnX, Consts.respawnY);
+        hero = new Hero("hero/hero_s0.png", RESPAWN_X, RESPAWN_Y);
         faseAtual.adicionarPersonagem(hero);
 
         cenario.setFase(faseAtual);
@@ -223,15 +229,15 @@ public class Engine implements Runnable {
             @Override
             public void keyPressed(KeyEvent e) {
 
-                if (estadoAtual == GameState.GAME_OVER && e.getKeyCode() == Consts.KEY_RESTART) {
+                if (estadoAtual == GameState.GAME_OVER && e.getKeyCode() == ConfigTeclado.KEY_RESTART) {
                     reiniciarJogo();
                     return;
                 }
-                if (e.getKeyCode() == Consts.KEY_SAVE) {
+                if (e.getKeyCode() == ConfigTeclado.KEY_SAVE) {
                     salvarJogo();
                     return;
                 }
-                if (e.getKeyCode() == Consts.KEY_LOAD) {
+                if (e.getKeyCode() == ConfigTeclado.KEY_LOAD) {
                     carregarJogo();
                     return;
                 } // Mudei para 'O' para não conflitar com o 'R' de reiniciar

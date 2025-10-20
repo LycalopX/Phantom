@@ -1,8 +1,9 @@
 package Modelo;
 
 import Auxiliar.Consts;
-import Auxiliar.DebugManager;
 import Auxiliar.LootTable;
+import Auxiliar.Debug.DebugManager;
+import static Auxiliar.ConfigMapa.*;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import javax.swing.ImageIcon;
+
 
 public abstract class Personagem implements Serializable {
 
@@ -69,7 +71,7 @@ public abstract class Personagem implements Serializable {
     
     // Construtor para tamanho MANUAL (usado pelo segundo construtor do Inimigo)
     protected Personagem(String sNomeImagePNG, double x, double y, int largura, int altura) {
-        this(sNomeImagePNG, x, y, largura, altura, (largura / 2.0) / Consts.CELL_SIDE);
+        this(sNomeImagePNG, x, y, largura, altura, (largura / 2.0) / CELL_SIDE);
     }
 
     // Construtor AUTOMÁTICO (usado pelo primeiro construtor do Inimigo)
@@ -88,7 +90,7 @@ public abstract class Personagem implements Serializable {
         this.altura = (int) (this.originalSpriteHeight * Consts.BODY_PROPORTION);
 
         // 3. Calcula a hitbox com base no novo tamanho
-        this.hitboxRaio = (this.largura / 2.0) / Consts.CELL_SIDE;
+        this.hitboxRaio = (this.largura / 2.0) / CELL_SIDE;
     }
 
     // A subclasse (Hero, Inimigo) DEVE desenhar seu próprio sprite.
@@ -97,12 +99,12 @@ public abstract class Personagem implements Serializable {
             Graphics2D g2d = (Graphics2D) g;
 
             // Posição central em PIXELS
-            int centroX = (int) (this.x * Consts.CELL_SIDE);
-            int centroY = (int) (this.y * Consts.CELL_SIDE);
+            int centroX = (int) (this.x * CELL_SIDE);
+            int centroY = (int) (this.y * CELL_SIDE);
 
             // Desenha a hitbox de DANO (vermelha) para TODOS os personagens
             g2d.setColor(Color.RED);
-            int danoRaioPixels = (int) (this.hitboxRaio * Consts.CELL_SIDE);
+            int danoRaioPixels = (int) (this.hitboxRaio * CELL_SIDE);
             g2d.drawOval(centroX - danoRaioPixels, centroY - danoRaioPixels, danoRaioPixels * 2, danoRaioPixels * 2);
         }
     }

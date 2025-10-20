@@ -29,7 +29,6 @@ Contém classes que fornecem funcionalidades de suporte para o resto do projeto.
 *   `Posicao`: Uma classe simples para representar coordenadas (linha, coluna) no grid do jogo.
 *   `SoundManager`: Gerencia o carregamento e a reprodução de efeitos sonoros (WAV) e música (MP3).
 *   `Quadtree`: Uma estrutura de dados para otimizar a detecção de colisões, dividindo o espaço do jogo em quadrantes.
-*   `Desenho`: Classe auxiliar para desenhar imagens na tela.
 *   `ContadorFPS`: Calcula e exibe a taxa de quadros por segundo (FPS).
 *   `DebugManager`: Controla a exibição de informações de debug, como hitboxes.
 *   `LootTable` e `LootItem`: Gerenciam o sistema de drops de itens quando um inimigo é derrotado.

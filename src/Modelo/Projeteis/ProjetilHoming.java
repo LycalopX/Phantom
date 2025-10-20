@@ -1,6 +1,7 @@
 package Modelo.Projeteis;
 
-import Auxiliar.TipoProjetil;
+import Auxiliar.Projeteis.ProjetilTipo;
+import Auxiliar.Projeteis.TipoProjetil;
 import Modelo.Personagem;
 import Modelo.Inimigos.Inimigo;
 
@@ -35,11 +36,10 @@ public class ProjetilHoming extends Projetil {
      * Ele primeiro chama o reset do pai (Projetil) e depois reinicia seu
      * próprio estado de "homing".
      */
-    public void resetHoming(double x, double y, int largura, int altura, double hitboxRaio,
-                            double velocidadeGrid, double anguloInicial, TipoProjetil tipo) {
+    public void resetHoming(double x, double y, double velocidadeGrid, double anguloInicial, TipoProjetil tipo, ProjetilTipo tipoDetalhado) {
         
         // 1. Chama o reset da classe pai (Projetil) para configurar os atributos básicos
-        super.reset(x, y, largura, altura, hitboxRaio, velocidadeGrid, anguloInicial, tipo);
+        super.reset(x, y, velocidadeGrid, anguloInicial, tipo, tipoDetalhado);
 
         // 2. Reinicia o estado específico do Projétil Homing
         this.estadoAtual = HomingState.INERCIA;

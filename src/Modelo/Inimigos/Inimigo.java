@@ -1,10 +1,10 @@
 // Em Modelo/Inimigo.java
 package Modelo.Inimigos;
 
-import Auxiliar.Consts;
 import java.awt.Graphics;
 import Auxiliar.LootTable;
 import Modelo.Personagem;
+import static Auxiliar.ConfigMapa.*;
 
 public class Inimigo extends Personagem {
 
@@ -51,8 +51,8 @@ public class Inimigo extends Personagem {
     public void autoDesenho(Graphics g) {
         // 1. Desenha o sprite do Inimigo
         // Converte a posição de grid (centro) para pixels (canto superior esquerdo)
-        int telaX = (int) Math.round(x * Consts.CELL_SIDE) - (this.largura / 2);
-        int telaY = (int) Math.round(y * Consts.CELL_SIDE) - (this.altura / 2);
+        int telaX = (int) Math.round(x * CELL_SIDE) - (this.largura / 2);
+        int telaY = (int) Math.round(y * CELL_SIDE) - (this.altura / 2);
 
         // Desenha a imagem (iImage) que foi carregada no construtor do Personagem
         g.drawImage(iImage.getImage(), telaX, telaY, largura, altura, null);

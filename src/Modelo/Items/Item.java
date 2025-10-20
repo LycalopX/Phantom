@@ -1,6 +1,5 @@
 package Modelo.Items;
 
-import Auxiliar.Consts;
 import Modelo.Personagem;
 import Modelo.Hero.Hero;
 
@@ -8,6 +7,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import java.awt.image.RasterFormatException;
+import static Auxiliar.ConfigMapa.*;
 
 public class Item extends Personagem {
 
@@ -18,8 +18,8 @@ public class Item extends Personagem {
     // --- FÍSICA DO ITEM ---
     private double velX = 0;
     private double velY = 0;
-    private static final double GRAVIDADE = 0.0015; // Pequena força para baixo. Ajuste conforme necessário.
-    private static final double MAX_FALL_SPEED = 0.06;
+    private static final double GRAVIDADE = 0.00195; // Pequena força para baixo. Ajuste conforme necessário.
+    private static final double MAX_FALL_SPEED = 0.042;
     private static final double VELOCIDADE_ATRACAO = 1;
 
     private int launchTimer = 0; // Contagem de frames para o lançamento
@@ -118,8 +118,8 @@ public class Item extends Personagem {
         if (spriteRecortado == null)
             recortarSprite();
 
-        int telaX = (int) Math.round(x * Consts.CELL_SIDE) - (this.largura / 2);
-        int telaY = (int) Math.round(y * Consts.CELL_SIDE) - (this.altura / 2);
+        int telaX = (int) Math.round(x * CELL_SIDE) - (this.largura / 2);
+        int telaY = (int) Math.round(y * CELL_SIDE) - (this.altura / 2);
 
         if (spriteRecortado != null) {
             g.drawImage(spriteRecortado.getImage(), telaX, telaY, this.largura, this.altura, null);

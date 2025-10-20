@@ -19,8 +19,8 @@ public class SoundManager {
     private final Map<String, String> mp3Map;
     private Player mp3Player;
     private final ExecutorService musicExecutor;
-    
-    private float globalSfxVolume = 0.1f; // Drastically reduced for testing
+
+    private float globalSfxVolume = 0.05f; // Drastically reduced for testing
     private float globalMusicVolume = 0.5f; // Default music volume
 
     private static final String[] SFX_FILES = {

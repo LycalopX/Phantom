@@ -3,16 +3,18 @@
 package Modelo.Hero;
 
 import java.io.Serializable;
-import Auxiliar.Consts;
-import Auxiliar.TipoProjetil;
+import Auxiliar.Projeteis.TipoProjetil;
+import static Auxiliar.ConfigMapa.*;
+
 import Modelo.Fases.Fase;
 import Modelo.Projeteis.Projetil;
 import Modelo.Projeteis.ProjetilHoming;
 import Modelo.Projeteis.ProjetilPool;
+import Modelo.Projeteis.TipoProjetilHeroi;
 
-public class GerenciadorDeArmas implements Serializable {
+public class GerenciadorDeArmasHeroi implements Serializable {
 
-    private final int tempoDeRecarga = 8; // Frames de recarga base
+    private final int tempoDeRecarga = 6; // Frames de recarga base
     private int cooldownTiroPrincipal = 0;
     private int cooldownMisseis = 0;
 
@@ -44,33 +46,27 @@ public class GerenciadorDeArmas implements Serializable {
 
 
         ProjetilPool pool = fase.getProjetilPool();
-        double tamanhoHitbox = (8 * Consts.TAMANHO_PROJETEIS);
-        double raioHitbox = (tamanhoHitbox / (double) Consts.CELL_SIDE);
         if (pool == null)
             return;
 
         // Dispara os Mísseis
         if (getNivelDeMisseis(power) >= 1 && cooldownMisseis <= 0) {
-            adicionarMisseisTeleguiados(x, y, getNivelDeMisseis(power), fase, raioHitbox);
+            adicionarMisseisTeleguiados(x, y, getNivelDeMisseis(power), fase);
             cooldownMisseis = MISSILE_COOLDOWN_TIME;
         }
 
         // 2. Tenta disparar o Tiro Principal
         if (cooldownTiroPrincipal <= 0) {
             Auxiliar.SoundManager.getInstance().playSfx("se_plst00");
-            double velocidadeProjetilEmGrid = 40.0 / Consts.CELL_SIDE;
+            double velocidadeProjetilEmGrid = 60.0 / CELL_SIDE;
             int nivelDeTiroBase = getNivelTiroBase(power);
 
             double velocidadeFinal = velocidadeProjetilEmGrid * (1 + (nivelDeTiroBase - 1) * 0.2);
 
-            int larguraVisual = (int) (80 * Consts.TAMANHO_PROJETEIS);
-            int alturaVisual = (int) (20 * Consts.TAMANHO_PROJETEIS);
-
             // Tiro Central
             Projetil p1 = pool.getProjetilNormal();
             if (p1 != null) {
-                p1.reset(x, y, larguraVisual, alturaVisual, raioHitbox,
-                        velocidadeFinal, -90, TipoProjetil.JOGADOR);
+                p1.reset(x, y, velocidadeFinal, -90, TipoProjetil.JOGADOR, TipoProjetilHeroi.NORMAL);
             }
 
             // Tiros Laterais (se tiver nível 3)
@@ -79,14 +75,12 @@ public class GerenciadorDeArmas implements Serializable {
 
                 Projetil p2 = pool.getProjetilNormal();
                 if (p2 != null) {
-                    p2.reset(x - offsetX, y, larguraVisual, alturaVisual, raioHitbox,
-                            velocidadeFinal, -100, TipoProjetil.JOGADOR);
+                    p2.reset(x - offsetX, y, velocidadeFinal, -100, TipoProjetil.JOGADOR, TipoProjetilHeroi.NORMAL);
                 }
 
                 Projetil p3 = pool.getProjetilNormal();
                 if (p3 != null) {
-                    p3.reset(x + offsetX, y, larguraVisual, alturaVisual, raioHitbox,
-                            velocidadeFinal, -80, TipoProjetil.JOGADOR);
+                    p3.reset(x + offsetX, y, velocidadeFinal, -80, TipoProjetil.JOGADOR, TipoProjetilHeroi.NORMAL);
                 }
             }
 
@@ -98,13 +92,12 @@ public class GerenciadorDeArmas implements Serializable {
         return;
     }
 
-    private void adicionarMisseisTeleguiados(double x, double y, int nivelDeMisseis, Fase fase, double raioHitbox) {
+    private void adicionarMisseisTeleguiados(double x, double y, int nivelDeMisseis, Fase fase) {
 
         ProjetilPool pool = fase.getProjetilPool();
 
-        double velocidadeBase = 8.0 / Consts.CELL_SIDE;
+        double velocidadeBase = 8.0 / CELL_SIDE;
         double velocidadeFinal = velocidadeBase * (1 + (nivelDeMisseis - 1) * 0.2);
-        int tamanhoDoMissil = 20;
 
         for (int i = 0; i < nivelDeMisseis; i++) {
             double anguloEsquerda = -90 - 30 - (i * 10);
@@ -113,24 +106,22 @@ public class GerenciadorDeArmas implements Serializable {
 
             ProjetilHoming pEsquerdo = pool.getProjetilHoming();
             if (pEsquerdo != null) {
-                pEsquerdo.resetHoming(x - offsetX, y, tamanhoDoMissil, tamanhoDoMissil, raioHitbox,
-                        velocidadeFinal, anguloEsquerda, TipoProjetil.JOGADOR);
+                pEsquerdo.resetHoming(x - offsetX, y, velocidadeFinal, anguloEsquerda, TipoProjetil.JOGADOR, TipoProjetilHeroi.HOMING);
             }
 
             // 2. Pega um projétil COMPLETAMENTE DIFERENTE e o armazena em 'pDireito'
             ProjetilHoming pDireito = pool.getProjetilHoming();
             if (pDireito != null) {
-                pDireito.resetHoming(x + offsetX, y, tamanhoDoMissil, tamanhoDoMissil, raioHitbox,
-                        velocidadeFinal, anguloDireita, TipoProjetil.JOGADOR);
+                pDireito.resetHoming(x + offsetX, y, velocidadeFinal, anguloDireita, TipoProjetil.JOGADOR, TipoProjetilHeroi.HOMING);
             }
         }
     }
 
     public int getNivelDeMisseis(int power) {
-        return Math.min(power / Consts.REQ_MISSIL_POWER, 4);
+        return Math.min(power / Hero.REQ_MISSIL_POWER, 4);
     }
 
     public int getNivelTiroBase(int power) {
-        return Math.min(power / Consts.REQ_TIROS_POWER, 3);
+        return Math.min(power / Hero.REQ_TIROS_POWER, 3);
     }
 }

@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
+import Auxiliar.Personagem.LootItem;
+
 public class LootTable implements Serializable {
 
     private final ArrayList<LootItem> itens;

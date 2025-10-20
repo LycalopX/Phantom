@@ -8,11 +8,12 @@ import Modelo.Items.ItemType;
 import Modelo.Projeteis.BombaProjetil;
 import Modelo.Projeteis.Projetil;
 import Modelo.Projeteis.ProjetilBombaHoming;
-import Auxiliar.Quadtree;
-import Auxiliar.LootItem;
+import Auxiliar.Personagem.LootItem;
+import Auxiliar.Personagem.Quadtree;
+import Auxiliar.Projeteis.HitboxType;
+import Auxiliar.Projeteis.TipoProjetil;
 import Auxiliar.LootTable;
-import Auxiliar.TipoProjetil;
-import Auxiliar.Consts;
+import Auxiliar.ConfigMapa;
 
 import java.awt.Graphics;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class ControleDeJogo {
 
     public ControleDeJogo() {
         // Cria a Quadtree uma vez, cobrindo a tela do jogo em PIXELS
-        this.quadtree = new Quadtree(0, new Rectangle(0, 0, Consts.largura, Consts.altura));
+        this.quadtree = new Quadtree(0, new Rectangle(0, 0, ConfigMapa.LARGURA_TELA, ConfigMapa.ALTURA_TELA));
     }
 
     public void desenhaTudo(ArrayList<Personagem> e, Graphics g) {
@@ -40,12 +41,26 @@ public class ControleDeJogo {
         Hero hero = null;
         BombaProjetil bombaAtiva = null;
 
+        ArrayList<Projetil> ProjeteisInimigosEspeciais = new ArrayList<>();
+
         for (Personagem p : personagens) {
             if (p instanceof Hero) {
                 hero = (Hero) p;
             }
-            if (p instanceof BombaProjetil && p.isActive()) {
+            if (p.isActive() == false) {
+                continue;
+            }
+
+            if (p instanceof BombaProjetil) {
                 bombaAtiva = (BombaProjetil) p;
+            }
+
+            if (p instanceof Projetil) {
+                Projetil proj = (Projetil) p;
+
+                if (proj.getTipoHitbox() == HitboxType.RECTANGULAR) {
+                    ProjeteisInimigosEspeciais.add(proj);
+                }
             }
         }
 
@@ -63,16 +78,21 @@ public class ControleDeJogo {
         ArrayList<Personagem> novosObjetos = new ArrayList<>();
         boolean heroiFoiAtingido = false;
 
+        // --- NOVA LÓGICA DE COLISÃO RETANGULAR ---
+        if (checarColisaoRetangular(hero, ProjeteisInimigosEspeciais)) {
+            heroiFoiAtingido = true;
+        }
+
         // --- LÓGICA DE DANO EM ÁREA DA BOMBA ---
         if (bombaAtiva != null) {
 
             // 1. Converte o raio da bomba (que está em GRID) para PIXELS
-            int raioEmPixels = (int) (bombaAtiva.getRaioAtualGrid() * Consts.CELL_SIDE);
+            int raioEmPixels = (int) (bombaAtiva.getRaioAtualGrid() * ConfigMapa.CELL_SIDE);
             int diametroEmPixels = raioEmPixels * 2;
 
             // 2. Cria um retângulo em PIXELS que representa a área de efeito da bomba
-            int bombaX = (int) (bombaAtiva.x * Consts.CELL_SIDE) - raioEmPixels;
-            int bombaY = (int) (bombaAtiva.y * Consts.CELL_SIDE) - raioEmPixels;
+            int bombaX = (int) (bombaAtiva.x * ConfigMapa.CELL_SIDE) - raioEmPixels;
+            int bombaY = (int) (bombaAtiva.y * ConfigMapa.CELL_SIDE) - raioEmPixels;
             Rectangle areaDaBomba = new Rectangle(bombaX, bombaY, diametroEmPixels, diametroEmPixels);
 
             List<Personagem> alvosProximos = new ArrayList<>();
@@ -211,6 +231,30 @@ public class ControleDeJogo {
         item.deactivate();
     }
 
+    private boolean checarColisaoRetangular(Hero hero, ArrayList<Projetil> projeteisRetangulares) {
+        if (hero == null || projeteisRetangulares.isEmpty()) {
+            return false;
+        }
+
+        Rectangle heroBounds = hero.getBounds();
+        boolean heroiAtingido = false;
+
+        for (Projetil p : projeteisRetangulares) {
+            if (!p.isActive()) {
+                continue;
+            }
+
+            Rectangle projetilBounds = p.getBounds();
+
+            if (heroBounds.intersects(projetilBounds)) {
+                if (colisaoHeroiProjetilInimigo(hero, p)) {
+                    heroiAtingido = true;
+                }
+            }
+        }
+        return heroiAtingido;
+    }
+
     /**
      * Lida com a interação entre dois personagens que colidiram.
      */
@@ -281,7 +325,7 @@ public class ControleDeJogo {
 
     private void colisaoProjetilHeroiInimigo(Projetil p, Inimigo i, ArrayList<Personagem> novosObjetos, Hero hero) {
 
-        i.takeDamage(Consts.DANO_BALA);
+        i.takeDamage(Hero.DANO_BALA);
 
         if (!(p instanceof ProjetilBombaHoming)) {
             p.deactivate();

@@ -1,4 +1,3 @@
-// Novo Arquivo: Modelo/GerenciadorDeAnimacao.java
 package Modelo.Hero;
 
 import Auxiliar.Consts;
@@ -9,7 +8,7 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
-public class GerenciadorDeAnimacao implements java.io.Serializable {
+public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
     // Arrays para guardar todos os sprites
     private ImageIcon[] iImagesStrafingEsquerda;
     private ImageIcon[] iImagesIdle;
@@ -28,7 +27,7 @@ public class GerenciadorDeAnimacao implements java.io.Serializable {
     private int frameAtualStrafingMax = 0, delayFrameStrafingMax = 0;
     private int frameAtualIdle = 0, delayFrameIdle = 0;
 
-    public GerenciadorDeAnimacao(int largura, int altura) {
+    public GerenciadorDeAnimacaoHeroi(int largura, int altura) {
         // O construtor já carrega todas as imagens necessárias
         iImagesStrafingEsquerda = new ImageIcon[MAX_FRAMES_STRAFING];
         for (int i = 0; i < MAX_FRAMES_STRAFING; i++) {
@@ -106,8 +105,8 @@ public class GerenciadorDeAnimacao implements java.io.Serializable {
 
             case DE_STRAFING_LEFT:
             case DE_STRAFING_RIGHT:
-                // Se está retornando, USA APENAS a animação de transição
-                return iImagesStrafingEsquerda[frameAtualStrafing];
+                int frame = Math.max(0, frameAtualStrafing);
+                return iImagesStrafingEsquerda[frame];
 
             case IDLE:
             default:

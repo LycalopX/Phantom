@@ -1,4 +1,4 @@
-package Auxiliar;
+package Auxiliar.Personagem;
 
 import java.io.Serializable;
 

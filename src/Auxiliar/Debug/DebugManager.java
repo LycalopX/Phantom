@@ -1,6 +1,6 @@
 // Novo arquivo: src/Auxiliar/DebugManager.java
 
-package Auxiliar;
+package Auxiliar.Debug;
 
 public class DebugManager {
     // A variável 'static' garante que haverá apenas UMA instância dela para todo o jogo.

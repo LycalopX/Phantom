@@ -5,10 +5,11 @@ package Controler;
 import java.util.Set;
 import java.awt.event.KeyEvent;
 
-import Auxiliar.Consts;
+import Auxiliar.ConfigMapa;
+import Auxiliar.ConfigTeclado;
 import Modelo.Fases.Fase;
 import Modelo.Projeteis.BombaProjetil;
-import Modelo.Hero.GerenciadorDeArmas;
+import Modelo.Hero.GerenciadorDeArmasHeroi;
 import Modelo.Hero.Hero;
 
 public class ControladorDoHeroi {
@@ -29,7 +30,7 @@ public class ControladorDoHeroi {
      */
     public void processarInput(Set<Integer> teclas, Hero heroi, Fase fase, ControleDeJogo cj) {
         // --- LÓGICA DE MOVIMENTO ---
-        double delta = Consts.HERO_VELOCITY / 60.0;
+        double delta = Hero.HERO_VELOCITY / 60.0;
         double dx = 0, dy = 0;
 
         Engine.GameState estadoAtual = this.engine.getEstadoAtual();
@@ -38,13 +39,13 @@ public class ControladorDoHeroi {
         boolean isFocoAtivo = teclas.contains(KeyEvent.VK_SHIFT);
         double velocidadeAtual = isFocoAtivo ? delta / 2.0 : delta;
 
-        if (teclas.contains(Consts.KEY_UP))
+        if (teclas.contains(ConfigTeclado.KEY_UP))
             dy -= velocidadeAtual;
-        if (teclas.contains(Consts.KEY_DOWN))
+        if (teclas.contains(ConfigTeclado.KEY_DOWN))
             dy += velocidadeAtual;
-        if (teclas.contains(Consts.KEY_LEFT))
+        if (teclas.contains(ConfigTeclado.KEY_LEFT))
             dx -= velocidadeAtual;
-        if (teclas.contains(Consts.KEY_RIGHT))
+        if (teclas.contains(ConfigTeclado.KEY_RIGHT))
             dx += velocidadeAtual;
 
         // Normaliza o movimento diagonal para não ser mais rápido
@@ -58,9 +59,9 @@ public class ControladorDoHeroi {
 
         // Validação de Limites da Tela
         double limiteEsquerda = heroi.hitboxRaio;
-        double limiteDireita = ((double) Consts.largura / Consts.CELL_SIDE) - heroi.hitboxRaio;
+        double limiteDireita = ((double) ConfigMapa.LARGURA_TELA / ConfigMapa.CELL_SIDE) - heroi.hitboxRaio;
         double limiteTopo = heroi.hitboxRaio;
-        double limiteBaixo = ((double) Consts.altura / Consts.CELL_SIDE) - heroi.hitboxRaio;
+        double limiteBaixo = ((double) ConfigMapa.ALTURA_TELA / ConfigMapa.CELL_SIDE) - heroi.hitboxRaio;
 
         if (proximoX < limiteEsquerda)
             proximoX = limiteEsquerda;
@@ -82,19 +83,19 @@ public class ControladorDoHeroi {
         heroi.mover(xFinal, yFinal);
 
         // --- LÓGICA DE ANIMAÇÃO ---
-        boolean isMovingLeft = teclas.contains(Consts.KEY_LEFT);
-        boolean isMovingRight = teclas.contains(Consts.KEY_RIGHT);
+        boolean isMovingLeft = teclas.contains(ConfigTeclado.KEY_LEFT);
+        boolean isMovingRight = teclas.contains(ConfigTeclado.KEY_RIGHT);
         heroi.atualizarAnimacao(isMovingLeft, isMovingRight);
 
         // --- LÓGICA DE TIRO ---
-        if (teclas.contains(Consts.KEY_SHOOT)) {
+        if (teclas.contains(ConfigTeclado.KEY_SHOOT)) {
 
-            GerenciadorDeArmas armas = heroi.getSistemaDeArmas();
+            GerenciadorDeArmasHeroi armas = heroi.getSistemaDeArmas();
             armas.disparar(heroi.x, heroi.y, heroi.getPower(), fase);
         }
 
         // --- LÓGICA DE BOMBA ---
-        if (teclas.contains(Consts.KEY_BOMB) && heroi.getBombas() > 0 && !heroi.isInvencivel()) {
+        if (teclas.contains(ConfigTeclado.KEY_BOMB) && heroi.getBombas() > 0 && !heroi.isInvencivel()) {
 
             if (estadoAtual == Engine.GameState.JOGANDO || estadoAtual == Engine.GameState.DEATHBOMB_WINDOW) {
 

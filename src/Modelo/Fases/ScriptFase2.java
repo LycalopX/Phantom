@@ -1,8 +1,8 @@
 package Modelo.Fases;
 
 import Auxiliar.Consts;
-import Auxiliar.LootItem;
 import Auxiliar.LootTable;
+import Auxiliar.Personagem.LootItem;
 import Modelo.Inimigos.Inimigo;
 import Modelo.Items.ItemType;
 

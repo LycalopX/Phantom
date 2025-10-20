@@ -1,7 +1,10 @@
 package Modelo.Projeteis;
 
 import Auxiliar.Consts;
-import Auxiliar.TipoProjetil;
+import Auxiliar.Projeteis.HitboxType;
+import Auxiliar.Projeteis.ProjetilTipo;
+import Auxiliar.Projeteis.TipoProjetil;
+import static Auxiliar.ConfigMapa.*;
 import Modelo.Personagem;
 
 import java.awt.AlphaComposite;
@@ -15,6 +18,7 @@ public class Projetil extends Personagem {
     protected double velocidade;
     protected double anguloRad;
     protected TipoProjetil tipo;
+    protected ProjetilTipo tipoDetalhado;
 
     public Projetil(String sNomeImagePNG) {
         super(sNomeImagePNG, 0, 0); // Posição inicial não importa
@@ -23,16 +27,34 @@ public class Projetil extends Personagem {
         deactivate();
     }
 
-    public void reset(double x, double y, int largura, int altura, double hitboxRaio,
-            double velocidadeGrid, double angulo, TipoProjetil tipo) {
+    public void reset(double x, double y, double velocidadeGrid, double angulo, TipoProjetil tipo, ProjetilTipo tipoDetalhado) {
         this.x = x;
         this.y = y;
-        this.largura = largura;
-        this.altura = altura;
-        this.hitboxRaio = hitboxRaio;
         this.velocidade = velocidadeGrid;
         this.anguloRad = Math.toRadians(angulo);
         this.tipo = tipo;
+        this.tipoDetalhado = tipoDetalhado;
+
+        if (tipo == TipoProjetil.JOGADOR) {
+            this.largura = tipoDetalhado.getSpriteWidth();
+            this.altura = tipoDetalhado.getSpriteHeight();
+            if (tipoDetalhado.getHitboxType() == HitboxType.CIRCULAR) {
+                this.hitboxRaio = tipoDetalhado.getHitboxWidth() / 2.0 / CELL_SIDE;
+            } else {
+                this.hitboxRaio = 0;
+            }
+        } else {
+            this.largura = (int) (tipoDetalhado.getSpriteWidth() * Consts.BODY_PROPORTION);
+            this.altura = (int) (tipoDetalhado.getSpriteHeight() * Consts.BODY_PROPORTION);
+            if (tipoDetalhado.getHitboxType() == HitboxType.CIRCULAR) {
+                this.hitboxRaio = (tipoDetalhado.getHitboxWidth() * Consts.BODY_PROPORTION) / 2.0 / CELL_SIDE;
+            } else {
+                this.hitboxRaio = 0;
+            }
+        }
+        
+        this.iImage = tipoDetalhado.getImagem();
+
         activate();
     }
 
@@ -56,8 +78,8 @@ public class Projetil extends Personagem {
         AffineTransform transformOriginal = g2d.getTransform();
 
         // Posição central em PIXELS
-        int telaX = (int) Math.round(x * Consts.CELL_SIDE);
-        int telaY = (int) Math.round(y * Consts.CELL_SIDE);
+        int telaX = (int) Math.round(x * CELL_SIDE);
+        int telaY = (int) Math.round(y * CELL_SIDE);
 
         // Aplica opacidade (se for do jogador)
         Composite compositeOriginal = g2d.getComposite();
@@ -88,11 +110,35 @@ public class Projetil extends Personagem {
         super.autoDesenho(g);
     }
 
+    public HitboxType getTipoHitbox() {
+        if (tipoDetalhado != null) {
+            return tipoDetalhado.getHitboxType();
+        }
+        return HitboxType.CIRCULAR;
+    }
+
+    public java.awt.Rectangle getBounds() {
+        int centroX = (int) (this.x * CELL_SIDE);
+        int centroY = (int) (this.y * CELL_SIDE);
+
+        if (tipoDetalhado != null && tipoDetalhado.getHitboxType() == HitboxType.RECTANGULAR) {
+            int hitboxW = tipoDetalhado.getHitboxWidth();
+            int hitboxH = tipoDetalhado.getHitboxHeight();
+            return new java.awt.Rectangle(centroX - hitboxW / 2, centroY - hitboxH / 2, hitboxW, hitboxH);
+        } else {
+            int raioPixels = (int) (this.hitboxRaio * CELL_SIDE);
+            int diametroPixels = raioPixels * 2;
+            int topLeftX = centroX - raioPixels;
+            int topLeftY = centroY - raioPixels;
+            return new java.awt.Rectangle(topLeftX, topLeftY, diametroPixels, diametroPixels);
+        }
+    }
+
     // Método para a Fase checar se o projétil saiu da tela
     public boolean estaForaDaTela() {
         if (!isActive()) return false;
-        double limiteX = (double) Consts.largura / Consts.CELL_SIDE;
-        double limiteY = (double) Consts.altura / Consts.CELL_SIDE;
+        double limiteX = (double) LARGURA_TELA / CELL_SIDE;
+        double limiteY = (double) ALTURA_TELA / CELL_SIDE;
         return (x < 0 || x > limiteX || y < -1 || y > limiteY);
     }
 

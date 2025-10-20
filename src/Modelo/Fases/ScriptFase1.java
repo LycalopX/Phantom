@@ -1,13 +1,13 @@
 // Em Modelo/Fases/ScriptFase1.java
 package Modelo.Fases;
 
-import Modelo.Inimigos.Inimigo;
 import Modelo.Items.ItemType;
-import Auxiliar.ArvoreParallax;
-import Auxiliar.Consts;
-import Auxiliar.LootItem;
 import Auxiliar.LootTable;
 import Auxiliar.SoundManager;
+import Auxiliar.Cenario1.ArvoreParallax;
+import Auxiliar.Personagem.LootItem;
+import static Auxiliar.ConfigMapa.*;
+
 import java.awt.image.BufferedImage;
 
 public class ScriptFase1 extends ScriptDeFase {
@@ -38,7 +38,7 @@ public class ScriptFase1 extends ScriptDeFase {
         for (int i = 0; i < NUMERO_DE_DIAGONAIS; i++) {
             posicoesXDasDiagonais[i] = 50 + (i * ESPACO_ENTRE_DIAGONAIS_X);
         }
-        
+        SoundManager.getInstance().playMusic("Illusionary Night ~ Ghostly Eyes", true);
     }
 
     /**
@@ -48,15 +48,14 @@ public class ScriptFase1 extends ScriptDeFase {
     public void atualizarInimigos(Fase fase) {
         if (proximoSpawnInimigo <= 0) {
 
-            double xInicial = random.nextDouble() * Consts.MUNDO_LARGURA;
+            double xInicial = random.nextDouble() * MUNDO_LARGURA;
             LootTable lootTable = new LootTable();
 
-            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 3, 0.5, true, false));
-            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.3, false, false));
-            lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.15, true, false));
-            lootTable.addItem(new LootItem(ItemType.BOMB, 1, 1, 0.05, true, false));
+            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 0, 3, 0.5, true, false));
+            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 0, 3, 0.5, false, false));
+            lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.1, true, false));
 
-            fase.adicionarPersonagem(new Inimigo("inimigo.png", xInicial, -1.0, lootTable, 100));
+            fase.adicionarPersonagem(new Modelo.Inimigos.FadaComum(xInicial, -1.0, lootTable, 100, fase));
             proximoSpawnInimigo = intervaloSpawnInimigo;
         } else {
             proximoSpawnInimigo--;
@@ -74,11 +73,11 @@ public class ScriptFase1 extends ScriptDeFase {
 
         if (fase.getDistanciaTotalRolada() >= proximoSpawnY) {
 
-            int tamanhoBase = (int) Math.round(Consts.largura * 0.8);
+            int tamanhoBase = (int) Math.round(LARGURA_TELA * 0.8);
 
             boolean vaiBaterNaDireita = direcaoDoGrupo == 1
-                    && (posicoesXDasDiagonais[NUMERO_DE_DIAGONAIS - 1] + tamanhoBase) > Consts.altura;
-                    
+                    && (posicoesXDasDiagonais[NUMERO_DE_DIAGONAIS - 1] + tamanhoBase) > ALTURA_TELA;
+
             boolean vaiBaterNaEsquerda = direcaoDoGrupo == -1 && posicoesXDasDiagonais[0] < 0;
             
             if (vaiBaterNaDireita || vaiBaterNaEsquerda) {
@@ -109,12 +108,12 @@ public class ScriptFase1 extends ScriptDeFase {
         if (imagemArvore == null)
             return;
 
-        int tamanhoBase = (int) Math.round(Consts.altura * 0.8);
+        int tamanhoBase = (int) Math.round(ALTURA_TELA * 0.8);
 
-        while (proximoSpawnY < Consts.altura) {
+        while (proximoSpawnY < ALTURA_TELA) {
 
             boolean vaiBaterNaDireita = direcaoDoGrupo == 1
-                    && (posicoesXDasDiagonais[NUMERO_DE_DIAGONAIS - 1] + tamanhoBase) > Consts.altura;
+                    && (posicoesXDasDiagonais[NUMERO_DE_DIAGONAIS - 1] + tamanhoBase) > ALTURA_TELA;
             boolean vaiBaterNaEsquerda = direcaoDoGrupo == -1 && posicoesXDasDiagonais[0] < 0;
             
             if (vaiBaterNaDireita || vaiBaterNaEsquerda) {

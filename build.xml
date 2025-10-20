@@ -10,6 +10,15 @@
 <project name="PrototipoProjetoPOO" default="default" basedir=".">
     <description>Builds, tests, and runs the project PrototipoProjetoPOO.</description>
     <import file="nbproject/build-impl.xml"/>
+
+    <target name="-post-jar">
+        <jar destfile="${dist.jar}" update="true">
+            <manifest>
+                <attribute name="Main-Class" value="Main"/>
+                <attribute name="Class-Path" value="lib/tinysound.jar lib/jlayer-1.0.1.jar"/>
+            </manifest>
+        </jar>
+    </target>
     <!--
 
     There exist several targets which are by default empty and which can be 

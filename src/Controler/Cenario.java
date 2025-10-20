@@ -8,16 +8,17 @@ import Modelo.Inimigos.Inimigo;
 import Modelo.Items.Item;
 import Modelo.Projeteis.Projetil;
 import Modelo.Projeteis.BombaProjetil;
-import Auxiliar.TipoProjetil;
-import Auxiliar.ArvoreParallax;
-import Auxiliar.Consts;
+import Auxiliar.ConfigMapa;
+import Auxiliar.Cenario1.ArvoreParallax;
 
 import java.awt.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import Auxiliar.ContadorFPS;
-import Auxiliar.DebugManager;
+
+import Auxiliar.Debug.ContadorFPS;
+import Auxiliar.Debug.DebugManager;
+import Auxiliar.Projeteis.TipoProjetil;
 
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -35,7 +36,7 @@ public class Cenario extends JPanel {
     private final ArrayList<Personagem> HeroItemBombaProjetil = new ArrayList<>();
 
     public Cenario() {
-        this.setPreferredSize(new Dimension(Consts.largura, Consts.altura));
+        this.setPreferredSize(new Dimension(ConfigMapa.LARGURA_TELA, ConfigMapa.ALTURA_TELA));
         this.setFocusable(false);
         this.setBackground(Color.BLACK);
         this.contadorFPS = new ContadorFPS();

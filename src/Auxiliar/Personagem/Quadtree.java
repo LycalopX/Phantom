@@ -1,8 +1,11 @@
-package Auxiliar;
+package Auxiliar.Personagem;
 
 import Modelo.Personagem;
 import java.util.ArrayList;
 import java.util.List;
+
+import Auxiliar.ConfigMapa;
+
 import java.awt.Rectangle; // Gerenciar os limites
 
 public class Quadtree {
@@ -53,8 +56,8 @@ public class Quadtree {
         // 1. Converte a posição de grid do personagem para um retângulo de pixels
         int pLargura = p.getLargura();
         int pAltura = p.getAltura();
-        int pX = (int) (p.x * Consts.CELL_SIDE - pLargura / 2.0); // Canto superior esquerdo em pixels
-        int pY = (int) (p.y * Consts.CELL_SIDE - pAltura / 2.0); // Canto superior esquerdo em pixels
+        int pX = (int) (p.x * ConfigMapa.CELL_SIDE - pLargura / 2.0); // Canto superior esquerdo em pixels
+        int pY = (int) (p.y * ConfigMapa.CELL_SIDE - pAltura / 2.0); // Canto superior esquerdo em pixels
 
         int index = -1;
         double verticalMidpoint = bounds.getX() + (bounds.getWidth() / 2);

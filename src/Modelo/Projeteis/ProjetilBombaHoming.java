@@ -10,8 +10,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import Modelo.Personagem;
-import Auxiliar.Consts;
-import Auxiliar.TipoProjetil;
+import Auxiliar.Projeteis.ProjetilTipo;
+import Auxiliar.Projeteis.TipoProjetil;
+import static Auxiliar.ConfigMapa.*;
 
 public class ProjetilBombaHoming extends ProjetilHoming {
     private enum EstadoBomba {
@@ -35,11 +36,10 @@ public class ProjetilBombaHoming extends ProjetilHoming {
      * Configura ou reseta o míssil a partir da ProjetilPool.
      * Define seu estado inicial para a fase de expansão.
      */
-    public void resetBombaHoming(double x, double y, int largura, int altura, double hitboxRaio,
-            double velocidadeGrid, double anguloExpansao, TipoProjetil tipo) {
+    public void resetBombaHoming(double x, double y, double velocidadeGrid, double anguloExpansao, TipoProjetil tipo, ProjetilTipo tipoDetalhado) {
 
         // Chama o reset da classe pai para configurar os atributos básicos
-        super.reset(x, y, largura, altura, hitboxRaio, velocidadeGrid, anguloExpansao, tipo);
+        super.resetHoming(x, y, velocidadeGrid, anguloExpansao, tipo, tipoDetalhado);
 
         // Configura o estado inicial e os timers para este tipo específico de míssil
         this.estadoAtual = EstadoBomba.EXPANDINDO;
@@ -111,15 +111,15 @@ public class ProjetilBombaHoming extends ProjetilHoming {
             Point2D.Double pos = positionHistory.get(i);
             int alpha = (int) (200 * (1.0f - (float) i / TRAIL_LENGTH));
             g2d.setColor(new Color(255, 100, 100, alpha));
-            int telaX = (int) Math.round(pos.x * Consts.CELL_SIDE);
-            int telaY = (int) Math.round(pos.y * Consts.CELL_SIDE);
+            int telaX = (int) Math.round(pos.x * CELL_SIDE);
+            int telaY = (int) Math.round(pos.y * CELL_SIDE);
             int particleSize = 8;
             g2d.fillOval(telaX - particleSize / 2, telaY - particleSize / 2, particleSize, particleSize);
         }
 
         // --- 2. DESENHAR O SPRITE PRINCIPAL (COM AS MUDANÇAS APLICADAS) ---
-        int telaX = (int) Math.round(this.x * Consts.CELL_SIDE);
-        int telaY = (int) Math.round(this.y * Consts.CELL_SIDE);
+        int telaX = (int) Math.round(this.x * CELL_SIDE);
+        int telaY = (int) Math.round(this.y * CELL_SIDE);
 
         // MUDANÇA: Reduzimos a magnitude (0.8) e a velocidade (0.2) do pulso.
         double scale = 1.0 + 0.8 * Math.sin(animationTimer * 0.05);

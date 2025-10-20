@@ -2,8 +2,8 @@
 
 package Modelo.Hero;
 
-import Auxiliar.Consts;
-import Auxiliar.DebugManager;
+import Auxiliar.Debug.DebugManager;
+import static Auxiliar.ConfigMapa.*;
 import Modelo.Personagem;
 import Modelo.Projeteis.BombaProjetil;
 import Modelo.Fases.Fase;
@@ -19,6 +19,17 @@ import java.awt.Color;
 
 public class Hero extends Personagem {
 
+    // --- Configurações do Herói movidas de Consts.java ---
+    public static final double HITBOX_RAIO = 5.75;
+    public static final double HITBOX_RAIO_FANTASY_SEAL = 25.0;
+    public static final double HERO_VELOCITY = 28.9764;
+    public static final int DANO_BALA = 40;
+    public static final int DANO_BALA_TELEGUIADA = 3;
+    public static final int REQ_MISSIL_POWER = 120; // Power necessário para aumenta o nível
+    public static final int REQ_TIROS_POWER = 150; // Power necessário para aumenta o nível
+    public static final int SLOW_MOTION_FRAMES = 4; // Usado na Engine
+    // -----------------------------------------------------
+
     private int HP = 3;
     private int bombas = 3;
     private int power = 0;
@@ -29,8 +40,8 @@ public class Hero extends Personagem {
 
     public double grabHitboxRaio;
 
-    private transient GerenciadorDeAnimacao animador;
-    private GerenciadorDeArmas sistemaDeArmas;
+    private transient GerenciadorDeAnimacaoHeroi animador;
+    private GerenciadorDeArmasHeroi sistemaDeArmas;
     private final int DURACAO_BOMBA_FRAMES = 180;
     private final int duracaoInvencibilidadeRespawn = 120;
 
@@ -41,14 +52,14 @@ public class Hero extends Personagem {
         
         super(sNomeImagePNG, x, y);
 
-        this.hitboxRaio = Consts.HITBOX_RAIO / Consts.CELL_SIDE;
+        this.hitboxRaio = HITBOX_RAIO / CELL_SIDE;
 
         // O resto do construtor permanece idêntico
         int tamanhoHitboxColeta = 100;
-        this.grabHitboxRaio = ((double) (tamanhoHitboxColeta / 2) / Consts.CELL_SIDE) / 2.0;
+        this.grabHitboxRaio = ((double) (tamanhoHitboxColeta / 2) / CELL_SIDE) / 2.0;
 
-        this.animador = new GerenciadorDeAnimacao(this.largura, this.altura);
-        this.sistemaDeArmas = new GerenciadorDeArmas();
+        this.animador = new GerenciadorDeAnimacaoHeroi(this.largura, this.altura);
+        this.sistemaDeArmas = new GerenciadorDeArmasHeroi();
         activate();
     }
 
@@ -120,7 +131,7 @@ public class Hero extends Personagem {
      * 
      * @return A instância do GerenciadorDeArmas.
      */
-    public GerenciadorDeArmas getSistemaDeArmas() {
+    public GerenciadorDeArmasHeroi getSistemaDeArmas() {
         return this.sistemaDeArmas;
     }
 
@@ -137,8 +148,8 @@ public class Hero extends Personagem {
         if (!isActive())
             return;
 
-        int telaX = (int) Math.round(x * Consts.CELL_SIDE) - (this.largura / 2);
-        int telaY = (int) Math.round(y * Consts.CELL_SIDE) - (this.altura / 2);
+        int telaX = (int) Math.round(x * CELL_SIDE) - (this.largura / 2);
+        int telaY = (int) Math.round(y * CELL_SIDE) - (this.altura / 2);
 
         Graphics2D g2d = (Graphics2D) g;
         AffineTransform transformOriginal = g2d.getTransform();
@@ -158,17 +169,15 @@ public class Hero extends Personagem {
 
         if (DebugManager.isActive()) {
             g2d.setColor(new Color(22, 100, 7, 100));
-            int centroX = (int) (this.x * Consts.CELL_SIDE);
-            int centroY = (int) (this.y * Consts.CELL_SIDE);
-            int coletaRaioPixels = (int) (this.grabHitboxRaio * Consts.CELL_SIDE);
+            int centroX = (int) (this.x * CELL_SIDE);
+            int centroY = (int) (this.y * CELL_SIDE);
+            int coletaRaioPixels = (int) (this.grabHitboxRaio * CELL_SIDE);
             g2d.drawOval(centroX - coletaRaioPixels, centroY - coletaRaioPixels, coletaRaioPixels * 2,
                     coletaRaioPixels * 2);
         }
     }
 
     public void respawn() {
-        this.x = Consts.respawnX;
-        this.y = Consts.respawnY;
         this.bombas = 3;
         this.power = 0;
         this.invencibilidadeTimer = duracaoInvencibilidadeRespawn;
@@ -195,9 +204,9 @@ public class Hero extends Personagem {
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
-        this.animador = new GerenciadorDeAnimacao(this.largura, this.altura);
+        this.animador = new GerenciadorDeAnimacaoHeroi(this.largura, this.altura);
         if (this.sistemaDeArmas == null) { // Garante compatibilidade com saves antigos
-            this.sistemaDeArmas = new GerenciadorDeArmas();
+            this.sistemaDeArmas = new GerenciadorDeArmasHeroi();
         }
     }
 
@@ -265,5 +274,18 @@ public class Hero extends Personagem {
 
     public boolean isBombing() {
         return this.efeitoBombaTimer > 0;
+    }
+
+    public java.awt.Rectangle getBounds() {
+        // Posição central em PIXELS
+        int centroX = (int) (this.x * CELL_SIDE);
+        int centroY = (int) (this.y * CELL_SIDE);
+
+        // Retorna um retângulo que inscreve o círculo da hitbox para a checagem.
+        int raioPixels = (int) (this.hitboxRaio * CELL_SIDE);
+        int diametroPixels = raioPixels * 2;
+        int topLeftX = centroX - raioPixels;
+        int topLeftY = centroY - raioPixels;
+        return new java.awt.Rectangle(topLeftX, topLeftY, diametroPixels, diametroPixels);
     }
 }

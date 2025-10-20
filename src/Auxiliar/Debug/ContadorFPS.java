@@ -1,4 +1,4 @@
-package Auxiliar;
+package Auxiliar.Debug;
 
 public class ContadorFPS {
 

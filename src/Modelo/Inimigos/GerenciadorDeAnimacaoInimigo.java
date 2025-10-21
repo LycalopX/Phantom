@@ -6,6 +6,9 @@ import javax.imageio.ImageIO;
 import java.awt.Graphics;
 import Modelo.Personagem;
 
+/**
+ * @brief Gerencia as animações para os inimigos, carregando e alternando os sprites.
+ */
 public class GerenciadorDeAnimacaoInimigo {
 
     public enum AnimationState {
@@ -17,11 +20,14 @@ public class GerenciadorDeAnimacaoInimigo {
     private static ImageIcon[] iImagesStrafing;
 
     private static final int MAX_FRAMES = 4;
-    private static final int DELAY = 5; // Delay between frames
+    private static final int DELAY = 5;
 
     private int frameAtual = 0;
     private int delayFrame = 0;
 
+    /**
+     * @brief Construtor do gerenciador. Carrega os spritesheets do inimigo se ainda não foram carregados.
+     */
     public GerenciadorDeAnimacaoInimigo() {
         if (iImagesIdle == null) {
             int size = (int) (30.0 * Personagem.BODY_PROPORTION);
@@ -30,6 +36,9 @@ public class GerenciadorDeAnimacaoInimigo {
         }
     }
 
+    /**
+     * @brief Atualiza o frame atual da animação com base em um delay.
+     */
     public void atualizar() {
         delayFrame++;
         if (delayFrame >= DELAY) {
@@ -38,6 +47,9 @@ public class GerenciadorDeAnimacaoInimigo {
         }
     }
 
+    /**
+     * @brief Retorna a imagem do frame atual com base no estado de animação (parado ou movendo).
+     */
     public ImageIcon getImagemAtual(AnimationState state) {
         if (state == AnimationState.STRAFING) {
             return iImagesStrafing[frameAtual];
@@ -46,6 +58,9 @@ public class GerenciadorDeAnimacaoInimigo {
         }
     }
 
+    /**
+     * @brief Carrega e recorta frames de uma imagem de spritesheet.
+     */
     private ImageIcon[] carregarFramesDoSpriteSheet(String nomeArquivo, int startFrame, int numFrames, int size) {
         try {
             java.net.URL imgURL = getClass().getClassLoader().getResource(nomeArquivo);

@@ -1,31 +1,30 @@
 package Modelo.Hero;
 
 import Modelo.Personagem;
-
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
+/**
+ * @brief Gerencia as animações do herói, incluindo a transição entre estados (parado, movendo),
+ *        o carregamento de sprites e a visualização da hitbox de foco.
+ */
 public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
-    // Arrays para guardar todos os sprites
     private ImageIcon[] iImagesStrafingEsquerda;
     private ImageIcon[] iImagesIdle;
     private ImageIcon[] iImagesStrafingMax;
     private ImageIcon imagemHitboxFoco;
 
-    // Rotação da hitbox
     private double anguloRotacaoHitbox = 0;
     private int frameCounter = 0;
 
-    // Lógica de Fade da Hitbox
     private enum FadeState { FADE_IN, FADE_OUT, VISIBLE, HIDDEN }
     private FadeState hitboxFadeState = FadeState.HIDDEN;
     private float hitboxAlpha = 0.0f;
     private static final float FADE_SPEED = 0.05f;
 
-    // Constantes de animação
     private static final int MAX_FRAMES_STRAFING = 4;
     private static final int DELAY_STRAFING = 4;
     private static final int MAX_FRAMES_STRAFING_MAX = 4;
@@ -33,36 +32,36 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
     private static final int MAX_FRAMES_IDLE = 4;
     private static final int DELAY_IDLE = 8;
 
-    // Variáveis de estado da animação
     private int frameAtualStrafing = 0, delayFrameStrafing = 0;
     private int frameAtualStrafingMax = 0, delayFrameStrafingMax = 0;
     private int frameAtualIdle = 0, delayFrameIdle = 0;
 
+    /**
+     * @brief Construtor do gerenciador de animação. Carrega todos os sprites necessários para as animações do herói.
+     */
     public GerenciadorDeAnimacaoHeroi(int largura, int altura) {
-        // Carrega a imagem da hitbox com suas dimensões corretas para evitar distorção
         imagemHitboxFoco = carregarImagem("hero/sprite_hitbox.png", 64, 61);
-
-        // O construtor já carrega todas as imagens necessárias
         iImagesStrafingEsquerda = new ImageIcon[MAX_FRAMES_STRAFING];
         for (int i = 0; i < MAX_FRAMES_STRAFING; i++) {
             iImagesStrafingEsquerda[i] = carregarImagem("hero/hero_s" + (i + 1) + ".png", largura, altura);
         }
         iImagesIdle = carregarFramesDoSpriteSheet("hero/hero_standing_still.png", MAX_FRAMES_IDLE, largura, altura);
-        iImagesStrafingMax = carregarFramesDoSpriteSheet("hero/hero_strafing_max.png", MAX_FRAMES_STRAFING_MAX, largura,
-                altura);
+        iImagesStrafingMax = carregarFramesDoSpriteSheet("hero/hero_strafing_max.png", MAX_FRAMES_STRAFING_MAX, largura, altura);
     }
 
-    // O Hero diz seu estado (direcaoHorizontal) e este método atualiza os
-    // contadores
+    /**
+     * @brief Atualiza o estado da animação com base no estado atual do herói (parado, movendo, etc.).
+     *        Também gerencia a animação de rotação e fade da hitbox de foco.
+     * @param estado O estado atual do herói.
+     * @return true se uma animação de transição (como de-strafing) terminou, false caso contrário.
+     */
     public boolean atualizar(HeroState estado) {
-        // Lógica de rotação da hitbox
         frameCounter++;
         if (frameCounter >= 2) {
             anguloRotacaoHitbox = (anguloRotacaoHitbox + 1) % 360;
             frameCounter = 0;
         }
 
-        // Lógica de fade da hitbox
         switch (hitboxFadeState) {
             case FADE_IN:
                 hitboxAlpha += FADE_SPEED;
@@ -80,7 +79,6 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
                 break;
             case VISIBLE:
             case HIDDEN:
-                // Não faz nada
                 break;
         }
 
@@ -90,13 +88,11 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
             case IDLE:
                 resetarAnimacaoStrafing();
                 delayFrameIdle++;
-
                 if (delayFrameIdle >= DELAY_IDLE) {
                     frameAtualIdle = (frameAtualIdle + 1) % MAX_FRAMES_IDLE;
                     delayFrameIdle = 0;
                 }
                 break;
-
             case STRAFING_LEFT:
             case STRAFING_RIGHT:
                 resetarAnimacaoIdle();
@@ -114,18 +110,16 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
                     }
                 }
                 break;
-
             case DE_STRAFING_LEFT:
             case DE_STRAFING_RIGHT:
                 resetarAnimacaoIdle();
                 delayFrameStrafing++;
                 if (delayFrameStrafing >= DELAY_STRAFING) {
-                    frameAtualStrafing--; // Animação ao contrário!
-
+                    frameAtualStrafing--;
                     delayFrameStrafing = 0;
                     if (frameAtualStrafing < 0) {
                         frameAtualStrafing = 0;
-                        animacaoTerminou = true; // Sinaliza que a animação acabou!
+                        animacaoTerminou = true;
                     }
                 }
                 break;
@@ -134,29 +128,31 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
         return animacaoTerminou;
     }
 
+    /**
+     * @brief Retorna o ImageIcon do frame atual da animação com base no estado do herói.
+     */
     public ImageIcon getImagemAtual(HeroState estado) {
         switch (estado) {
             case STRAFING_LEFT:
             case STRAFING_RIGHT:
-                // Se está se movendo para os lados
                 if (frameAtualStrafing < MAX_FRAMES_STRAFING - 1) {
                     return iImagesStrafingEsquerda[frameAtualStrafing];
                 } else {
                     return iImagesStrafingMax[frameAtualStrafingMax];
                 }
-
             case DE_STRAFING_LEFT:
             case DE_STRAFING_RIGHT:
                 int frame = Math.max(0, frameAtualStrafing);
                 return iImagesStrafingEsquerda[frame];
-
             case IDLE:
             default:
                 return iImagesIdle[frameAtualIdle];
         }
     }
 
-    // Métodos auxiliares para limpar os contadores
+    /**
+     * @brief Reseta os contadores da animação de strafing.
+     */
     private void resetarAnimacaoStrafing() {
         frameAtualStrafing = 0;
         delayFrameStrafing = 0;
@@ -164,13 +160,17 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
         delayFrameStrafingMax = 0;
     }
 
+    /**
+     * @brief Reseta os contadores da animação de idle (parado).
+     */
     private void resetarAnimacaoIdle() {
         frameAtualIdle = 0;
         delayFrameIdle = 0;
     }
 
-
-    // Métodos de carregamento (agora precisam de largura/altura como parâmetro)
+    /**
+     * @brief Carrega uma imagem individual do sistema de arquivos.
+     */
     private ImageIcon carregarImagem(String nomeArquivo, int largura, int altura) {
         try {
             java.net.URL imgURL = getClass().getClassLoader().getResource(Personagem.PATH + nomeArquivo);
@@ -191,6 +191,9 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
         }
     }
 
+    /**
+     * @brief Carrega uma sequência de frames de uma única imagem (spritesheet).
+     */
     private ImageIcon[] carregarFramesDoSpriteSheet(String nomeArquivo, int numFrames, int largura, int altura) {
         try {
             java.net.URL imgURL = getClass().getClassLoader().getResource(Personagem.PATH + nomeArquivo);
@@ -210,6 +213,7 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
                 BufferedImage frameImg = spriteSheet.getSubimage(startX, 0, spriteLargura, spriteAltura);
                 BufferedImage frameRedimensionado = new BufferedImage(largura, altura, BufferedImage.TYPE_INT_ARGB);
                 Graphics g = frameRedimensionado.createGraphics();
+                
                 g.drawImage(frameImg, 0, 0, largura, altura, null);
                 g.dispose();
                 frames[i] = new ImageIcon(frameRedimensionado);
@@ -221,28 +225,45 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
         }
     }
 
+    /**
+     * @brief Força o início da animação de "de-strafing" a partir do seu último frame.
+     */
     public void iniciarDeStrafing() {
-        // Força a animação a começar do último frame da SEQUÊNCIA DE TRANSIÇÃO
         this.frameAtualStrafing = MAX_FRAMES_STRAFING - 1;
-        this.delayFrameStrafing = 0; // Reseta o delay para começar imediatamente
+        this.delayFrameStrafing = 0;
     }
 
+    /**
+     * @brief Inicia o efeito de fade-in para a visualização da hitbox de foco.
+     */
     public void iniciarFadeInHitbox() {
         hitboxFadeState = FadeState.FADE_IN;
     }
 
+    /**
+     * @brief Inicia o efeito de fade-out para a visualização da hitbox de foco.
+     */
     public void iniciarFadeOutHitbox() {
         hitboxFadeState = FadeState.FADE_OUT;
     }
 
+    /**
+     * @brief Retorna o valor alpha (transparência) atual da hitbox de foco.
+     */
     public float getHitboxAlpha() {
         return hitboxAlpha;
     }
 
+    /**
+     * @brief Retorna a imagem da hitbox de foco.
+     */
     public ImageIcon getImagemHitboxFoco() {
         return this.imagemHitboxFoco;
     }
 
+    /**
+     * @brief Retorna o ângulo de rotação atual da hitbox de foco.
+     */
     public double getAnguloRotacaoHitbox() {
         return this.anguloRotacaoHitbox;
     }

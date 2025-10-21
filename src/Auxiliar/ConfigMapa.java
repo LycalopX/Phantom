@@ -1,11 +1,15 @@
-
 package Auxiliar;
 
-// Classe para centralizar as configurações de mapa, tela e grid.
+/**
+ * @brief Centraliza as configurações de mapa, tela e grid.
+ */
 public final class ConfigMapa {
 
-    // Previne a instanciação da classe.
-    private ConfigMapa() {}
+    /**
+     * @brief Construtor privado para previnir a instanciação da classe.
+     */
+    private ConfigMapa() {
+    }
 
     // Dimensões da Tela (em pixels)
     public static final int LARGURA_TELA = 580;

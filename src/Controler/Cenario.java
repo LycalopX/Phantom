@@ -1,5 +1,4 @@
 package Controler;
-// Pacote Controler ou View
 
 import Modelo.Personagem;
 import Modelo.Fases.Fase;
@@ -10,7 +9,6 @@ import Modelo.Projeteis.Projetil;
 import Modelo.Projeteis.BombaProjetil;
 import Auxiliar.ConfigMapa;
 import Auxiliar.Cenario1.ArvoreParallax;
-
 import java.awt.*;
 import java.awt.dnd.*;
 import java.awt.datatransfer.DataFlavor;
@@ -19,30 +17,36 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.zip.ZipInputStream;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
-
 import Auxiliar.Debug.ContadorFPS;
 import Auxiliar.Debug.DebugManager;
 import Auxiliar.Projeteis.TipoProjetil;
-
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @brief Painel principal do jogo, responsável por desenhar todos os elementos
+ *        visuais
+ *        da fase, HUD e telas de estado (como Game Over).
+ */
 public class Cenario extends JPanel {
     private Fase faseAtual;
     private ContadorFPS contadorFPS;
     private Engine.GameState estadoDoJogo;
     private BufferedImage imagemGameOver;
 
-    // Listas para controlar a ordem de desenho
     private final ArrayList<Personagem> ProjeteisJogador = new ArrayList<>();
     private final ArrayList<Personagem> ProjeteisInimigos = new ArrayList<>();
     private final ArrayList<Personagem> HeroItemBombaProjetil = new ArrayList<>();
 
+    /**
+     * @brief Construtor do Cenario. Configura as dimensões, foco, cor de fundo,
+     *        contador de FPS e a funcionalidade de arrastar e soltar
+     *        (drag-and-drop).
+     */
     public Cenario() {
         this.setPreferredSize(new Dimension(ConfigMapa.LARGURA_TELA, ConfigMapa.ALTURA_TELA));
         this.setFocusable(false);
@@ -51,6 +55,10 @@ public class Cenario extends JPanel {
         setupDropTarget();
     }
 
+    /**
+     * @brief Configura a área de drop para a funcionalidade de arrastar e soltar,
+     *        permitindo adicionar inimigos ao jogo dinamicamente no modo de debug.
+     */
     private void setupDropTarget() {
         new DropTarget(this, new DropTargetListener() {
             @Override
@@ -89,8 +97,7 @@ public class Cenario extends JPanel {
             public void dragOver(DropTargetDragEvent dtde) {
                 if (DebugManager.isActive() && dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
                     dtde.acceptDrag(DnDConstants.ACTION_COPY);
-                }
-                else {
+                } else {
                     dtde.rejectDrag();
                 }
             }
@@ -105,13 +112,17 @@ public class Cenario extends JPanel {
         });
     }
 
+    /**
+     * @brief Processa um arquivo .zip solto na tela, desserializando um personagem
+     *        e o adicionando na fase na posição do mouse.
+     */
     private void processarArquivoSolto(File file, Point dropPoint) {
         if (file == null || !file.getName().toLowerCase().endsWith(".zip")) {
             return;
         }
 
         try (FileInputStream fis = new FileInputStream(file);
-             ZipInputStream zis = new ZipInputStream(fis)) {
+                ZipInputStream zis = new ZipInputStream(fis)) {
 
             if (zis.getNextEntry() != null) {
                 try (ObjectInputStream ois = new ObjectInputStream(zis)) {
@@ -128,7 +139,8 @@ public class Cenario extends JPanel {
                             ((Inimigo) p).initialize(faseAtual);
                         }
                         faseAtual.adicionarPersonagem(p);
-                        System.out.println("Personagem " + p.getClass().getSimpleName() + " adicionado em (" + gridX + ", " + gridY + ")");
+                        System.out.println("Personagem " + p.getClass().getSimpleName() + " adicionado em (" + gridX
+                                + ", " + gridY + ")");
                     }
                 }
             }
@@ -139,16 +151,22 @@ public class Cenario extends JPanel {
         }
     }
 
+    /**
+     * @brief Define a fase atual a ser desenhada pelo cenário.
+     */
     public void setFase(Fase fase) {
         this.faseAtual = fase;
     }
 
+    /**
+     * @brief Método principal de desenho do Swing. Renderiza o estado atual do
+     *        jogo.
+     */
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
         if (faseAtual == null) {
-            System.out.println("DEBUG: faseAtual é nula!"); // DEBUG
             return;
         }
 
@@ -202,9 +220,11 @@ public class Cenario extends JPanel {
         } else if (estadoDoJogo == Engine.GameState.GAME_OVER) {
             desenharTelaGameOver(g);
         }
-
     }
 
+    /**
+     * @brief Desenha o fundo da fase com efeito de scroll e gradientes de cor.
+     */
     private void desenharFundo(Graphics2D g2d) {
         BufferedImage imagemFundo1 = faseAtual.getImagemFundo1();
         if (imagemFundo1 == null)
@@ -227,6 +247,10 @@ public class Cenario extends JPanel {
         g2d.fillRect(0, 0, getWidth(), getHeight());
     }
 
+    /**
+     * @brief Desenha o Heads-Up Display (HUD) com informações de debug, como FPS e
+     *        status do herói.
+     */
     private void desenharHUD(Graphics2D g2d) {
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("Arial", Font.BOLD, 20));
@@ -243,13 +267,18 @@ public class Cenario extends JPanel {
             g2d.drawString("Score: " + h.getScore(), 10, 140);
             g2d.drawString("Mísseis: " + h.getNivelDeMisseis(), 10, 160);
         }
-
     }
 
+    /**
+     * @brief Define o estado atual do jogo, para controlar o que é desenhado.
+     */
     public void setEstadoDoJogo(Engine.GameState estado) {
         this.estadoDoJogo = estado;
     }
 
+    /**
+     * @brief Desenha a tela de Game Over.
+     */
     private void desenharTelaGameOver(Graphics g) {
         if (imagemGameOver != null) {
             g.drawImage(imagemGameOver, 0, 0, getWidth(), getHeight(), this);
@@ -261,6 +290,9 @@ public class Cenario extends JPanel {
         carregarImagensGameOver();
     }
 
+    /**
+     * @brief Carrega a imagem da tela de Game Over.
+     */
     private void carregarImagensGameOver() {
         try {
             imagemGameOver = ImageIO.read(getClass().getClassLoader().getResource("imgs/gameover.png"));
@@ -270,6 +302,9 @@ public class Cenario extends JPanel {
         }
     }
 
+    /**
+     * @brief Atualiza o contador de FPS.
+     */
     public void atualizarContadorFPS() {
         this.contadorFPS.atualizar();
     }

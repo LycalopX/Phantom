@@ -14,20 +14,28 @@ import Auxiliar.Projeteis.HitboxType;
 import Auxiliar.Projeteis.TipoProjetil;
 import Auxiliar.LootTable;
 import Auxiliar.ConfigMapa;
-
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.awt.Rectangle;
 
+/**
+ * @brief Orquestra a lógica principal do jogo, incluindo detecção de colisão,
+ *        interações entre personagens e gerenciamento de estado dos objetos da
+ *        fase.
+ */
 public class ControleDeJogo {
     private Quadtree quadtree;
+
     private final ArrayList<Projetil> projeteisInimigosEspeciais;
     private final ArrayList<Personagem> novosObjetos;
     private final ArrayList<Personagem> alvosProximos;
     private final ArrayList<Personagem> vizinhosPotenciais;
 
+    /**
+     * @brief Construtor do ControleDeJogo. Inicializa a Quadtree e as listas de
+     *        apoio.
+     */
     public ControleDeJogo() {
-        // Cria a Quadtree uma vez, cobrindo a tela do jogo em PIXELS
         this.quadtree = new Quadtree(0, new Rectangle(0, 0, ConfigMapa.LARGURA_TELA, ConfigMapa.ALTURA_TELA));
         this.projeteisInimigosEspeciais = new ArrayList<>();
         this.novosObjetos = new ArrayList<>();
@@ -35,12 +43,22 @@ public class ControleDeJogo {
         this.vizinhosPotenciais = new ArrayList<>();
     }
 
+    /**
+     * @brief Desenha todos os personagens de uma lista na tela.
+     */
     public void desenhaTudo(ArrayList<Personagem> e, Graphics g) {
         for (Personagem personagem : e) {
             personagem.autoDesenho(g);
         }
     }
 
+    /**
+     * @brief Processa todas as interações e colisões para um frame do jogo.
+     *        Utiliza uma Quadtree para otimizar a detecção de colisão.
+     * @param personagens       A lista de todos os personagens na fase.
+     * @param removeProjectiles Flag para remover todos os projéteis da tela.
+     * @return true se o herói foi atingido, false caso contrário.
+     */
     public boolean processaTudo(ArrayList<Personagem> personagens, boolean removeProjectiles) {
         if (personagens.isEmpty())
             return false;
@@ -48,7 +66,6 @@ public class ControleDeJogo {
         Hero hero = null;
         BombaProjetil bombaAtiva = null;
 
-        // Otimização 2: Loop único para preparação e população da Quadtree
         projeteisInimigosEspeciais.clear();
         quadtree.clear();
 
@@ -58,15 +75,12 @@ public class ControleDeJogo {
             }
 
             if (p.isActive()) {
-                // Popula a Quadtree
                 quadtree.insert(p);
 
-                // Encontra a bomba ativa
                 if (p instanceof BombaProjetil) {
                     bombaAtiva = (BombaProjetil) p;
                 }
 
-                // Encontra projéteis com hitbox retangular
                 if (p instanceof Projetil) {
                     if (removeProjectiles) {
                         p.deactivate();
@@ -84,47 +98,36 @@ public class ControleDeJogo {
         if (hero == null)
             return false;
 
-        // Otimização: Limpa a lista de novos objetos em vez de criar uma nova.
         novosObjetos.clear();
         boolean heroiFoiAtingido = false;
 
-        // --- NOVA LÓGICA DE COLISÃO RETANGULAR ---
         if (checarColisaoRetangular(hero, projeteisInimigosEspeciais)) {
             heroiFoiAtingido = true;
         }
 
-        // --- LÓGICA DE DANO EM ÁREA DA BOMBA ---
         if (bombaAtiva != null) {
 
-            // 1. Converte o raio da bomba (que está em GRID) para PIXELS
             int raioEmPixels = (int) (bombaAtiva.getRaioAtualGrid() * ConfigMapa.CELL_SIDE);
             int diametroEmPixels = raioEmPixels * 2;
-
-            // 2. Cria um retângulo em PIXELS que representa a área de efeito da bomba
+            
             int bombaX = (int) (bombaAtiva.x * ConfigMapa.CELL_SIDE) - raioEmPixels;
             int bombaY = (int) (bombaAtiva.y * ConfigMapa.CELL_SIDE) - raioEmPixels;
             Rectangle areaDaBomba = new Rectangle(bombaX, bombaY, diametroEmPixels, diametroEmPixels);
 
-            // Otimização: Limpa a lista de alvos próximos em vez de criar uma nova.
             alvosProximos.clear();
-            // 3. Usa o método retrieve que aceita um RECTANGLE (em PIXELS)
             quadtree.retrieve(alvosProximos, areaDaBomba);
 
-            // 4. Itera APENAS sobre os alvos próximos para a checagem final
             for (Personagem alvo : alvosProximos) {
-
                 if ((alvo instanceof Inimigo || alvo instanceof Projetil) && alvo.isActive()) {
 
-                    double dx = bombaAtiva.x - alvo.x; // Distância em GRID
-                    double dy = bombaAtiva.y - alvo.y; // Distância em GRID
+                    double dx = bombaAtiva.x - alvo.x;
+                    double dy = bombaAtiva.y - alvo.y;
                     double distanciaAoQuadrado = (dx * dx) + (dy * dy);
                     double raioBombaAoQuadrado = bombaAtiva.getRaioAtualGrid() * bombaAtiva.getRaioAtualGrid();
 
-                    // 5. Checagem final (círculo vs círculo) em GRID para precisão
                     if (distanciaAoQuadrado < raioBombaAoQuadrado) {
                         if (alvo instanceof Projetil) {
-                            alvo.deactivate(); // Destroi o projétil
-
+                            alvo.deactivate();
                         } else if (alvo instanceof Inimigo) {
                             ((Inimigo) alvo).takeDamage(9999);
                         }
@@ -133,13 +136,10 @@ public class ControleDeJogo {
             }
         }
 
-        // --- LÓGICA DE COLISÃO COM QUADTREE (DISCRETA) ---
-        // Otimização: A lista de vizinhos potenciais é um atributo de classe agora.
         for (Personagem p1 : personagens) {
             if (!p1.isActive())
                 continue;
 
-            // Reinicia e olha de volta a lista de vizinhos potenciais
             vizinhosPotenciais.clear();
             quadtree.retrieve(vizinhosPotenciais, p1);
 
@@ -148,25 +148,17 @@ public class ControleDeJogo {
                     continue;
 
                 double somaRaios;
-
                 double dx = p1.x - p2.x;
                 double dy = p1.y - p2.y;
 
-                // 1. Verifica se a colisão é entre um Herói e um Item
                 if ((p1 instanceof Hero && p2 instanceof Item) || (p1 instanceof Item && p2 instanceof Hero)) {
-
                     Item i = (p1 instanceof Item) ? (Item) p1 : (Item) p2;
-
-                    // 2. USA A HITBOX DE COLETA (grabHitboxRaio) para o Herói
                     somaRaios = hero.grabHitboxRaio + i.hitboxRaio;
-
                 } else {
-                    // 3. Para TODAS as outras colisões (dano), usa a hitbox padrão
                     somaRaios = p1.hitboxRaio + p2.hitboxRaio;
                 }
 
                 if ((dx * dx) + (dy * dy) < (somaRaios * somaRaios)) {
-
                     if (handleCollision(p1, p2, novosObjetos, hero)) {
                         heroiFoiAtingido = true;
                     }
@@ -174,22 +166,23 @@ public class ControleDeJogo {
             }
         }
 
-        // Adiciona novos objetos (loot) e remove os "mortos"
         personagens.addAll(novosObjetos);
 
         personagens.removeIf(p -> {
-            // A regra principal: NUNCA remova um projétil OU O HERÓI da lista.
             if (p instanceof Projetil || p instanceof Hero) {
                 return false;
             }
-            // Para todos os outros personagens (Inimigos, Itens, etc.),
-            // remova-os se não estiverem mais ativos.
             return !p.isActive();
         });
 
         return heroiFoiAtingido;
     }
 
+    /**
+     * @brief Verifica se uma nova posição para um personagem é válida,
+     *        checando por colisões com outros personagens não transponíveis.
+     * @return true se a posição for válida, false caso contrário.
+     */
     public boolean ehPosicaoValida(ArrayList<Personagem> umaFase, Personagem personagem, double proximoX,
             double proximoY) {
         for (Personagem p : umaFase) {
@@ -202,53 +195,50 @@ public class ControleDeJogo {
             double somaRaios = personagem.hitboxRaio + p.hitboxRaio;
 
             if ((dx * dx) + (dy * dy) < (somaRaios * somaRaios)) {
-                return false; // Colisão detectada
+                return false;
             }
         }
         return true;
     }
 
+    /**
+     * @brief Aplica o efeito de um item coletado ao herói.
+     */
     private void aplicarEfeitoDoItem(Hero heroi, Item item) {
-        // 1. Pega o tipo do item a partir do enum
         ItemType tipo = item.getTipo();
-
-        // 2. Usa um switch para determinar qual efeito aplicar.
-        // Isso é muito mais limpo e rápido que vários if/else.
         switch (tipo) {
             case MINI_POWER_UP:
             case POWER_UP:
-                // Pega o valor do power diretamente do enum e passa para o herói
                 heroi.addPower(tipo.getPowerValue());
                 Auxiliar.SoundManager.getInstance().playSfx("se_item00", 0.5f);
                 break;
-
             case FULL_POWER:
                 heroi.addPower(tipo.getPowerValue());
                 Auxiliar.SoundManager.getInstance().playSfx("se_item01", 0.5f);
                 break;
-
             case BOMB:
                 heroi.addBomb(tipo.getBombValue());
                 Auxiliar.SoundManager.getInstance().playSfx("se_item01", 0.5f);
                 break;
-
             case ONE_UP:
-                heroi.addHP(1); // Itens de vida geralmente dão um valor fixo
+                heroi.addHP(1);
                 Auxiliar.SoundManager.getInstance().playSfx("se_item01", 0.5f);
                 break;
-
             case SCORE_POINT:
                 heroi.addScore(tipo.getScoreValue());
                 Auxiliar.SoundManager.getInstance().playSfx("se_item00", 0.5f);
                 break;
-
             default:
                 System.out.println("Item desconhecido: " + tipo);
         }
-
         item.deactivate();
     }
 
+    /**
+     * @brief Verifica a colisão entre o herói e uma lista de projéteis com hitbox
+     *        retangular.
+     * @return true se houver colisão, false caso contrário.
+     */
     private boolean checarColisaoRetangular(Hero hero, ArrayList<Projetil> projeteisRetangulares) {
         if (hero == null || projeteisRetangulares.isEmpty()) {
             return false;
@@ -274,35 +264,30 @@ public class ControleDeJogo {
     }
 
     /**
-     * Lida com a interação entre dois personagens que colidiram.
+     * @brief Gerencia a lógica de interação para um par de personagens que
+     *        colidiram.
+     * @return true se a colisão resultou em dano ao herói, false caso contrário.
      */
     private boolean handleCollision(Personagem p1, Personagem p2, ArrayList<Personagem> novosObjetos, Hero hero) {
-
-        // --- COLISÃO: HERÓI E INIMIGO ---
         if (p1 instanceof Hero && p2 instanceof Inimigo) {
             return colisaoHeroiInimigo((Hero) p1, (Inimigo) p2);
         } else if (p2 instanceof Hero && p1 instanceof Inimigo) {
             return colisaoHeroiInimigo((Hero) p2, (Inimigo) p1);
         }
 
-        // --- COLISÃO: HERÓI E PROJÉTIL INIMIGO ---
         if (p1 instanceof Hero && p2 instanceof Projetil && ((Projetil) p2).getTipo() == TipoProjetil.INIMIGO) {
             return colisaoHeroiProjetilInimigo((Hero) p1, (Projetil) p2);
         } else if (p2 instanceof Hero && p1 instanceof Projetil && ((Projetil) p1).getTipo() == TipoProjetil.INIMIGO) {
             return colisaoHeroiProjetilInimigo((Hero) p2, (Projetil) p1);
         }
 
-        // --- COLISÃO: PROJÉTIL DO HERÓI E INIMIGO ---
         if (p1 instanceof Projetil && ((Projetil) p1).getTipo() == TipoProjetil.JOGADOR && p2 instanceof Inimigo) {
             colisaoProjetilHeroiInimigo((Projetil) p1, (Inimigo) p2, novosObjetos, hero);
-
         } else if (p2 instanceof Projetil && ((Projetil) p2).getTipo() == TipoProjetil.JOGADOR
                 && p1 instanceof Inimigo) {
-
             colisaoProjetilHeroiInimigo((Projetil) p2, (Inimigo) p1, novosObjetos, hero);
         }
 
-        // --- COLISÃO: HERÓI E ITEM ---
         if (p1 instanceof Hero && p2 instanceof Item) {
             aplicarEfeitoDoItem((Hero) p1, (Item) p2);
         } else if (p2 instanceof Hero && p1 instanceof Item) {
@@ -311,38 +296,45 @@ public class ControleDeJogo {
 
         if (p1 instanceof ProjetilBombaHoming && p2 instanceof Projetil
                 && ((Projetil) p2).getTipo() == TipoProjetil.INIMIGO) {
-            p2.deactivate(); // Destroi o projétil inimigo
-            return false; // Não conta como um "hit" no jogador, então retorna false
+            p2.deactivate();
+            return false;
         }
 
         if (p2 instanceof ProjetilBombaHoming && p1 instanceof Projetil
                 && ((Projetil) p1).getTipo() == TipoProjetil.INIMIGO) {
-            p1.deactivate(); // Destroi o projétil inimigo
-            return false; // Não conta como um "hit" no jogador
+            p1.deactivate();
+            return false;
         }
 
         return false;
     }
 
-    // --- MÉTODOS AUXILIARES DE COLISÃO ---
-
+    /**
+     * @brief Lida com a colisão entre o herói e um inimigo.
+     */
     private boolean colisaoHeroiInimigo(Hero h, Inimigo i) {
-        if (h.takeDamage()) { // takeDamage() agora retorna true se o dano for válido
-            return true; // Informa que o herói foi atingido
+        if (h.takeDamage()) {
+            return true;
         }
         return false;
     }
 
+    /**
+     * @brief Lida com a colisão entre o herói e um projétil inimigo.
+     */
     private boolean colisaoHeroiProjetilInimigo(Hero h, Projetil p) {
         if (h.takeDamage()) {
             p.deactivate();
-            return true; // Informa que o herói foi atingido
+            return true;
         }
         return false;
     }
 
+    /**
+     * @brief Lida com a colisão entre um projétil do herói e um inimigo,
+     *        aplicando dano e gerando loot se o inimigo for destruído.
+     */
     private void colisaoProjetilHeroiInimigo(Projetil p, Inimigo i, ArrayList<Personagem> novosObjetos, Hero hero) {
-
         i.takeDamage(Hero.DANO_BALA);
 
         if (!(p instanceof ProjetilBombaHoming)) {
@@ -350,12 +342,10 @@ public class ControleDeJogo {
         }
 
         if (i.getVida() <= 0) {
-            // Lógica de drop de loot
             LootTable tabela = i.getLootTable();
             if (tabela != null) {
                 ArrayList<LootItem> drops = tabela.gerarDrops();
                 for (LootItem dropInfo : drops) {
-
                     Item itemCriado = new Item(dropInfo.getTipo(), i.x, i.y, hero);
                     novosObjetos.add(itemCriado);
                 }

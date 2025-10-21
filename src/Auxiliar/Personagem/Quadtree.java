@@ -2,22 +2,29 @@ package Auxiliar.Personagem;
 
 import Modelo.Personagem;
 import java.util.ArrayList;
-
 import Auxiliar.ConfigMapa;
+import java.awt.Rectangle;
 
-import java.awt.Rectangle; // Gerenciar os limites
-
+/**
+ * @brief Implementa uma estrutura de dados Quadtree para otimizar a detecção de
+ *        colisão
+ *        espacial, dividindo o espaço de jogo em quadrantes recursivamente.
+ */
 public class Quadtree {
 
-    private final int MAX_OBJECTS = 4; // Objetos por nó antes de subdividir
-    private final int MAX_LEVELS = 8; // Profundidade máxima da árvore
+    private final int MAX_OBJECTS = 4;
+    private final int MAX_LEVELS = 8;
 
     private int level;
     private ArrayList<Personagem> objects;
     private Rectangle bounds;
-    private Quadtree[] nodes; // Os 4 filhos (quadrantes)
+    private Quadtree[] nodes;
 
-    /** Construtor */
+    /**
+     * @brief Construtor da Quadtree.
+     * @param pLevel  O nível de profundidade atual do nó.
+     * @param pBounds Os limites (área) que este nó da árvore representa.
+     */
     public Quadtree(int pLevel, Rectangle pBounds) {
         level = pLevel;
         objects = new ArrayList<>();
@@ -25,7 +32,10 @@ public class Quadtree {
         nodes = new Quadtree[4];
     }
 
-    /** Limpa a Quadtree recursivamente */
+    /**
+     * @brief Limpa a Quadtree recursivamente, removendo todos os objetos e nós
+     *        filhos.
+     */
     public void clear() {
         objects.clear();
         for (int i = 0; i < nodes.length; i++) {
@@ -36,53 +46,61 @@ public class Quadtree {
         }
     }
 
-    /** Subdivide o nó em 4 sub-nós */
+    /**
+     * @brief Subdivide o nó atual em quatro sub-nós (quadrantes).
+     */
     private void split() {
         int subWidth = (int) (bounds.getWidth() / 2);
         int subHeight = (int) (bounds.getHeight() / 2);
         int x = (int) bounds.getX();
         int y = (int) bounds.getY();
 
-        nodes[0] = new Quadtree(level + 1, new Rectangle(x + subWidth, y, subWidth, subHeight)); // Nordeste
-        nodes[1] = new Quadtree(level + 1, new Rectangle(x, y, subWidth, subHeight)); // Noroeste
-        nodes[2] = new Quadtree(level + 1, new Rectangle(x, y + subHeight, subWidth, subHeight)); // Sudoeste
-        nodes[3] = new Quadtree(level + 1, new Rectangle(x + subWidth, y + subHeight, subWidth, subHeight)); // Sudeste
+        nodes[0] = new Quadtree(level + 1, new Rectangle(x + subWidth, y, subWidth, subHeight));
+        nodes[1] = new Quadtree(level + 1, new Rectangle(x, y, subWidth, subHeight));
+        nodes[2] = new Quadtree(level + 1, new Rectangle(x, y + subHeight, subWidth, subHeight));
+        nodes[3] = new Quadtree(level + 1, new Rectangle(x + subWidth, y + subHeight, subWidth, subHeight));
     }
 
-    /** Determina em qual quadrante um objeto pertence */
+    /**
+     * @brief Determina em qual quadrante (sub-nó) um determinado personagem se
+     *        encaixa.
+     * @param p O personagem a ser analisado.
+     * @return O índice do nó (0-3) ou -1 se o personagem não couber completamente
+     *         em nenhum filho.
+     */
     private int getIndex(Personagem p) {
-
-        // 1. Converte a posição de grid do personagem para um retângulo de pixels
         int pLargura = p.getLargura();
         int pAltura = p.getAltura();
-        int pX = (int) (p.x * ConfigMapa.CELL_SIDE - pLargura / 2.0); // Canto superior esquerdo em pixels
-        int pY = (int) (p.y * ConfigMapa.CELL_SIDE - pAltura / 2.0); // Canto superior esquerdo em pixels
+        int pX = (int) (p.x * ConfigMapa.CELL_SIDE - pLargura / 2.0);
+        int pY = (int) (p.y * ConfigMapa.CELL_SIDE - pAltura / 2.0);
 
         int index = -1;
         double verticalMidpoint = bounds.getX() + (bounds.getWidth() / 2);
         double horizontalMidpoint = bounds.getY() + (bounds.getHeight() / 2);
 
-        // 2. Realiza todos os cálculos usando as coordenadas de PIXEL convertidas
         boolean topQuadrant = (pY < horizontalMidpoint && pY + pAltura < horizontalMidpoint);
         boolean bottomQuadrant = (pY > horizontalMidpoint);
 
         if (pX < verticalMidpoint && pX + pLargura < verticalMidpoint) {
             if (topQuadrant)
-                index = 1; // Noroeste
+                index = 1;
             else if (bottomQuadrant)
-                index = 2; // Sudoeste
+                index = 2;
         } else if (pX > verticalMidpoint) {
             if (topQuadrant)
-                index = 0; // Nordeste
+                index = 0;
             else if (bottomQuadrant)
-                index = 3; // Sudeste
+                index = 3;
         }
         return index;
     }
 
-    /** Insere um objeto na Quadtree */
+    /**
+     * @brief Insere um personagem na Quadtree. Se o nó exceder a capacidade,
+     *        ele se subdivide e distribui seus objetos entre os filhos.
+     * @param p O personagem a ser inserido.
+     */
     public void insert(Personagem p) {
-        // Se este nó já tem filhos, passa o objeto para o filho apropriado
         if (nodes[0] != null) {
             int index = getIndex(p);
             if (index != -1) {
@@ -91,16 +109,12 @@ public class Quadtree {
             }
         }
 
-        // Se não tem filhos (ou o objeto não coube em nenhum), adiciona à lista deste
-        // nó
         objects.add(p);
 
-        // Se o nó excedeu a capacidade e ainda pode se subdividir
         if (objects.size() > MAX_OBJECTS && level < MAX_LEVELS) {
             if (nodes[0] == null) {
                 split();
             }
-            // Move os objetos do pai para os filhos
             int i = 0;
             while (i < objects.size()) {
                 int index = getIndex(objects.get(i));
@@ -114,41 +128,39 @@ public class Quadtree {
     }
 
     /**
-     * Retorna todos os objetos que podem colidir com o objeto dado.
-     * VERSÃO CORRIGIDA que lida com objetos em fronteiras.
+     * @brief Retorna uma lista de personagens que podem colidir com um personagem
+     *        específico.
+     * @param returnObjects A lista onde os personagens próximos serão adicionados.
+     * @param p             O personagem para o qual a verificação de colisão será
+     *                      feita.
+     * @return A lista `returnObjects` preenchida com os candidatos à colisão.
      */
     public ArrayList<Personagem> retrieve(ArrayList<Personagem> returnObjects, Personagem p) {
-        // Se este nó tem filhos, descubra onde o objeto p se encaixa
         if (nodes[0] != null) {
             int index = getIndex(p);
-
-            // Se o objeto 'p' cabe completamente em um quadrante filho,
-            // apenas busque nesse quadrante.
             if (index != -1) {
                 nodes[index].retrieve(returnObjects, p);
-            }
-            // SENÃO (se 'p' está em uma fronteira e não coube em nenhum filho)
-            else {
-                // O objeto pode estar colidindo com qualquer um dos quadrantes filhos.
-                // Busque em TODOS eles.
+            } else {
                 for (int i = 0; i < nodes.length; i++) {
                     nodes[i].retrieve(returnObjects, p);
                 }
             }
         }
 
-        // Adiciona todos os objetos que pertencem a ESTE nó (nó pai)
         returnObjects.addAll(objects);
 
         return returnObjects;
     }
 
     /**
-     * Retorna todos os objetos que podem colidir com um dado retângulo.
-     * Perfeito para buscas em área, como explosões.
+     * @brief Retorna todos os objetos que podem colidir com um dado retângulo
+     *        (área).
+     *        Útil para buscas em área, como explosões.
+     * @param returnObjects A lista onde os personagens próximos serão adicionados.
+     * @param pBounds       O retângulo que define a área de busca.
+     * @return A lista `returnObjects` preenchida com os candidatos à colisão.
      */
     public ArrayList<Personagem> retrieve(ArrayList<Personagem> returnObjects, Rectangle pBounds) {
-        // Se este nó tem filhos, verifique em quais deles o retângulo se sobrepõe
         if (nodes[0] != null) {
             for (int i = 0; i < nodes.length; i++) {
                 if (nodes[i].bounds.intersects(pBounds)) {
@@ -157,7 +169,6 @@ public class Quadtree {
             }
         }
 
-        // Adiciona todos os objetos que pertencem a ESTE nó
         returnObjects.addAll(objects);
 
         return returnObjects;

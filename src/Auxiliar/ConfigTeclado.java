@@ -1,13 +1,17 @@
-
 package Auxiliar;
 
 import java.awt.event.KeyEvent;
 
-// Classe para centralizar as configurações de teclado.
+/**
+ * @brief Centraliza as configurações de teclado do jogo.
+ */
 public final class ConfigTeclado {
 
-    // Previne a instanciação da classe.
-    private ConfigTeclado() {}
+    /**
+     * @brief Construtor privado para previnir a instanciação da classe.
+     */
+    private ConfigTeclado() {
+    }
 
     // Movimentação Player
     public static final int KEY_UP = KeyEvent.VK_W;

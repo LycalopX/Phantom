@@ -6,32 +6,31 @@ import Modelo.Personagem;
 import Modelo.Projeteis.BombaProjetil;
 import Modelo.Fases.Fase;
 import Auxiliar.SoundManager;
-
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-
 import javax.swing.ImageIcon;
 import java.awt.Graphics2D;
 import java.awt.Color;
 
+/**
+ * @brief Representa o personagem principal do jogo, controlado pelo jogador.
+ */
 public class Hero extends Personagem {
 
-    // --- Configurações do Herói movidas de Consts.java ---
     public static final double HITBOX_RAIO = 5.75;
     public static final double HITBOX_RAIO_FANTASY_SEAL = 25.0;
     public static final double HERO_VELOCITY = (((double) LARGURA_TELA) * 0.03763);
     public static final int DANO_BALA = 40;
     public static final int DANO_BALA_TELEGUIADA = 3;
-    public static final int REQ_MISSIL_POWER = 300; // Power necessário para aumenta o nível
-    public static final int REQ_TIROS_POWER = 100; // Power necessário para aumenta o nível
-    public static final int SLOW_MOTION_FRAMES = 4; // Usado na Engine
+    public static final int REQ_MISSIL_POWER = 300;
+    public static final int REQ_TIROS_POWER = 100;
+    public static final int SLOW_MOTION_FRAMES = 4;
     private final int DURACAO_BOMBA_FRAMES = 240;
     private final int duracaoInvencibilidadeRespawn = 120;
-    // -----------------------------------------------------
 
     private int HP = 3;
     private int bombas = 3;
@@ -47,16 +46,16 @@ public class Hero extends Personagem {
     private transient GerenciadorDeAnimacaoHeroi animador;
     private GerenciadorDeArmasHeroi sistemaDeArmas;
 
-    // Para animação
     private HeroState estado = HeroState.IDLE;
 
+    /**
+     * @brief Construtor do Herói.
+     */
     public Hero(String sNomeImagePNG, double x, double y) {
-        
         super(sNomeImagePNG, x, y);
 
         this.hitboxRaio = HITBOX_RAIO / CELL_SIDE;
 
-        // O resto do construtor permanece idêntico
         int tamanhoHitboxColeta = 100;
         this.grabHitboxRaio = ((double) (tamanhoHitboxColeta / 2) / CELL_SIDE) / 2.0;
 
@@ -66,13 +65,14 @@ public class Hero extends Personagem {
     }
 
     /**
-     * Atualiza o estado interno do Herói que não depende de input.
-     * (Timers, animações, etc.)
+     * @brief Atualiza o estado interno do Herói que não depende de input, como
+     *        timers de invencibilidade e bomba.
      */
     @Override
     public void atualizar() {
         if (invencibilidadeTimer > 0)
             invencibilidadeTimer--;
+
         if (efeitoBombaTimer > 0)
             efeitoBombaTimer--;
 
@@ -80,12 +80,10 @@ public class Hero extends Personagem {
     }
 
     /**
-     * Atualiza apenas a lógica de animação com base no input do jogador.
-     * É chamado pelo ControladorDoHeroi.
+     * @brief Atualiza a máquina de estados da animação do herói com base no input
+     *        de movimento.
      */
     public void atualizarAnimacao(boolean isMovingLeft, boolean isMovingRight) {
-
-        // 2. Lógica de atualização da animação
         switch (estado) {
             case IDLE:
                 if (isMovingLeft)
@@ -129,22 +127,23 @@ public class Hero extends Personagem {
     }
 
     /**
-     * Fornece acesso ao sistema de armas do herói.
-     * 
-     * @return A instância do GerenciadorDeArmas.
+     * @brief Retorna o sistema de armas do herói.
      */
     public GerenciadorDeArmasHeroi getSistemaDeArmas() {
         return this.sistemaDeArmas;
     }
 
     /**
-     * Aplica o movimento ao Herói. A validação já foi feita pelo controlador.
+     * @brief Move o herói para uma nova posição.
      */
     public void mover(double novoX, double novoY) {
         this.x = novoX;
         this.y = novoY;
     }
 
+    /**
+     * @brief Desenha o herói e seus elementos visuais (hitbox, etc.) na tela.
+     */
     @Override
     public void autoDesenho(Graphics g) {
         if (!isActive())
@@ -203,6 +202,9 @@ public class Hero extends Personagem {
         }
     }
 
+    /**
+     * @brief Reinicia o estado do herói após a morte.
+     */
     public void respawn() {
         this.bombas = 3;
         this.power = 0;
@@ -212,31 +214,36 @@ public class Hero extends Personagem {
     }
 
     /**
-     * Cria e retorna um objeto BombaProjetil para ser adicionado à fase.
-     * Também ativa os timers de invencibilidade e atração de itens.
-     * 
-     * @return O objeto BombaProjetil, ou null se não houver bombas.
+     * @brief Utiliza uma bomba, se disponível, criando o projétil da bomba e
+     *        ativando a invencibilidade.
+     * @return O objeto BombaProjetil criado, ou null se não houver bombas.
      */
     public BombaProjetil usarBomba(Fase fase) {
-        if (bombas > 0 && !isBombing()) { // Usa o método isBombing()
+        if (bombas > 0 && !isBombing()) {
             this.bombas--;
             this.efeitoBombaTimer = DURACAO_BOMBA_FRAMES;
             this.invencibilidadeTimer = DURACAO_BOMBA_FRAMES;
-
             return new BombaProjetil(this.x, this.y, fase, this);
         }
         return null;
     }
 
+    /**
+     * @brief Método para desserialização, recarrega os componentes transientes.
+     */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         this.animador = new GerenciadorDeAnimacaoHeroi(this.largura, this.altura);
-        if (this.sistemaDeArmas == null) { // Garante compatibilidade com saves antigos
+        if (this.sistemaDeArmas == null) {
             this.sistemaDeArmas = new GerenciadorDeArmasHeroi();
         }
     }
 
-    // GETTERS E SETTERS SIMPLES
+    /**
+     * @brief Processa o dano recebido pelo herói.
+     * @return true se o dano foi efetivamente recebido (não estava invencível),
+     *         false caso contrário.
+     */
     public boolean takeDamage() {
         SoundManager.getInstance().playSfx("se_pldead00", 1.5f);
         if (isInvencivel()) {
@@ -245,70 +252,112 @@ public class Hero extends Personagem {
         return true;
     }
 
+    /**
+     * @brief Processa a lógica de morte do herói.
+     */
     public void processarMorte() {
         this.HP--;
         this.power = 0;
         this.deactivate();
     }
 
+    /**
+     * @brief Verifica se o herói está invencível.
+     */
     public boolean isInvencivel() {
-        return this.invencibilidadeTimer > 0 || isBombing(); // Usa o método isBombing()
+        return this.invencibilidadeTimer > 0 || isBombing();
     }
 
+    /**
+     * @brief Desativa o herói.
+     */
     public void deactivate() {
-        super.deactivate(); // Usa o método da classe pai
+        super.deactivate();
     }
 
+    /**
+     * @brief Ativa o herói.
+     */
     public void activate() {
-        super.activate(); // Usa o método da classe pai
+        super.activate();
     }
 
+    /**
+     * @brief Retorna o número de bombas.
+     */
     public int getBombas() {
         return this.bombas;
     }
 
+    /**
+     * @brief Retorna os pontos de vida (HP).
+     */
     public int getHP() {
         return this.HP;
     }
 
+    /**
+     * @brief Retorna o nível de poder.
+     */
     public int getPower() {
         return this.power;
     }
 
+    /**
+     * @brief Retorna a pontuação.
+     */
     public int getScore() {
         return this.score;
     }
 
+    /**
+     * @brief Adiciona poder ao herói.
+     */
     public void addPower(int quantidade) {
         this.power += quantidade;
     }
 
+    /**
+     * @brief Adiciona bombas ao herói.
+     */
     public void addBomb(int quantidade) {
         this.bombas += quantidade;
     }
 
+    /**
+     * @brief Adiciona vida (HP) ao herói.
+     */
     public void addHP(int quantidade) {
         this.HP += quantidade;
     }
 
+    /**
+     * @brief Adiciona pontuação ao herói.
+     */
     public void addScore(int quantidade) {
         this.score += quantidade;
     }
 
+    /**
+     * @brief Retorna o nível dos mísseis.
+     */
     public int getNivelDeMisseis() {
         return this.sistemaDeArmas.getNivelTiro(this.power);
     }
 
+    /**
+     * @brief Verifica se o herói está usando uma bomba.
+     */
     public boolean isBombing() {
         return this.efeitoBombaTimer > 0;
     }
 
+    /**
+     * @brief Retorna os limites retangulares da hitbox do herói.
+     */
     public java.awt.Rectangle getBounds() {
-        // Posição central em PIXELS
         int centroX = (int) (this.x * CELL_SIDE);
         int centroY = (int) (this.y * CELL_SIDE);
-
-        // Retorna um retângulo que inscreve o círculo da hitbox para a checagem.
         int raioPixels = (int) (this.hitboxRaio * CELL_SIDE);
         int diametroPixels = raioPixels * 2;
         int topLeftX = centroX - raioPixels;
@@ -316,6 +365,9 @@ public class Hero extends Personagem {
         return new java.awt.Rectangle(topLeftX, topLeftY, diametroPixels, diametroPixels);
     }
 
+    /**
+     * @brief Ativa ou desativa o modo de foco do herói.
+     */
     public void setFocoAtivo(boolean isFocoAtivo) {
         if (this.isFocoAtivo != isFocoAtivo) {
             this.isFocoAtivo = isFocoAtivo;

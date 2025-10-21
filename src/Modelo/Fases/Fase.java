@@ -1,15 +1,12 @@
-// Em Modelo/Fases/Fase.java
 package Modelo.Fases;
 
 import Modelo.Personagem;
 import Modelo.Hero.Hero;
 import Modelo.Projeteis.Projetil;
 import Modelo.Projeteis.ProjetilBombaHoming;
-import Modelo.Projeteis.ProjetilHoming;
 import Modelo.Projeteis.ProjetilPool;
 import Auxiliar.Cenario1.ArvoreParallax;
 import static Auxiliar.ConfigMapa.*;
-
 import java.io.Serializable;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -18,9 +15,10 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 /**
- * A classe Fase é um "contêiner" ou "palco".
- * Ela guarda os personagens e o estado do cenário (scroll),
- * mas DELEGA toda a lógica de spawn (eventos) para o seu ScriptDeFase.
+ * @brief Representa um contêiner para uma fase do jogo, guardando todos os
+ *        personagens,
+ *        elementos de cenário e o estado de rolagem. Delega a lógica de eventos
+ *        e spawns para um ScriptDeFase.
  */
 public class Fase implements Serializable {
 
@@ -33,30 +31,29 @@ public class Fase implements Serializable {
     private double scrollY = 0;
     private double distanciaTotalRolada = 0;
 
-    // --- TODAS AS VARIÁVEIS DE SPAWN (random, proximoSpawnY, etc.) FORAM REMOVIDAS
-    // ---
-    // A responsabilidade agora é 100% do Script.
-
+    /**
+     * @brief Construtor da Fase.
+     * @param script O script que define os eventos e spawns desta fase.
+     */
     public Fase(ScriptDeFase script) {
         this.personagens = new ArrayList<>();
         this.projetilPool = new ProjetilPool(300, 100, personagens);
         this.arvores = new ArrayList<>();
         this.scriptDaFase = script;
-
         this.personagens.addAll(projetilPool.getTodosOsProjeteis());
-        carregarRecursos(); // Carrega as imagens transient
-
-        // O Script agora é responsável por preencher o cenário inicial
+        carregarRecursos();
         if (this.scriptDaFase != null) {
             this.scriptDaFase.preencherCenarioInicial(this);
         }
     }
 
+    /**
+     * @brief Método para desserialização, recarrega as imagens e restaura
+     *        referências.
+     */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         carregarRecursos();
-
-        // Relinka as imagens nas árvores (a lógica do script já foi carregada)
         if (this.arvores != null && this.imagemFundo2 != null) {
             for (ArvoreParallax arvore : this.arvores) {
                 arvore.relinkarImagens(this.imagemFundo2);
@@ -64,103 +61,106 @@ public class Fase implements Serializable {
         }
     }
 
+    /**
+     * @brief Carrega os recursos de imagem (transient) para a fase.
+     */
     private void carregarRecursos() {
-    try {
-        imagemFundo1 = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage1/stage_1_bg1.png"));
-        imagemFundo2 = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage1/stage_1_bg2.png"));
-    } catch (Exception e) {
-        System.out.println("Erro ao carregar imagens de fundo da fase.");
-        e.printStackTrace();
+        try {
+            imagemFundo1 = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage1/stage_1_bg1.png"));
+            imagemFundo2 = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage1/stage_1_bg2.png"));
+        } catch (Exception e) {
+            System.out.println("Erro ao carregar imagens de fundo da fase.");
+            e.printStackTrace();
+        }
     }
-}
 
     /**
-     * O método 'atualizar' agora delega os spawns e gerencia os objetos existentes.
+     * @brief Atualiza o estado da fase a cada frame, incluindo rolagem do cenário,
+     *        execução do script de fase e atualização de todos os personagens.
      */
     public void atualizar(double velocidadeScroll) {
-        // 1. Atualiza o estado interno do cenário
         scrollY = (scrollY + velocidadeScroll) % (ALTURA_TELA);
         distanciaTotalRolada += velocidadeScroll;
 
-        // 2. DELEGA toda a lógica de spawn (inimigos e árvores) para o script
         if (this.scriptDaFase != null) {
             this.scriptDaFase.atualizar(this, velocidadeScroll);
         }
 
-        // 3. Atualiza os objetos que JÁ EXISTEM na fase
-
-        // Move e remove as árvores
         for (ArvoreParallax arvore : arvores) {
             arvore.mover(velocidadeScroll);
         }
         arvores.removeIf(arvore -> arvore.estaForaDaTela(ALTURA_TELA));
 
-        // Atualiza todos os personagens (herói, inimigos, projéteis)
         for (Personagem p : personagens) {
-            p.atualizar(); // Atualiza Inimigos, Projéteis, etc.
-
+            p.atualizar();
             if (p instanceof Projetil && !(p instanceof ProjetilBombaHoming)) {
                 Projetil proj = (Projetil) p;
                 if (proj.isActive() && proj.estaForaDaTela()) {
-
-                    proj.deactivate(); // Apenas desativa
+                    proj.deactivate();
                 }
             }
         }
     }
-    // --- OS MÉTODOS preencherCenarioInicial() e atualizarArvores() FORAM REMOVIDOS
-    // ---
-    // A lógica deles agora vive em ScriptFase1.java.
 
-    // --- GETTERS E SETTERS ---
-
+    /**
+     * @brief Retorna a piscina de projéteis da fase.
+     */
     public ProjetilPool getProjetilPool() {
         return this.projetilPool;
     }
 
+    /**
+     * @brief Retorna a lista de todos os personagens na fase.
+     */
     public ArrayList<Personagem> getPersonagens() {
         return this.personagens;
     }
 
+    /**
+     * @brief Retorna a lista de árvores de parallax na fase.
+     */
     public ArrayList<ArvoreParallax> getArvores() {
         return this.arvores;
     }
 
+    /**
+     * @brief Retorna a imagem de fundo principal da fase.
+     */
     public BufferedImage getImagemFundo1() {
         return this.imagemFundo1;
     }
 
+    /**
+     * @brief Retorna a posição Y atual da rolagem do fundo.
+     */
     public double getScrollY() {
         return this.scrollY;
     }
 
+    /**
+     * @brief Adiciona um novo personagem à lista da fase.
+     */
     public void adicionarPersonagem(Personagem p) {
-
         this.personagens.add(p);
     }
 
-    // --- NOVOS GETTERS NECESSÁRIOS PARA O SCRIPT FUNCIONAR ---
-
     /**
-     * O Script precisa desta imagem para criar novas árvores.
-     * 
-     * @return A imagem de textura das árvores.
+     * @brief Retorna a imagem de textura das árvores.
      */
     public BufferedImage getImagemFundo2() {
         return this.imagemFundo2;
     }
 
     /**
-     * O Script precisa saber a distância rolada para decidir quando spawnar.
-     * 
-     * @return A distância total que o cenário já rolou.
+     * @brief Retorna a distância total que o cenário já rolou.
      */
     public double getDistanciaTotalRolada() {
         return this.distanciaTotalRolada;
     }
 
-    // --- Métodos de utilidade ---
-
+    /**
+     * @brief Retorna uma referência ao objeto do herói na fase.
+     */
     public Personagem getHero() {
         for (Personagem p : personagens) {
             if (p instanceof Hero) {

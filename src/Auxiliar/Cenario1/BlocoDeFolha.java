@@ -16,7 +16,8 @@ public class BlocoDeFolha implements Serializable {
     private final float opacidadeMaxima, opacidadeMinima;
 
     /**
-     * @brief Construtor para um bloco de folha individual, que compõe uma árvore de parallax.
+     * @brief Construtor para um bloco de folha individual, que compõe uma árvore de
+     *        parallax.
      */
     public BlocoDeFolha(double x, double y, int largura, int altura, double velocidade, BufferedImage imagem,
             float opacidadeMaxima, float opacidadeMinima) {
@@ -31,7 +32,8 @@ public class BlocoDeFolha implements Serializable {
     }
 
     /**
-     * @brief Move o bloco verticalmente, ajustando sua velocidade com base em um fator
+     * @brief Move o bloco verticalmente, ajustando sua velocidade com base em um
+     *        fator
      *        que representa a velocidade de rolagem do cenário.
      */
     public void moverComAjuste(double fatorDeAjuste) {
@@ -52,7 +54,7 @@ public class BlocoDeFolha implements Serializable {
         float alphaFinal = this.opacidadeMinima + (fracaoDoFade * faixaDeOpacidade);
 
         alphaFinal = Math.max(0.0f, Math.min(1.0f, alphaFinal));
-        
+
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alphaFinal));
         g2d.drawImage(imagem, (int) x, (int) y, this.largura, this.altura, null);
         g2d.setComposite(originalComposite);

@@ -13,7 +13,8 @@ public class ArvoreParallax implements Serializable {
     private final double velocidadeBaseOriginal;
 
     /**
-     * @brief Construtor da árvore de parallax. Cria uma árvore composta por três blocos de folhas
+     * @brief Construtor da árvore de parallax. Cria uma árvore composta por três
+     *        blocos de folhas
      *        com diferentes tamanhos e velocidades para simular profundidade.
      */
     public ArvoreParallax(int x, int y, int tamanhoBase, double velocidadeBase, BufferedImage imagem) {
@@ -40,7 +41,8 @@ public class ArvoreParallax implements Serializable {
     }
 
     /**
-     * @brief Move a árvore verticalmente com base na velocidade de rolagem do fundo,
+     * @brief Move a árvore verticalmente com base na velocidade de rolagem do
+     *        fundo,
      *        ajustando a velocidade de cada bloco para manter o efeito de parallax.
      */
     public void mover(double velocidadeAtualDoFundo) {
@@ -55,7 +57,8 @@ public class ArvoreParallax implements Serializable {
     }
 
     /**
-     * @brief Restaura a referência da imagem para cada bloco da árvore, necessário após a desserialização.
+     * @brief Restaura a referência da imagem para cada bloco da árvore, necessário
+     *        após a desserialização.
      */
     public void relinkarImagens(BufferedImage imagem) {
         for (BlocoDeFolha bloco : blocos) {

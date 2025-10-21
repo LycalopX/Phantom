@@ -70,6 +70,7 @@ public enum TipoProjetilHeroi implements ProjetilTipo {
             Image img = imagemIcon.getImage();
             BufferedImage bi = new BufferedImage(largura, altura, BufferedImage.TYPE_INT_ARGB);
             Graphics g = bi.createGraphics();
+            
             g.drawImage(img, 0, 0, largura, altura, null);
             g.dispose();
             return new ImageIcon(bi);
@@ -79,4 +80,3 @@ public enum TipoProjetilHeroi implements ProjetilTipo {
         }
     }
 }
-

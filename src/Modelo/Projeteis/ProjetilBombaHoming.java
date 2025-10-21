@@ -1,4 +1,3 @@
-// Em src/Modelo/Projeteis/ProjetilBombaHoming.java
 package Modelo.Projeteis;
 
 import java.util.ArrayList;
@@ -14,9 +13,15 @@ import Auxiliar.Projeteis.ProjetilTipo;
 import Auxiliar.Projeteis.TipoProjetil;
 import static Auxiliar.ConfigMapa.*;
 
+/**
+ * @brief Projétil teleguiado especial lançado pela bomba do herói.
+ *        Possui uma fase inicial de expansão antes de começar a perseguir os
+ *        alvos.
+ */
 public class ProjetilBombaHoming extends ProjetilHoming {
     private enum EstadoBomba {
-        EXPANDINDO, PERSEGUINDO
+        EXPANDINDO,
+        PERSEGUINDO
     }
 
     private EstadoBomba estadoAtual;
@@ -28,20 +33,27 @@ public class ProjetilBombaHoming extends ProjetilHoming {
     private static final int DURACAO_TOTAL_VIDA = 240;
     private static final int DURACAO_EXPANSAO = 15;
 
+    /**
+     * @brief Construtor do projétil teleguiado da bomba.
+     */
     public ProjetilBombaHoming(String sNomeImagePNG, ArrayList<Personagem> personagens) {
         super(sNomeImagePNG, personagens);
     }
 
     /**
-     * Configura ou reseta o míssil a partir da ProjetilPool.
-     * Define seu estado inicial para a fase de expansão.
+     * @brief Configura ou reseta o míssil a partir da ProjetilPool, definindo seu
+     *        estado inicial para a fase de expansão.
      */
-    public void resetBombaHoming(double x, double y, double velocidadeGrid, double anguloExpansao, TipoProjetil tipo, ProjetilTipo tipoDetalhado) {
+    public void resetBombaHoming(double x, double y, double velocidadeGrid, double anguloExpansao, TipoProjetil tipo,
+            ProjetilTipo tipoDetalhado) {
+        super.resetHoming(
+                x,
+                y,
+                velocidadeGrid,
+                anguloExpansao,
+                tipo,
+                tipoDetalhado);
 
-        // Chama o reset da classe pai para configurar os atributos básicos
-        super.resetHoming(x, y, velocidadeGrid, anguloExpansao, tipo, tipoDetalhado);
-
-        // Configura o estado inicial e os timers para este tipo específico de míssil
         this.estadoAtual = EstadoBomba.EXPANDINDO;
         this.tempoDeVida = DURACAO_TOTAL_VIDA;
         this.tempoDeExpansao = DURACAO_EXPANSAO;
@@ -49,64 +61,55 @@ public class ProjetilBombaHoming extends ProjetilHoming {
         this.animationTimer = 0;
     }
 
-    // (O método 'atualizar' não muda)
-
+    /**
+     * @brief Atualiza a lógica do míssil, que transita de um estado de expansão
+     *        para um de perseguição.
+     */
     @Override
     public void atualizar() {
         if (!isActive())
             return;
 
-        // Adiciona a posição atual ao histórico para o rastro
         positionHistory.add(0, new Point2D.Double(this.x, this.y));
         if (positionHistory.size() > TRAIL_LENGTH) {
             positionHistory.remove(positionHistory.size() - 1);
         }
         animationTimer++;
 
-        // O timer de vida total é decrementado independentemente do estado.
         tempoDeVida--;
         if (tempoDeVida <= 0) {
-            deactivate(); // Desativa o míssil quando seu tempo de vida acaba.
+            deactivate();
             return;
         }
 
-        // --- A Máquina de Estados em Ação ---
         switch (estadoAtual) {
             case EXPANDINDO:
-                // Fase 1: Move-se reto na direção inicial.
-                // A lógica de movimento já está no método 'atualizar' da classe Projetil.
-                // Para evitar chamar a lógica de homing do pai, copiamos a linha de movimento
-                // diretamente.
                 this.x += Math.cos(this.anguloRad) * this.velocidade;
                 this.y += Math.sin(this.anguloRad) * this.velocidade;
 
                 tempoDeExpansao--;
                 if (tempoDeExpansao <= 0) {
-                    // Quando o tempo de expansão acaba, muda para a fase de perseguição.
                     this.estadoAtual = EstadoBomba.PERSEGUINDO;
                 }
                 break;
 
             case PERSEGUINDO:
-                // Fase 2: Ativa a lógica de homing da classe pai (ProjetilHoming).
-                // O método 'atualizar' de ProjetilHoming já contém a lógica para
-                // encontrar um alvo, ajustar o ângulo e se mover.
                 super.atualizar();
                 break;
         }
     }
 
-    // MÉTODO 'autoDesenho' COMPLETAMENTE REESCRITO PARA PERFORMANCE
+    /**
+     * @brief Desenha o míssil com um efeito de rastro e pulsação.
+     */
     @Override
     public void autoDesenho(Graphics g) {
-
         if (!isActive() || iImage == null)
             return;
 
         Graphics2D g2d = (Graphics2D) g;
         Composite originalComposite = g2d.getComposite();
 
-        // --- 1. DESENHAR O RASTRO (PERMANECE IGUAL) ---
         for (int i = 0; i < positionHistory.size(); i++) {
             Point2D.Double pos = positionHistory.get(i);
             int alpha = (int) (200 * (1.0f - (float) i / TRAIL_LENGTH));
@@ -117,11 +120,9 @@ public class ProjetilBombaHoming extends ProjetilHoming {
             g2d.fillOval(telaX - particleSize / 2, telaY - particleSize / 2, particleSize, particleSize);
         }
 
-        // --- 2. DESENHAR O SPRITE PRINCIPAL (COM AS MUDANÇAS APLICADAS) ---
         int telaX = (int) Math.round(this.x * CELL_SIDE);
         int telaY = (int) Math.round(this.y * CELL_SIDE);
 
-        // 2.5 de Magnetude e 0.05 de Frequência para a pulsação
         double scale = 1.0 + 2.5 * Math.abs(Math.sin(animationTimer * 0.03));
 
         int scaledWidth = (int) (this.largura * scale);
@@ -132,12 +133,10 @@ public class ProjetilBombaHoming extends ProjetilHoming {
         g.setColor(new Color(255, 120, 120));
         g.fillOval(telaX - (scaledWidth / 2) - 4, telaY - (scaledHeight / 2) - 4, scaledWidth + 8, scaledHeight + 8);
 
-        // SPRITE (desenhado por cima da aura)
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
         g2d.drawImage(iImage.getImage(), telaX - (scaledWidth / 2), telaY - (scaledHeight / 2), scaledWidth,
                 scaledHeight, null);
 
-        // Restaura o composite e desenha a hitbox de debug
         g2d.setComposite(originalComposite);
         super.autoDesenho(g);
     }

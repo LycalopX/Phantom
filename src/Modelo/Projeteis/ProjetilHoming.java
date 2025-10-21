@@ -4,12 +4,14 @@ import Auxiliar.Projeteis.ProjetilTipo;
 import Auxiliar.Projeteis.TipoProjetil;
 import Modelo.Personagem;
 import Modelo.Inimigos.Inimigo;
-
 import java.util.ArrayList;
 
+/**
+ * @brief Projétil que, após um período inicial de inércia, persegue o inimigo
+ *        mais próximo.
+ */
 public class ProjetilHoming extends Projetil {
 
-    // Enum para controlar o estado do míssil
     private enum HomingState {
         INERCIA,
         PERSEGUINDO
@@ -21,52 +23,54 @@ public class ProjetilHoming extends Projetil {
     private ArrayList<Personagem> personagens;
     private double taxaDeCurva = 0.1;
 
-    // Timer para a fase de inércia (em frames)
     private int TEMPO_INERCIA = 20;
     private int inertiaTimer = TEMPO_INERCIA;
 
+    /**
+     * @brief Construtor do projétil teleguiado.
+     */
     public ProjetilHoming(String sNomeImagePNG, ArrayList<Personagem> personagens) {
-        super(sNomeImagePNG); // Chama o construtor de Projetil(String)
+        super(sNomeImagePNG);
         this.personagens = personagens;
     }
-    
-    /**
-     * MÉTODO RESET:
-     * Configura o míssil para um novo disparo a partir da piscina de objetos.
-     * Ele primeiro chama o reset do pai (Projetil) e depois reinicia seu
-     * próprio estado de "homing".
-     */
-    public void resetHoming(double x, double y, double velocidadeGrid, double anguloInicial, TipoProjetil tipo, ProjetilTipo tipoDetalhado) {
-        
-        // 1. Chama o reset da classe pai (Projetil) para configurar os atributos básicos
-        super.reset(x, y, velocidadeGrid, anguloInicial, tipo, tipoDetalhado);
 
-        // 2. Reinicia o estado específico do Projétil Homing
+    /**
+     * @brief Configura o míssil para um novo disparo, reiniciando seu estado de
+     *        perseguição.
+     */
+    public void resetHoming(double x, double y, double velocidadeGrid, double anguloInicial, TipoProjetil tipo,
+            ProjetilTipo tipoDetalhado) {
+        super.reset(
+                x,
+                y,
+                velocidadeGrid,
+                anguloInicial,
+                tipo,
+                tipoDetalhado);
+
         this.estadoAtual = HomingState.INERCIA;
-        this.alvo = null; // Esquece o alvo anterior
-        this.inertiaTimer = TEMPO_INERCIA; // Reinicia o contador de inércia
+        this.alvo = null;
+        this.inertiaTimer = TEMPO_INERCIA;
     }
 
     /**
-     * O método 'atualizar' agora é uma máquina de estados.
+     * @brief Atualiza a lógica do míssil, que transita de um estado de inércia para
+     *        perseguição.
      */
     @Override
     public void atualizar() {
-        if (!isActive()) return;
+        if (!isActive())
+            return;
 
-        // --- LÓGICA DA MÁQUINA DE ESTADOS ---
         switch (estadoAtual) {
             case INERCIA:
-                // Durante a inércia, o míssil apenas voa reto.
                 inertiaTimer--;
                 if (inertiaTimer <= 0) {
-                    // Quando o tempo de inércia acaba, ele começa a perseguir.
                     estadoAtual = HomingState.PERSEGUINDO;
                 }
                 break;
 
             case PERSEGUINDO:
-                // Lógica de perseguição que já tínhamos
                 if (alvo == null || !personagens.contains(alvo)) {
                     encontrarAlvoMaisProximo(personagens);
                 }
@@ -76,10 +80,13 @@ public class ProjetilHoming extends Projetil {
                 break;
         }
 
-        // A chamada 'super.atualizar()' move o projétil na sua direção atual
         super.atualizar();
     }
 
+    /**
+     * @brief Ajusta suavemente o ângulo do projétil para que ele se vire em direção
+     *        ao alvo.
+     */
     private void ajustarAnguloParaOAlvo() {
         double anguloParaOAlvo = Math.atan2(alvo.y - this.y, alvo.x - this.x);
         double diferencaAngulo = anguloParaOAlvo - this.anguloRad;
@@ -96,6 +103,9 @@ public class ProjetilHoming extends Projetil {
         }
     }
 
+    /**
+     * @brief Encontra o inimigo mais próximo do projétil para definir como alvo.
+     */
     private void encontrarAlvoMaisProximo(ArrayList<Personagem> personagens) {
         double menorDistancia = Double.MAX_VALUE;
         Inimigo inimigoMaisProximo = null;
@@ -112,6 +122,9 @@ public class ProjetilHoming extends Projetil {
         this.alvo = inimigoMaisProximo;
     }
 
+    /**
+     * @brief Verifica se o projétil está ativo.
+     */
     public boolean isActive() {
         return this.isActive;
     }

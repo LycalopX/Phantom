@@ -6,30 +6,33 @@ public class ContadorFPS {
     private int frames;
     private int fpsExibido;
 
+    /**
+     * @brief Construtor do contador de FPS. Inicializa as variáveis de controle de
+     *        tempo e frames.
+     */
     public ContadorFPS() {
-        // Inicializa as variáveis no construtor
         ultimoTempo = System.nanoTime();
         frames = 0;
         fpsExibido = 0;
     }
 
     /**
-     * Deve ser chamado a cada frame do loop principal do jogo.
+     * @brief Atualiza o contador de frames a cada chamada. Se um segundo passou,
+     *        atualiza o valor de FPS a ser exibido e reseta a contagem.
      */
     public void atualizar() {
         frames++;
         long tempoAtual = System.nanoTime();
 
-        // Verifica se já passou 1 segundo (1 bilhão de nanossegundos)
         if (tempoAtual - ultimoTempo >= 1000000000) {
-            fpsExibido = frames; // Atualiza o FPS a ser exibido
-            frames = 0;          // Reseta a contagem de frames
-            ultimoTempo = tempoAtual; // Marca o novo tempo de início
+            fpsExibido = frames;
+            frames = 0;
+            ultimoTempo = tempoAtual;
         }
     }
 
     /**
-     * Retorna o último valor de FPS calculado em formato de String.
+     * @brief Retorna o último valor de FPS calculado em formato de String.
      * @return Uma String como "FPS: 60".
      */
     public String getFPSString() {

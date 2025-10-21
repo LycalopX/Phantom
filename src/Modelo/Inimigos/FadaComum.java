@@ -8,11 +8,14 @@ import Auxiliar.Projeteis.TipoProjetil;
 import Auxiliar.Projeteis.TipoProjetilInimigo;
 import Modelo.Inimigos.GerenciadorDeAnimacaoInimigo.AnimationState;
 import static Auxiliar.ConfigMapa.*;
-
 import java.awt.Graphics;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+/**
+ * @brief Representa um inimigo comum do tipo "fada", com um padrão de movimento
+ *        e ataque predefinido.
+ */
 public class FadaComum extends Inimigo {
 
     private enum State {
@@ -27,57 +30,62 @@ public class FadaComum extends Inimigo {
     private double amplitude = 4;
     private double frequency = 0.5;
     private int shootTimer = 0;
-    private int shootInterval = 60; // Atira a cada 60 frames
-    private int shootDuration = 300; // Atira por 300 frames (5 segundos)
+    private int shootInterval = 60;
+    private int shootDuration = 300;
 
     private transient GerenciadorDeAnimacaoInimigo animador;
 
+    /**
+     * @brief Construtor da FadaComum.
+     */
     public FadaComum(double x, double y, LootTable lootTable, double vida, Fase fase) {
         super("", x, y, lootTable, 50);
         this.currentState = State.ENTERING;
         this.initialX = x;
         this.faseReferencia = fase;
         this.animador = new GerenciadorDeAnimacaoInimigo();
-
         this.largura = (int) (30.0 * BODY_PROPORTION);
         this.altura = (int) (30.0 * BODY_PROPORTION);
         this.hitboxRaio = (this.largura / 2.0) / CELL_SIDE;
     }
 
+    /**
+     * @brief Método para desserialização, recarrega o gerenciador de animação.
+     */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         this.animador = new GerenciadorDeAnimacaoInimigo();
     }
 
+    /**
+     * @brief Inicializa a referência da fase para o inimigo.
+     */
     @Override
     public void initialize(Fase fase) {
         this.faseReferencia = fase;
     }
 
+    /**
+     * @brief Atualiza a lógica do inimigo, incluindo sua máquina de estados de movimento e ataque.
+     */
     @Override
     public void atualizar() {
         animador.atualizar();
 
         switch (currentState) {
             case ENTERING:
-                // Movimento em arco para baixo
-                y += 0.1; // Velocidade vertical
+                y += 0.1;
                 x = initialX + Math.sin(y * frequency) * amplitude;
-
                 if (y >= targetY) {
                     y = targetY;
                     currentState = State.SHOOTING;
                 }
                 break;
-
             case SHOOTING:
                 shootDuration--;
                 shootTimer--;
-
                 if (shootTimer <= 0) {
                     atirar();
-
-                    // Para randomizar tiros um pouco
                     if (shootDuration % 2 == 0) {
                         Auxiliar.SoundManager.getInstance().playSfx("se_tan01", 1.0f);
                     } else {
@@ -85,14 +93,11 @@ public class FadaComum extends Inimigo {
                     }
                     shootTimer = shootInterval;
                 }
-
                 if (shootDuration <= 0) {
                     currentState = State.EXITING;
                 }
                 break;
-
             case EXITING:
-                // Move para cima para sair da tela
                 y -= 0.05;
                 if (y < -1) {
                     deactivate();
@@ -101,17 +106,18 @@ public class FadaComum extends Inimigo {
         }
     }
 
+    /**
+     * @brief Cria e dispara um projétil em direção ao herói.
+     */
     private void atirar() {
         if (faseReferencia == null)
             return;
 
         Personagem hero = faseReferencia.getHero();
         if (hero == null)
-            return; // Não atira se o herói não existe
+            return;
 
-        double angle = 90.0; // Ângulo padrão (para baixo)
-
-        // Calcula o ângulo em direção ao herói
+        double angle = 90.0;
         double dx = hero.x - this.x;
         double dy = hero.y - this.y;
         angle = Math.toDegrees(Math.atan2(dy, dx));
@@ -122,6 +128,9 @@ public class FadaComum extends Inimigo {
         }
     }
 
+    /**
+     * @brief Desenha o inimigo na tela, selecionando a animação correta com base em seu estado.
+     */
     @Override
     public void autoDesenho(Graphics g) {
         AnimationState animState = AnimationState.IDLE;

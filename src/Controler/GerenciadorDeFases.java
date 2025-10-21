@@ -1,4 +1,3 @@
-// Em Controler/GerenciadorDeFases.java
 package Controler;
 
 import Modelo.Fases.Fase;
@@ -9,10 +8,17 @@ import Modelo.Fases.ScriptFase3;
 import Modelo.Fases.ScriptFase4;
 import Modelo.Fases.ScriptFase5;
 
+/**
+ * @brief Gerencia a progressão das fases do jogo.
+ */
 public class GerenciadorDeFases {
     private int nivelAtual = 1;
-    private final int TOTAL_DE_FASES = 5; // Do PDF [cite: 15]
+    private final int TOTAL_DE_FASES = 5;
 
+    /**
+     * @brief Carrega e retorna a fase correspondente ao nível atual.
+     * @return Um objeto Fase pronto para ser jogado.
+     */
     public Fase carregarFase() {
         ScriptDeFase script;
 
@@ -28,29 +34,34 @@ public class GerenciadorDeFases {
                 break;
             case 4:
                 script = new ScriptFase4();
-                break;  
+                break;
             case 5:
                 script = new ScriptFase5();
                 break;
-                
             default:
-                // Se não tiver, repete a fase 1
                 script = new ScriptFase1();
         }
 
         return new Fase(script);
     }
 
+    /**
+     * @brief Avança para a próxima fase e a carrega. Se chegar ao final, reinicia
+     *        do começo.
+     * @return A nova fase carregada.
+     */
     public Fase proximaFase() {
         if (nivelAtual < TOTAL_DE_FASES) {
             nivelAtual++;
         } else {
-            // Loop de volta para a primeira fase ou vai para tela de "Fim de Jogo"
-            nivelAtual = 1; 
+            nivelAtual = 1;
         }
         return carregarFase();
     }
 
+    /**
+     * @brief Reseta o gerenciador para o nível inicial.
+     */
     public void resetar() {
         this.nivelAtual = 1;
     }

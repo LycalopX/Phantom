@@ -1,10 +1,7 @@
-// Em Controler/ControladorDoHeroi.java
-
 package Controler;
 
 import java.util.Set;
 import java.awt.event.KeyEvent;
-
 import Auxiliar.ConfigMapa;
 import Auxiliar.ConfigTeclado;
 import Modelo.Fases.Fase;
@@ -12,30 +9,36 @@ import Modelo.Projeteis.BombaProjetil;
 import Modelo.Hero.GerenciadorDeArmasHeroi;
 import Modelo.Hero.Hero;
 
+/**
+ * @brief Classe responsável por traduzir os inputs do teclado em ações para o
+ *        Herói.
+ */
 public class ControladorDoHeroi {
 
     private Engine engine;
 
+    /**
+     * @brief Construtor do controlador do herói.
+     * @param engine A instância da engine principal do jogo.
+     */
     public ControladorDoHeroi(Engine engine) {
         this.engine = engine;
     }
 
     /**
-     * Interpreta o input do teclado e comanda o objeto Hero.
-     * 
-     * @param teclas O conjunto de teclas pressionadas.
-     * @param heroi  O objeto Hero a ser controlado.
+     * @brief Processa o input do teclado para controlar o movimento, animação, tiro
+     *        e bombas do herói.
+     * @param teclas O conjunto de teclas atualmente pressionadas.
+     * @param heroi  O objeto do herói a ser controlado.
      * @param fase   A fase atual do jogo.
-     * @param cj     O objeto de controle de jogo para validações.
+     * @param cj     O controlador de jogo para validações de posição.
      */
     public void processarInput(Set<Integer> teclas, Hero heroi, Fase fase, ControleDeJogo cj) {
-        // --- LÓGICA DE MOVIMENTO ---
         double delta = Hero.HERO_VELOCITY / 60.0;
         double dx = 0, dy = 0;
 
         Engine.GameState estadoAtual = this.engine.getEstadoAtual();
 
-        // Lógica do Modo Foco (Shift)
         boolean isFocoAtivo = teclas.contains(KeyEvent.VK_SHIFT);
         double velocidadeAtual = isFocoAtivo ? delta / 2.0 : delta;
         heroi.setFocoAtivo(isFocoAtivo);
@@ -49,7 +52,6 @@ public class ControladorDoHeroi {
         if (teclas.contains(ConfigTeclado.KEY_RIGHT))
             dx += velocidadeAtual;
 
-        // Normaliza o movimento diagonal para não ser mais rápido
         if (dx != 0 && dy != 0) {
             dx /= Math.sqrt(2);
             dy /= Math.sqrt(2);
@@ -58,7 +60,6 @@ public class ControladorDoHeroi {
         double proximoX = heroi.x + dx;
         double proximoY = heroi.y + dy;
 
-        // Validação de Limites da Tela
         double limiteEsquerda = heroi.hitboxRaio;
         double limiteDireita = ((double) ConfigMapa.LARGURA_TELA / ConfigMapa.CELL_SIDE) - heroi.hitboxRaio;
         double limiteTopo = heroi.hitboxRaio;
@@ -73,7 +74,6 @@ public class ControladorDoHeroi {
         if (proximoY > limiteBaixo)
             proximoY = limiteBaixo;
 
-        // Validação de Colisão com Personagens
         double xFinal = heroi.x, yFinal = heroi.y;
         if (cj.ehPosicaoValida(fase.getPersonagens(), heroi, proximoX, heroi.y)) {
             xFinal = proximoX;
@@ -83,23 +83,17 @@ public class ControladorDoHeroi {
         }
         heroi.mover(xFinal, yFinal);
 
-        // --- LÓGICA DE ANIMAÇÃO ---
         boolean isMovingLeft = teclas.contains(ConfigTeclado.KEY_LEFT);
         boolean isMovingRight = teclas.contains(ConfigTeclado.KEY_RIGHT);
         heroi.atualizarAnimacao(isMovingLeft, isMovingRight);
 
-        // --- LÓGICA DE TIRO ---
         if (teclas.contains(ConfigTeclado.KEY_SHOOT)) {
-
             GerenciadorDeArmasHeroi armas = heroi.getSistemaDeArmas();
             armas.disparar(heroi.x, heroi.y, heroi.getPower(), fase);
         }
 
-        // --- LÓGICA DE BOMBA ---
         if (teclas.contains(ConfigTeclado.KEY_BOMB) && heroi.getBombas() > 0 && !heroi.isInvencivel()) {
-
             if (estadoAtual == Engine.GameState.JOGANDO || estadoAtual == Engine.GameState.DEATHBOMB_WINDOW) {
-
                 BombaProjetil bomba = heroi.usarBomba(fase);
                 if (bomba != null) {
                     fase.adicionarPersonagem(bomba);
@@ -108,5 +102,4 @@ public class ControladorDoHeroi {
             }
         }
     }
-
 }

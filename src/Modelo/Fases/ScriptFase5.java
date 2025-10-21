@@ -1,16 +1,12 @@
 package Modelo.Fases;
 
+/**
+ * @brief Script de eventos e spawns para a Fase 5 (placeholder).
+ */
 public class ScriptFase5 extends ScriptDeFase {
 
     protected long proximoSpawnInimigo = 0;
-    protected long intervaloSpawnInimigo = 60; // 1 segundo
-    // ... outras variáveis que o script precisa para se controlar ...
-
-    /**
-     * Chamado pela Fase a cada frame.
-     * @param fase A instância da fase que este script está controlando.
-     */
-
+    protected long intervaloSpawnInimigo = 60;
 
     @Override
     public void atualizarInimigos(Fase fase) {

@@ -21,10 +21,18 @@ import java.awt.Rectangle;
 
 public class ControleDeJogo {
     private Quadtree quadtree;
+    private final ArrayList<Projetil> projeteisInimigosEspeciais;
+    private final ArrayList<Personagem> novosObjetos;
+    private final ArrayList<Personagem> alvosProximos;
+    private final ArrayList<Personagem> vizinhosPotenciais;
 
     public ControleDeJogo() {
         // Cria a Quadtree uma vez, cobrindo a tela do jogo em PIXELS
         this.quadtree = new Quadtree(0, new Rectangle(0, 0, ConfigMapa.LARGURA_TELA, ConfigMapa.ALTURA_TELA));
+        this.projeteisInimigosEspeciais = new ArrayList<>();
+        this.novosObjetos = new ArrayList<>();
+        this.alvosProximos = new ArrayList<>();
+        this.vizinhosPotenciais = new ArrayList<>();
     }
 
     public void desenhaTudo(ArrayList<Personagem> e, Graphics g) {
@@ -40,25 +48,30 @@ public class ControleDeJogo {
         Hero hero = null;
         BombaProjetil bombaAtiva = null;
 
-        ArrayList<Projetil> ProjeteisInimigosEspeciais = new ArrayList<>();
+        // Otimização 2: Loop único para preparação e população da Quadtree
+        projeteisInimigosEspeciais.clear();
+        quadtree.clear();
 
         for (Personagem p : personagens) {
             if (p instanceof Hero) {
                 hero = (Hero) p;
             }
-            if (p.isActive() == false) {
-                continue;
-            }
 
-            if (p instanceof BombaProjetil) {
-                bombaAtiva = (BombaProjetil) p;
-            }
+            if (p.isActive()) {
+                // Popula a Quadtree
+                quadtree.insert(p);
 
-            if (p instanceof Projetil) {
-                Projetil proj = (Projetil) p;
+                // Encontra a bomba ativa
+                if (p instanceof BombaProjetil) {
+                    bombaAtiva = (BombaProjetil) p;
+                }
 
-                if (proj.getTipoHitbox() == HitboxType.RECTANGULAR) {
-                    ProjeteisInimigosEspeciais.add(proj);
+                // Encontra projéteis com hitbox retangular
+                if (p instanceof Projetil) {
+                    Projetil proj = (Projetil) p;
+                    if (proj.getTipoHitbox() == HitboxType.RECTANGULAR) {
+                        projeteisInimigosEspeciais.add(proj);
+                    }
                 }
             }
         }
@@ -66,19 +79,12 @@ public class ControleDeJogo {
         if (hero == null)
             return false;
 
-        quadtree.clear();
-        for (Personagem p : personagens) {
-            if (p.isActive()) {
-                quadtree.insert(p);
-            }
-        }
-
-        // Vamos marcar quem deve ser removido, e remover no final.
-        ArrayList<Personagem> novosObjetos = new ArrayList<>();
+        // Otimização: Limpa a lista de novos objetos em vez de criar uma nova.
+        novosObjetos.clear();
         boolean heroiFoiAtingido = false;
 
         // --- NOVA LÓGICA DE COLISÃO RETANGULAR ---
-        if (checarColisaoRetangular(hero, ProjeteisInimigosEspeciais)) {
+        if (checarColisaoRetangular(hero, projeteisInimigosEspeciais)) {
             heroiFoiAtingido = true;
         }
 
@@ -94,13 +100,16 @@ public class ControleDeJogo {
             int bombaY = (int) (bombaAtiva.y * ConfigMapa.CELL_SIDE) - raioEmPixels;
             Rectangle areaDaBomba = new Rectangle(bombaX, bombaY, diametroEmPixels, diametroEmPixels);
 
-            ArrayList<Personagem> alvosProximos = new ArrayList<>();
+            // Otimização: Limpa a lista de alvos próximos em vez de criar uma nova.
+            alvosProximos.clear();
             // 3. Usa o método retrieve que aceita um RECTANGLE (em PIXELS)
             quadtree.retrieve(alvosProximos, areaDaBomba);
 
             // 4. Itera APENAS sobre os alvos próximos para a checagem final
             for (Personagem alvo : alvosProximos) {
-                if (alvo instanceof Inimigo && alvo.isActive()) {
+
+                if ((alvo instanceof Inimigo || alvo instanceof Projetil) && alvo.isActive()) {
+
                     double dx = bombaAtiva.x - alvo.x; // Distância em GRID
                     double dy = bombaAtiva.y - alvo.y; // Distância em GRID
                     double distanciaAoQuadrado = (dx * dx) + (dy * dy);
@@ -108,14 +117,19 @@ public class ControleDeJogo {
 
                     // 5. Checagem final (círculo vs círculo) em GRID para precisão
                     if (distanciaAoQuadrado < raioBombaAoQuadrado) {
-                        ((Inimigo) alvo).takeDamage(9999);
+                        if (alvo instanceof Projetil) {
+                            alvo.deactivate(); // Destroi o projétil
+
+                        } else if (alvo instanceof Inimigo) {
+                            ((Inimigo) alvo).takeDamage(9999);
+                        }
                     }
                 }
             }
         }
 
         // --- LÓGICA DE COLISÃO COM QUADTREE (DISCRETA) ---
-        ArrayList<Personagem> vizinhosPotenciais = new ArrayList<>();
+        // Otimização: A lista de vizinhos potenciais é um atributo de classe agora.
         for (Personagem p1 : personagens) {
             if (!p1.isActive())
                 continue;
@@ -200,27 +214,27 @@ public class ControleDeJogo {
             case POWER_UP:
                 // Pega o valor do power diretamente do enum e passa para o herói
                 heroi.addPower(tipo.getPowerValue());
-                Auxiliar.SoundManager.getInstance().playSfx("se_item00");
+                Auxiliar.SoundManager.getInstance().playSfx("se_item00", 0.5f);
                 break;
 
             case FULL_POWER:
                 heroi.addPower(tipo.getPowerValue());
-                Auxiliar.SoundManager.getInstance().playSfx("se_item01");
+                Auxiliar.SoundManager.getInstance().playSfx("se_item01", 0.5f);
                 break;
 
             case BOMB:
                 heroi.addBomb(tipo.getBombValue());
-                Auxiliar.SoundManager.getInstance().playSfx("se_item01");
+                Auxiliar.SoundManager.getInstance().playSfx("se_item01", 0.5f);
                 break;
 
             case ONE_UP:
                 heroi.addHP(1); // Itens de vida geralmente dão um valor fixo
-                Auxiliar.SoundManager.getInstance().playSfx("se_item01");
+                Auxiliar.SoundManager.getInstance().playSfx("se_item01", 0.5f);
                 break;
 
             case SCORE_POINT:
                 heroi.addScore(tipo.getScoreValue());
-                Auxiliar.SoundManager.getInstance().playSfx("se_item00");
+                Auxiliar.SoundManager.getInstance().playSfx("se_item00", 0.5f);
                 break;
 
             default:
@@ -295,7 +309,7 @@ public class ControleDeJogo {
             p2.deactivate(); // Destroi o projétil inimigo
             return false; // Não conta como um "hit" no jogador, então retorna false
         }
-        
+
         if (p2 instanceof ProjetilBombaHoming && p1 instanceof Projetil
                 && ((Projetil) p1).getTipo() == TipoProjetil.INIMIGO) {
             p1.deactivate(); // Destroi o projétil inimigo

@@ -15,7 +15,7 @@
         <jar destfile="${dist.jar}" update="true">
             <manifest>
                 <attribute name="Main-Class" value="Main"/>
-                <attribute name="Class-Path" value="lib/tinysound.jar lib/jlayer-1.0.1.jar"/>
+                <attribute name="Class-Path" value="lib/tinysound.jar lib/jlayer-1.0.1.jar lib/mp3spi-1.9.5-1.jar lib/tritonus_share-0.3.6.jar lib/json-20250517.jar"/>
             </manifest>
         </jar>
     </target>

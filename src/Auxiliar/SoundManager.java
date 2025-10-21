@@ -1,12 +1,8 @@
 package Auxiliar;
 
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import javazoom.jl.player.Player;
 import kuusisto.tinysound.Music;
 import kuusisto.tinysound.Sound;
 import kuusisto.tinysound.TinySound;
@@ -16,58 +12,54 @@ public class SoundManager {
     private static SoundManager instance;
     private final Map<String, Sound> sfxMap;
     private final Map<String, Music> musicMap;
-    private final Map<String, String> mp3Map;
-    private Player mp3Player;
-    private final ExecutorService musicExecutor;
 
     private float globalSfxVolume = 0.05f; // Drastically reduced for testing
     private float globalMusicVolume = 0.5f; // Default music volume
 
     private static final String[] SFX_FILES = {
-        "se_bonus.wav", "se_bonus2.wav", "se_border.wav", "se_cancel00.wav", "se_cardget.wav",
-        "se_cat00.wav", "se_damage00.wav", "se_damage01.wav", "se_enep00.wav", "se_enep01.wav",
-        "se_extend.wav", "se_graze.wav", "se_gun00.wav", "se_invalid.wav", "se_item00.wav",
-        "se_item01.wav", "se_kira00.wav", "se_kira01.wav", "se_kira02.wav", "se_lazer00.wav",
-        "se_lazer01.wav", "se_nep00.wav", "se_ok00.wav", "se_ophide.wav", "se_opshow.wav",
-        "se_option.wav", "se_pause.wav", "se_pldead00.wav", "se_plst00.wav", "se_power0.wav",
-        "se_power1.wav", "se_powerup.wav", "se_select00.wav", "se_slash.wav", "se_tan00.wav",
-        "se_tan01.wav", "se_tan02.wav", "se_timeout.wav", "se_timeout2.wav"
+            "se_bonus.wav", "se_bonus2.wav", "se_border.wav", "se_cancel00.wav", "se_cardget.wav",
+            "se_cat00.wav", "se_damage00.wav", "se_damage01.wav", "se_enep00.wav", "se_enep01.wav",
+            "se_extend.wav", "se_graze.wav", "se_gun00.wav", "se_invalid.wav", "se_item00.wav",
+            "se_item01.wav", "se_kira00.wav", "se_kira01.wav", "se_kira02.wav", "se_lazer00.wav",
+            "se_lazer01.wav", "se_nep00.wav", "se_ok00.wav", "se_ophide.wav", "se_opshow.wav",
+            "se_option.wav", "se_pause.wav", "se_pldead00.wav", "se_plst00.wav", "se_power0.wav",
+            "se_power1.wav", "se_powerup.wav", "se_select00.wav", "se_slash.wav", "se_tan00.wav",
+            "se_tan01.wav", "se_tan02.wav", "se_timeout.wav", "se_timeout2.wav"
     };
 
     private static final String[] MUSIC_FILES = {
-        "Cinderella Cage ~ Kagome-Kagome.mp3",
-        "Deaf to All but the Song.mp3",
-        "Eastern Youkai Beauty.mp3",
-        "Eternal Dream ~ Mystical Maple.mp3",
-        "Eternal Night Vignette ~ Eastern Night.mp3",
-        "Evening Primrose.mp3",
-        "Extend Ash ~ Person of Hourai.mp3",
-        "Flight of the Bamboo Cutter ~ Lunatic Princess.mp3",
-        "Gensokyo Millennium ~ History of the Moon.mp3",
-        "Illusionary Night ~ Ghostly Eyes.mp3",
-        "Love-Colored Master Spark.mp3",
-        "Lunatic Eyes ~ Invisible Full Moon.mp3",
-        "Maiden's Capriccio ~ Dream Battle.mp3",
-        "Nostalgic Blood of the East ~ Old World.mp3",
-        "Plain Asia.mp3",
-        "Reach for the Moon, Immortal Smoke.mp3",
-        "Retribution for the Eternal Night ~ Imperishable Night.mp3",
-        "Song of the Night Sparrow ~ Night Bird.mp3",
-        "Voyage 1969.mp3",
-        "Voyage 1970.mp3",
-        "Wriggling Autumn Moon ~ Mooned Insect.mp3"
+            "Cinderella Cage ~ Kagome-Kagome.mp3",
+            "Deaf to All but the Song.mp3",
+            "Eastern Youkai Beauty.mp3",
+            "Eternal Dream ~ Mystical Maple.mp3",
+            "Eternal Night Vignette ~ Eastern Night.mp3",
+            "Evening Primrose.mp3",
+            "Extend Ash ~ Person of Hourai.mp3",
+            "Flight of the Bamboo Cutter ~ Lunatic Princess.mp3",
+            "Gensokyo Millennium ~ History of the Moon.mp3",
+            "Illusionary Night ~ Ghostly Eyes.mp3",
+            "Love-Colored Master Spark.mp3",
+            "Lunatic Eyes ~ Invisible Full Moon.mp3",
+            "Maiden's Capriccio ~ Dream Battle.mp3",
+            "Nostalgic Blood of the East ~ Old World.mp3",
+            "Plain Asia.mp3",
+            "Reach for the Moon, Immortal Smoke.mp3",
+            "Retribution for the Eternal Night ~ Imperishable Night.mp3",
+            "Song of the Night Sparrow ~ Night Bird.mp3",
+            "Voyage 1969.mp3",
+            "Voyage 1970.mp3",
+            "Wriggling Autumn Moon ~ Mooned Insect.mp3"
     };
 
     private SoundManager() {
         this.sfxMap = new ConcurrentHashMap<>();
         this.musicMap = new ConcurrentHashMap<>();
-        this.mp3Map = new ConcurrentHashMap<>();
-        this.musicExecutor = Executors.newSingleThreadExecutor();
     }
 
     public static void init() {
         if (instance == null) {
             TinySound.init();
+            System.out.println("TinySound initialized: " + TinySound.isInitialized());
             instance = new SoundManager();
             instance.loadSounds();
         }
@@ -75,7 +67,6 @@ public class SoundManager {
 
     public static void shutdown() {
         if (instance != null) {
-            instance.musicExecutor.shutdownNow();
             TinySound.shutdown();
         }
     }
@@ -103,79 +94,48 @@ public class SoundManager {
         }
 
         // Load Music
-        System.out.println("DEBUG: Loading music...");
         for (String musicFileName : MUSIC_FILES) {
             String musicName = musicFileName.substring(0, musicFileName.lastIndexOf('.'));
-            if (musicFileName.endsWith(".mp3")) {
-                mp3Map.put(musicName, musicFileName);
+
+            // NO MORE "if (.mp3)" CHECK
+            URL resourceUrl = SoundManager.class
+                    .getResource("/sounds/Touhou Eiyashou - Imperishable Night/" + musicFileName);
+
+            if (resourceUrl == null) {
+                System.err.println("Music file not found: " + musicFileName);
+                continue;
+            }
+
+            // This line will NOW work for .mp3 files thanks to the MP3SPI plugin
+            Music music = TinySound.loadMusic(resourceUrl);
+
+            if (music != null) {
+                musicMap.put(musicName, music); // <-- SUCCESS! All music is in the main map.
             } else {
-                URL resourceUrl = SoundManager.class.getResource("/sounds/Touhou Eiyashou - Imperishable Night/" + musicFileName);
-                System.out.println("DEBUG: Attempting to load music: " + musicFileName);
-                System.out.println("DEBUG: Resource URL: " + resourceUrl);
-                if (resourceUrl == null) {
-                    System.err.println("Music file not found: " + musicFileName);
-                    continue;
-                }
-                Music music = TinySound.loadMusic(resourceUrl);
-                if (music != null) {
-                    musicMap.put(musicName, music);
-                    System.out.println("DEBUG: Successfully loaded and mapped music: " + musicName);
-                } else {
-                    System.err.println("DEBUG: Failed to load music object for: " + musicFileName);
-                }
+                System.err.println("Failed to load music object for: " + musicFileName);
             }
         }
     }
 
-    public void playSfx(String name) {
+    public void playSfx(String name, double volume) {
         Sound sound = sfxMap.get(name);
         if (sound != null) {
-            sound.play(globalSfxVolume);
+            sound.play(globalSfxVolume * volume);
         } else {
             System.err.println("SFX not found: " + name);
         }
     }
 
     public void playMusic(String name, boolean loop) {
-        // Stop all other music before playing a new one
         stopAllMusic();
 
-        System.out.println("DEBUG: playMusic called for: " + name);
         if (musicMap.containsKey(name)) {
             Music music = musicMap.get(name);
-            System.out.println("DEBUG: Music found in map. Playing...");
+            System.out.println("Playing music: " + name + " | Music object: " + music);
+            // This now works for your MP3s
             music.play(loop, globalMusicVolume);
-        } else if (mp3Map.containsKey(name)) {
-            // The 'loop' parameter is currently ignored by the JLayer implementation.
-            playMp3("/sounds/Touhou Eiyashou - Imperishable Night/" + mp3Map.get(name));
         } else {
             System.err.println("Music not found in map: " + name);
-        }
-    }
-
-    private void playMp3(String resourceName) {
-        try {
-            InputStream is = SoundManager.class.getResourceAsStream(resourceName);
-            if (is == null) {
-                System.err.println("MP3 resource not found: " + resourceName);
-                return;
-            }
-
-            // Assign to a final local variable to avoid race conditions
-            final Player localPlayer = new Player(is);
-            this.mp3Player = localPlayer;
-
-            musicExecutor.submit(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        localPlayer.play();
-                    } catch (Exception e) {
-                    }
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -183,20 +143,21 @@ public class SoundManager {
         for (Music music : musicMap.values()) {
             music.stop();
         }
-        if (mp3Player != null) {
-            mp3Player.close();
-        }
     }
 
     public void setSfxVolume(float volume) {
-        if (volume < 0.0f) volume = 0.0f;
-        if (volume > 1.0f) volume = 1.0f;
+        if (volume < 0.0f)
+            volume = 0.0f;
+        if (volume > 1.0f)
+            volume = 1.0f;
         this.globalSfxVolume = volume;
     }
 
     public void setMusicVolume(float volume) {
-        if (volume < 0.0f) volume = 0.0f;
-        if (volume > 1.0f) volume = 1.0f;
+        if (volume < 0.0f)
+            volume = 0.0f;
+        if (volume > 1.0f)
+            volume = 1.0f;
         this.globalMusicVolume = volume;
 
         // Adjust the volume of currently playing music

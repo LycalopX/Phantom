@@ -78,13 +78,13 @@ public class Inimigo extends Personagem {
 
     public void takeDamage(double damage) {
         this.vida -= damage;
-        Auxiliar.SoundManager.getInstance().playSfx("se_damage01");
-        System.out.println("Inimigo tomou " + damage + " de dano. Vida restante: " + this.vida);
+        Auxiliar.SoundManager.getInstance().playSfx("se_damage01", 0.5f);
+        // System.out.println("Inimigo tomou " + damage + " de dano. Vida restante: " + this.vida);
 
         if (this.vida <= 0) {
             this.vida = 0;
             deactivate(); // Desativa o inimigo, marcando-o para remoção.
-            Auxiliar.SoundManager.getInstance().playSfx("se_enep00");
+            Auxiliar.SoundManager.getInstance().playSfx("se_enep00", 0.5f);
         }
     }
 }

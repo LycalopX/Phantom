@@ -57,3 +57,56 @@
 4.  **Drag-and-Drop (Tarefa 3):** Concordo em deixar por último. É o mais complexo e isolado.
 
 5.  **Finalizar a Bomba (Tarefa 7):** Implementar a Fase 2 (mísseis) da bomba e a lógica do "Last Spell". Isso pode ser feito a qualquer momento, pois é um polimento da mecânica existente.
+
+
+### **Planejamento de Implementação e Correções (Adicionado em 20/10/2025)**
+
+#### **1. Correções de Bugs Críticos (Bugs)**
+
+*   **Bombas teleguiadas despawnam ao sair da tela:**
+    *   **Problema:** `ProjetilBombaHoming` desaparece se sair dos limites da tela, impedindo que retorne para atingir alvos.
+    *   **Análise:** O comportamento de despawn provavelmente é herdado da classe `Personagem.java`, que remove objetos fora da tela.
+    *   **Ação Sugerida:** Sobrescrever o método de verificação de limites em `ProjetilBombaHoming.java` para que ele só seja removido após um tempo de vida ou após a explosão, em vez de simplesmente sair da tela.
+
+*   **Projéteis não são limpos na morte do herói:**
+    *   **Problema:** Quando o herói morre, a tela continua poluída com projéteis inimigos.
+    *   **Análise:** O fluxo de morte do herói em `ControleDeJogo.java` precisa de uma etapa adicional.
+    *   **Ação Sugerida:** No bloco de código que trata a morte do `Hero.java`, adicionar uma chamada para `ProjetilPool.getInstancia().removerTodosInimigos()` (ou um método similar) para limpar a tela.
+
+---
+
+#### **2. Ajustes de Gameplay e Balanceamento (Gameplay & Balancing)**
+
+*   **Aumentar hitbox da bomba teleguiada:**
+    *   **Problema:** A hitbox de `ProjetilBombaHoming` é muito pequena.
+    *   **Ação Sugerida:** No construtor de `ProjetilBombaHoming.java`, localizar onde as dimensões da hitbox (largura/altura ou raio) são definidas e multiplicar esses valores por 3.
+
+---
+
+#### **3. Melhorias Visuais e de Áudio (Visuals & Audio)**
+
+*   **Adicionar sprite na hitbox ao focar:**
+    *   **Problema:** Falta um feedback visual claro para a hitbox do herói quando ele está no modo de foco.
+    *   **Análise:** O estado de foco é gerenciado em `Hero.java`. A renderização ocorre em `Tela.java`.
+    *   **Ação Sugerida:**
+        1.  Carregar uma imagem (`sprite_hitbox.png`) em `Hero.java`.
+        2.  No método de desenho do herói (provavelmente chamado por `Tela.java`), verificar se `hero.isFocusing()`.
+        3.  Se estiver focando, desenhar a imagem `sprite_hitbox` na posição do herói.
+
+*   **Aumentar amplitude da pulsação visual da bomba:**
+    *   **Problema:** O efeito visual de pulsação da bomba esférica é pouco perceptível.
+    *   **Análise:** A animação de pulsação em `BombaProjetil.java` (ou classe visual correspondente) provavelmente usa uma função senoidal (`Math.sin`) para alterar o tamanho do sprite.
+    *   **Ação Sugerida:** Aumentar a amplitude da função senoidal em 200% no método de desenho. **Importante:** Garantir que essa alteração afete apenas o tamanho visual do sprite, e não o tamanho da hitbox de colisão.
+
+---
+
+#### **4. Novas Funcionalidades e Refinamentos (New Features / Refinements)**
+
+*   **Adicionar "morte" animada para projéteis:**
+    *   **Problema:** Projéteis desaparecem abruptamente da tela.
+    *   **Análise:** Atualmente, os projéteis são simplesmente desativados e retornados ao `ProjetilPool`.
+    *   **Ação Sugerida:**
+        1.  Adicionar um estado `MORRENDO` e um contador de animação à classe `Projetil.java`.
+        2.  Criar um método `morrer()` em `Projetil.java`. Em vez de remover o projétil instantaneamente, este método o colocaria no estado `MORRENDO`.
+        3.  No método de desenho do projétil, se ele estiver no estado `MORRENDO`, desenhar uma animação (ex: fade out, encolher, ou um pequeno sprite de explosão de `effect_projectiles.png`).
+        4.  Quando a animação terminar, o projétil é finalmente retornado ao `ProjetilPool`.

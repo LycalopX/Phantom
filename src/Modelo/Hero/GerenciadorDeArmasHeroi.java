@@ -57,7 +57,7 @@ public class GerenciadorDeArmasHeroi implements Serializable {
 
         // 2. Tenta disparar o Tiro Principal
         if (cooldownTiroPrincipal <= 0) {
-            Auxiliar.SoundManager.getInstance().playSfx("se_plst00");
+            Auxiliar.SoundManager.getInstance().playSfx("se_plst00", 1.0);
             double velocidadeProjetilEmGrid = 60.0 / CELL_SIDE;
             int nivelDeTiroBase = getNivelTiroBase(power);
 

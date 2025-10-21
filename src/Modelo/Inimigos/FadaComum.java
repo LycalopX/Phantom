@@ -38,7 +38,7 @@ public class FadaComum extends Inimigo {
         this.initialX = x;
         this.faseReferencia = fase;
         this.animador = new GerenciadorDeAnimacaoInimigo();
-        
+
         this.largura = (int) (30.0 * BODY_PROPORTION);
         this.altura = (int) (30.0 * BODY_PROPORTION);
         this.hitboxRaio = (this.largura / 2.0) / CELL_SIDE;
@@ -48,7 +48,7 @@ public class FadaComum extends Inimigo {
         in.defaultReadObject();
         this.animador = new GerenciadorDeAnimacaoInimigo();
     }
-    
+
     @Override
     public void initialize(Fase fase) {
         this.faseReferencia = fase;
@@ -76,6 +76,13 @@ public class FadaComum extends Inimigo {
 
                 if (shootTimer <= 0) {
                     atirar();
+
+                    // Para randomizar tiros um pouco
+                    if (shootDuration % 2 == 0) {
+                        Auxiliar.SoundManager.getInstance().playSfx("se_tan01", 1.0f);
+                    } else {
+                        Auxiliar.SoundManager.getInstance().playSfx("se_tan02", 1.0f);
+                    }
                     shootTimer = shootInterval;
                 }
 
@@ -95,10 +102,12 @@ public class FadaComum extends Inimigo {
     }
 
     private void atirar() {
-        if (faseReferencia == null) return;
+        if (faseReferencia == null)
+            return;
 
         Personagem hero = faseReferencia.getHero();
-        if (hero == null) return; // Não atira se o herói não existe
+        if (hero == null)
+            return; // Não atira se o herói não existe
 
         double angle = 90.0; // Ângulo padrão (para baixo)
 

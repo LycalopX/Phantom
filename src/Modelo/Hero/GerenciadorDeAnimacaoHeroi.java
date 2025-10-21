@@ -78,8 +78,6 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
                 if (delayFrameStrafing >= DELAY_STRAFING) {
                     frameAtualStrafing--; // Animação ao contrário!
 
-                    System.out.println("    -> Frame de Retorno: " + frameAtualStrafing);
-
                     delayFrameStrafing = 0;
                     if (frameAtualStrafing < 0) {
                         frameAtualStrafing = 0;

@@ -141,14 +141,12 @@ public class Cenario extends JPanel {
 
     @Override
     public void paintComponent(Graphics g) {
-        System.out.println("DEBUG: paintComponent chamado."); // DEBUG
         super.paintComponent(g);
 
         if (faseAtual == null) {
             System.out.println("DEBUG: faseAtual é nula!"); // DEBUG
             return;
         }
-        System.out.println("DEBUG: Desenhando fase. Personagens: " + faseAtual.getPersonagens().size()); // DEBUG
 
         if (estadoDoJogo == null || estadoDoJogo == Engine.GameState.JOGANDO
                 || estadoDoJogo == Engine.GameState.RESPAWNANDO || estadoDoJogo == Engine.GameState.DEATHBOMB_WINDOW) {

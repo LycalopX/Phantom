@@ -208,16 +208,17 @@ public class Engine implements Runnable {
         tela.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
+                if (estadoAtual == GameState.GAME_OVER && e.getKeyCode() == ConfigTeclado.KEY_RESTART) {
+                    reiniciarJogo();
+                    return;
+                }
+                
                 if (e.getKeyCode() == ConfigTeclado.KEY_SAVE) {
                     salvarJogo();
                     return;
                 }
                 if (e.getKeyCode() == ConfigTeclado.KEY_LOAD) {
                     carregarJogo();
-                    return;
-                }
-                if (estadoAtual == GameState.GAME_OVER && e.getKeyCode() == ConfigTeclado.KEY_RESTART) {
-                    reiniciarJogo();
                     return;
                 }
 

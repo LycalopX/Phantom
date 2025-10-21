@@ -106,7 +106,7 @@ public abstract class Personagem implements Serializable {
             int centroY = (int) (this.y * CELL_SIDE);
 
             // Desenha a hitbox de DANO (vermelha) para TODOS os personagens
-            g2d.setColor(Color.RED);
+            g2d.setColor(Color.BLUE);
             int danoRaioPixels = (int) (this.hitboxRaio * CELL_SIDE);
             g2d.drawOval(centroX - danoRaioPixels, centroY - danoRaioPixels, danoRaioPixels * 2, danoRaioPixels * 2);
         }

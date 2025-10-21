@@ -7,6 +7,7 @@ import static Auxiliar.ConfigMapa.*;
 import Modelo.Personagem;
 import Modelo.Projeteis.BombaProjetil;
 import Modelo.Fases.Fase;
+import Auxiliar.SoundManager;
 
 import java.awt.Graphics;
 import java.awt.geom.AffineTransform;
@@ -212,6 +213,7 @@ public class Hero extends Personagem {
 
     // GETTERS E SETTERS SIMPLES
     public boolean takeDamage() {
+        SoundManager.getInstance().playSfx("se_pldead00", 1.5f);
         if (isInvencivel()) {
             return false;
         }

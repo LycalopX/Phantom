@@ -19,11 +19,10 @@ public class Item extends Personagem {
     private double velX = 0;
     private double velY = 0;
     private static final double GRAVIDADE = 0.003; // Pequena força para baixo. Ajuste conforme necessário.
-    private static final double MAX_FALL_SPEED = 0.6;
+    private static final double MAX_FALL_SPEED = 0.4;
     private static final double VELOCIDADE_ATRACAO = 1;
 
     private int launchTimer = 0; // Contagem de frames para o lançamento
-    private static final double FATOR_DE_ESCALA = 1.8;
 
     // Duração do lançamento em frames (assumindo 60 FPS, 60 frames = 1 segundo)
     private static final int DURACAO_LANCAMENTO = 60;
@@ -33,8 +32,8 @@ public class Item extends Personagem {
         super("items.png",
                 x,
                 y,
-                (int) (tipo.getLargura() * FATOR_DE_ESCALA), // Cálculo da nova largura
-                (int) (tipo.getAltura() * FATOR_DE_ESCALA) // Cálculo da nova altura
+                (int) (tipo.getLargura() * BODY_PROPORTION), // Cálculo da nova largura
+                (int) (tipo.getAltura() * BODY_PROPORTION) // Cálculo da nova altura
         );
 
         this.tipo = tipo;

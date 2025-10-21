@@ -102,7 +102,7 @@ public class ControladorDoHeroi {
                 BombaProjetil bomba = heroi.usarBomba(fase);
                 if (bomba != null) {
                     fase.adicionarPersonagem(bomba);
-                    Auxiliar.SoundManager.getInstance().playSfx("se_gun00");
+                    Auxiliar.SoundManager.getInstance().playSfx("se_gun00", 2);
                 }
             }
         }

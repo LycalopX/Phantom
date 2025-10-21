@@ -296,7 +296,7 @@ public class Hero extends Personagem {
     }
 
     public int getNivelDeMisseis() {
-        return this.sistemaDeArmas.getNivelDeMisseis(this.power);
+        return this.sistemaDeArmas.getNivelTiro(this.power);
     }
 
     public boolean isBombing() {

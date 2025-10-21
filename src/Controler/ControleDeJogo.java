@@ -41,7 +41,7 @@ public class ControleDeJogo {
         }
     }
 
-    public boolean processaTudo(ArrayList<Personagem> personagens) {
+    public boolean processaTudo(ArrayList<Personagem> personagens, boolean removeProjectiles) {
         if (personagens.isEmpty())
             return false;
 
@@ -68,7 +68,12 @@ public class ControleDeJogo {
 
                 // Encontra projéteis com hitbox retangular
                 if (p instanceof Projetil) {
+                    if (removeProjectiles) {
+                        p.deactivate();
+                        continue;
+                    }
                     Projetil proj = (Projetil) p;
+
                     if (proj.getTipoHitbox() == HitboxType.RECTANGULAR) {
                         projeteisInimigosEspeciais.add(proj);
                     }

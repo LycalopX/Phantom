@@ -52,6 +52,7 @@ public class Engine implements Runnable {
     private final double velocidadeScroll = 2.0;
     private int deathbombTimer = 0;
     private final int JANELA_DEATHBOMB = 8; // 8 frames para o jogador reagir
+    private boolean removeProjectiles = false;
 
     public enum GameState {
         JOGANDO,
@@ -113,7 +114,7 @@ public class Engine implements Runnable {
             case JOGANDO:
                 controladorHeroi.processarInput(teclasPressionadas, hero, faseAtual, controleDeJogo);
                 faseAtual.atualizar(velocidadeScroll);
-                boolean foiAtingido = controleDeJogo.processaTudo(faseAtual.getPersonagens());
+                boolean foiAtingido = controleDeJogo.processaTudo(faseAtual.getPersonagens(), false);
                 if (foiAtingido) {
                     estadoAtual = GameState.DEATHBOMB_WINDOW;
                     deathbombTimer = JANELA_DEATHBOMB;
@@ -145,9 +146,15 @@ public class Engine implements Runnable {
                 break;
 
             case RESPAWNANDO:
-                faseAtual.atualizar(velocidadeScroll);
-                controleDeJogo.processaTudo(faseAtual.getPersonagens());
                 respawnTimer--;
+                
+                if (respawnTimer == TEMPO_DE_RESPAWN / 2) {
+                    removeProjectiles = true;
+                }
+                faseAtual.atualizar(velocidadeScroll);
+                controleDeJogo.processaTudo(faseAtual.getPersonagens(), removeProjectiles);
+                removeProjectiles = false;
+
                 if (respawnTimer <= 0) {
                     hero.respawn();
                     hero.x = RESPAWN_X;

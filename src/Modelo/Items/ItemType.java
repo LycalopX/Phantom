@@ -5,7 +5,7 @@ public enum ItemType {
     // (spriteX, spriteY, scoreValue, powerValue, bombValue)
     MINI_POWER_UP(0, 0, 10, 1, 0),
     SCORE_POINT(16, 0, 50, 0, 0),
-    POWER_UP(32, 0, 100, 30, 0),
+    POWER_UP(32, 0, 100, 5, 0),
     BOMB(48, 0, 0, 0, 1),
     FULL_POWER(64, 0, 0, 300, 0),
     ONE_UP(80, 0, 0, 0, 0),

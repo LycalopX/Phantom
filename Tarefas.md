@@ -26,12 +26,19 @@
 
 #### **1. Correções de Bugs Críticos (Bugs)**
 
-*   **Projéteis não são limpos na morte do herói:**
-    *   **Problema:** Quando o herói morre, a tela continua poluída com projéteis inimigos.
-    *   **Análise:** O fluxo de morte do herói em `ControleDeJogo.java` precisa de uma etapa adicional.
-    *   **Ação Sugerida:** No bloco de código que trata a morte do `Hero.java`, adicionar uma chamada para `ProjetilPool.getInstancia().removerTodosInimigos()` (ou um método similar) para limpar a tela.
+*   **Projéteis não são atraídos ao herói:**
+    *   **Problema:** Quando o herói fica no canto da tela, os itens não são atraídos a ele.
+
+*   **Projéteis não "explodem" do héroi**
+    *   **Problema:** Quando o herói morre, ele não droppa os itens que carregava.
+    *   **Análise:** existe uma função feita para "explodir" os itens radialmente quando o heroi morre, mas ela não está ativando.
 
 ---
+
+### **2. Melhorias de Desempenho**
+
+*   **Gerenciar os personagens em listas separadas**
+    * 
 
 #### **3. Melhorias Visuais e de Áudio (Visuals & Audio)**
 
@@ -49,6 +56,6 @@
     *   **Análise:** Atualmente, os projéteis são simplesmente desativados e retornados ao `ProjetilPool`.
     *   **Ação Sugerida:**
         1.  Adicionar um estado `MORRENDO` e um contador de animação à classe `Projetil.java`.
-        2.  Criar um método `morrer()` em `Projetil.java`. Em vez de remover o projétil instantaneamente, este método o colocaria no estado `MORRENDO`.
+        2.  Implementar no método `deactivate()` em `Projetil.java`. Em vez de remover o projétil instantaneamente, este método o colocaria no estado `MORRENDO`.
         3.  No método de desenho do projétil, se ele estiver no estado `MORRENDO`, desenhar uma animação (ex: fade out, encolher, ou um pequeno sprite de explosão de `effect_projectiles.png`).
         4.  Quando a animação terminar, o projétil é finalmente retornado ao `ProjetilPool`.

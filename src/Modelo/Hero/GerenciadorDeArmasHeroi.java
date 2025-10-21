@@ -14,7 +14,7 @@ import Modelo.Projeteis.TipoProjetilHeroi;
 
 public class GerenciadorDeArmasHeroi implements Serializable {
 
-    private final int tempoDeRecarga = 6; // Frames de recarga base
+    private final double tempoDeRecarga = 6; // Frames de recarga base
     private int cooldownTiroPrincipal = 0;
     private int cooldownMisseis = 0;
 
@@ -44,24 +44,25 @@ public class GerenciadorDeArmasHeroi implements Serializable {
      */
     public void disparar(double x, double y, int power, Fase fase) {
 
+        int nivelTiro = getNivelTiro(power);
+
 
         ProjetilPool pool = fase.getProjetilPool();
         if (pool == null)
             return;
 
         // Dispara os Mísseis
-        if (getNivelDeMisseis(power) >= 1 && cooldownMisseis <= 0) {
-            adicionarMisseisTeleguiados(x, y, getNivelDeMisseis(power), fase);
+        if (nivelTiro >= 1 && cooldownMisseis <= 0) {
+            adicionarMisseisTeleguiados(x, y, nivelTiro, fase);
             cooldownMisseis = MISSILE_COOLDOWN_TIME;
         }
 
         // 2. Tenta disparar o Tiro Principal
         if (cooldownTiroPrincipal <= 0) {
             Auxiliar.SoundManager.getInstance().playSfx("se_plst00", 1.0);
-            double velocidadeProjetilEmGrid = 60.0 / CELL_SIDE;
-            int nivelDeTiroBase = getNivelTiroBase(power);
+            double velocidadeProjetilEmGrid = 40.0 / CELL_SIDE;
 
-            double velocidadeFinal = velocidadeProjetilEmGrid * (1 + (nivelDeTiroBase - 1) * 0.2);
+            double velocidadeFinal = velocidadeProjetilEmGrid * (1 + (Math.min(nivelTiro, 3) - 1) * 0.03);
 
             // Tiro Central
             Projetil p1 = pool.getProjetilNormal();
@@ -70,7 +71,7 @@ public class GerenciadorDeArmasHeroi implements Serializable {
             }
 
             // Tiros Laterais (se tiver nível 3)
-            if (nivelDeTiroBase >= 3) {
+            if (nivelTiro >= 3) {
                 double offsetX = 0.5; // Distância lateral do centro do herói
 
                 Projetil p2 = pool.getProjetilNormal();
@@ -85,7 +86,8 @@ public class GerenciadorDeArmasHeroi implements Serializable {
             }
 
             // A cadência de tiro aumenta com o poder (cooldown diminui)
-            int cooldownFinal = tempoDeRecarga - (int) (Math.min((double) power / 100, 2));
+            //
+            int cooldownFinal = (int) ((tempoDeRecarga) - (getNivelTiro(power) * 0.5));
             cooldownTiroPrincipal = Math.max(cooldownFinal, 2); // Garante um cooldown mínimo
         }
 
@@ -99,6 +101,12 @@ public class GerenciadorDeArmasHeroi implements Serializable {
         double velocidadeBase = 8.0 / CELL_SIDE;
         double velocidadeFinal = velocidadeBase * (1 + (nivelDeMisseis - 1) * 0.2);
 
+        if (nivelDeMisseis == 2) {
+            nivelDeMisseis -= 1;
+        } else if (nivelDeMisseis > 2){
+            nivelDeMisseis -= 2;
+        }
+ 
         for (int i = 0; i < nivelDeMisseis; i++) {
             double anguloEsquerda = -90 - 30 - (i * 10);
             double anguloDireita = -90 + 30 + (i * 10);
@@ -117,11 +125,9 @@ public class GerenciadorDeArmasHeroi implements Serializable {
         }
     }
 
-    public int getNivelDeMisseis(int power) {
-        return Math.min(power / Hero.REQ_MISSIL_POWER, 4);
-    }
+    public int getNivelTiro(int power) {
+        double next_term = (-1 + Math.sqrt(1+power))/2;
 
-    public int getNivelTiroBase(int power) {
-        return Math.min(power / Hero.REQ_TIROS_POWER, 3);
+        return Math.min((int) next_term, 5);
     }
 }

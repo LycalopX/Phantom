@@ -51,11 +51,11 @@ public class ScriptFase1 extends ScriptDeFase {
             double xInicial = random.nextDouble() * MUNDO_LARGURA;
             LootTable lootTable = new LootTable();
 
-            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 0, 3, 0.5, true, false));
-            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 0, 3, 0.5, false, false));
+            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 5, 0.5, true, false));
+            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 5, 0.5, false, false));
             lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.1, true, false));
 
-            fase.adicionarPersonagem(new Modelo.Inimigos.FadaComum(xInicial, -1.0, lootTable, 100, fase));
+            fase.adicionarPersonagem(new Modelo.Inimigos.FadaComum(xInicial, -1.0, lootTable, 40, fase));
             proximoSpawnInimigo = intervaloSpawnInimigo;
         } else {
             proximoSpawnInimigo--;

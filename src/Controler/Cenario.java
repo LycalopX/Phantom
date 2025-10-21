@@ -30,6 +30,7 @@ import Auxiliar.Projeteis.TipoProjetil;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Cenario extends JPanel {
     private Fase faseAtual;
@@ -62,7 +63,8 @@ public class Cenario extends JPanel {
                     dtde.acceptDrop(DnDConstants.ACTION_COPY);
                     Transferable transferable = dtde.getTransferable();
                     if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-                        ArrayList<File> files = (ArrayList<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
+                        @SuppressWarnings("unchecked")
+                        List<File> files = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
                         for (File file : files) {
                             processarArquivoSolto(file, dtde.getLocation());
                         }
@@ -87,7 +89,8 @@ public class Cenario extends JPanel {
             public void dragOver(DropTargetDragEvent dtde) {
                 if (DebugManager.isActive() && dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
                     dtde.acceptDrag(DnDConstants.ACTION_COPY);
-                } else {
+                }
+                else {
                     dtde.rejectDrag();
                 }
             }
@@ -108,24 +111,25 @@ public class Cenario extends JPanel {
         }
 
         try (FileInputStream fis = new FileInputStream(file);
-             ZipInputStream zis = new ZipInputStream(fis);
-             ObjectInputStream ois = new ObjectInputStream(zis)) {
+             ZipInputStream zis = new ZipInputStream(fis)) {
 
             if (zis.getNextEntry() != null) {
-                Personagem p = (Personagem) ois.readObject();
+                try (ObjectInputStream ois = new ObjectInputStream(zis)) {
+                    Personagem p = (Personagem) ois.readObject();
 
-                double gridX = dropPoint.getX() / ConfigMapa.CELL_SIDE;
-                double gridY = dropPoint.getY() / ConfigMapa.CELL_SIDE;
+                    double gridX = dropPoint.getX() / ConfigMapa.CELL_SIDE;
+                    double gridY = dropPoint.getY() / ConfigMapa.CELL_SIDE;
 
-                p.x = gridX;
-                p.y = gridY;
+                    p.x = gridX;
+                    p.y = gridY;
 
-                if (faseAtual != null) {
-                    if (p instanceof Inimigo) {
-                        ((Inimigo) p).initialize(faseAtual);
+                    if (faseAtual != null) {
+                        if (p instanceof Inimigo) {
+                            ((Inimigo) p).initialize(faseAtual);
+                        }
+                        faseAtual.adicionarPersonagem(p);
+                        System.out.println("Personagem " + p.getClass().getSimpleName() + " adicionado em (" + gridX + ", " + gridY + ")");
                     }
-                    faseAtual.adicionarPersonagem(p);
-                    System.out.println("Personagem " + p.getClass().getSimpleName() + " adicionado em (" + gridX + ", " + gridY + ")");
                 }
             }
 

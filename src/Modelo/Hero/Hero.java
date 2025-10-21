@@ -1,5 +1,3 @@
-// Em Modelo/Hero.java
-
 package Modelo.Hero;
 
 import Auxiliar.Debug.DebugManager;
@@ -9,6 +7,8 @@ import Modelo.Projeteis.BombaProjetil;
 import Modelo.Fases.Fase;
 import Auxiliar.SoundManager;
 
+import java.awt.AlphaComposite;
+import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
@@ -42,6 +42,7 @@ public class Hero extends Personagem {
     private int efeitoBombaTimer = 0;
 
     public double grabHitboxRaio;
+    private boolean isFocoAtivo = false;
 
     private transient GerenciadorDeAnimacaoHeroi animador;
     private GerenciadorDeArmasHeroi sistemaDeArmas;
@@ -168,6 +169,30 @@ public class Hero extends Personagem {
         g2d.setTransform(transformOriginal);
         super.autoDesenho(g);
 
+        float hitboxAlpha = animador.getHitboxAlpha();
+        if (hitboxAlpha > 0) {
+            ImageIcon hitboxSprite = animador.getImagemHitboxFoco();
+            if (hitboxSprite != null) {
+                AffineTransform oldTransform = g2d.getTransform();
+                Composite originalComposite = g2d.getComposite();
+
+                int centroX = (int) Math.round(this.x * CELL_SIDE);
+                int centroY = (int) Math.round(this.y * CELL_SIDE);
+                double anguloRad = Math.toRadians(animador.getAnguloRotacaoHitbox());
+
+                int w = (int) (hitboxSprite.getIconWidth() * BODY_PROPORTION);
+                int h = (int) (hitboxSprite.getIconHeight() * BODY_PROPORTION);
+
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, hitboxAlpha));
+                g2d.translate(centroX, centroY);
+                g2d.rotate(anguloRad);
+                g2d.drawImage(hitboxSprite.getImage(), -w / 2, -h / 2, w, h, null);
+
+                g2d.setTransform(oldTransform);
+                g2d.setComposite(originalComposite);
+            }
+        }
+
         if (DebugManager.isActive()) {
             g2d.setColor(new Color(22, 100, 7, 100));
             int centroX = (int) (this.x * CELL_SIDE);
@@ -289,5 +314,16 @@ public class Hero extends Personagem {
         int topLeftX = centroX - raioPixels;
         int topLeftY = centroY - raioPixels;
         return new java.awt.Rectangle(topLeftX, topLeftY, diametroPixels, diametroPixels);
+    }
+
+    public void setFocoAtivo(boolean isFocoAtivo) {
+        if (this.isFocoAtivo != isFocoAtivo) {
+            this.isFocoAtivo = isFocoAtivo;
+            if (isFocoAtivo) {
+                animador.iniciarFadeInHitbox();
+            } else {
+                animador.iniciarFadeOutHitbox();
+            }
+        }
     }
 }

@@ -13,6 +13,17 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
     private ImageIcon[] iImagesStrafingEsquerda;
     private ImageIcon[] iImagesIdle;
     private ImageIcon[] iImagesStrafingMax;
+    private ImageIcon imagemHitboxFoco;
+
+    // Rotação da hitbox
+    private double anguloRotacaoHitbox = 0;
+    private int frameCounter = 0;
+
+    // Lógica de Fade da Hitbox
+    private enum FadeState { FADE_IN, FADE_OUT, VISIBLE, HIDDEN }
+    private FadeState hitboxFadeState = FadeState.HIDDEN;
+    private float hitboxAlpha = 0.0f;
+    private static final float FADE_SPEED = 0.05f;
 
     // Constantes de animação
     private static final int MAX_FRAMES_STRAFING = 4;
@@ -28,6 +39,9 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
     private int frameAtualIdle = 0, delayFrameIdle = 0;
 
     public GerenciadorDeAnimacaoHeroi(int largura, int altura) {
+        // Carrega a imagem da hitbox com suas dimensões corretas para evitar distorção
+        imagemHitboxFoco = carregarImagem("hero/sprite_hitbox.png", 64, 61);
+
         // O construtor já carrega todas as imagens necessárias
         iImagesStrafingEsquerda = new ImageIcon[MAX_FRAMES_STRAFING];
         for (int i = 0; i < MAX_FRAMES_STRAFING; i++) {
@@ -41,12 +55,42 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
     // O Hero diz seu estado (direcaoHorizontal) e este método atualiza os
     // contadores
     public boolean atualizar(HeroState estado) {
+        // Lógica de rotação da hitbox
+        frameCounter++;
+        if (frameCounter >= 2) {
+            anguloRotacaoHitbox = (anguloRotacaoHitbox + 1) % 360;
+            frameCounter = 0;
+        }
+
+        // Lógica de fade da hitbox
+        switch (hitboxFadeState) {
+            case FADE_IN:
+                hitboxAlpha += FADE_SPEED;
+                if (hitboxAlpha >= 1.0f) {
+                    hitboxAlpha = 1.0f;
+                    hitboxFadeState = FadeState.VISIBLE;
+                }
+                break;
+            case FADE_OUT:
+                hitboxAlpha -= FADE_SPEED;
+                if (hitboxAlpha <= 0.0f) {
+                    hitboxAlpha = 0.0f;
+                    hitboxFadeState = FadeState.HIDDEN;
+                }
+                break;
+            case VISIBLE:
+            case HIDDEN:
+                // Não faz nada
+                break;
+        }
+
         boolean animacaoTerminou = false;
 
         switch (estado) {
             case IDLE:
                 resetarAnimacaoStrafing();
                 delayFrameIdle++;
+
                 if (delayFrameIdle >= DELAY_IDLE) {
                     frameAtualIdle = (frameAtualIdle + 1) % MAX_FRAMES_IDLE;
                     delayFrameIdle = 0;
@@ -125,18 +169,6 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
         delayFrameIdle = 0;
     }
 
-    // Este método retorna a imagem correta para ser desenhada
-    public ImageIcon getImagemAtual(int direcaoHorizontal) {
-        if (direcaoHorizontal != 0) {
-            if (frameAtualStrafing < MAX_FRAMES_STRAFING - 1) {
-                return iImagesStrafingEsquerda[frameAtualStrafing];
-            } else {
-                return iImagesStrafingMax[frameAtualStrafingMax];
-            }
-        } else {
-            return iImagesIdle[frameAtualIdle];
-        }
-    }
 
     // Métodos de carregamento (agora precisam de largura/altura como parâmetro)
     private ImageIcon carregarImagem(String nomeArquivo, int largura, int altura) {
@@ -193,5 +225,25 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
         // Força a animação a começar do último frame da SEQUÊNCIA DE TRANSIÇÃO
         this.frameAtualStrafing = MAX_FRAMES_STRAFING - 1;
         this.delayFrameStrafing = 0; // Reseta o delay para começar imediatamente
+    }
+
+    public void iniciarFadeInHitbox() {
+        hitboxFadeState = FadeState.FADE_IN;
+    }
+
+    public void iniciarFadeOutHitbox() {
+        hitboxFadeState = FadeState.FADE_OUT;
+    }
+
+    public float getHitboxAlpha() {
+        return hitboxAlpha;
+    }
+
+    public ImageIcon getImagemHitboxFoco() {
+        return this.imagemHitboxFoco;
+    }
+
+    public double getAnguloRotacaoHitbox() {
+        return this.anguloRotacaoHitbox;
     }
 }

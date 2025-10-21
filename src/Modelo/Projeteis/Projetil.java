@@ -26,7 +26,8 @@ public class Projetil extends Personagem {
         deactivate();
     }
 
-    public void reset(double x, double y, double velocidadeGrid, double angulo, TipoProjetil tipo, ProjetilTipo tipoDetalhado) {
+    public void reset(double x, double y, double velocidadeGrid, double angulo, TipoProjetil tipo,
+            ProjetilTipo tipoDetalhado) {
         this.x = x;
         this.y = y;
         this.velocidade = velocidadeGrid;
@@ -37,21 +38,27 @@ public class Projetil extends Personagem {
         if (tipo == TipoProjetil.JOGADOR) {
             this.largura = tipoDetalhado.getSpriteWidth();
             this.altura = tipoDetalhado.getSpriteHeight();
+
             if (tipoDetalhado.getHitboxType() == HitboxType.CIRCULAR) {
                 this.hitboxRaio = tipoDetalhado.getHitboxWidth() / 2.0 / CELL_SIDE;
             } else {
                 this.hitboxRaio = 0;
             }
+
+            if (this instanceof ProjetilBombaHoming) {
+                this.hitboxRaio *= 5; // Aumenta a hitbox para bombas homing do jogador
+            }
         } else {
             this.largura = (int) (tipoDetalhado.getSpriteWidth() * BODY_PROPORTION);
             this.altura = (int) (tipoDetalhado.getSpriteHeight() * BODY_PROPORTION);
+
             if (tipoDetalhado.getHitboxType() == HitboxType.CIRCULAR) {
                 this.hitboxRaio = (tipoDetalhado.getHitboxWidth() * BODY_PROPORTION) / 2.0 / CELL_SIDE;
             } else {
                 this.hitboxRaio = 0;
             }
         }
-        
+
         this.iImage = tipoDetalhado.getImagem();
 
         activate();
@@ -69,7 +76,8 @@ public class Projetil extends Personagem {
     // MUDANÇA 2: O método de desenho agora aplica ROTAÇÃO
     @Override
     public void autoDesenho(Graphics g) {
-        if (!isActive()) return;
+        if (!isActive())
+            return;
 
         Graphics2D g2d = (Graphics2D) g;
 
@@ -135,7 +143,9 @@ public class Projetil extends Personagem {
 
     // Método para a Fase checar se o projétil saiu da tela
     public boolean estaForaDaTela() {
-        if (!isActive()) return false;
+        if (!isActive())
+            return false;
+            
         double limiteX = (double) LARGURA_TELA / CELL_SIDE;
         double limiteY = (double) ALTURA_TELA / CELL_SIDE;
         return (x < 0 || x > limiteX || y < -1 || y > limiteY);
@@ -144,7 +154,7 @@ public class Projetil extends Personagem {
     public void deactivate() {
         super.deactivate(); // Usa o método da classe pai
     }
-    
+
     public void activate() {
         super.activate(); // Usa o método da classe pai
     }

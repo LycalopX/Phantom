@@ -38,6 +38,7 @@ public class ControladorDoHeroi {
         // Lógica do Modo Foco (Shift)
         boolean isFocoAtivo = teclas.contains(KeyEvent.VK_SHIFT);
         double velocidadeAtual = isFocoAtivo ? delta / 2.0 : delta;
+        heroi.setFocoAtivo(isFocoAtivo);
 
         if (teclas.contains(ConfigTeclado.KEY_UP))
             dy -= velocidadeAtual;

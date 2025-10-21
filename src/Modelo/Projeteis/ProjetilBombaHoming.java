@@ -127,7 +127,6 @@ public class ProjetilBombaHoming extends ProjetilHoming {
         int scaledWidth = (int) (this.largura * scale);
         int scaledHeight = (int) (this.altura * scale);
 
-        // AURA (desenhada primeiro, para ficar atrás do sprite)
         float auraAlpha = 0.3f;
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, auraAlpha));
         g.setColor(new Color(255, 120, 120));

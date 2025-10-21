@@ -4,6 +4,7 @@ package Modelo.Fases;
 import Modelo.Personagem;
 import Modelo.Hero.Hero;
 import Modelo.Projeteis.Projetil;
+import Modelo.Projeteis.ProjetilBombaHoming;
 import Modelo.Projeteis.ProjetilPool;
 import Auxiliar.Cenario1.ArvoreParallax;
 import static Auxiliar.ConfigMapa.*;
@@ -97,7 +98,7 @@ public class Fase implements Serializable {
         for (Personagem p : personagens) {
             p.atualizar(); // Atualiza Inimigos, Projéteis, etc.
 
-            if (p instanceof Projetil) {
+            if (p instanceof Projetil && !(p instanceof ProjetilBombaHoming)) {
                 Projetil proj = (Projetil) p;
                 if (proj.isActive() && proj.estaForaDaTela()) {
 

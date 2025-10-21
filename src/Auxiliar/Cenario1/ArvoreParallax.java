@@ -10,8 +10,12 @@ public class ArvoreParallax implements Serializable {
 
     private final List<BlocoDeFolha> blocos = new ArrayList<>();
     private final BlocoDeFolha blocoTopo;
-    private final double velocidadeBaseOriginal; // Guarda a velocidade com que foi criada
+    private final double velocidadeBaseOriginal;
 
+    /**
+     * @brief Construtor da árvore de parallax. Cria uma árvore composta por três blocos de folhas
+     *        com diferentes tamanhos e velocidades para simular profundidade.
+     */
     public ArvoreParallax(int x, int y, int tamanhoBase, double velocidadeBase, BufferedImage imagem) {
         this.velocidadeBaseOriginal = velocidadeBase;
 
@@ -35,12 +39,14 @@ public class ArvoreParallax implements Serializable {
         blocos.add(this.blocoTopo);
     }
 
+    /**
+     * @brief Move a árvore verticalmente com base na velocidade de rolagem do fundo,
+     *        ajustando a velocidade de cada bloco para manter o efeito de parallax.
+     */
     public void mover(double velocidadeAtualDoFundo) {
-        // Calcula a diferença entre a velocidade atual e a velocidade com que a árvore
-        // foi criada
         double fatorDeAjuste = velocidadeAtualDoFundo / this.velocidadeBaseOriginal;
         if (Double.isNaN(fatorDeAjuste) || Double.isInfinite(fatorDeAjuste)) {
-            fatorDeAjuste = 1.0; // Evita divisão por zero se a velocidade original for 0
+            fatorDeAjuste = 1.0;
         }
 
         for (BlocoDeFolha bloco : blocos) {
@@ -48,18 +54,27 @@ public class ArvoreParallax implements Serializable {
         }
     }
 
+    /**
+     * @brief Restaura a referência da imagem para cada bloco da árvore, necessário após a desserialização.
+     */
     public void relinkarImagens(BufferedImage imagem) {
         for (BlocoDeFolha bloco : blocos) {
             bloco.setImagem(imagem);
         }
     }
 
+    /**
+     * @brief Desenha cada bloco da árvore na tela.
+     */
     public void desenhar(Graphics2D g2d, int alturaDaTela) {
         for (BlocoDeFolha bloco : blocos) {
             bloco.desenhar(g2d, alturaDaTela);
         }
     }
 
+    /**
+     * @brief Verifica se o topo da árvore já saiu completamente da tela.
+     */
     public boolean estaForaDaTela(int alturaDaTela) {
         return this.blocoTopo.getY() > alturaDaTela;
     }

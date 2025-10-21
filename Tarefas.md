@@ -14,38 +14,11 @@
 
 9.  **Efeitos Sonoros e Outras Utilidades**
     *   **Seu Status:** ❌ NÃO IMPLEMENTADO
-    *   **Minha Análise:** 🟡 **CORREÇÃO.** O status aqui é parcialmente concluído. O `SoundManager` **está implementado** e funcionando, carregando e tocando tanto SFX quanto música. Faltam as funcionalidades de Pausa e Screenshot.
+    *   **Minha Análise:** 🟡 **CORREÇÃO.** O status aqui é parcialmente concluído. O `SoundManager` **está implementado** e funcionando, carregando e tocando tanto SFX quanto música. Faltam as funcionalidades de Pausa.
 
 10. **Backgrounds Diferentes por Fase**
     *   **Seu Status:** ❌ NÃO IMPLEMENTADO
     *   **Minha Análise:** ✅ **Confirmo.** O `Fase.carregarRecursos()` carrega um caminho fixo.
-
----
-
-### **Planejamento de Implementação e Correções (Adicionado em 20/10/2025)**
-
-#### **1. Correções de Bugs Críticos (Bugs)**
-
-*   **Projéteis não são atraídos ao herói:**
-    *   **Problema:** Quando o herói fica no canto da tela, os itens não são atraídos a ele.
-
-*   **Projéteis não "explodem" do héroi**
-    *   **Problema:** Quando o herói morre, ele não droppa os itens que carregava.
-    *   **Análise:** existe uma função feita para "explodir" os itens radialmente quando o heroi morre, mas ela não está ativando.
-
----
-
-### **2. Melhorias de Desempenho**
-
-*   **Gerenciar os personagens em listas separadas**
-    * 
-
-#### **3. Melhorias Visuais e de Áudio (Visuals & Audio)**
-
-*   **Aumentar amplitude da pulsação visual da bomba:**
-    *   **Problema:** O efeito visual de pulsação da bomba esférica é pouco perceptível.
-    *   **Análise:** A animação de pulsação em `BombaProjetil.java` (ou classe visual correspondente) provavelmente usa uma função senoidal (`Math.sin`) para alterar o tamanho do sprite.
-    *   **Ação Sugerida:** Aumentar a amplitude da função senoidal em 200% no método de desenho. **Importante:** Garantir que essa alteração afete apenas o tamanho visual do sprite, e não o tamanho da hitbox de colisão.
 
 ---
 

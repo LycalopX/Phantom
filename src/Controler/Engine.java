@@ -132,8 +132,9 @@ public class Engine implements Runnable {
                     estadoAtual = GameState.JOGANDO;
                 }
                 else if (deathbombTimer <= 0) {
+                    int powerAntesDaMorte = hero.getPower();
                     hero.processarMorte();
-                    dropItensAoMorrer();
+                    dropItensAoMorrer(powerAntesDaMorte);
                     if (hero.getHP() <= 0) {
                         hero.deactivate();
                         estadoAtual = GameState.GAME_OVER;
@@ -169,12 +170,12 @@ public class Engine implements Runnable {
         cenario.setEstadoDoJogo(estadoAtual);
     }
 
-    private void dropItensAoMorrer() {
-        int powerAtual = hero.getPower();
-        int itensADropar = powerAtual / 10;
+    private void dropItensAoMorrer(int powerAtual) {
+        int itensADropar = powerAtual / 2;
+
         for (int i = 0; i < itensADropar; i++) {
             Item itemDropado = new Item(ItemType.MINI_POWER_UP, hero.x, hero.y, hero);
-            double angulo = -30 - (Math.random() * 120);
+            double angulo = -30 - Math.random() * 120;
             double forca = 0.15;
             itemDropado.lancarItem(angulo, forca);
             faseAtual.adicionarPersonagem(itemDropado);

@@ -5,6 +5,7 @@ import Modelo.Personagem;
 import Modelo.Hero.Hero;
 import Modelo.Projeteis.Projetil;
 import Modelo.Projeteis.ProjetilBombaHoming;
+import Modelo.Projeteis.ProjetilHoming;
 import Modelo.Projeteis.ProjetilPool;
 import Auxiliar.Cenario1.ArvoreParallax;
 import static Auxiliar.ConfigMapa.*;

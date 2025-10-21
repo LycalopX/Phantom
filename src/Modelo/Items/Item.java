@@ -19,7 +19,7 @@ public class Item extends Personagem {
     private double velX = 0;
     private double velY = 0;
     private static final double GRAVIDADE = 0.003; // Pequena força para baixo. Ajuste conforme necessário.
-    private static final double MAX_FALL_SPEED = 0.4;
+    private static final double MAX_FALL_SPEED = 0.3;
     private static final double VELOCIDADE_ATRACAO = 1;
 
     private int launchTimer = 0; // Contagem de frames para o lançamento
@@ -57,21 +57,18 @@ public class Item extends Personagem {
 
     @Override
     public void atualizar() {
-        // Se o herói existe e a bomba está ativa, ativa a atração
+        boolean deveAtrair = hero != null && (hero.isBombing() || hero.y < (ALTURA_TELA / CELL_SIDE) * 0.15);
 
-        if (hero != null && hero.isBombing()) {
+        if (deveAtrair) {
             double dx = hero.x - this.x;
             double dy = hero.y - this.y;
 
-            // Normaliza o vetor (transforma em um vetor de comprimento 1)
             double magnitude = Math.sqrt(dx * dx + dy * dy);
             if (magnitude > 0) {
                 this.x += (dx / magnitude) * VELOCIDADE_ATRACAO;
                 this.y += (dy / magnitude) * VELOCIDADE_ATRACAO;
             }
-        }
-        // Senão, aplica a física normal de queda
-        else {
+        } else {
             if (this.launchTimer > 0) {
                 this.x += velX;
                 this.y += velY;

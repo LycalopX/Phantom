@@ -121,8 +121,8 @@ public class ProjetilBombaHoming extends ProjetilHoming {
         int telaX = (int) Math.round(this.x * CELL_SIDE);
         int telaY = (int) Math.round(this.y * CELL_SIDE);
 
-        // MUDANÇA: Reduzimos a magnitude (0.8) e a velocidade (0.2) do pulso.
-        double scale = 1.0 + 0.8 * Math.sin(animationTimer * 0.05);
+        // 2.5 de Magnetude e 0.05 de Frequência para a pulsação
+        double scale = 1.0 + 2.5 * Math.abs(Math.sin(animationTimer * 0.03));
 
         int scaledWidth = (int) (this.largura * scale);
         int scaledHeight = (int) (this.altura * scale);

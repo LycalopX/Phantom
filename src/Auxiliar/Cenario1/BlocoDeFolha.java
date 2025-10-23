@@ -23,10 +23,11 @@ public class BlocoDeFolha implements Serializable {
             float opacidadeMaxima, float opacidadeMinima) {
         this.x = x;
         this.y = y;
+        this.imagem = imagem;
+        
         this.largura = largura;
         this.altura = altura;
         this.velocidadeOriginal = velocidade;
-        this.imagem = imagem;
         this.opacidadeMaxima = opacidadeMaxima;
         this.opacidadeMinima = opacidadeMinima;
     }

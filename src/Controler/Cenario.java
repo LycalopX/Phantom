@@ -136,7 +136,9 @@ public class Cenario extends JPanel {
 
                     if (faseAtual != null) {
                         if (p instanceof Inimigo) {
-                            ((Inimigo) p).initialize(faseAtual);
+                            Inimigo inimigo = (Inimigo) p;
+                            inimigo.initialize(faseAtual);
+                            inimigo.setInitialX(gridX);
                         }
                         faseAtual.adicionarPersonagem(p);
                         System.out.println("Personagem " + p.getClass().getSimpleName() + " adicionado em (" + gridX

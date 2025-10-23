@@ -26,7 +26,6 @@ public class FadaComum extends Inimigo {
 
     private State currentState;
     private double targetY = 8;
-    private double initialX;
     private double amplitude = 4;
     private double frequency = 0.5;
     private int shootTimer = 0;
@@ -41,7 +40,6 @@ public class FadaComum extends Inimigo {
     public FadaComum(double x, double y, LootTable lootTable, double vida, Fase fase) {
         super("", x, y, lootTable, 50);
         this.currentState = State.ENTERING;
-        this.initialX = x;
         this.faseReferencia = fase;
         this.animador = new GerenciadorDeAnimacaoInimigo();
         this.largura = (int) (30.0 * BODY_PROPORTION);

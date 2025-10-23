@@ -13,8 +13,10 @@ public class SoundManager {
     private final Map<String, Sound> sfxMap;
     private final Map<String, Music> musicMap;
 
-    private float globalSfxVolume = 0.05f; // Drastically reduced for testing
-    private float globalMusicVolume = 0.5f; // Default music volume
+    private float GLOBAL_VOLUME = 0.1f;
+
+    private float globalSfxVolume = (0.05f * GLOBAL_VOLUME); // Drastically reduced for testing
+    private float globalMusicVolume = (0.5f * GLOBAL_VOLUME); // Default music volume
 
     private static final String[] SFX_FILES = {
             "se_bonus.wav", "se_bonus2.wav", "se_border.wav", "se_cancel00.wav", "se_cardget.wav",

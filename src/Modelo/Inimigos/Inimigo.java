@@ -11,9 +11,12 @@ import static Auxiliar.ConfigMapa.*;
  */
 public class Inimigo extends Personagem {
 
+    private static final long serialVersionUID = 1L;
+
     public LootTable lootTable;
     public double vida;
     protected transient Fase faseReferencia;
+    protected double initialX;
 
     /**
      * @brief Construtor automático que calcula o tamanho do inimigo com base na imagem.
@@ -23,6 +26,7 @@ public class Inimigo extends Personagem {
         this.bMortal = true;
         this.lootTable = lootTable;
         this.vida = vida;
+        this.initialX = x;
     }
 
     /**
@@ -33,6 +37,7 @@ public class Inimigo extends Personagem {
         this.bMortal = true;
         this.lootTable = lootTable;
         this.vida = vida;
+        this.initialX = x;
     }
 
     /**
@@ -48,6 +53,10 @@ public class Inimigo extends Personagem {
      */
     public void initialize(Fase fase) {
         this.faseReferencia = fase;
+    }
+
+    public void setInitialX(double initialX) {
+        this.initialX = initialX;
     }
 
     /**

@@ -13,7 +13,7 @@ public class SoundManager {
     private final Map<String, Sound> sfxMap;
     private final Map<String, Music> musicMap;
 
-    private float GLOBAL_VOLUME = 0.1f;
+    private float GLOBAL_VOLUME = 0f;
 
     private float globalSfxVolume = (0.05f * GLOBAL_VOLUME); // Drastically reduced for testing
     private float globalMusicVolume = (0.5f * GLOBAL_VOLUME); // Default music volume
@@ -104,7 +104,7 @@ public class SoundManager {
                     .getResource("/sounds/Touhou Eiyashou - Imperishable Night/" + musicFileName);
 
             if (resourceUrl == null) {
-                System.err.println("Music file not found: " + musicFileName);
+                //System.err.println("Music file not found: " + musicFileName);
                 continue;
             }
 

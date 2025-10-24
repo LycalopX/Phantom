@@ -261,6 +261,22 @@ public class Hero extends Personagem {
         this.deactivate();
     }
 
+    public void toggleCheats() {
+
+        if (this.HP <= 10) {
+            this.HP = 999;
+            this.bombas = 999;
+            this.power = 9999;
+            System.out.println("Cheats ativados: HP, Bombas e Power máximos.");
+        } else {
+            this.HP = 3;
+            this.bombas = 3;
+            this.power = 0;
+            System.out.println("Cheats desativados.");
+        }
+        System.out.println("Cheats ativados: HP, Bombas e Power máximos.");
+    }
+
     /**
      * @brief Verifica se o herói está invencível.
      */

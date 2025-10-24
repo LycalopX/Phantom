@@ -12,6 +12,7 @@ import Auxiliar.Personagem.LootItem;
 import Auxiliar.Personagem.Quadtree;
 import Auxiliar.Projeteis.HitboxType;
 import Auxiliar.Projeteis.TipoProjetil;
+import Modelo.Items.ItemPool;
 import Auxiliar.LootTable;
 import Auxiliar.ConfigMapa;
 import java.awt.Graphics;
@@ -25,6 +26,7 @@ import java.awt.Rectangle;
  */
 public class ControleDeJogo {
     private Quadtree quadtree;
+    private ItemPool itemPool;
 
     private final ArrayList<Projetil> projeteisInimigosEspeciais;
     private final ArrayList<Personagem> novosObjetos;
@@ -35,8 +37,9 @@ public class ControleDeJogo {
      * @brief Construtor do ControleDeJogo. Inicializa a Quadtree e as listas de
      *        apoio.
      */
-    public ControleDeJogo() {
+    public ControleDeJogo(ItemPool itemPool) {
         this.quadtree = new Quadtree(0, new Rectangle(0, 0, ConfigMapa.LARGURA_TELA, ConfigMapa.ALTURA_TELA));
+        this.itemPool = itemPool;
         this.projeteisInimigosEspeciais = new ArrayList<>();
         this.novosObjetos = new ArrayList<>();
         this.alvosProximos = new ArrayList<>();
@@ -72,6 +75,12 @@ public class ControleDeJogo {
         for (Personagem p : personagens) {
             if (p instanceof Hero) {
                 hero = (Hero) p;
+            }
+            
+            if (p instanceof Item) {
+                if (p.y > ConfigMapa.MUNDO_ALTURA) {
+                    p.deactivate();
+                }
             }
 
             if (p.isActive()) {
@@ -159,17 +168,15 @@ public class ControleDeJogo {
                 }
 
                 if ((dx * dx) + (dy * dy) < (somaRaios * somaRaios)) {
-                    if (handleCollision(p1, p2, novosObjetos, hero)) {
+                    if (handleCollision(p1, p2, hero)) {
                         heroiFoiAtingido = true;
                     }
                 }
             }
         }
 
-        personagens.addAll(novosObjetos);
-
         personagens.removeIf(p -> {
-            if (p instanceof Projetil || p instanceof Hero) {
+            if (p instanceof Projetil || p instanceof Item || p instanceof Hero) {
                 return false;
             }
             return !p.isActive();
@@ -268,7 +275,7 @@ public class ControleDeJogo {
      *        colidiram.
      * @return true se a colisão resultou em dano ao herói, false caso contrário.
      */
-    private boolean handleCollision(Personagem p1, Personagem p2, ArrayList<Personagem> novosObjetos, Hero hero) {
+    private boolean handleCollision(Personagem p1, Personagem p2, Hero hero) {
         if (p1 instanceof Hero && p2 instanceof Inimigo) {
             return colisaoHeroiInimigo((Hero) p1, (Inimigo) p2);
         } else if (p2 instanceof Hero && p1 instanceof Inimigo) {
@@ -282,10 +289,10 @@ public class ControleDeJogo {
         }
 
         if (p1 instanceof Projetil && ((Projetil) p1).getTipo() == TipoProjetil.JOGADOR && p2 instanceof Inimigo) {
-            colisaoProjetilHeroiInimigo((Projetil) p1, (Inimigo) p2, novosObjetos, hero);
+            colisaoProjetilHeroiInimigo((Projetil) p1, (Inimigo) p2, hero);
         } else if (p2 instanceof Projetil && ((Projetil) p2).getTipo() == TipoProjetil.JOGADOR
                 && p1 instanceof Inimigo) {
-            colisaoProjetilHeroiInimigo((Projetil) p2, (Inimigo) p1, novosObjetos, hero);
+            colisaoProjetilHeroiInimigo((Projetil) p2, (Inimigo) p1, hero);
         }
 
         if (p1 instanceof Hero && p2 instanceof Item) {
@@ -334,7 +341,7 @@ public class ControleDeJogo {
      * @brief Lida com a colisão entre um projétil do herói e um inimigo,
      *        aplicando dano e gerando loot se o inimigo for destruído.
      */
-    private void colisaoProjetilHeroiInimigo(Projetil p, Inimigo i, ArrayList<Personagem> novosObjetos, Hero hero) {
+    private void colisaoProjetilHeroiInimigo(Projetil p, Inimigo i, Hero hero) {
         i.takeDamage(Hero.DANO_BALA);
 
         if (!(p instanceof ProjetilBombaHoming)) {
@@ -346,8 +353,10 @@ public class ControleDeJogo {
             if (tabela != null) {
                 ArrayList<LootItem> drops = tabela.gerarDrops();
                 for (LootItem dropInfo : drops) {
-                    Item itemCriado = new Item(dropInfo.getTipo(), i.x, i.y, hero);
-                    novosObjetos.add(itemCriado);
+                    Item itemCriado = itemPool.getItem(dropInfo.getTipo());
+                    if (itemCriado != null) {
+                        itemCriado.init(i.x, i.y);
+                    }
                 }
             }
         }

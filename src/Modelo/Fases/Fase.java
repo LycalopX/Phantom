@@ -2,9 +2,11 @@ package Modelo.Fases;
 
 import Modelo.Personagem;
 import Modelo.Hero.Hero;
+import Modelo.Items.ItemPool;
 import Modelo.Projeteis.Projetil;
 import Modelo.Projeteis.ProjetilBombaHoming;
 import Modelo.Projeteis.ProjetilPool;
+import Modelo.Inimigos.Inimigo;
 import Auxiliar.Cenario1.ArvoreParallax;
 import static Auxiliar.ConfigMapa.*;
 import java.io.Serializable;
@@ -26,6 +28,7 @@ public class Fase implements Serializable {
     private ArrayList<ArvoreParallax> arvores;
     private ScriptDeFase scriptDaFase;
     private ProjetilPool projetilPool;
+    private ItemPool itemPool;
 
     private transient BufferedImage imagemFundo1, imagemFundo2;
     private double scrollY = 0;
@@ -37,10 +40,12 @@ public class Fase implements Serializable {
      */
     public Fase(ScriptDeFase script) {
         this.personagens = new ArrayList<>();
-        this.projetilPool = new ProjetilPool(300, 100, personagens);
+        this.projetilPool = new ProjetilPool(20, 25, 12, 25, personagens);
+        this.itemPool = new ItemPool();
         this.arvores = new ArrayList<>();
         this.scriptDaFase = script;
         this.personagens.addAll(projetilPool.getTodosOsProjeteis());
+        this.personagens.addAll(itemPool.getTodosOsItens());
         carregarRecursos();
         if (this.scriptDaFase != null) {
             this.scriptDaFase.preencherCenarioInicial(this);
@@ -100,6 +105,8 @@ public class Fase implements Serializable {
                 }
             }
         }
+
+        personagens.removeIf(p -> (p instanceof Inimigo) && !p.isActive());
     }
 
     /**
@@ -107,6 +114,13 @@ public class Fase implements Serializable {
      */
     public ProjetilPool getProjetilPool() {
         return this.projetilPool;
+    }
+
+    /**
+     * @brief Retorna a piscina de itens da fase.
+     */
+    public ItemPool getItemPool() {
+        return this.itemPool;
     }
 
     /**

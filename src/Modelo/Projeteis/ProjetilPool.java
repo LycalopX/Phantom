@@ -14,11 +14,16 @@ public class ProjetilPool implements Serializable {
     private ArrayList<ProjetilBombaHoming> poolBombaHoming;
     private ArrayList<Projetil> poolInimigos;
 
+    private int maxActiveNormais = 0;
+    private int maxActiveHoming = 0;
+    private int maxActiveBombaHoming = 0;
+    private int maxActiveInimigos = 0;
+
     /**
      * @brief Construtor da piscina de projéteis. Inicializa as piscinas para cada
      *        tipo de projétil.
      */
-    public ProjetilPool(int tamanhoNormais, int tamanhoHoming, ArrayList<Personagem> personagens) {
+    public ProjetilPool(int tamanhoNormais, int tamanhoHoming, int tamanhoBombaHoming, int tamanhoInimigos, ArrayList<Personagem> personagens) {
         poolNormais = new ArrayList<>(tamanhoNormais);
         for (int i = 0; i < tamanhoNormais; i++) {
             poolNormais.add(new Projetil("projectiles/hero/projectile1_hero.png"));
@@ -29,13 +34,11 @@ public class ProjetilPool implements Serializable {
             poolHoming.add(new ProjetilHoming("projectiles/hero/projectile2_hero.png", personagens));
         }
 
-        int tamanhoBombaHoming = 64;
         poolBombaHoming = new ArrayList<>(tamanhoBombaHoming);
         for (int i = 0; i < tamanhoBombaHoming; i++) {
             poolBombaHoming.add(new ProjetilBombaHoming("projectiles/hero/talisman_bomb.png", personagens));
         }
 
-        int tamanhoInimigos = 100;
         poolInimigos = new ArrayList<>(tamanhoInimigos);
         for (int i = 0; i < tamanhoInimigos; i++) {
             poolInimigos.add(new Projetil("projectiles/inimigos/esferas.png"));
@@ -104,5 +107,63 @@ public class ProjetilPool implements Serializable {
         }
         System.err.println("PISCINA DE PROJÉTEIS DE INIMIGOS CHEIA!");
         return null;
+    }
+
+    public void updateHighWatermark() {
+        int currentActiveNormais = 0;
+        for (Projetil p : poolNormais) {
+            if (p.isActive()) {
+                currentActiveNormais++;
+            }
+        }
+        if (currentActiveNormais > maxActiveNormais) {
+            maxActiveNormais = currentActiveNormais;
+        }
+
+        int currentActiveHoming = 0;
+        for (ProjetilHoming p : poolHoming) {
+            if (p.isActive()) {
+                currentActiveHoming++;
+            }
+        }
+        if (currentActiveHoming > maxActiveHoming) {
+            maxActiveHoming = currentActiveHoming;
+        }
+
+        int currentActiveBombaHoming = 0;
+        for (ProjetilBombaHoming p : poolBombaHoming) {
+            if (p.isActive()) {
+                currentActiveBombaHoming++;
+            }
+        }
+        if (currentActiveBombaHoming > maxActiveBombaHoming) {
+            maxActiveBombaHoming = currentActiveBombaHoming;
+        }
+
+        int currentActiveInimigos = 0;
+        for (Projetil p : poolInimigos) {
+            if (p.isActive()) {
+                currentActiveInimigos++;
+            }
+        }
+        if (currentActiveInimigos > maxActiveInimigos) {
+            maxActiveInimigos = currentActiveInimigos;
+        }
+    }
+
+    public int getMaxActiveNormais() {
+        return maxActiveNormais;
+    }
+
+    public int getMaxActiveHoming() {
+        return maxActiveHoming;
+    }
+
+    public int getMaxActiveBombaHoming() {
+        return maxActiveBombaHoming;
+    }
+
+    public int getMaxActiveInimigos() {
+        return maxActiveInimigos;
     }
 }

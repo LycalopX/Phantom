@@ -29,13 +29,26 @@ public class Item extends Personagem {
     /**
      * @brief Construtor do item.
      */
-    public Item(ItemType tipo, double x, double y, Hero hero) {
-        super("items.png", x, y, (int) (tipo.getLargura() * BODY_PROPORTION), (int) (tipo.getAltura() * BODY_PROPORTION));
+    public Item(ItemType tipo) {
+        super("items.png", 0, 0, (int) (tipo.getLargura() * BODY_PROPORTION), (int) (tipo.getAltura() * BODY_PROPORTION));
         this.tipo = tipo;
         this.bTransponivel = true;
         this.bMortal = false;
-        this.hero = hero;
+        this.isActive = false;
         recortarSprite();
+    }
+
+    public void init(double x, double y) {
+        this.x = x;
+        this.y = y;
+        this.velX = 0;
+        this.velY = 0;
+        this.launchTimer = 0;
+        this.activate();
+    }
+
+    public void setHero(Hero hero) {
+        this.hero = hero;
     }
 
     /**
@@ -53,6 +66,8 @@ public class Item extends Personagem {
      */
     @Override
     public void atualizar() {
+        if (!this.isActive) return;
+
         boolean deveAtrair = hero != null && (hero.isBombing() || hero.y < (ALTURA_TELA / CELL_SIDE) * 0.15);
 
         if (deveAtrair) {
@@ -109,6 +124,8 @@ public class Item extends Personagem {
      */
     @Override
     public void autoDesenho(Graphics g) {
+        if (!this.isActive) return;
+
         if (spriteRecortado == null)
             recortarSprite();
 

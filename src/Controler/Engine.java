@@ -67,13 +67,17 @@ public class Engine implements Runnable {
      *        incluindo controladores, fases, herói e a interface gráfica.
      */
     public Engine() {
-        controleDeJogo = new ControleDeJogo();
-        controladorHeroi = new ControladorDoHeroi(this);
-
         this.gerenciadorDeFases = new GerenciadorDeFases();
         this.faseAtual = gerenciadorDeFases.carregarFase();
         this.hero = new Hero("hero/hero_s0.png", RESPAWN_X, RESPAWN_Y);
         this.faseAtual.adicionarPersonagem(hero);
+
+        for (Item item : faseAtual.getItemPool().getTodosOsItens()) {
+            item.setHero(hero);
+        }
+
+        controleDeJogo = new ControleDeJogo(faseAtual.getItemPool());
+        controladorHeroi = new ControladorDoHeroi(this);
 
         cenario = new Cenario();
         cenario.setFase(faseAtual);
@@ -118,6 +122,9 @@ public class Engine implements Runnable {
      *        morrendo, etc.).
      */
     private synchronized void atualizar() {
+        faseAtual.getItemPool().updateHighWatermark();
+        faseAtual.getProjetilPool().updateHighWatermark();
+
         switch (estadoAtual) {
             case JOGANDO:
                 controladorHeroi.processarInput(teclasPressionadas, hero, faseAtual, controleDeJogo);
@@ -188,13 +195,13 @@ public class Engine implements Runnable {
     private void dropItensAoMorrer(int powerAtual) {
         int itensADropar = powerAtual / 2;
         for (int i = 0; i < itensADropar; i++) {
-            Item itemDropado = new Item(ItemType.MINI_POWER_UP, hero.x, hero.y, hero);
-
-            double angulo = -30 - Math.random() * 120;
-            double forca = 0.15;
-
-            itemDropado.lancarItem(angulo, forca);
-            faseAtual.adicionarPersonagem(itemDropado);
+            Item itemDropado = faseAtual.getItemPool().getItem(ItemType.MINI_POWER_UP);
+            if (itemDropado != null) {
+                itemDropado.init(hero.x, hero.y);
+                double angulo = -30 - Math.random() * 120;
+                double forca = 0.15;
+                itemDropado.lancarItem(angulo, forca);
+            }
         }
     }
 
@@ -261,12 +268,31 @@ public class Engine implements Runnable {
                     carregarJogo();
                     return;
                 }
+
                 teclasPressionadas.add(e.getKeyCode());
                 if (teclasPressionadas.contains(KeyEvent.VK_F) && teclasPressionadas.contains(KeyEvent.VK_3)) {
                     DebugManager.toggle();
                 }
+
                 if (teclasPressionadas.contains(KeyEvent.VK_F) && teclasPressionadas.contains(KeyEvent.VK_4)) {
                     salvarInimigosParaTeste();
+                }
+
+                if (teclasPressionadas.contains(KeyEvent.VK_F) && teclasPressionadas.contains(KeyEvent.VK_5)) {
+                    System.out.println("--- Pool High Watermarks ---");
+                    System.out.println("Items: " + faseAtual.getItemPool().getMaxActiveItems());
+                    System.out.println("Projeteis Normais: " + faseAtual.getProjetilPool().getMaxActiveNormais());
+                    System.out.println("Projeteis Homing: " + faseAtual.getProjetilPool().getMaxActiveHoming());
+                    System.out.println(
+                            "Projeteis Bomba Homing: " + faseAtual.getProjetilPool().getMaxActiveBombaHoming());
+                    System.out.println("Projeteis Inimigos: " + faseAtual.getProjetilPool().getMaxActiveInimigos());
+                    System.out.println("---------------------------");
+                }
+
+                // Kate Cheatcode
+                if (teclasPressionadas.contains(KeyEvent.VK_K) && teclasPressionadas.contains(KeyEvent.VK_A)
+                        && teclasPressionadas.contains(KeyEvent.VK_T) && teclasPressionadas.contains(KeyEvent.VK_E)) {
+                    hero.toggleCheats();
                 }
             }
 
@@ -317,7 +343,7 @@ public class Engine implements Runnable {
             try (FileOutputStream fos = new FileOutputStream(nomeArquivo);
                     ZipOutputStream zos = new ZipOutputStream(fos)) {
                 ZipEntry entry = new ZipEntry(p.getClass().getSimpleName() + ".ser");
-                
+
                 zos.putNextEntry(entry);
                 zos.write(personagemBytes);
                 zos.closeEntry();

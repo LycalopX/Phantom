@@ -41,7 +41,6 @@ public class Quadtree {
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
                 nodes[i].clear();
-                nodes[i] = null;
             }
         }
     }

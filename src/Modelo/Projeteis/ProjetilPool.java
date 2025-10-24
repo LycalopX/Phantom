@@ -3,6 +3,7 @@ package Modelo.Projeteis;
 import Modelo.Personagem;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @brief Gerencia uma piscina de objetos de projéteis para reutilização,
@@ -23,7 +24,7 @@ public class ProjetilPool implements Serializable {
      * @brief Construtor da piscina de projéteis. Inicializa as piscinas para cada
      *        tipo de projétil.
      */
-    public ProjetilPool(int tamanhoNormais, int tamanhoHoming, int tamanhoBombaHoming, int tamanhoInimigos, ArrayList<Personagem> personagens) {
+    public ProjetilPool(int tamanhoNormais, int tamanhoHoming, int tamanhoBombaHoming, int tamanhoInimigos, List<Personagem> personagens) {
         poolNormais = new ArrayList<>(tamanhoNormais);
         for (int i = 0; i < tamanhoNormais; i++) {
             poolNormais.add(new Projetil("projectiles/hero/projectile1_hero.png"));

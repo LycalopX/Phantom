@@ -14,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import javax.imageio.ImageIO;
 
 /**
@@ -24,7 +25,7 @@ import javax.imageio.ImageIO;
  */
 public class Fase implements Serializable {
 
-    private ArrayList<Personagem> personagens;
+    private CopyOnWriteArrayList<Personagem> personagens;
     private ArrayList<ArvoreParallax> arvores;
     private ScriptDeFase scriptDaFase;
     private ProjetilPool projetilPool;
@@ -39,14 +40,17 @@ public class Fase implements Serializable {
      * @param script O script que define os eventos e spawns desta fase.
      */
     public Fase(ScriptDeFase script) {
-        this.personagens = new ArrayList<>();
-        this.projetilPool = new ProjetilPool(20, 25, 12, 25, personagens);
+        this.personagens = new CopyOnWriteArrayList<>();
+        this.projetilPool = new ProjetilPool(20, 25, 16, 25, personagens);
         this.itemPool = new ItemPool();
         this.arvores = new ArrayList<>();
+
         this.scriptDaFase = script;
+
         this.personagens.addAll(projetilPool.getTodosOsProjeteis());
         this.personagens.addAll(itemPool.getTodosOsItens());
         carregarRecursos();
+        
         if (this.scriptDaFase != null) {
             this.scriptDaFase.preencherCenarioInicial(this);
         }
@@ -126,7 +130,7 @@ public class Fase implements Serializable {
     /**
      * @brief Retorna a lista de todos os personagens na fase.
      */
-    public ArrayList<Personagem> getPersonagens() {
+    public java.util.List<Personagem> getPersonagens() {
         return this.personagens;
     }
 

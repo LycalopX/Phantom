@@ -5,6 +5,7 @@ import Auxiliar.Projeteis.TipoProjetil;
 import Modelo.Personagem;
 import Modelo.Inimigos.Inimigo;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @brief Projétil que, após um período inicial de inércia, persegue o inimigo
@@ -20,7 +21,7 @@ public class ProjetilHoming extends Projetil {
     private HomingState estadoAtual = HomingState.INERCIA;
 
     private Inimigo alvo;
-    private ArrayList<Personagem> personagens;
+    private List<Personagem> personagens;
     private double taxaDeCurva = 0.1;
 
     private int TEMPO_INERCIA = 20;
@@ -29,7 +30,7 @@ public class ProjetilHoming extends Projetil {
     /**
      * @brief Construtor do projétil teleguiado.
      */
-    public ProjetilHoming(String sNomeImagePNG, ArrayList<Personagem> personagens) {
+    public ProjetilHoming(String sNomeImagePNG, List<Personagem> personagens) {
         super(sNomeImagePNG);
         this.personagens = personagens;
     }
@@ -106,7 +107,7 @@ public class ProjetilHoming extends Projetil {
     /**
      * @brief Encontra o inimigo mais próximo do projétil para definir como alvo.
      */
-    private void encontrarAlvoMaisProximo(ArrayList<Personagem> personagens) {
+    private void encontrarAlvoMaisProximo(List<Personagem> personagens) {
         double menorDistancia = Double.MAX_VALUE;
         Inimigo inimigoMaisProximo = null;
 

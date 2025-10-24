@@ -36,7 +36,7 @@ public class ProjetilBombaHoming extends ProjetilHoming {
     /**
      * @brief Construtor do projétil teleguiado da bomba.
      */
-    public ProjetilBombaHoming(String sNomeImagePNG, ArrayList<Personagem> personagens) {
+    public ProjetilBombaHoming(String sNomeImagePNG, List<Personagem> personagens) {
         super(sNomeImagePNG, personagens);
     }
 
@@ -99,6 +99,9 @@ public class ProjetilBombaHoming extends ProjetilHoming {
         }
     }
 
+    private static final Color AURA_COLOR = new Color(255, 120, 120);
+    private static final Color TRAIL_BASE_COLOR = new Color(255, 100, 100);
+
     /**
      * @brief Desenha o míssil com um efeito de rastro e pulsação.
      */
@@ -113,7 +116,7 @@ public class ProjetilBombaHoming extends ProjetilHoming {
         for (int i = 0; i < positionHistory.size(); i++) {
             Point2D.Double pos = positionHistory.get(i);
             int alpha = (int) (200 * (1.0f - (float) i / TRAIL_LENGTH));
-            g2d.setColor(new Color(255, 100, 100, alpha));
+            g2d.setColor(new Color(TRAIL_BASE_COLOR.getRed(), TRAIL_BASE_COLOR.getGreen(), TRAIL_BASE_COLOR.getBlue(), alpha));
             int telaX = (int) Math.round(pos.x * CELL_SIDE);
             int telaY = (int) Math.round(pos.y * CELL_SIDE);
             int particleSize = 8;
@@ -130,7 +133,7 @@ public class ProjetilBombaHoming extends ProjetilHoming {
 
         float auraAlpha = 0.3f;
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, auraAlpha));
-        g.setColor(new Color(255, 120, 120));
+        g.setColor(AURA_COLOR);
         g.fillOval(telaX - (scaledWidth / 2) - 4, telaY - (scaledHeight / 2) - 4, scaledWidth + 8, scaledHeight + 8);
 
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));

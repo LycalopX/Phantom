@@ -22,6 +22,8 @@ public class BombaProjetil extends Personagem {
     private transient Fase faseReferencia;
     private transient Hero heroReferencia;
 
+    private static final Color BOMB_COLOR = new Color(255, 255, 255, 100);
+
     /**
      * @brief Construtor da bomba.
      */
@@ -70,7 +72,7 @@ public class BombaProjetil extends Personagem {
         int centroY = (int) (this.y * CELL_SIDE);
         int raioPixels = (int) (this.raioAtualGrid * CELL_SIDE);
 
-        g2d.setColor(new Color(255, 255, 255, 100));
+        g2d.setColor(BOMB_COLOR);
         g2d.fillOval(
             centroX - raioPixels,
             centroY - raioPixels,

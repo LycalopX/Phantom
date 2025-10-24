@@ -18,6 +18,7 @@ import Auxiliar.ConfigMapa;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.awt.Rectangle;
+import java.util.List;
 
 /**
  * @brief Orquestra a lógica principal do jogo, incluindo detecção de colisão,
@@ -49,7 +50,7 @@ public class ControleDeJogo {
     /**
      * @brief Desenha todos os personagens de uma lista na tela.
      */
-    public void desenhaTudo(ArrayList<Personagem> e, Graphics g) {
+    public void desenhaTudo(List<Personagem> e, Graphics g) {
         for (Personagem personagem : e) {
             personagem.autoDesenho(g);
         }
@@ -62,7 +63,7 @@ public class ControleDeJogo {
      * @param removeProjectiles Flag para remover todos os projéteis da tela.
      * @return true se o herói foi atingido, false caso contrário.
      */
-    public boolean processaTudo(ArrayList<Personagem> personagens, boolean removeProjectiles) {
+    public boolean processaTudo(List<Personagem> personagens, boolean removeProjectiles) {
         if (personagens.isEmpty())
             return false;
 
@@ -190,7 +191,7 @@ public class ControleDeJogo {
      *        checando por colisões com outros personagens não transponíveis.
      * @return true se a posição for válida, false caso contrário.
      */
-    public boolean ehPosicaoValida(ArrayList<Personagem> umaFase, Personagem personagem, double proximoX,
+    public boolean ehPosicaoValida(List<Personagem> umaFase, Personagem personagem, double proximoX,
             double proximoY) {
         for (Personagem p : umaFase) {
             if (p == personagem || p.isbTransponivel()) {

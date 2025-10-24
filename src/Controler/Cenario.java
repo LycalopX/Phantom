@@ -38,9 +38,16 @@ public class Cenario extends JPanel {
     private Engine.GameState estadoDoJogo;
     private BufferedImage imagemGameOver;
 
-    private final ArrayList<Personagem> ProjeteisJogador = new ArrayList<>();
-    private final ArrayList<Personagem> ProjeteisInimigos = new ArrayList<>();
-    private final ArrayList<Personagem> HeroItemBombaProjetil = new ArrayList<>();
+    // Listas para organizar a ordem de renderização
+    private final ArrayList<Personagem> projeteisJogador = new ArrayList<>();
+    private final ArrayList<Personagem> inimigosEProjeteis = new ArrayList<>();
+    private final ArrayList<Personagem> heroItemBombaProjetil = new ArrayList<>();
+
+    // Otimização: Pré-alocar objetos de desenho para evitar criação em loop
+    private final Color corFundoOverlay = new Color(0, 0, 50, 150);
+    private final Color corDeathbombOverlay = new Color(255, 0, 0, 30);
+    private final Font fonteHUD = new Font("Arial", Font.BOLD, 20);
+    private final LinearGradientPaint gradienteFundo;
 
     /**
      * @brief Construtor do Cenario. Configura as dimensões, foco, cor de fundo,
@@ -52,6 +59,14 @@ public class Cenario extends JPanel {
         this.setFocusable(false);
         this.setBackground(Color.BLACK);
         this.contadorFPS = new ContadorFPS();
+
+        // Otimização: Inicializar o gradiente uma vez no construtor
+        Point2D start = new Point2D.Float(0, 0);
+        Point2D end = new Point2D.Float(0, ConfigMapa.ALTURA_TELA);
+        float[] fractions = { 0.0f, 0.5f, 1.0f };
+        Color[] colors = { new Color(0, 0, 50, 255), new Color(0, 0, 50, 100), new Color(0, 0, 50, 0) };
+        this.gradienteFundo = new LinearGradientPaint(start, end, fractions, colors);
+
         setupDropTarget();
     }
 
@@ -182,37 +197,35 @@ public class Cenario extends JPanel {
                 arvore.desenhar(g2d, getHeight());
             }
 
-            ArrayList<Personagem> personagensParaDesenhar = new ArrayList<>(faseAtual.getPersonagens());
-
             if (estadoDoJogo == Engine.GameState.DEATHBOMB_WINDOW) {
-                g.setColor(new Color(255, 0, 0, 30));
+                g.setColor(corDeathbombOverlay);
                 g.fillRect(0, 0, getWidth(), getHeight());
             }
 
-            ProjeteisJogador.clear();
-            HeroItemBombaProjetil.clear();
-            ProjeteisInimigos.clear();
+            // Limpa as listas de renderização
+            projeteisJogador.clear();
+            heroItemBombaProjetil.clear();
+            inimigosEProjeteis.clear();
 
-            for (Personagem p : personagensParaDesenhar) {
+            // Itera sobre a lista thread-safe para distribuir os personagens
+            for (Personagem p : faseAtual.getPersonagens()) {
                 if (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.JOGADOR) {
-                    ProjeteisJogador.add(p);
-                }
-                if (p instanceof Hero || p instanceof Item || p instanceof BombaProjetil) {
-                    HeroItemBombaProjetil.add(p);
-                }
-                if (p instanceof Inimigo
-                        || (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.INIMIGO)) {
-                    ProjeteisInimigos.add(p);
+                    projeteisJogador.add(p);
+                } else if (p instanceof Hero || p instanceof Item || p instanceof BombaProjetil) {
+                    heroItemBombaProjetil.add(p);
+                } else if (p instanceof Inimigo || (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.INIMIGO)) {
+                    inimigosEProjeteis.add(p);
                 }
             }
 
-            for (Personagem p : ProjeteisJogador) {
+            // Desenha os personagens na ordem correta
+            for (Personagem p : projeteisJogador) {
                 p.autoDesenho(g);
             }
-            for (Personagem p : HeroItemBombaProjetil) {
+            for (Personagem p : heroItemBombaProjetil) {
                 p.autoDesenho(g);
             }
-            for (Personagem p : ProjeteisInimigos) {
+            for (Personagem p : inimigosEProjeteis) {
                 p.autoDesenho(g);
             }
 
@@ -236,16 +249,10 @@ public class Cenario extends JPanel {
         g2d.drawImage(imagemFundo1, 0, yPos, getWidth(), getHeight(), this);
         g2d.drawImage(imagemFundo1, 0, yPos - getHeight(), getWidth(), getHeight(), this);
 
-        int escuridaoGeral = 150;
-        g2d.setColor(new Color(0, 0, 50, escuridaoGeral));
+        g2d.setColor(corFundoOverlay);
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
-        Point2D start = new Point2D.Float(0, 0);
-        Point2D end = new Point2D.Float(0, getHeight());
-        float[] fractions = { 0.0f, 0.5f, 1.0f };
-        Color[] colors = { new Color(0, 0, 50, 255), new Color(0, 0, 50, 100), new Color(0, 0, 50, 0) };
-        LinearGradientPaint gradiente = new LinearGradientPaint(start, end, fractions, colors);
-        g2d.setPaint(gradiente);
+        g2d.setPaint(gradienteFundo);
         g2d.fillRect(0, 0, getWidth(), getHeight());
     }
 
@@ -255,7 +262,7 @@ public class Cenario extends JPanel {
      */
     private void desenharHUD(Graphics2D g2d) {
         g2d.setColor(Color.WHITE);
-        g2d.setFont(new Font("Arial", Font.BOLD, 20));
+        g2d.setFont(fonteHUD);
 
         g2d.drawString(contadorFPS.getFPSString(), 10, 60);
 
@@ -282,14 +289,16 @@ public class Cenario extends JPanel {
      * @brief Desenha a tela de Game Over.
      */
     private void desenharTelaGameOver(Graphics g) {
+        if (imagemGameOver == null) {
+            carregarImagensGameOver();
+        }
+        
         if (imagemGameOver != null) {
             g.drawImage(imagemGameOver, 0, 0, getWidth(), getHeight(), this);
         } else {
             g.setColor(Color.BLACK);
             g.fillRect(0, 0, getWidth(), getHeight());
         }
-
-        carregarImagensGameOver();
     }
 
     /**

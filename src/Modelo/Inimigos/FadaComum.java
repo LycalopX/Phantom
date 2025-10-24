@@ -38,7 +38,7 @@ public class FadaComum extends Inimigo {
      * @brief Construtor da FadaComum.
      */
     public FadaComum(double x, double y, LootTable lootTable, double vida, Fase fase) {
-        super("", x, y, lootTable, 50);
+        super("", x, y, lootTable, 40);
         this.currentState = State.ENTERING;
         this.faseReferencia = fase;
         this.animador = new GerenciadorDeAnimacaoInimigo();

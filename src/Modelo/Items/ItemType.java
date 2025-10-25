@@ -3,7 +3,7 @@ package Modelo.Items;
 
 public enum ItemType {
     // (spriteX, spriteY, scoreValue, powerValue, bombValue, poolSize)
-    MINI_POWER_UP(0, 0, 10, 1, 0, 20),
+    MINI_POWER_UP(0, 0, 10, 1, 0, 50),
     SCORE_POINT(16, 0, 50, 0, 0, 20),
     POWER_UP(32, 0, 100, 5, 0, 5),
     BOMB(48, 0, 0, 0, 1, 2),

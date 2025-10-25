@@ -41,7 +41,7 @@ public class Fase implements Serializable {
      */
     public Fase(ScriptDeFase script) {
         this.personagens = new CopyOnWriteArrayList<>();
-        this.projetilPool = new ProjetilPool(20, 25, 16, 25, personagens);
+        this.projetilPool = new ProjetilPool(20, 25, 16, 150, personagens);
         this.itemPool = new ItemPool();
         this.arvores = new ArrayList<>();
 
@@ -62,6 +62,12 @@ public class Fase implements Serializable {
      */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
+
+        // Garante a segurança de thread ao carregar saves antigos
+        if (!(this.personagens instanceof CopyOnWriteArrayList)) {
+            this.personagens = new CopyOnWriteArrayList<>(this.personagens);
+        }
+
         carregarRecursos();
         if (this.arvores != null && this.imagemFundo2 != null) {
             for (ArvoreParallax arvore : this.arvores) {

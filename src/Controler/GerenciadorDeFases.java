@@ -30,13 +30,16 @@ public class GerenciadorDeFases {
                 script = new ScriptFase2();
                 break;
             case 3:
-                script = new ScriptFase3();
+                // script = new ScriptFase3(); // Ainda não implementado
+                script = new ScriptFase1(); // Fallback para fase 1
                 break;
             case 4:
-                script = new ScriptFase4();
+                // script = new ScriptFase4(); // Ainda não implementado
+                script = new ScriptFase1(); // Fallback para fase 1
                 break;
             case 5:
-                script = new ScriptFase5();
+                // script = new ScriptFase5(); // Ainda não implementado
+                script = new ScriptFase1(); // Fallback para fase 1
                 break;
             default:
                 script = new ScriptFase1();
@@ -55,6 +58,18 @@ public class GerenciadorDeFases {
             nivelAtual++;
         } else {
             nivelAtual = 1;
+        }
+        return carregarFase();
+    }
+
+    /**
+     * @brief Pula para um número de fase específico.
+     * @param numeroDaFase O nível para o qual pular.
+     * @return A nova fase carregada.
+     */
+    public Fase irParaFase(int numeroDaFase) {
+        if (numeroDaFase > 0 && numeroDaFase <= TOTAL_DE_FASES) {
+            this.nivelAtual = numeroDaFase;
         }
         return carregarFase();
     }

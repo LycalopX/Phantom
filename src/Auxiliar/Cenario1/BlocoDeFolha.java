@@ -45,11 +45,11 @@ public class BlocoDeFolha implements Serializable {
      * @brief Desenha o bloco na tela, aplicando um efeito de fade (esmaecimento)
      *        conforme ele se aproxima da parte inferior da tela.
      */
-    public void desenhar(Graphics2D g2d, int alturaDaTela) {
+    public void desenhar(Graphics2D g2d, int larguraTela, int alturaTela) {
         Composite originalComposite = g2d.getComposite();
 
         float faixaDeOpacidade = this.opacidadeMaxima - this.opacidadeMinima;
-        float pontoFinalFade = alturaDaTela * 0.85f;
+        float pontoFinalFade = alturaTela * 0.85f;
         float fracaoDoFade = (float) this.y / pontoFinalFade;
         fracaoDoFade = Math.max(0.0f, Math.min(1.0f, fracaoDoFade));
         float alphaFinal = this.opacidadeMinima + (fracaoDoFade * faixaDeOpacidade);
@@ -57,7 +57,9 @@ public class BlocoDeFolha implements Serializable {
         alphaFinal = Math.max(0.0f, Math.min(1.0f, alphaFinal));
 
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alphaFinal));
+        
         g2d.drawImage(imagem, (int) x, (int) y, this.largura, this.altura, null);
+
         g2d.setComposite(originalComposite);
     }
 

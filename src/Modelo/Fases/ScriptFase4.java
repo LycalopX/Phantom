@@ -1,7 +1,7 @@
 package Modelo.Fases;
 
 /**
- * @brief Script de eventos e spawns para a Fase 4 (placeholder).
+ * @brief Script de eventos e spawns para a Fase 3 (placeholder).
  */
 public class ScriptFase4  extends ScriptDeFase {
 
@@ -18,5 +18,13 @@ public class ScriptFase4  extends ScriptDeFase {
 
     @Override
     public void preencherCenarioInicial(Fase fase) {
+    }
+
+    @Override
+    public void carregarRecursos(Fase fase) {
+    }
+
+    @Override
+    public void relinkarRecursosDosElementos(Fase fase) {
     }
 }

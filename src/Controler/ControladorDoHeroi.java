@@ -16,6 +16,7 @@ import Modelo.Hero.Hero;
 public class ControladorDoHeroi {
 
     private Engine engine;
+    private boolean f2Pressionado = false; // Trava para o cheat de pular de fase
 
     /**
      * @brief Construtor do controlador do herói.
@@ -42,6 +43,16 @@ public class ControladorDoHeroi {
         boolean isFocoAtivo = teclas.contains(KeyEvent.VK_SHIFT);
         double velocidadeAtual = isFocoAtivo ? delta / 2.0 : delta;
         heroi.setFocoAtivo(isFocoAtivo);
+
+        // Cheat para pular de fase (Shift + F2)
+        if (isFocoAtivo && teclas.contains(KeyEvent.VK_F2)) {
+            if (!f2Pressionado) {
+                engine.pularParaProximaFase();
+                f2Pressionado = true; // Ativa a trava para evitar pulos múltiplos
+            }
+        } else {
+            f2Pressionado = false; // Reseta a trava quando a tecla F2 é solta
+        }
 
         if (teclas.contains(ConfigTeclado.KEY_UP))
             dy -= velocidadeAtual;

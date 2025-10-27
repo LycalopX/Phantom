@@ -19,9 +19,9 @@ public class Item extends Personagem {
 
     private double velX = 0;
     private double velY = 0;
-    private static final double GRAVIDADE = 0.003;
-    private static final double MAX_FALL_SPEED = 0.3;
-    private static final double VELOCIDADE_ATRACAO = 1;
+    private static final double GRAVIDADE = 0.003 * (FATOR_ESCALA_ALTURA);
+    private static final double MAX_FALL_SPEED = 0.3 * (FATOR_ESCALA_ALTURA);
+    private static final double VELOCIDADE_ATRACAO = 1 * (FATOR_ESCALA_ALTURA);
 
     private int launchTimer = 0;
     private static final int DURACAO_LANCAMENTO = 60;

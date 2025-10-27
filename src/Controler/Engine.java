@@ -50,7 +50,7 @@ public class Engine implements Runnable {
     private int respawnTimer = 0;
     private final int TEMPO_DE_RESPAWN = 60;
     private final Set<Integer> teclasPressionadas = new HashSet<>();
-    private final double velocidadeScroll = 2.0;
+    private final double velocidadeScroll = 2.0 * FATOR_ESCALA_ALTURA;
     private int deathbombTimer = 0;
     private final int JANELA_DEATHBOMB = 8;
     private boolean removeProjectiles = false;
@@ -358,6 +358,15 @@ public class Engine implements Runnable {
      * @brief Carrega a próxima fase do jogo.
      */
     public void carregarProximaFase() {
+        this.faseAtual = gerenciadorDeFases.proximaFase();
+        this.faseAtual.adicionarPersonagem(hero);
+        cenario.setFase(this.faseAtual);
+    }
+
+    /**
+     * @brief Pula para a próxima fase, como um cheat.
+     */
+    public void pularParaProximaFase() {
         this.faseAtual = gerenciadorDeFases.proximaFase();
         this.faseAtual.adicionarPersonagem(hero);
         cenario.setFase(this.faseAtual);

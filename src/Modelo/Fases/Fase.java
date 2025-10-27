@@ -7,15 +7,13 @@ import Modelo.Projeteis.Projetil;
 import Modelo.Projeteis.ProjetilBombaHoming;
 import Modelo.Projeteis.ProjetilPool;
 import Modelo.Inimigos.Inimigo;
-import Auxiliar.Cenario1.ArvoreParallax;
+import Modelo.Cenario.ElementoCenario;
 import static Auxiliar.ConfigMapa.*;
 import java.io.Serializable;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
-import javax.imageio.ImageIO;
 
 /**
  * @brief Representa um contêiner para uma fase do jogo, guardando todos os
@@ -26,14 +24,10 @@ import javax.imageio.ImageIO;
 public class Fase implements Serializable {
 
     private CopyOnWriteArrayList<Personagem> personagens;
-    private ArrayList<ArvoreParallax> arvores;
     private ScriptDeFase scriptDaFase;
     private ProjetilPool projetilPool;
     private ItemPool itemPool;
-
-    private transient BufferedImage imagemFundo1, imagemFundo2;
-    private double scrollY = 0;
-    private double distanciaTotalRolada = 0;
+    private ArrayList<ElementoCenario> elementosCenario;
 
     /**
      * @brief Construtor da Fase.
@@ -43,15 +37,14 @@ public class Fase implements Serializable {
         this.personagens = new CopyOnWriteArrayList<>();
         this.projetilPool = new ProjetilPool(20, 25, 16, 150, personagens);
         this.itemPool = new ItemPool();
-        this.arvores = new ArrayList<>();
-
+        this.elementosCenario = new ArrayList<>();
         this.scriptDaFase = script;
 
         this.personagens.addAll(projetilPool.getTodosOsProjeteis());
         this.personagens.addAll(itemPool.getTodosOsItens());
-        carregarRecursos();
-        
+
         if (this.scriptDaFase != null) {
+            this.scriptDaFase.carregarRecursos(this);
             this.scriptDaFase.preencherCenarioInicial(this);
         }
     }
@@ -63,30 +56,16 @@ public class Fase implements Serializable {
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
 
-        // Garante a segurança de thread ao carregar saves antigos
         if (!(this.personagens instanceof CopyOnWriteArrayList)) {
             this.personagens = new CopyOnWriteArrayList<>(this.personagens);
         }
 
-        carregarRecursos();
-        if (this.arvores != null && this.imagemFundo2 != null) {
-            for (ArvoreParallax arvore : this.arvores) {
-                arvore.relinkarImagens(this.imagemFundo2);
-            }
+        if (this.scriptDaFase != null) {
+            this.scriptDaFase.carregarRecursos(this);
+            this.scriptDaFase.relinkarRecursosDosElementos(this);
         }
-    }
 
-    /**
-     * @brief Carrega os recursos de imagem (transient) para a fase.
-     */
-    private void carregarRecursos() {
-        try {
-            imagemFundo1 = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage1/stage_1_bg1.png"));
-            imagemFundo2 = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage1/stage_1_bg2.png"));
-        } catch (Exception e) {
-            System.out.println("Erro ao carregar imagens de fundo da fase.");
-            e.printStackTrace();
-        }
+        // O código antigo de relink foi removido daqui
     }
 
     /**
@@ -94,17 +73,14 @@ public class Fase implements Serializable {
      *        execução do script de fase e atualização de todos os personagens.
      */
     public void atualizar(double velocidadeScroll) {
-        scrollY = (scrollY + velocidadeScroll) % (ALTURA_TELA);
-        distanciaTotalRolada += velocidadeScroll;
-
         if (this.scriptDaFase != null) {
             this.scriptDaFase.atualizar(this, velocidadeScroll);
         }
 
-        for (ArvoreParallax arvore : arvores) {
-            arvore.mover(velocidadeScroll);
+        for (ElementoCenario elemento : elementosCenario) {
+            elemento.mover(velocidadeScroll);
         }
-        arvores.removeIf(arvore -> arvore.estaForaDaTela(ALTURA_TELA));
+        elementosCenario.removeIf(elemento -> elemento.estaForaDaTela(ALTURA_TELA));
 
         for (Personagem p : personagens) {
             p.atualizar();
@@ -141,24 +117,10 @@ public class Fase implements Serializable {
     }
 
     /**
-     * @brief Retorna a lista de árvores de parallax na fase.
+     * @brief Retorna a lista de elementos do cenário na fase.
      */
-    public ArrayList<ArvoreParallax> getArvores() {
-        return this.arvores;
-    }
-
-    /**
-     * @brief Retorna a imagem de fundo principal da fase.
-     */
-    public BufferedImage getImagemFundo1() {
-        return this.imagemFundo1;
-    }
-
-    /**
-     * @brief Retorna a posição Y atual da rolagem do fundo.
-     */
-    public double getScrollY() {
-        return this.scrollY;
+    public ArrayList<ElementoCenario> getElementosCenario() {
+        return this.elementosCenario;
     }
 
     /**
@@ -169,17 +131,10 @@ public class Fase implements Serializable {
     }
 
     /**
-     * @brief Retorna a imagem de textura das árvores.
+     * @brief Adiciona um novo elemento de cenário à lista da fase.
      */
-    public BufferedImage getImagemFundo2() {
-        return this.imagemFundo2;
-    }
-
-    /**
-     * @brief Retorna a distância total que o cenário já rolou.
-     */
-    public double getDistanciaTotalRolada() {
-        return this.distanciaTotalRolada;
+    public void adicionarElementoCenario(ElementoCenario elemento) {
+        this.elementosCenario.add(elemento);
     }
 
     /**

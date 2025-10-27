@@ -1,9 +1,9 @@
 package Modelo.Fases;
 
 /**
- * @brief Script de eventos e spawns para a Fase 5 (placeholder).
+ * @brief Script de eventos e spawns para a Fase 3 (placeholder).
  */
-public class ScriptFase5 extends ScriptDeFase {
+public class ScriptFase5  extends ScriptDeFase {
 
     protected long proximoSpawnInimigo = 0;
     protected long intervaloSpawnInimigo = 60;
@@ -18,5 +18,13 @@ public class ScriptFase5 extends ScriptDeFase {
 
     @Override
     public void preencherCenarioInicial(Fase fase) {
+    }
+
+    @Override
+    public void carregarRecursos(Fase fase) {
+    }
+
+    @Override
+    public void relinkarRecursosDosElementos(Fase fase) {
     }
 }

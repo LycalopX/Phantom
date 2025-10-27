@@ -19,4 +19,12 @@ public class ScriptFase3  extends ScriptDeFase {
     @Override
     public void preencherCenarioInicial(Fase fase) {
     }
+
+    @Override
+    public void carregarRecursos(Fase fase) {
+    }
+
+    @Override
+    public void relinkarRecursosDosElementos(Fase fase) {
+    }
 }

@@ -5,20 +5,22 @@ import Auxiliar.LootTable;
 import Auxiliar.SoundManager;
 import Auxiliar.Cenario1.ArvoreParallax;
 import Auxiliar.Personagem.LootItem;
+import Modelo.Cenario.FundoInfinito;
 import static Auxiliar.ConfigMapa.*;
 import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
 
 /**
  * @brief Script de eventos e spawns para a Fase 1 do jogo.
  */
 public class ScriptFase1 extends ScriptDeFase {
 
-    private long proximoSpawnInimigo = 0;
-    private long intervaloSpawnInimigo = 30;
-
+    private transient BufferedImage imagemFundo;
+    private transient BufferedImage imagemArvore;
     private long proximoSpawnY = 0;
     private int[] posicoesXDasDiagonais;
     private int direcaoDoGrupo = 1;
+    private double distanciaTotalRolada = 0;
 
     private static final int DISTANCIA_ENTRE_ONDAS_Y = 250;
     private static final int OFFSET_DIAGONAL_X = 100;
@@ -27,15 +29,54 @@ public class ScriptFase1 extends ScriptDeFase {
     private static final int ESPACO_ENTRE_DIAGONAIS_X = 500;
 
     /**
-     * @brief Construtor do script da Fase 1. Inicializa as posições das árvores e a música da fase.
+     * @brief Construtor do script da Fase 1. Inicializa a música da fase.
      */
     public ScriptFase1() {
         super();
+        SoundManager.getInstance().playMusic("Illusionary Night ~ Ghostly Eyes", true);
+
         posicoesXDasDiagonais = new int[NUMERO_DE_DIAGONAIS];
         for (int i = 0; i < NUMERO_DE_DIAGONAIS; i++) {
             posicoesXDasDiagonais[i] = 50 + (i * ESPACO_ENTRE_DIAGONAIS_X);
         }
-        SoundManager.getInstance().playMusic("Illusionary Night ~ Ghostly Eyes", true);
+    }
+
+    /**
+     * @brief Carrega os recursos visuais específicos da fase (imagens de fundo, etc).
+     * @param fase A instância da fase para a qual os recursos serão carregados.
+     */
+    @Override
+    public void carregarRecursos(Fase fase) {
+        try {
+            this.imagemFundo = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage1/stage_1_bg1.png"));
+            this.imagemArvore = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage1/stage_1_bg2.png"));
+            
+            fase.adicionarElementoCenario(new FundoInfinito("fundo_principal", this.imagemFundo, 1.0, Modelo.Cenario.DrawLayer.BACKGROUND, 1.0f));
+
+        } catch (Exception e) {
+            System.err.println("Erro ao carregar recursos da Fase 1: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * @brief Restaura as referências de imagens transientes nos elementos de cenário após a desserialização.
+     * @param fase A instância da fase cujos elementos precisam ser religados.
+     */
+    @Override
+    public void relinkarRecursosDosElementos(Fase fase) {
+        
+        for (var elemento : fase.getElementosCenario()) {
+            if (elemento instanceof FundoInfinito) {
+                FundoInfinito fundo = (FundoInfinito) elemento;
+
+                if ("fundo_principal".equals(fundo.getId())) {
+                    fundo.setImagem(this.imagemFundo);
+                }
+            } else if (elemento instanceof ArvoreParallax) {
+                ((ArvoreParallax) elemento).setImagem(this.imagemArvore);
+            }
+        }
     }
 
     /**
@@ -60,15 +101,17 @@ public class ScriptFase1 extends ScriptDeFase {
     }
 
     /**
-     * @brief Controla o spawning de árvores de parallax para criar o efeito de cenário em movimento.
+     * @brief Atualiza a lógica de spawn de elementos de cenário (como árvores).
+     * @param fase             A instância da fase que este script está controlando.
+     * @param velocidadeScroll A velocidade de rolagem atual do cenário.
      */
     @Override
     public void atualizarCenario(Fase fase, double velocidadeScroll) {
-        BufferedImage imagemArvore = fase.getImagemFundo2();
-        if (imagemArvore == null)
-            return;
+        if (imagemArvore == null) return;
 
-        if (fase.getDistanciaTotalRolada() >= proximoSpawnY) {
+        this.distanciaTotalRolada += velocidadeScroll;
+
+        if (this.distanciaTotalRolada >= proximoSpawnY) {
             int tamanhoBase = (int) Math.round(LARGURA_TELA * 0.8);
 
             boolean vaiBaterNaDireita = direcaoDoGrupo == 1
@@ -85,7 +128,7 @@ public class ScriptFase1 extends ScriptDeFase {
                 int randomOffsetX = random.nextInt(VARIACAO_ALEATORIA_PIXELS * 2) - VARIACAO_ALEATORIA_PIXELS;
                 int yInicial = -tamanhoBase;
 
-                fase.getArvores().add(new ArvoreParallax(novoX + randomOffsetX, yInicial, tamanhoBase, velocidadeScroll,
+                fase.adicionarElementoCenario(new ArvoreParallax(novoX + randomOffsetX, yInicial, tamanhoBase, velocidadeScroll,
                         imagemArvore));
                 posicoesXDasDiagonais[i] = novoX;
             }
@@ -94,13 +137,12 @@ public class ScriptFase1 extends ScriptDeFase {
     }
 
     /**
-     * @brief Preenche o cenário inicial com árvores de parallax para que a tela não comece vazia.
+     * @brief Preenche o cenário com elementos iniciais (como árvores).
+     * @param fase A instância da fase que este script está controlando.
      */
     @Override
     public void preencherCenarioInicial(Fase fase) {
-        BufferedImage imagemArvore = fase.getImagemFundo2();
-        if (imagemArvore == null)
-            return;
+        if (imagemArvore == null) return;
 
         int tamanhoBase = (int) Math.round(ALTURA_TELA * 0.8);
         while (proximoSpawnY < ALTURA_TELA) {
@@ -117,8 +159,7 @@ public class ScriptFase1 extends ScriptDeFase {
                 int randomOffsetX = random.nextInt(VARIACAO_ALEATORIA_PIXELS * 2) - VARIACAO_ALEATORIA_PIXELS;
                 int yInicial = (int) proximoSpawnY - tamanhoBase;
                 
-                fase.getArvores()
-                        .add(new ArvoreParallax(novoX + randomOffsetX, yInicial, tamanhoBase, 2.0, imagemArvore));
+                fase.adicionarElementoCenario(new ArvoreParallax(novoX + randomOffsetX, yInicial, tamanhoBase, 2.0, imagemArvore));
                 posicoesXDasDiagonais[i] = novoX;
             }
             proximoSpawnY += DISTANCIA_ENTRE_ONDAS_Y;

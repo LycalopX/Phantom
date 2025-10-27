@@ -119,6 +119,7 @@ public class ProjetilBombaHoming extends ProjetilHoming {
             g2d.setColor(new Color(TRAIL_BASE_COLOR.getRed(), TRAIL_BASE_COLOR.getGreen(), TRAIL_BASE_COLOR.getBlue(), alpha));
             int telaX = (int) Math.round(pos.x * CELL_SIDE);
             int telaY = (int) Math.round(pos.y * CELL_SIDE);
+            
             int particleSize = 8;
             g2d.fillOval(telaX - particleSize / 2, telaY - particleSize / 2, particleSize, particleSize);
         }

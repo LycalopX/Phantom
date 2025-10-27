@@ -8,7 +8,6 @@ import Modelo.Items.Item;
 import Modelo.Projeteis.Projetil;
 import Modelo.Projeteis.BombaProjetil;
 import Auxiliar.ConfigMapa;
-import Auxiliar.Cenario1.ArvoreParallax;
 import java.awt.*;
 import java.awt.dnd.*;
 import java.awt.datatransfer.DataFlavor;
@@ -192,9 +191,24 @@ public class Cenario extends JPanel {
 
             Graphics2D g2d = (Graphics2D) g;
 
-            desenharFundo(g2d);
-            for (ArvoreParallax arvore : faseAtual.getArvores()) {
-                arvore.desenhar(g2d, getHeight());
+            // 1. Desenha os elementos da camada de fundo
+            for (var elemento : faseAtual.getElementosCenario()) {
+                if (elemento.getDrawLayer() == Modelo.Cenario.DrawLayer.BACKGROUND) {
+                    elemento.desenhar(g2d, getWidth(), getHeight());
+                }
+            }
+
+            // 2. Aplica os gradientes de cor sobre o fundo
+            g2d.setColor(corFundoOverlay);
+            g2d.fillRect(0, 0, getWidth(), getHeight());
+            g2d.setPaint(gradienteFundo);
+            g2d.fillRect(0, 0, getWidth(), getHeight());
+
+            // 3. Desenha os elementos da camada de frente
+            for (var elemento : faseAtual.getElementosCenario()) {
+                if (elemento.getDrawLayer() == Modelo.Cenario.DrawLayer.FOREGROUND) {
+                    elemento.desenhar(g2d, getWidth(), getHeight());
+                }
             }
 
             if (estadoDoJogo == Engine.GameState.DEATHBOMB_WINDOW) {
@@ -235,25 +249,6 @@ public class Cenario extends JPanel {
         } else if (estadoDoJogo == Engine.GameState.GAME_OVER) {
             desenharTelaGameOver(g);
         }
-    }
-
-    /**
-     * @brief Desenha o fundo da fase com efeito de scroll e gradientes de cor.
-     */
-    private void desenharFundo(Graphics2D g2d) {
-        BufferedImage imagemFundo1 = faseAtual.getImagemFundo1();
-        if (imagemFundo1 == null)
-            return;
-
-        int yPos = (int) faseAtual.getScrollY();
-        g2d.drawImage(imagemFundo1, 0, yPos, getWidth(), getHeight(), this);
-        g2d.drawImage(imagemFundo1, 0, yPos - getHeight(), getWidth(), getHeight(), this);
-
-        g2d.setColor(corFundoOverlay);
-        g2d.fillRect(0, 0, getWidth(), getHeight());
-
-        g2d.setPaint(gradienteFundo);
-        g2d.fillRect(0, 0, getWidth(), getHeight());
     }
 
     /**

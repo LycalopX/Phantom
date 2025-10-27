@@ -15,6 +15,18 @@ public abstract class ScriptDeFase implements Serializable {
     protected Random random = new Random();
 
     /**
+     * @brief Carrega os recursos visuais específicos da fase (imagens de fundo, etc).
+     * @param fase A instância da fase para a qual os recursos serão carregados.
+     */
+    public abstract void carregarRecursos(Fase fase);
+
+    /**
+     * @brief Restaura as referências de imagens transientes nos elementos de cenário após a desserialização.
+     * @param fase A instância da fase cujos elementos precisam ser religados.
+     */
+    public abstract void relinkarRecursosDosElementos(Fase fase);
+
+    /**
      * @brief Atualiza a lógica de spawn de inimigos. Deve ser implementado por
      *        subclasses.
      * @param fase A instância da fase que este script está controlando.

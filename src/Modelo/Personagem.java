@@ -48,7 +48,7 @@ public abstract class Personagem implements Serializable {
         this.y = y;
         this.largura = largura;
         this.altura = altura;
-        this.hitboxRaio = hitboxRaio;
+        this.hitboxRaio = hitboxRaio * FATOR_ESCALA_ALTURA;
         this.bTransponivel = true;
         this.bMortal = false;
         this.nomeSprite = sNomeImagePNG;
@@ -76,7 +76,7 @@ public abstract class Personagem implements Serializable {
         carregarImagem();
         this.largura = (int) (((double) this.originalSpriteWidth) * BODY_PROPORTION);
         this.altura = (int) (((double) this.originalSpriteHeight) * BODY_PROPORTION);
-        this.hitboxRaio = (this.largura / 2.0) / CELL_SIDE;
+        this.hitboxRaio = (this.largura / 2.0 * FATOR_ESCALA_ALTURA) / CELL_SIDE;
     }
 
     /**

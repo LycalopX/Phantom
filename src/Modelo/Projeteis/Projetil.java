@@ -45,8 +45,9 @@ public class Projetil extends Personagem {
         this.tipoDetalhado = tipoDetalhado;
 
         if (tipo == TipoProjetil.JOGADOR) {
-            this.largura = tipoDetalhado.getSpriteWidth();
-            this.altura = tipoDetalhado.getSpriteHeight();
+            this.largura = (int) ((double) tipoDetalhado.getSpriteWidth() * FATOR_ESCALA_ALTURA);
+            this.altura = (int) ((double) tipoDetalhado.getSpriteHeight() * FATOR_ESCALA_ALTURA);
+
             if (tipoDetalhado.getHitboxType() == HitboxType.CIRCULAR) {
                 this.hitboxRaio = tipoDetalhado.getHitboxWidth() / 2.0 / CELL_SIDE;
             } else {
@@ -56,8 +57,9 @@ public class Projetil extends Personagem {
                 this.hitboxRaio *= 5;
             }
         } else {
-            this.largura = (int) (tipoDetalhado.getSpriteWidth() * BODY_PROPORTION);
-            this.altura = (int) (tipoDetalhado.getSpriteHeight() * BODY_PROPORTION);
+            this.largura = (int) ((double) tipoDetalhado.getSpriteWidth() * BODY_PROPORTION * FATOR_ESCALA_ALTURA);
+            this.altura = (int) ((double) tipoDetalhado.getSpriteHeight() * BODY_PROPORTION * FATOR_ESCALA_ALTURA);
+
             if (tipoDetalhado.getHitboxType() == HitboxType.CIRCULAR) {
                 this.hitboxRaio = (tipoDetalhado.getHitboxWidth() * BODY_PROPORTION) / 2.0 / CELL_SIDE;
             } else {

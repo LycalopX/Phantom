@@ -21,7 +21,7 @@ public final class ConfigMapa {
      * @brief Proporção da altura do monitor que a janela do jogo deve tentar usar.
      * O valor 0.9444... é (680.0 / 720.0).
      */
-    private static final double PROPORCAO_ALTURA_DESEJADA = 680.0 / 720.0;
+    private static final double PROPORCAO_ALTURA_DESEJADA = 680.0 / 900.0;
 
     // Dimensões do Mundo (em células de grid)
     public static final int MUNDO_LARGURA = 34;
@@ -80,4 +80,7 @@ public final class ConfigMapa {
         ALTURA_TELA = tempAltura;
         CELL_SIDE = tempCellSide;
     }
+
+    // Proporção de escala baseada na altura da tela
+    public static final double FATOR_ESCALA_ALTURA = (double) ALTURA_TELA / 680.0;
 }

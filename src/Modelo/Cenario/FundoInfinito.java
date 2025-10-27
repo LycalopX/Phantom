@@ -1,0 +1,102 @@
+package Modelo.Cenario;
+
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.awt.Composite;
+import java.awt.AlphaComposite;
+
+/**
+ * @brief Um elemento de cenário que se desenha com rolagem infinita na vertical.
+ *        Ideal para camadas de background.
+ */
+public class FundoInfinito implements ElementoCenario {
+
+    private transient BufferedImage imagem;
+    private double y;
+    private final double velocidadeRelativa;
+    private final DrawLayer camada;
+    private final String id;
+    private final float opacidade;
+
+    /**
+     * @brief Construtor do FundoInfinito.
+     * @param id Um identificador único para este elemento.
+     * @param imagem A imagem a ser desenhada.
+     * @param velocidadeRelativa O multiplicador de velocidade (1.0 para velocidade normal).
+     * @param camada A camada de renderização (BACKGROUND ou FOREGROUND).
+     * @param opacidade A opacidade do elemento (0.0f a 1.0f).
+     */
+    public FundoInfinito(String id, BufferedImage imagem, double velocidadeRelativa, DrawLayer camada, float opacidade) {
+        this.id = id;
+        this.imagem = imagem;
+        this.velocidadeRelativa = velocidadeRelativa;
+        this.camada = camada;
+        this.y = 0;
+        this.opacidade = opacidade;
+    }
+
+    /**
+     * @brief Define a imagem (textura) do fundo, usado na desserialização.
+     */
+    public void setImagem(BufferedImage imagem) {
+        this.imagem = imagem;
+    }
+
+    /**
+     * @brief Retorna o identificador único deste elemento.
+     */
+    public String getId() {
+        return this.id;
+    }
+
+    /**
+     * @brief Retorna a velocidade de rolagem relativa deste fundo.
+     */
+    public double getVelocidadeRelativa() {
+        return this.velocidadeRelativa;
+    }
+
+    /**
+     * @brief Retorna a camada de desenho para este elemento.
+     * @return A camada de desenho definida no construtor.
+     */
+    @Override
+    public DrawLayer getDrawLayer() {
+        return this.camada;
+    }
+
+    /**
+     * @brief Move o fundo verticalmente com base na velocidade de rolagem do jogo.
+     */
+    @Override
+    public void mover(double velocidadeBase) {
+        this.y += velocidadeBase * this.velocidadeRelativa;
+    }
+
+    /**
+     * @brief Desenha a imagem de fundo, repetindo-a para criar a ilusão de infinito.
+     */
+    @Override
+    public void desenhar(Graphics2D g2d, int larguraTela, int alturaTela) {
+        if (imagem == null) return;
+
+        Composite originalComposite = g2d.getComposite();
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, this.opacidade));
+
+        int yPos = (int) (this.y % alturaTela);
+
+        g2d.drawImage(this.imagem, 0, yPos, larguraTela, alturaTela, null);
+        g2d.drawImage(this.imagem, 0, yPos - alturaTela, larguraTela, alturaTela, null);
+
+        g2d.setComposite(originalComposite);
+    }
+
+    /**
+     * @brief Um fundo infinito nunca está "fora da tela".
+     * @return Sempre falso.
+     */
+    @Override
+    public boolean estaForaDaTela(int alturaTela) {
+        return false;
+    }
+}

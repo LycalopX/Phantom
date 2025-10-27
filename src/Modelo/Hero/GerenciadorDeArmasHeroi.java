@@ -55,7 +55,7 @@ public class GerenciadorDeArmasHeroi implements Serializable {
         if (cooldownTiroPrincipal <= 0) {
             Auxiliar.SoundManager.getInstance().playSfx("se_plst00", 1.0);
             double velocidadeProjetilEmGrid = 40.0 / CELL_SIDE;
-            double velocidadeFinal = velocidadeProjetilEmGrid * (1 + (Math.min(nivelTiro, 3) - 1) * 0.03);
+            double velocidadeFinal = FATOR_ESCALA_ALTURA * (velocidadeProjetilEmGrid * (1 + (Math.min(nivelTiro, 3) - 1) * 0.03));
 
             Projetil p1 = pool.getProjetilNormal();
             if (p1 != null) {
@@ -65,6 +65,7 @@ public class GerenciadorDeArmasHeroi implements Serializable {
             if (nivelTiro >= 3) {
                 double offsetX = 0.5;
                 Projetil p2 = pool.getProjetilNormal();
+                
                 if (p2 != null) {
                     p2.reset(x - offsetX, y, velocidadeFinal, -100, TipoProjetil.JOGADOR, TipoProjetilHeroi.NORMAL);
                 }
@@ -86,7 +87,7 @@ public class GerenciadorDeArmasHeroi implements Serializable {
     private void adicionarMisseisTeleguiados(double x, double y, int nivelDeMisseis, Fase fase) {
         ProjetilPool pool = fase.getProjetilPool();
         double velocidadeBase = 8.0 / CELL_SIDE;
-        double velocidadeFinal = velocidadeBase * (1 + (nivelDeMisseis - 1) * 0.2);
+        double velocidadeFinal = FATOR_ESCALA_ALTURA * (velocidadeBase * (1 + (nivelDeMisseis - 1) * 0.2));
 
         if (nivelDeMisseis == 2) {
             nivelDeMisseis -= 1;

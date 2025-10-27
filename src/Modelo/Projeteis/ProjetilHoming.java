@@ -4,7 +4,6 @@ import Auxiliar.Projeteis.ProjetilTipo;
 import Auxiliar.Projeteis.TipoProjetil;
 import Modelo.Personagem;
 import Modelo.Inimigos.Inimigo;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

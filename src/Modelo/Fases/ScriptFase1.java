@@ -98,7 +98,10 @@ public class ScriptFase1 extends ScriptDeFase {
             Onda ondaAtual = ondas.get(ondaAtualIndex);
             ondaAtual.incrementarTempo(1, fase);
             if (!ondaAtual.getFinalizado()) return;
-
+        }
+        else{
+            engine.carregarProximaFase();
+        }
         ondaAtualIndex++;
     }
 

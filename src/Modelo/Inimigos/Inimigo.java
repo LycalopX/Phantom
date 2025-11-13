@@ -10,7 +10,7 @@ import static Auxiliar.ConfigMapa.*;
 /**
  * @brief Classe abstrata base para todos os inimigos do jogo.
  */
-public class Inimigo extends Personagem {
+public abstract class Inimigo extends Personagem {
 
     private static final long serialVersionUID = 1L;
 
@@ -64,6 +64,8 @@ public class Inimigo extends Personagem {
     public void setInitialX(double initialX) {
         this.initialX = initialX;
     }
+
+    public abstract boolean isStrafing();
 
     /**
      * @brief Desenha o sprite do inimigo na tela.

@@ -8,5 +8,5 @@ package Modelo;
 public enum RenderLayer {
     ENEMY_LAYER,         // Inimigos e seus projéteis
     PLAYER_LAYER,        // Herói, itens e efeito da bomba
-    PLAYER_PROJECTILE_LAYER; // Projéteis do herói
+    PROJETILE_LAYER; // Projéteis do herói
 }

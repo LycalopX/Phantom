@@ -24,6 +24,7 @@ public class GerenciadorDeAnimacaoInimigo {
 
     private int frameAtual = 0;
     private int delayFrame = 0;
+    private boolean holdLastStrafingFrame;
 
     /**
      * @brief Construtor do gerenciador. Carrega os spritesheets do inimigo se ainda não foram carregados.
@@ -34,25 +35,37 @@ public class GerenciadorDeAnimacaoInimigo {
             30, 30, 2, 4, 4,
             true, 
             (int) (30.0 * Personagem.BODY_PROPORTION),
-            (int) (30.0 * Personagem.BODY_PROPORTION)
+            (int) (30.0 * Personagem.BODY_PROPORTION),
+            false
         );
     }
 
-    public GerenciadorDeAnimacaoInimigo(String spritesheetPath, int spriteWidth, int spriteHeight, int gap, int idleFrames, int movingFrames, boolean resize, int newWidth, int newHeight) {
+    public GerenciadorDeAnimacaoInimigo(String spritesheetPath, int spriteWidth, int spriteHeight, int gap, int idleFrames, int movingFrames, boolean resize, int newWidth, int newHeight, boolean holdLastStrafingFrame) {
         this.maxFrames = idleFrames; // Assuming idle and moving have the same number of frames
         this.iImagesIdle = carregarFramesDoSpriteSheet(spritesheetPath, 0, idleFrames, spriteWidth, spriteHeight, gap, resize, newWidth, newHeight);
         this.iImagesStrafing = carregarFramesDoSpriteSheet(spritesheetPath, idleFrames, movingFrames, spriteWidth, spriteHeight, gap, resize, newWidth, newHeight);
+        this.holdLastStrafingFrame = holdLastStrafingFrame;
     }
 
     /**
      * @brief Atualiza o frame atual da animação com base em um delay.
      */
-    public void atualizar() {
+    public void atualizar(AnimationState state) {
         delayFrame++;
         if (delayFrame >= DELAY) {
-            frameAtual = (frameAtual + 1) % maxFrames;
+            if (state == AnimationState.STRAFING && holdLastStrafingFrame) {
+                if (frameAtual < maxFrames - 1) {
+                    frameAtual++;
+                }
+            } else {
+                frameAtual = (frameAtual + 1) % maxFrames;
+            }
             delayFrame = 0;
         }
+    }
+
+    public void resetFrame() {
+        this.frameAtual = 0;
     }
 
     /**

@@ -35,7 +35,7 @@ public class Projetil extends Personagem {
 
     @Override
     public RenderLayer getRenderLayer() {
-        return this.tipo == TipoProjetil.JOGADOR ? RenderLayer.PLAYER_PROJECTILE_LAYER : RenderLayer.ENEMY_LAYER;
+        return RenderLayer.PROJETILE_LAYER;
     }
 
     /**

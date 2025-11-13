@@ -7,21 +7,21 @@ import java.awt.Graphics;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
-public class Nightbug extends Boss {
+public class Lorelei extends Boss {
 
     private transient GerenciadorDeAnimacaoInimigo animador;
     private boolean isMoving = false; // Simple state for now
 
-    public Nightbug(double x, double y, LootTable lootTable, double vida, Fase fase) {
+    public Lorelei(double x, double y, LootTable lootTable, double vida, Fase fase) {
         super("", x, y, lootTable, vida);
         this.faseReferencia = fase;
         
-        int scaledWidth = (int) (35 * BODY_PROPORTION);
-        int scaledHeight = (int) (60 * BODY_PROPORTION);
+        int scaledWidth = (int) (43 * BODY_PROPORTION);
+        int scaledHeight = (int) (61 * BODY_PROPORTION);
 
         this.animador = new GerenciadorDeAnimacaoInimigo(
-            "imgs/inimigos/boss1_spreadsheet.png",
-            35, 60, 13, 4, 4,
+            "imgs/inimigos/boss2_spreadsheet.png",
+            43, 61, 0, 4, 4,
             true, // resize = true
             scaledWidth,
             scaledHeight,
@@ -34,11 +34,11 @@ public class Nightbug extends Boss {
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
-        int scaledWidth = (int) (35 * BODY_PROPORTION);
-        int scaledHeight = (int) (60 * BODY_PROPORTION);
+        int scaledWidth = (int) (43 * BODY_PROPORTION);
+        int scaledHeight = (int) (61 * BODY_PROPORTION);
         this.animador = new GerenciadorDeAnimacaoInimigo(
-            "imgs/inimigos/boss1_spreadsheet.png",
-            35, 60, 13, 4, 4,
+            "imgs/inimigos/boss2_spreadsheet.png",
+            43, 61, 0, 4, 4,
             true,
             scaledWidth,
             scaledHeight,
@@ -60,7 +60,6 @@ public class Nightbug extends Boss {
     public void atualizar() {
         super.atualizar(); // Basic movement from Inimigo
         
-        // Simple logic to switch between idle and moving for demonstration
         boolean wasMoving = this.isMoving;
         if (Math.random() > 0.99) {
             isMoving = !isMoving;

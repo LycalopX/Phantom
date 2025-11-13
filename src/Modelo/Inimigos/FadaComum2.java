@@ -70,13 +70,16 @@ public class FadaComum2 extends Inimigo {
         this.faseReferencia = fase;
     }
 
+    @Override
+    public boolean isStrafing() {
+        return currentState == State.ENTERING || currentState == State.EXITING;
+    }
+
     /**
      * @brief Atualiza a lógica do inimigo, incluindo sua máquina de estados de movimento e ataque.
      */
     @Override
     public void atualizar() {
-        animador.atualizar();
-
         switch (currentState) {
             case ENTERING:
                 y += 0.1;
@@ -109,6 +112,8 @@ public class FadaComum2 extends Inimigo {
                 }
                 break;
         }
+
+        animador.atualizar(isStrafing() ? AnimationState.STRAFING : AnimationState.IDLE);
     }
 
     /**
@@ -138,12 +143,7 @@ public class FadaComum2 extends Inimigo {
      */
     @Override
     public void autoDesenho(Graphics g) {
-        AnimationState animState = AnimationState.IDLE;
-        if (currentState == State.ENTERING || currentState == State.EXITING) {
-            animState = AnimationState.STRAFING;
-        }
-
-        this.iImage = animador.getImagemAtual(animState);
+        this.iImage = animador.getImagemAtual(isStrafing() ? AnimationState.STRAFING : AnimationState.IDLE);
         super.autoDesenho(g);
     }
 }

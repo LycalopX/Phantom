@@ -13,7 +13,7 @@ public class SoundManager {
     private final Map<String, Sound> sfxMap;
     private final Map<String, Music> musicMap;
 
-    private float GLOBAL_VOLUME = 0.2f;
+    private float GLOBAL_VOLUME = 0f;
 
     private float globalSfxVolume = (0.05f * GLOBAL_VOLUME); // Drastically reduced for testing
     private float globalMusicVolume = (0.5f * GLOBAL_VOLUME); // Default music volume

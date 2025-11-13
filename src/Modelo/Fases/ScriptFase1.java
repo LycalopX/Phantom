@@ -5,6 +5,7 @@ import static Auxiliar.ConfigMapa.*;
 import Auxiliar.LootTable;
 import Auxiliar.Personagem.LootItem;
 import Auxiliar.SoundManager;
+import Controler.Engine;
 import Modelo.Cenario.FundoInfinito;
 import Modelo.Items.ItemType;
 import java.awt.image.BufferedImage;
@@ -32,16 +33,14 @@ public class ScriptFase1 extends ScriptDeFase {
     /**
      * @brief Construtor do script da Fase 1. Inicializa a música da fase.
      */
-    public ScriptFase1() {
-        super();
+    public ScriptFase1(Engine engine) {
+        super(engine);
         SoundManager.getInstance().playMusic("Illusionary Night ~ Ghostly Eyes", true);
 
         posicoesXDasDiagonais = new int[NUMERO_DE_DIAGONAIS];
         for (int i = 0; i < NUMERO_DE_DIAGONAIS; i++) {
             posicoesXDasDiagonais[i] = 50 + (i * ESPACO_ENTRE_DIAGONAIS_X);
         }
-
-        ondaAtualIndex = -1;
     }
 
     /**
@@ -102,7 +101,7 @@ public class ScriptFase1 extends ScriptDeFase {
             ondaAtualIndex++;
         }
         else{
-            // Proxima fase
+            engine.carregarProximaFase();
         }
     }
 
@@ -178,9 +177,8 @@ public class ScriptFase1 extends ScriptDeFase {
 
     // Onda
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
-        ondas = new ArrayList<>();
         ondas.add(new Onda1(fase));
-        ondas.add(new OndaFazNada(fase, 5000));
+        ondas.add(new OndaFazNada(fase, 200));
         ondas.add(new Onda1(fase));
         ondaAtualIndex = 0;
         return ondas;
@@ -200,9 +198,9 @@ public class ScriptFase1 extends ScriptDeFase {
             lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.02, true, false));
 
             // Inimigos
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial, -1.0, lootTable, 40, fase), 2000));
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial + 0.1, -1.0, lootTable, 40, fase), 2000));
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial - 0.1, -1.0, lootTable, 40, fase), 2000));
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial, -1.0, lootTable, 40, fase), 50));
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial + 0.1, -1.0, lootTable, 40, fase), 100));
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial - 0.1, -1.0, lootTable, 40, fase), 0));
         }
     }
 }

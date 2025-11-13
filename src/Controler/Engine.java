@@ -1,5 +1,10 @@
 package Controler;
 
+import static Auxiliar.ConfigMapa.*;
+import Auxiliar.ConfigTeclado;
+import Auxiliar.Debug.DebugManager;
+import Auxiliar.LootTable;
+import Auxiliar.SoundManager;
 import Modelo.Fases.Fase;
 import Modelo.Hero.Hero;
 import Modelo.Inimigos.FadaComum1;
@@ -8,7 +13,6 @@ import Modelo.Inimigos.Nightbug;
 import Modelo.Items.Item;
 import Modelo.Items.ItemType;
 import Modelo.Personagem;
-import Auxiliar.LootTable;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.ByteArrayOutputStream;
@@ -20,10 +24,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import Auxiliar.ConfigTeclado;
-import Auxiliar.SoundManager;
-import Auxiliar.Debug.DebugManager;
-import static Auxiliar.ConfigMapa.*;
 
 /**
  * @brief A classe principal do motor do jogo, responsável pelo loop principal,
@@ -70,7 +70,7 @@ public class Engine implements Runnable {
      */
     public Engine() {
         this.gerenciadorDeFases = new GerenciadorDeFases();
-        this.faseAtual = gerenciadorDeFases.carregarFase();
+        this.faseAtual = gerenciadorDeFases.carregarFase(this);
         this.hero = new Hero("hero/hero_s0.png", RESPAWN_X, RESPAWN_Y);
         this.faseAtual.adicionarPersonagem(hero);
 
@@ -241,7 +241,7 @@ public class Engine implements Runnable {
         SoundManager.getInstance().stopAllMusic();
 
         gerenciadorDeFases.resetar();
-        faseAtual = gerenciadorDeFases.carregarFase();
+        faseAtual = gerenciadorDeFases.carregarFase(this);
         hero = new Hero("hero/hero_s0.png", RESPAWN_X, RESPAWN_Y);
 
         faseAtual.adicionarPersonagem(hero);
@@ -364,7 +364,7 @@ public class Engine implements Runnable {
      * @brief Carrega a próxima fase do jogo.
      */
     public void carregarProximaFase() {
-        this.faseAtual = gerenciadorDeFases.proximaFase();
+        this.faseAtual = gerenciadorDeFases.proximaFase(this);
         this.faseAtual.adicionarPersonagem(hero);
         cenario.setFase(this.faseAtual);
     }
@@ -373,7 +373,7 @@ public class Engine implements Runnable {
      * @brief Pula para a próxima fase, como um cheat.
      */
     public void pularParaProximaFase() {
-        this.faseAtual = gerenciadorDeFases.proximaFase();
+        this.faseAtual = gerenciadorDeFases.proximaFase(this);
         this.faseAtual.adicionarPersonagem(hero);
         cenario.setFase(this.faseAtual);
     }

@@ -4,9 +4,6 @@ import Modelo.Fases.Fase;
 import Modelo.Fases.ScriptDeFase;
 import Modelo.Fases.ScriptFase1;
 import Modelo.Fases.ScriptFase2;
-import Modelo.Fases.ScriptFase3;
-import Modelo.Fases.ScriptFase4;
-import Modelo.Fases.ScriptFase5;
 
 /**
  * @brief Gerencia a progressão das fases do jogo.
@@ -19,30 +16,30 @@ public class GerenciadorDeFases {
      * @brief Carrega e retorna a fase correspondente ao nível atual.
      * @return Um objeto Fase pronto para ser jogado.
      */
-    public Fase carregarFase() {
+    public Fase carregarFase(Engine engine) {
         ScriptDeFase script;
 
         switch (nivelAtual) {
             case 1:
-                script = new ScriptFase1();
+                script = new ScriptFase1(engine);
                 break;
             case 2:
-                script = new ScriptFase2();
+                script = new ScriptFase2(engine);
                 break;
             case 3:
                 // script = new ScriptFase3(); // Ainda não implementado
-                script = new ScriptFase1(); // Fallback para fase 1
+                script = new ScriptFase1(engine); // Fallback para fase 1
                 break;
             case 4:
                 // script = new ScriptFase4(); // Ainda não implementado
-                script = new ScriptFase1(); // Fallback para fase 1
+                script = new ScriptFase1(engine); // Fallback para fase 1
                 break;
             case 5:
                 // script = new ScriptFase5(); // Ainda não implementado
-                script = new ScriptFase1(); // Fallback para fase 1
+                script = new ScriptFase1(engine); // Fallback para fase 1
                 break;
             default:
-                script = new ScriptFase1();
+                script = new ScriptFase1(engine);
         }
 
         return new Fase(script);
@@ -53,13 +50,13 @@ public class GerenciadorDeFases {
      *        do começo.
      * @return A nova fase carregada.
      */
-    public Fase proximaFase() {
+    public Fase proximaFase(Engine engine) {
         if (nivelAtual < TOTAL_DE_FASES) {
             nivelAtual++;
         } else {
             nivelAtual = 1;
         }
-        return carregarFase();
+        return carregarFase(engine);
     }
 
     /**
@@ -67,11 +64,11 @@ public class GerenciadorDeFases {
      * @param numeroDaFase O nível para o qual pular.
      * @return A nova fase carregada.
      */
-    public Fase irParaFase(int numeroDaFase) {
+    public Fase irParaFase(int numeroDaFase, Engine engine) {
         if (numeroDaFase > 0 && numeroDaFase <= TOTAL_DE_FASES) {
             this.nivelAtual = numeroDaFase;
         }
-        return carregarFase();
+        return carregarFase(engine);
     }
 
     /**

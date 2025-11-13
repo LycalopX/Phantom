@@ -1,5 +1,6 @@
 package Modelo.Fases;
 
+import Controler.Engine;
 import Modelo.Personagem;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,10 +14,17 @@ import java.util.Random;
 public abstract class ScriptDeFase implements Serializable {
 
     protected Random random = new Random();
+    protected Engine engine;
 
     // Onda
     protected ArrayList<Onda> ondas;
     protected int ondaAtualIndex;
+
+    public ScriptDeFase(Engine engine) {
+        this.engine = engine;
+        this.ondas = new ArrayList<>();
+        this.ondaAtualIndex = -1;
+    }
 
     /**
      * @brief Carrega os recursos visuais específicos da fase (imagens de fundo,

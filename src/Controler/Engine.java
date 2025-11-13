@@ -370,15 +370,6 @@ public class Engine implements Runnable {
     }
 
     /**
-     * @brief Pula para a próxima fase, como um cheat.
-     */
-    public void pularParaProximaFase() {
-        this.faseAtual = gerenciadorDeFases.proximaFase();
-        this.faseAtual.adicionarPersonagem(hero);
-        cenario.setFase(this.faseAtual);
-    }
-
-    /**
      * @brief Retorna o estado atual do jogo.
      */
     public GameState getEstadoAtual() {

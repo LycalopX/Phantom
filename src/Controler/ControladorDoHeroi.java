@@ -47,7 +47,7 @@ public class ControladorDoHeroi {
         // Cheat para pular de fase (Shift + F2)
         if (isFocoAtivo && teclas.contains(KeyEvent.VK_F2)) {
             if (!f2Pressionado) {
-                engine.pularParaProximaFase();
+                engine.carregarProximaFase();
                 f2Pressionado = true; // Ativa a trava para evitar pulos múltiplos
             }
         } else {

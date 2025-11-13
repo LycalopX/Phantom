@@ -33,8 +33,7 @@ public class GerenciadorDeFases {
                 script = new ScriptFase3();
                 break;
             case 4:
-                // script = new ScriptFase4(); // Ainda não implementado
-                script = new ScriptFase1(); // Fallback para fase 1
+                script = new ScriptFase4();
                 break;
             case 5:
                 // script = new ScriptFase5(); // Ainda não implementado

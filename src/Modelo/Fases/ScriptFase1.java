@@ -7,7 +7,6 @@ import Auxiliar.Personagem.LootItem;
 import Auxiliar.SoundManager;
 import Modelo.Cenario.FundoInfinito;
 import Modelo.Items.ItemType;
-import Modelo.Personagem;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
@@ -29,10 +28,6 @@ public class ScriptFase1 extends ScriptDeFase {
     private static final int VARIACAO_ALEATORIA_PIXELS = 40;
     private static final int NUMERO_DE_DIAGONAIS = 3;
     private static final int ESPACO_ENTRE_DIAGONAIS_X = 500;
-
-    // Onda
-    private ArrayList<Onda> ondas;
-    private int ondaAtualIndex;
 
     /**
      * @brief Construtor do script da Fase 1. Inicializa a música da fase.
@@ -89,18 +84,9 @@ public class ScriptFase1 extends ScriptDeFase {
         }
     }
 
-    protected ArrayList<Onda> inicializarOndas(Fase fase) {
-        ondas = new ArrayList<>();
-        ondas.add(new Onda1(fase));
-        ondas.add(new OndaFazNada(fase, 5000));
-        ondas.add(new Onda1(fase));
-        ondaAtualIndex = 0;
-        return ondas;
-    }
-
     /**
-     * @brief Controla o spawning de inimigos (FadaComum) em posições aleatórias
-     * na parte superior da tela.
+     * @brief Controla o spawning de inimigos na Fase 1.
+     * @param fase A instância da fase que este script está controlando.
      */
     @Override
     public void atualizarInimigos(Fase fase) {
@@ -108,123 +94,15 @@ public class ScriptFase1 extends ScriptDeFase {
             ondas = inicializarOndas(fase);
         }
 
-        Onda ondaAtual = ondas.get(ondaAtualIndex);
-        ondaAtual.incrementarTempo(1, fase);
-        if (!ondaAtual.getFinalizado()) return;
+        if(ondaAtualIndex < ondas.size()){
+            Onda ondaAtual = ondas.get(ondaAtualIndex);
+            ondaAtual.incrementarTempo(1, fase);
+            if (!ondaAtual.getFinalizado()) return;
 
-        ondaAtualIndex++;
-    }
-
-    // Onda
-    private class OndaFazNada extends Onda{
-        public OndaFazNada(Fase fase, int tempoDeEsperaInicial) {
-            super();
-            inimigos.add(new InimigoSpawn(null, tempoDeEsperaInicial));
+            ondaAtualIndex++;
         }
-    }
-
-    private class Onda1 extends Onda{
-        public Onda1(Fase fase) {
-            super();
-
-            // Adiciona inimigos à onda
-            double xInicial = 0.5 * (MUNDO_LARGURA - 2) + 2;
-            LootTable lootTable = new LootTable();
-
-            // Loot table
-            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
-            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.5, false, false));
-            lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.02, true, false));
-
-            // Inimigos
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial, -1.0, lootTable, 40, fase), 2000));
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial + 0.1, -1.0, lootTable, 40, fase), 2000));
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial - 0.1, -1.0, lootTable, 40, fase), 2000));
-        }
-    }
-
-    protected abstract class Onda {
-
-        // Classes
-        protected  class InimigoSpawn {
-
-            protected Personagem personagem;
-            protected int tempoAposInicioSpawn;
-
-            public InimigoSpawn(Personagem personagem, int tempoAposInicioSpawn) {
-                this.personagem = personagem;
-                this.tempoAposInicioSpawn = tempoAposInicioSpawn;
-            }
-
-            public void spawn(Fase fase) {
-                if(personagem == null) return;
-                fase.adicionarPersonagem(personagem);
-            }
-        }
-
-        // Variaveis
-        protected ArrayList<InimigoSpawn> inimigos;
-
-        protected int tempoDeEspera;
-        protected int indiceInimigoAtual;
-        protected boolean finalizado;
-
-        public Onda() {
-            this.tempoDeEspera = 0;
-            this.indiceInimigoAtual = 0;
-            this.finalizado = false;
-            this.inimigos = new ArrayList<>();
-        }
-
-        /**
-         * @brief Spawna o próximo inimigo na fase, se houver.
-         * @param fase A instância da fase onde o inimigo será spawnado.
-         * @return O inimigo spawnado ou null se não houver mais inimigos.
-         */
-        private InimigoSpawn proximoInimigo(Fase fase) {
-            if (indiceInimigoAtual < inimigos.size()) {
-                InimigoSpawn inimigo = inimigos.get(indiceInimigoAtual);
-                inimigo.spawn(fase);
-
-                indiceInimigoAtual++;
-                return inimigo;
-            }
-            return null;
-        }
-
-        /**
-         * @brief Incrementa o tempo de espera e spawna inimigos conforme o tempo
-         * progride.
-         * @param tempo O tempo a ser incrementado.
-         * @param fase A instância da fase onde os inimigos serão spawnados.
-         */
-        public void incrementarTempo(int tempo, Fase fase) {
-            if(finalizado) return;
-
-            tempoDeEspera -= tempo;
-            if(tempoDeEspera > 0) return;
-
-            InimigoSpawn inimigo = proximoInimigo(fase);
-            if(inimigo == null){
-                finalizado = true;
-                return;
-            }
-
-            tempoDeEspera = inimigo.tempoAposInicioSpawn;
-        }
-
-        /**
-         * @brief Reinicia a onda para permitir que ela seja executada novamente.
-         */
-        public void reiniciar() {
-            tempoDeEspera = 0;
-            indiceInimigoAtual = 0;
-            finalizado = false;
-        }
-
-        // Getters
-        public boolean getFinalizado() {
-            return finalizado;
+        else{
+            // Proxima fase
         }
     }
 
@@ -295,6 +173,36 @@ public class ScriptFase1 extends ScriptDeFase {
                 posicoesXDasDiagonais[i] = novoX;
             }
             proximoSpawnY += DISTANCIA_ENTRE_ONDAS_Y;
+        }
+    }
+
+    // Onda
+    protected ArrayList<Onda> inicializarOndas(Fase fase) {
+        ondas = new ArrayList<>();
+        ondas.add(new Onda1(fase));
+        ondas.add(new OndaFazNada(fase, 5000));
+        ondas.add(new Onda1(fase));
+        ondaAtualIndex = 0;
+        return ondas;
+    }
+    
+    private class Onda1 extends Onda{
+        public Onda1(Fase fase) {
+            super();
+
+            // Adiciona inimigos à onda
+            double xInicial = 0.5 * (MUNDO_LARGURA - 2) + 2;
+            LootTable lootTable = new LootTable();
+
+            // Loot table
+            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
+            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.5, false, false));
+            lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.02, true, false));
+
+            // Inimigos
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial, -1.0, lootTable, 40, fase), 2000));
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial + 0.1, -1.0, lootTable, 40, fase), 2000));
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial - 0.1, -1.0, lootTable, 40, fase), 2000));
         }
     }
 }

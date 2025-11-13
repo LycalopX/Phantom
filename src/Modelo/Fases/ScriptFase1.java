@@ -83,9 +83,10 @@ public class ScriptFase1 extends ScriptDeFase {
         }
     }
 
+
     /**
-     * @brief Controla o spawning de inimigos na Fase 1.
-     * @param fase A instância da fase que este script está controlando.
+     * @brief Controla o spawning de inimigos (FadaComum) em posições aleatórias
+     * na parte superior da tela.
      */
     @Override
     public void atualizarInimigos(Fase fase) {
@@ -98,11 +99,7 @@ public class ScriptFase1 extends ScriptDeFase {
             ondaAtual.incrementarTempo(1, fase);
             if (!ondaAtual.getFinalizado()) return;
 
-            ondaAtualIndex++;
-        }
-        else{
-            engine.carregarProximaFase();
-        }
+        ondaAtualIndex++;
     }
 
     /**

@@ -8,6 +8,7 @@ import static Auxiliar.ConfigMapa.*;
 import Modelo.Fases.Fase;
 import Modelo.Hero.Hero;
 import Modelo.Personagem;
+import Modelo.RenderLayer;
 
 /**
  * @brief Representa o efeito da bomba do herói, que cria uma área de dano em expansão
@@ -34,6 +35,11 @@ public class BombaProjetil extends Personagem {
         this.raioMaximoGrid = (LARGURA_TELA / (double) CELL_SIDE) / 2.0;
         this.faseReferencia = fase;
         this.heroReferencia = hero;
+    }
+
+    @Override
+    public RenderLayer getRenderLayer() {
+        return RenderLayer.PLAYER_LAYER;
     }
 
     /**

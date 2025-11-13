@@ -1,6 +1,7 @@
 package Modelo.Items;
 
 import Modelo.Personagem;
+import Modelo.RenderLayer;
 import Modelo.Hero.Hero;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -36,6 +37,11 @@ public class Item extends Personagem {
         this.bMortal = false;
         this.isActive = false;
         recortarSprite();
+    }
+
+    @Override
+    public RenderLayer getRenderLayer() {
+        return RenderLayer.PLAYER_LAYER;
     }
 
     public void init(double x, double y) {

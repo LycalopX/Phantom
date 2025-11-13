@@ -86,13 +86,13 @@ public class ScriptFase1 extends ScriptDeFase {
     public void atualizarInimigos(Fase fase) {
         if (proximoSpawnInimigo <= 0) {
 
-            double xInicial = random.nextDouble() * MUNDO_LARGURA;
+            double xInicial = random.nextDouble() * (MUNDO_LARGURA - 2) + 2;
             LootTable lootTable = new LootTable();
 
             lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
             lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.5, false, false));
             lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.02, true, false));
-            fase.adicionarPersonagem(new Modelo.Inimigos.FadaComum(xInicial, -1.0, lootTable, 40, fase));
+            fase.adicionarPersonagem(new Modelo.Inimigos.FadaComum1(xInicial, -1.0, lootTable, 40, fase));
 
             proximoSpawnInimigo = intervaloSpawnInimigo;
         } else {

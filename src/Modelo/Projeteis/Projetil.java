@@ -5,6 +5,8 @@ import Auxiliar.Projeteis.ProjetilTipo;
 import Auxiliar.Projeteis.TipoProjetil;
 import static Auxiliar.ConfigMapa.*;
 import Modelo.Personagem;
+import Modelo.RenderLayer;
+
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.awt.Graphics;
@@ -29,6 +31,11 @@ public class Projetil extends Personagem {
         this.bMortal = true;
         this.bTransponivel = true;
         deactivate();
+    }
+
+    @Override
+    public RenderLayer getRenderLayer() {
+        return this.tipo == TipoProjetil.JOGADOR ? RenderLayer.PLAYER_PROJECTILE_LAYER : RenderLayer.ENEMY_LAYER;
     }
 
     /**

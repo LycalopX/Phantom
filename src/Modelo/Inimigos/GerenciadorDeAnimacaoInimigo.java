@@ -58,6 +58,12 @@ public class GerenciadorDeAnimacaoInimigo {
         }
     }
 
+    // 35x60 - boss 1
+    // 13 de distancia
+
+    // 43x61 - boss 2
+    // 4 de distancia
+
     /**
      * @brief Carrega e recorta frames de uma imagem de spritesheet.
      */

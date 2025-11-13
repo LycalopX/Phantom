@@ -3,6 +3,7 @@ package Modelo.Inimigos;
 import java.awt.Graphics;
 import Auxiliar.LootTable;
 import Modelo.Personagem;
+import Modelo.RenderLayer;
 import Modelo.Fases.Fase;
 import static Auxiliar.ConfigMapa.*;
 
@@ -38,6 +39,11 @@ public class Inimigo extends Personagem {
         this.lootTable = lootTable;
         this.vida = vida;
         this.initialX = x;
+    }
+
+    @Override
+    public RenderLayer getRenderLayer() {
+        return RenderLayer.ENEMY_LAYER;
     }
 
     /**

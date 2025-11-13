@@ -4,6 +4,7 @@ import Auxiliar.Debug.DebugManager;
 import static Auxiliar.ConfigMapa.*;
 import Modelo.Personagem;
 import Modelo.Projeteis.BombaProjetil;
+import Modelo.RenderLayer;
 import Modelo.Fases.Fase;
 import Auxiliar.SoundManager;
 import java.awt.AlphaComposite;
@@ -62,6 +63,11 @@ public class Hero extends Personagem {
         this.animador = new GerenciadorDeAnimacaoHeroi(this.largura, this.altura);
         this.sistemaDeArmas = new GerenciadorDeArmasHeroi();
         activate();
+    }
+
+    @Override
+    public RenderLayer getRenderLayer() {
+        return RenderLayer.PLAYER_LAYER;
     }
 
     /**

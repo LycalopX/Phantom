@@ -103,6 +103,12 @@ public abstract class Personagem implements Serializable {
     public abstract void atualizar();
 
     /**
+     * @brief Retorna a camada de renderização do personagem para ordenação (Z-order).
+     * @return O RenderLayer do personagem.
+     */
+    public abstract RenderLayer getRenderLayer();
+
+    /**
      * @brief Desenha a hitbox de debug do personagem, se o modo de debug estiver
      *        ativo.
      */

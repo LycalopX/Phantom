@@ -20,7 +20,7 @@ public class ScriptFase2 extends ScriptDeFase {
     private long proximoSpawnY = 0;
     private double distanciaTotalRolada = 0;
 
-    private static final int DISTANCIA_ENTRE_ONDAS_Y = 225;
+    private static final int DISTANCIA_ENTRE_ONDAS_Y = 180;
 
     /**
      * @brief Construtor do script da Fase 2.

@@ -4,9 +4,6 @@ import Modelo.Personagem;
 import Modelo.Fases.Fase;
 import Modelo.Hero.Hero;
 import Modelo.Inimigos.Inimigo;
-import Modelo.Items.Item;
-import Modelo.Projeteis.Projetil;
-import Modelo.Projeteis.BombaProjetil;
 import Auxiliar.ConfigMapa;
 import java.awt.*;
 import java.awt.dnd.*;
@@ -20,10 +17,10 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import Auxiliar.Debug.ContadorFPS;
 import Auxiliar.Debug.DebugManager;
-import Auxiliar.Projeteis.TipoProjetil;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -36,11 +33,6 @@ public class Cenario extends JPanel {
     private ContadorFPS contadorFPS;
     private Engine.GameState estadoDoJogo;
     private BufferedImage imagemGameOver;
-
-    // Listas para organizar a ordem de renderização
-    private final ArrayList<Personagem> projeteisJogador = new ArrayList<>();
-    private final ArrayList<Personagem> inimigosEProjeteis = new ArrayList<>();
-    private final ArrayList<Personagem> heroItemBombaProjetil = new ArrayList<>();
 
     // Otimização: Pré-alocar objetos de desenho para evitar criação em loop
     private final Color corFundoOverlay = new Color(0, 0, 50, 150);
@@ -216,31 +208,14 @@ public class Cenario extends JPanel {
                 g.fillRect(0, 0, getWidth(), getHeight());
             }
 
-            // Limpa as listas de renderização
-            projeteisJogador.clear();
-            heroItemBombaProjetil.clear();
-            inimigosEProjeteis.clear();
+            // 4. Desenha os personagens com ordenação de camada
+            ArrayList<Personagem> personagensParaRenderizar = new ArrayList<>(faseAtual.getPersonagens());
+            personagensParaRenderizar.sort(Comparator.comparing(p -> p.getRenderLayer().ordinal()));
 
-            // Itera sobre a lista thread-safe para distribuir os personagens
-            for (Personagem p : faseAtual.getPersonagens()) {
-                if (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.JOGADOR) {
-                    projeteisJogador.add(p);
-                } else if (p instanceof Hero || p instanceof Item || p instanceof BombaProjetil) {
-                    heroItemBombaProjetil.add(p);
-                } else if (p instanceof Inimigo || (p instanceof Projetil && ((Projetil) p).getTipo() == TipoProjetil.INIMIGO)) {
-                    inimigosEProjeteis.add(p);
+            for (Personagem p : personagensParaRenderizar) {
+                if (p.isActive()) {
+                    p.autoDesenho(g);
                 }
-            }
-
-            // Desenha os personagens na ordem correta
-            for (Personagem p : projeteisJogador) {
-                p.autoDesenho(g);
-            }
-            for (Personagem p : heroItemBombaProjetil) {
-                p.autoDesenho(g);
-            }
-            for (Personagem p : inimigosEProjeteis) {
-                p.autoDesenho(g);
             }
 
             if (DebugManager.isActive()) {
@@ -287,7 +262,7 @@ public class Cenario extends JPanel {
         if (imagemGameOver == null) {
             carregarImagensGameOver();
         }
-        
+
         if (imagemGameOver != null) {
             g.drawImage(imagemGameOver, 0, 0, getWidth(), getHeight(), this);
         } else {

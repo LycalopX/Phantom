@@ -24,6 +24,8 @@
 
 #### **4. Novas Funcionalidades e Refinamentos (New Features / Refinements)**
 
+// FINAL
+
 *   **Adicionar "morte" animada para projéteis:**
     *   **Problema:** Projéteis desaparecem abruptamente da tela.
     *   **Análise:** Atualmente, os projéteis são simplesmente desativados e retornados ao `ProjetilPool`.
@@ -32,3 +34,9 @@
         2.  Implementar no método `deactivate()` em `Projetil.java`. Em vez de remover o projétil instantaneamente, este método o colocaria no estado `MORRENDO`.
         3.  No método de desenho do projétil, se ele estiver no estado `MORRENDO`, desenhar uma animação (ex: fade out, encolher, ou um pequeno sprite de explosão de `effect_projectiles.png`).
         4.  Quando a animação terminar, o projétil é finalmente retornado ao `ProjetilPool`.
+
+
+
+minhas anotações feias que precisam ser formatadas bonitinhas:
+1. boss precisa ter diferentes hps - toda vez que ele estoura, passamos para uma nova fase:
+comportamento do boss precisa ser definido por blocos de state diferentes, que modificam conforme sua fase.

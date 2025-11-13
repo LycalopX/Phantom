@@ -16,10 +16,10 @@ public class GerenciadorDeAnimacaoInimigo {
         STRAFING
     }
 
-    private static ImageIcon[] iImagesIdle;
-    private static ImageIcon[] iImagesStrafing;
+    private ImageIcon[] iImagesIdle;
+    private ImageIcon[] iImagesStrafing;
 
-    private static final int MAX_FRAMES = 4;
+    private final int maxFrames;
     private static final int DELAY = 5;
 
     private int frameAtual = 0;
@@ -29,11 +29,19 @@ public class GerenciadorDeAnimacaoInimigo {
      * @brief Construtor do gerenciador. Carrega os spritesheets do inimigo se ainda não foram carregados.
      */
     public GerenciadorDeAnimacaoInimigo() {
-        if (iImagesIdle == null) {
-            int size = (int) (30.0 * Personagem.BODY_PROPORTION);
-            iImagesIdle = carregarFramesDoSpriteSheet("imgs/inimigos/enemy1_spreadsheet.png", 0, MAX_FRAMES, size);
-            iImagesStrafing = carregarFramesDoSpriteSheet("imgs/inimigos/enemy1_spreadsheet.png", MAX_FRAMES, MAX_FRAMES, size);
-        }
+        this(
+            "imgs/inimigos/enemy1_spreadsheet.png",
+            30, 30, 2, 4, 4,
+            true, 
+            (int) (30.0 * Personagem.BODY_PROPORTION),
+            (int) (30.0 * Personagem.BODY_PROPORTION)
+        );
+    }
+
+    public GerenciadorDeAnimacaoInimigo(String spritesheetPath, int spriteWidth, int spriteHeight, int gap, int idleFrames, int movingFrames, boolean resize, int newWidth, int newHeight) {
+        this.maxFrames = idleFrames; // Assuming idle and moving have the same number of frames
+        this.iImagesIdle = carregarFramesDoSpriteSheet(spritesheetPath, 0, idleFrames, spriteWidth, spriteHeight, gap, resize, newWidth, newHeight);
+        this.iImagesStrafing = carregarFramesDoSpriteSheet(spritesheetPath, idleFrames, movingFrames, spriteWidth, spriteHeight, gap, resize, newWidth, newHeight);
     }
 
     /**
@@ -42,7 +50,7 @@ public class GerenciadorDeAnimacaoInimigo {
     public void atualizar() {
         delayFrame++;
         if (delayFrame >= DELAY) {
-            frameAtual = (frameAtual + 1) % MAX_FRAMES;
+            frameAtual = (frameAtual + 1) % maxFrames;
             delayFrame = 0;
         }
     }
@@ -67,7 +75,7 @@ public class GerenciadorDeAnimacaoInimigo {
     /**
      * @brief Carrega e recorta frames de uma imagem de spritesheet.
      */
-    private ImageIcon[] carregarFramesDoSpriteSheet(String nomeArquivo, int startFrame, int numFrames, int size) {
+    private ImageIcon[] carregarFramesDoSpriteSheet(String nomeArquivo, int startFrame, int numFrames, int spriteWidth, int spriteHeight, int gap, boolean resize, int newWidth, int newHeight) {
         try {
             java.net.URL imgURL = getClass().getClassLoader().getResource(nomeArquivo);
             if (imgURL == null) {
@@ -77,19 +85,20 @@ public class GerenciadorDeAnimacaoInimigo {
             BufferedImage spriteSheet = ImageIO.read(imgURL);
 
             ImageIcon[] frames = new ImageIcon[numFrames];
-            final int spriteSize = 30;
-            final int gap = 2;
 
             for (int i = 0; i < numFrames; i++) {
-                int x = (startFrame + i) * (spriteSize + gap);
-                BufferedImage frameImg = spriteSheet.getSubimage(x, 0, spriteSize, spriteSize);
+                int x = (startFrame + i) * (spriteWidth + gap);
+                BufferedImage frameImg = spriteSheet.getSubimage(x, 0, spriteWidth, spriteHeight);
                 
-                BufferedImage resizedImg = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
-                Graphics g = resizedImg.createGraphics();
-                g.drawImage(frameImg, 0, 0, size, size, null);
-                g.dispose();
-
-                frames[i] = new ImageIcon(resizedImg);
+                if (resize) {
+                    BufferedImage resizedImg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+                    Graphics g = resizedImg.createGraphics();
+                    g.drawImage(frameImg, 0, 0, newWidth, newHeight, null);
+                    g.dispose();
+                    frames[i] = new ImageIcon(resizedImg);
+                } else {
+                    frames[i] = new ImageIcon(frameImg);
+                }
             }
             return frames;
         } catch (Exception ex) {

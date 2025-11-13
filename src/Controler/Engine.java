@@ -3,6 +3,7 @@ package Controler;
 import Modelo.Fases.Fase;
 import Modelo.Hero.Hero;
 import Modelo.Inimigos.FadaComum1;
+import Modelo.Inimigos.Nightbug;
 import Modelo.Items.Item;
 import Modelo.Items.ItemType;
 import Modelo.Personagem;
@@ -323,8 +324,10 @@ public class Engine implements Runnable {
     private void salvarInimigosParaTeste() {
         System.out.println("Salvando inimigos para teste...");
         FadaComum1 fada = new FadaComum1(0, 0, new LootTable(), 100, null);
+        Nightbug nightbug = new Nightbug(0, 0, new LootTable(), 1000, null);
 
-        salvarPersonagemParaTeste(fada, "fada_comum.zip");
+        salvarPersonagemParaTeste(fada, "enemies/fada_comum.zip");
+        salvarPersonagemParaTeste(nightbug, "enemies/nightbug.zip");
         System.out.println("Inimigos de teste salvos na pasta do projeto.");
     }
 

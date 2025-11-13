@@ -92,7 +92,7 @@ public class ScriptFase1 extends ScriptDeFase {
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
         ondas = new ArrayList<>();
         ondas.add(new Onda1(fase));
-        ondas.add(new OndaFazNada(fase, 5000));
+        ondas.add(new OndaFazNada(fase, 1000));
         ondas.add(new Onda1(fase));
         ondaAtualIndex = 0;
         return ondas;
@@ -137,9 +137,9 @@ public class ScriptFase1 extends ScriptDeFase {
             lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.02, true, false));
 
             // Inimigos
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial, -1.0, lootTable, 40, fase), 2000));
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial + 0.1, -1.0, lootTable, 40, fase), 2000));
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial - 0.1, -1.0, lootTable, 40, fase), 2000));
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial, -1.0, lootTable, 40, fase), 200));
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial + 0.1, -1.0, lootTable, 40, fase), 200));
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial - 0.1, -1.0, lootTable, 40, fase), 200));
         }
     }
 

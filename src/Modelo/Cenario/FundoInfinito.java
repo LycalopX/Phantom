@@ -11,12 +11,13 @@ import java.awt.AlphaComposite;
  */
 public class FundoInfinito implements ElementoCenario {
 
-    private transient BufferedImage imagem;
-    private double y;
+    protected transient BufferedImage imagem;
+    protected double y;
     private final double velocidadeRelativa;
     private final DrawLayer camada;
     private final String id;
-    private final float opacidade;
+    protected float opacidade;
+    private double speedMultiplier = 1.0;
 
     /**
      * @brief Construtor do FundoInfinito.
@@ -33,6 +34,11 @@ public class FundoInfinito implements ElementoCenario {
         this.camada = camada;
         this.y = 0;
         this.opacidade = opacidade;
+    }
+
+    @Override
+    public void setSpeedMultiplier(double multiplier) {
+        this.speedMultiplier = multiplier;
     }
 
     /**
@@ -70,7 +76,7 @@ public class FundoInfinito implements ElementoCenario {
      */
     @Override
     public void mover(double velocidadeBase) {
-        this.y += velocidadeBase * this.velocidadeRelativa;
+        this.y += velocidadeBase * this.velocidadeRelativa * this.speedMultiplier;
     }
 
     /**

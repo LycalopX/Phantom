@@ -35,10 +35,10 @@ public class Cenario extends JPanel {
     private BufferedImage imagemGameOver;
 
     // Otimização: Pré-alocar objetos de desenho para evitar criação em loop
-    private final Color corFundoOverlay = new Color(0, 0, 50, 150);
+    private Color corFundoOverlay;
     private final Color corDeathbombOverlay = new Color(255, 0, 0, 30);
     private final Font fonteHUD = new Font("Arial", Font.BOLD, 20);
-    private final LinearGradientPaint gradienteFundo;
+    private LinearGradientPaint gradienteFundo;
 
     /**
      * @brief Construtor do Cenario. Configura as dimensões, foco, cor de fundo,
@@ -50,13 +50,6 @@ public class Cenario extends JPanel {
         this.setFocusable(false);
         this.setBackground(Color.BLACK);
         this.contadorFPS = new ContadorFPS();
-
-        // Otimização: Inicializar o gradiente uma vez no construtor
-        Point2D start = new Point2D.Float(0, 0);
-        Point2D end = new Point2D.Float(0, ConfigMapa.ALTURA_TELA);
-        float[] fractions = { 0.0f, 0.5f, 1.0f };
-        Color[] colors = { new Color(0, 0, 50, 255), new Color(0, 0, 50, 100), new Color(0, 0, 50, 0) };
-        this.gradienteFundo = new LinearGradientPaint(start, end, fractions, colors);
 
         setupDropTarget();
     }
@@ -164,6 +157,10 @@ public class Cenario extends JPanel {
      */
     public void setFase(Fase fase) {
         this.faseAtual = fase;
+        if (fase != null && fase.getScript() != null) {
+            this.corFundoOverlay = fase.getScript().getBackgroundOverlayColor();
+            this.gradienteFundo = fase.getScript().getBackgroundGradient();
+        }
     }
 
     /**

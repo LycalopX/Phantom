@@ -9,6 +9,8 @@ public interface ElementoCenario extends Serializable {
 
     void mover(double velocidadeAtualDoFundo);
 
+    void setSpeedMultiplier(double multiplier);
+
     boolean estaForaDaTela(int alturaTela);
 
     DrawLayer getDrawLayer();

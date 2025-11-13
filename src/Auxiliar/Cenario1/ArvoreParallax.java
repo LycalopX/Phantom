@@ -12,6 +12,7 @@ public class ArvoreParallax implements ElementoCenario {
     private final List<BlocoDeFolha> blocos = new ArrayList<>();
     private final BlocoDeFolha blocoTopo;
     private final double velocidadeBaseOriginal;
+    private double currentSpeedMultiplier = 1.0;
 
     /**
      * @brief Construtor da árvore de parallax. Cria uma árvore composta por três
@@ -41,6 +42,11 @@ public class ArvoreParallax implements ElementoCenario {
         blocos.add(this.blocoTopo);
     }
 
+    @Override
+    public void setSpeedMultiplier(double multiplier) {
+        this.currentSpeedMultiplier = multiplier;
+    }
+
     /**
      * @brief Define a imagem para todos os blocos que compõem a árvore.
      */
@@ -66,9 +72,9 @@ public class ArvoreParallax implements ElementoCenario {
      */
     @Override
     public void mover(double velocidadeAtualDoFundo) {
-        double fatorDeAjuste = velocidadeAtualDoFundo / this.velocidadeBaseOriginal;
+        double fatorDeAjuste = (velocidadeAtualDoFundo / this.velocidadeBaseOriginal) * this.currentSpeedMultiplier;
         if (Double.isNaN(fatorDeAjuste) || Double.isInfinite(fatorDeAjuste)) {
-            fatorDeAjuste = 1.0;
+            fatorDeAjuste = 1.0 * this.currentSpeedMultiplier;
         }
 
         for (BlocoDeFolha bloco : blocos) {

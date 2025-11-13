@@ -27,7 +27,13 @@ public class Fase implements Serializable {
     private ScriptDeFase scriptDaFase;
     private ProjetilPool projetilPool;
     private ItemPool itemPool;
-    private ArrayList<ElementoCenario> elementosCenario;
+    private CopyOnWriteArrayList<ElementoCenario> elementosCenario;
+
+    private static boolean isSpeedingUp = false;
+    private static int speedupTimer = 0;
+    private static int speedupDuration = 0;
+    private static double speedupAmplitude = 0;
+    private static double globalSpeedMultiplier = 1.0;
 
     /**
      * @brief Construtor da Fase.
@@ -37,7 +43,7 @@ public class Fase implements Serializable {
         this.personagens = new CopyOnWriteArrayList<>();
         this.projetilPool = new ProjetilPool(20, 25, 16, 150, personagens);
         this.itemPool = new ItemPool();
-        this.elementosCenario = new ArrayList<>();
+        this.elementosCenario = new CopyOnWriteArrayList<>();
         this.scriptDaFase = script;
 
         this.personagens.addAll(projetilPool.getTodosOsProjeteis());
@@ -46,6 +52,29 @@ public class Fase implements Serializable {
         if (this.scriptDaFase != null) {
             this.scriptDaFase.carregarRecursos(this);
             this.scriptDaFase.preencherCenarioInicial(this);
+        }
+    }
+
+    public static void triggerGlobalSpeedup(int duration, double amplitude) {
+        if (!isSpeedingUp) {
+            isSpeedingUp = true;
+            speedupTimer = 0;
+            speedupDuration = duration;
+            speedupAmplitude = amplitude;
+        }
+    }
+
+    private static void updateGlobalSpeedup() {
+        if (isSpeedingUp) {
+            speedupTimer++;
+            if (speedupTimer <= speedupDuration) {
+                // sin(x) from 0 to PI
+                double sinValue = Math.sin(Math.PI * speedupTimer / speedupDuration);
+                globalSpeedMultiplier = 1.0 + speedupAmplitude * sinValue;
+            } else {
+                isSpeedingUp = false;
+                globalSpeedMultiplier = 1.0;
+            }
         }
     }
 
@@ -73,11 +102,14 @@ public class Fase implements Serializable {
      *        execução do script de fase e atualização de todos os personagens.
      */
     public void atualizar(double velocidadeScroll) {
+        updateGlobalSpeedup();
+
         if (this.scriptDaFase != null) {
             this.scriptDaFase.atualizar(this, velocidadeScroll);
         }
 
         for (ElementoCenario elemento : elementosCenario) {
+            elemento.setSpeedMultiplier(globalSpeedMultiplier);
             elemento.mover(velocidadeScroll);
         }
         elementosCenario.removeIf(elemento -> elemento.estaForaDaTela(ALTURA_TELA));
@@ -93,6 +125,10 @@ public class Fase implements Serializable {
         }
 
         personagens.removeIf(p -> (p instanceof Inimigo) && !p.isActive());
+    }
+
+    public ScriptDeFase getScript() {
+        return this.scriptDaFase;
     }
 
     /**
@@ -119,7 +155,7 @@ public class Fase implements Serializable {
     /**
      * @brief Retorna a lista de elementos do cenário na fase.
      */
-    public ArrayList<ElementoCenario> getElementosCenario() {
+    public java.util.List<ElementoCenario> getElementosCenario() {
         return this.elementosCenario;
     }
 

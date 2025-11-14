@@ -81,10 +81,13 @@ public class Nightbug extends Boss {
 
         estado.incrementarTempo(faseReferencia, 1);
         if(estado.getEstadoCompleto()){
+            System.out.println("Mudando estado do Boss");
             estado = estado.getProximoEstado();
             if(estado == null){
                 estado = new IrParaOCentro(this); // Para evitar eventual null pointer
             }
+
+            estado.reset();
         }
         animador.atualizar(isStrafing() ? AnimationState.STRAFING : AnimationState.IDLE);
     }
@@ -173,6 +176,11 @@ public class Nightbug extends Boss {
 
         public abstract void incrementarTempo(Fase fase, int tempo);
 
+        public void reset() {
+            this.contadorTempo = 0;
+            this.estadoCompleto = false;
+        }
+
         // Set
         public void setMovimento(Movimento movimento) {
             this.movimento = movimento;
@@ -197,14 +205,12 @@ public class Nightbug extends Boss {
     }
 
     private class IrParaOCentro extends Estado {
-        private Point2D.Double centro;
-
         public IrParaOCentro(Boss boss) {
             super(boss, new Estado.Movimento(
                 0.3, 0.3,
                 0, 0
             ));
-            this.centro = new Point2D.Double(
+            Point2D.Double centro = new Point2D.Double(
                 0.5 * (MUNDO_LARGURA - 2) + 2,
                 0.2 * MUNDO_ALTURA
             );
@@ -217,9 +223,23 @@ public class Nightbug extends Boss {
                 return;
 
             Point2D.Double proximo = movimento.proximoMovimento(boss.x, boss.y);
+            Point2D.Double velocidade = movimento.getVelocidade();
+            Point2D.Double alvo = movimento.getAlvo();
+            if(Math.abs(proximo.x) < velocidade.x){
+                boss.x = alvo.x;
+                proximo.x = 0;
+            }
+            else{
+                boss.x += proximo.x;
+            }
+            if(Math.abs(proximo.y) < velocidade.y){
+                boss.y = alvo.y;
+                proximo.y = 0;
+            }
+            else{
+                boss.y += proximo.y;
+            }
             estadoCompleto = Movimento.isZero(proximo);
-            boss.x += proximo.x;
-            boss.y += proximo.y;
         }
     }
 

@@ -196,7 +196,7 @@ public class Nightbug extends Boss {
             ));
             this.centro = new Point2D.Double(
                 0.5 * (MUNDO_LARGURA - 2) + 2,
-                0.2 * (MUNDO_ALTURA - 2) + 2
+                0.2 * MUNDO_ALTURA
             );
             this.movimento.setAlvo(centro);
         }

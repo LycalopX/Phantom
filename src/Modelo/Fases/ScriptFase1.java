@@ -7,6 +7,7 @@ import Auxiliar.Personagem.LootItem;
 import Auxiliar.SoundManager;
 import Controler.Engine;
 import Modelo.Cenario.FundoInfinito;
+import Modelo.Inimigos.Nightbug;
 import Modelo.Items.ItemType;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -180,6 +181,8 @@ public class ScriptFase1 extends ScriptDeFase {
         ondas.add(new Onda1(fase));
         ondas.add(new OndaFazNada(fase, 200));
         ondas.add(new Onda1(fase));
+        ondas.add(new OndaFazNada(fase, 100));
+        ondas.add(new OndaBoss(fase));
         ondaAtualIndex = 0;
         return ondas;
     }
@@ -201,6 +204,14 @@ public class ScriptFase1 extends ScriptDeFase {
             inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial, -1.0, lootTable, 40, fase), 50));
             inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial + 0.1, -1.0, lootTable, 40, fase), 100));
             inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial - 0.1, -1.0, lootTable, 40, fase), 0));
+        }
+    }
+
+    private class OndaBoss extends OndaDeBoss{
+        public OndaBoss(Fase fase) {
+            super();
+            lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
+            boss = new Nightbug(0, MUNDO_ALTURA * 0.05, lootTable, 10000, fase);
         }
     }
 }

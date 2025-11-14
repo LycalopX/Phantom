@@ -4,31 +4,49 @@ import Modelo.Cenario.ElementoCenario;
 import Modelo.Cenario.DrawLayer;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
+import java.util.List;
+import Auxiliar.Cenario1.BlocoDeFolha;
+import Modelo.Personagem;
 
 public class BambuParallax implements ElementoCenario {
 
-    private double x, y;
-    private double initialWidth, initialHeight;
-    private double scrollSpeed;
+    private final List<BlocoDeFolha> blocos = new ArrayList<>();
+    private final BlocoDeFolha blocoTopo;
+    private final double velocidadeBaseOriginal;
     private double currentSpeedMultiplier = 1.0;
-    private double rotationAngle; // In radians
 
-    private transient BufferedImage stalkImage;
-    private transient BufferedImage leafImage;
+    public BambuParallax(int x, int y, int larguraBase, double velocidadeBase, BufferedImage stalk, BufferedImage leaves1, BufferedImage leaves2) {
+        this.velocidadeBaseOriginal = velocidadeBase;
 
-    private final double minScale = 0.2;
-    private final double maxScale = 1.5; // Reduced max scale to prevent "immense" size
+        // Calcula a altura do caule com base na proporção da imagem
+        int heightBambu = (int)(stalk.getHeight() * Personagem.BODY_PROPORTION);
+        int widthBambu = (int)(stalk.getWidth() * Personagem.BODY_PROPORTION);
 
-    public BambuParallax(double x, double y, double size, double scrollSpeed, BufferedImage stalkImage, BufferedImage leafImage, double rotationAngle) {
-        this.x = x;
-        this.y = y;
-        this.initialWidth = size;
-        this.initialHeight = size * (stalkImage.getHeight() / (double) stalkImage.getWidth()); // Maintain aspect ratio
-        this.scrollSpeed = scrollSpeed;
-        this.stalkImage = stalkImage;
-        this.leafImage = leafImage;
-        this.rotationAngle = rotationAngle;
+        int heightFolha1 = (int)(leaves1.getHeight() * Personagem.BODY_PROPORTION);
+        int widthFolha1 = (int)(leaves1.getWidth() * Personagem.BODY_PROPORTION);
+
+        int heightFolha2 = (int)(leaves2.getHeight() * Personagem.BODY_PROPORTION);
+        int widthFolha2 = (int)(leaves2.getWidth() * Personagem.BODY_PROPORTION);
+        
+        // Camada de base (caule) - usa altura calculada
+        System.out.println("Criando BambuParallax na posição: " + x + ", " + y + " | Largura: " + widthBambu + " | Altura: " + heightBambu);
+        blocos.add(new BlocoDeFolha(x, y, (int)widthBambu, (int)heightBambu, velocidadeBase, stalk, 1f, 0.9f));
+
+        // Camada do meio (folhas)
+        int tamanhoMedio = (int) (widthFolha1 * 0.8);
+        double velocidadeMedia = velocidadeBase * 1.01;
+        int xMedio = x + (widthBambu - tamanhoMedio) / 2;
+        int yMedio = y - (int) (heightBambu * 0.15); // Posição relativa à altura do caule
+        blocos.add(new BlocoDeFolha(xMedio, yMedio, tamanhoMedio, tamanhoMedio, velocidadeMedia, leaves1, 1f, 0.9f));
+
+        // Camada do topo (folhas)
+        int tamanhoPequeno = (int) (widthFolha2 * 0.6);
+        double velocidadePequena = velocidadeBase * 1.02;
+        int xPequeno = x + (widthBambu - tamanhoPequeno) / 2;
+        int yPequeno = y - (int) (heightBambu * 0.3); // Posição relativa à altura do caule
+        this.blocoTopo = new BlocoDeFolha(xPequeno, yPequeno, tamanhoPequeno, tamanhoPequeno, velocidadePequena, leaves2, 1f, 0.9f);
+        blocos.add(this.blocoTopo);
     }
 
     @Override
@@ -36,43 +54,8 @@ public class BambuParallax implements ElementoCenario {
         this.currentSpeedMultiplier = multiplier;
     }
 
-    @Override
-    public void mover(double velocidadeAtualDoFundo) {
-        this.y += velocidadeAtualDoFundo * this.scrollSpeed * this.currentSpeedMultiplier;
-    }
-
-    @Override
-    public void desenhar(Graphics2D g2d, int larguraTela, int alturaTela) {
-        if (stalkImage == null || leafImage == null) return;
-
-        // Calculate scale based on Y position
-        double scaleFactor = minScale + (maxScale - minScale) * (this.y / alturaTela);
-        scaleFactor = Math.max(minScale, scaleFactor); // Clamp scale
-
-        double currentWidth = initialWidth * scaleFactor;
-        double currentHeight = initialHeight * scaleFactor;
-
-        // Save original transform
-        AffineTransform originalTransform = g2d.getTransform();
-
-        // Translate to the base of the bamboo for rotation
-        g2d.translate(x, y + currentHeight);
-        g2d.rotate(rotationAngle);
-        g2d.translate(-x, -(y + currentHeight));
-
-        // Draw leaves first
-        g2d.drawImage(leafImage, (int) (x - currentWidth / 2), (int) y, (int) currentWidth, (int) currentHeight, null);
-
-        // Draw stalk on top
-        g2d.drawImage(stalkImage, (int) (x - currentWidth / 2), (int) y, (int) currentWidth, (int) currentHeight, null);
-
-        // Restore original transform
-        g2d.setTransform(originalTransform);
-    }
-
-    @Override
-    public boolean estaForaDaTela(int alturaTela) {
-        return this.y > alturaTela;
+    public void setImagem(BufferedImage imagem) {
+        // Este método pode não ser mais necessário ou pode ser adaptado
     }
 
     @Override
@@ -80,8 +63,27 @@ public class BambuParallax implements ElementoCenario {
         return DrawLayer.FOREGROUND;
     }
 
-    public void setImages(BufferedImage stalk, BufferedImage leaves) {
-        this.stalkImage = stalk;
-        this.leafImage = leaves;
+    @Override
+    public void mover(double velocidadeAtualDoFundo) {
+        double fatorDeAjuste = (velocidadeAtualDoFundo / this.velocidadeBaseOriginal) * this.currentSpeedMultiplier;
+        if (Double.isNaN(fatorDeAjuste) || Double.isInfinite(fatorDeAjuste)) {
+            fatorDeAjuste = 1.0 * this.currentSpeedMultiplier;
+        }
+
+        for (BlocoDeFolha bloco : blocos) {
+            bloco.moverComAjuste(fatorDeAjuste);
+        }
+    }
+
+    @Override
+    public void desenhar(Graphics2D g2d, int larguraTela, int alturaTela) {
+        for (BlocoDeFolha bloco : blocos) {
+            bloco.desenhar(g2d, larguraTela, alturaTela);
+        }
+    }
+
+    @Override
+    public boolean estaForaDaTela(int alturaDaTela) {
+        return this.blocoTopo.getY() > alturaDaTela;
     }
 }

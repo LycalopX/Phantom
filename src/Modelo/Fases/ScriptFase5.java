@@ -4,10 +4,9 @@ import Auxiliar.ConfigMapa;
 import Controler.Engine;
 import Modelo.Cenario.ChaoPerspectiva;
 import Modelo.Cenario.ElementoCenario;
-import Modelo.Cenario.PlanoDeFundo;
+import Modelo.Cenario.ParedeVertical;
 import java.awt.Color;
 import java.awt.LinearGradientPaint;
-import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
@@ -28,25 +27,17 @@ public class ScriptFase5 extends ScriptDeFase {
             this.texturaParede = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage5/bg5_1.png"));
             this.texturaChao = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage5/bg5_2.png"));
 
-            int larguraTela = ConfigMapa.LARGURA_TELA;
-            int alturaTela = ConfigMapa.ALTURA_TELA;
-            int larguraParede = larguraTela / 2;
-
-            // 1. O Chão (com a nova classe de perspectiva correta)
+            // 1. O Chão
             ChaoPerspectiva chao = new ChaoPerspectiva(texturaChao, 1.0);
             fase.adicionarElementoCenario(chao);
 
-            // 2. Parede Esquerda (continua usando PlanoDeFundo com shear)
-            Rectangle boundsParedeEsq = new Rectangle(0, 0, larguraParede, alturaTela);
-            PlanoDeFundo paredeEsq = new PlanoDeFundo("parede_esq", texturaParede, boundsParedeEsq, -0.2, 0, 2.5);
+            // 2. Parede Esquerda
+            ParedeVertical paredeEsq = new ParedeVertical(texturaParede, true, 2.5);
             fase.adicionarElementoCenario(paredeEsq);
 
-            /*
-            // 3. Parede Direita (continua usando PlanoDeFundo com shear)
-            Rectangle boundsParedeDir = new Rectangle(larguraTela - larguraParede, 0, larguraParede, alturaTela);
-            PlanoDeFundo paredeDir = new PlanoDeFundo("parede_dir", texturaParede, boundsParedeDir, -0.4, 0, 2.5);
+            // 3. Parede Direita
+            ParedeVertical paredeDir = new ParedeVertical(texturaParede, false, 2.5);
             fase.adicionarElementoCenario(paredeDir);
-            */
 
         } catch (Exception e) {
             System.err.println("Erro ao carregar recursos da Fase 5: " + e.getMessage());
@@ -64,8 +55,8 @@ public class ScriptFase5 extends ScriptDeFase {
         }
 
         for (ElementoCenario elemento : fase.getElementosCenario()) {
-            if (elemento instanceof PlanoDeFundo) {
-                ((PlanoDeFundo) elemento).relinkImage(texturaParede);
+            if (elemento instanceof ParedeVertical) {
+                ((ParedeVertical) elemento).relinkImage(texturaParede);
             } else if (elemento instanceof ChaoPerspectiva) {
                 ((ChaoPerspectiva) elemento).relinkImage(texturaChao);
             }
@@ -79,7 +70,7 @@ public class ScriptFase5 extends ScriptDeFase {
 
     @Override
     public void atualizarCenario(Fase fase, double velocidadeScroll) {
-        // A lógica de movimento já está no próprio PlanoDeFundo
+        // A lógica de movimento já está nas próprias classes de perspectiva
     }
 
     @Override

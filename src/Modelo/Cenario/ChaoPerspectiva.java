@@ -47,6 +47,10 @@ public class ChaoPerspectiva implements ElementoCenario {
         // A largura na base da tela. Um valor > 1.0 faz parecer que o chão "sai" das laterais.
         float fatorLarguraNaBase = 2.0f; 
 
+        // Calcula o limite de largura para parar de desenhar
+        float larguraMaximaNaBase = larguraTela * fatorLarguraNaBase;
+        float limiteLarguraParaDesenhar = larguraMaximaNaBase * 0.15f; // 25% da largura máxima
+
         for (int y = horizonteY; y < alturaTela; y++) {
             // Fator de perspectiva (p): 0.0 no horizonte, 1.0 na base da tela.
             float p = (float)(y - horizonteY) / (float)(alturaTela - horizonteY);
@@ -59,8 +63,13 @@ public class ChaoPerspectiva implements ElementoCenario {
             if (yTextura < 0) yTextura += textura.getHeight();
 
             // Largura da fatia do chão é interpolada para formar o trapézio.
-            float larguraDaFatia = larguraNoHorizonte + p * ((larguraTela * fatorLarguraNaBase) - larguraNoHorizonte);
+            float larguraDaFatia = larguraNoHorizonte + p * (larguraMaximaNaBase - larguraNoHorizonte);
             
+            // Condição para parar de desenhar
+            if (larguraDaFatia <= limiteLarguraParaDesenhar) {
+                continue; // Pula o desenho desta fatia se for muito estreita
+            }
+
             int xEsq = (int)(pontoDeFugaX - larguraDaFatia / 2);
             int xDir = (int)(pontoDeFugaX + larguraDaFatia / 2);
 

@@ -178,11 +178,11 @@ public class ScriptFase1 extends ScriptDeFase {
 
     // Onda
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
-        ondas.add(new Onda1(fase));
+        ondas.add(new OndaBoss(fase));
         ondas.add(new OndaFazNada(fase, 200));
         ondas.add(new Onda1(fase));
         ondas.add(new OndaFazNada(fase, 100));
-        ondas.add(new OndaBoss(fase));
+        ondas.add(new Onda1(fase));
         ondaAtualIndex = 0;
         return ondas;
     }

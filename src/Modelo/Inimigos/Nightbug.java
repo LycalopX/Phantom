@@ -11,6 +11,7 @@ import java.awt.Graphics;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
 
 public class Nightbug extends Boss {
 
@@ -35,12 +36,28 @@ public class Nightbug extends Boss {
         this.largura = scaledWidth;
         this.altura = scaledHeight;
         this.hitboxRaio = (this.largura / 2.0) / Auxiliar.ConfigMapa.CELL_SIDE;
-        
-        Estado irCentro = new IrParaOCentro(this);
-        Estado ataque1 = new AtaqueParaBaixo1(this);
-        irCentro.setProximoEstado(ataque1);
-        ataque1.setProximoEstado(irCentro);
-        this.estado = irCentro;
+
+        setupEstados();
+    }
+
+    private void setupEstados() {
+        Estado irCentro = new IrParaOCentro(this, new Point2D.Double(0.2, 0.2));
+        Estado irEsquerda = new IrParaEsquerda(this, new Point2D.Double(0.5, 0.2));
+        Estado irDireita = new IrParaDireita(this, new Point2D.Double(0.5, 0.2));
+
+        Estado ataqueParaBaixo = new AtaqueParaBaixo(this);
+        Estado ataqueParaDireita = new AtaqueParaDireita(this);
+        Estado ataqueParaEsquerda = new AtaqueParaEsquerda(this);
+
+        estado = irCentro;
+        irCentro.setProximoEstado(ataqueParaBaixo);
+
+        ataqueParaBaixo.setProximoEstado(irEsquerda);
+        irEsquerda.setProximoEstado(ataqueParaDireita);
+
+        ataqueParaDireita.setProximoEstado(irDireita);
+        irDireita.setProximoEstado(ataqueParaEsquerda);
+        ataqueParaEsquerda.setProximoEstado(irCentro);
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -57,10 +74,7 @@ public class Nightbug extends Boss {
         );
 
         // Estado
-        this.estado = new IrParaOCentro(this); 
-        Estado ataque1 = new AtaqueParaBaixo1(this);
-        this.estado.setProximoEstado(ataque1);
-        ataque1.setProximoEstado(ataque1);
+        setupEstados();
     }
 
     @Override
@@ -70,7 +84,11 @@ public class Nightbug extends Boss {
 
     @Override
     public boolean isStrafing() {
-        return this.estado.getMovimento().proximoMovimento(this.x, this.y).x != 0;
+        if (estado instanceof IrPara irPara) {
+            return irPara.getMovimento().proximoMovimento(this.x, this.y).x != 0;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -78,13 +96,11 @@ public class Nightbug extends Boss {
         super.atualizar(); // Basic movement from Inimigo
 
         // Simple logic to switch between idle and moving for demonstration
-
         estado.incrementarTempo(faseReferencia, 1);
-        if(estado.getEstadoCompleto()){
-            System.out.println("Mudando estado do Boss");
+        if (estado.getEstadoCompleto()) {
             estado = estado.getProximoEstado();
-            if(estado == null){
-                estado = new IrParaOCentro(this); // Para evitar eventual null pointer
+            if (estado == null) {
+                estado = new IrParaOCentro(this, new Point2D.Double(0.2, 0.2)); // Para evitar eventual null pointer
             }
 
             estado.reset();
@@ -99,6 +115,42 @@ public class Nightbug extends Boss {
     }
 
     private abstract class Estado {
+        // Variaveis
+        protected Boss boss;
+        private Estado proximoEstado;
+
+        protected int contadorTempo;
+        protected boolean estadoCompleto;
+
+        public Estado(Boss boss) {
+            this.boss = boss;
+            this.contadorTempo = 0;
+        }
+
+        public abstract void incrementarTempo(Fase fase, int tempo);
+
+        public void reset() {
+            this.contadorTempo = 0;
+            this.estadoCompleto = false;
+        }
+
+        // Set
+        public void setProximoEstado(Estado proximoEstado) {
+            this.proximoEstado = proximoEstado;
+        }
+
+        // Get
+        public Estado getProximoEstado() {
+            return this.proximoEstado;
+        }
+
+        public boolean getEstadoCompleto() {
+            return this.estadoCompleto;
+        }
+    }
+
+    // Movimento
+    private abstract class IrPara extends Estado {
 
         // Classes
         public static class Movimento {
@@ -160,61 +212,22 @@ public class Nightbug extends Boss {
         }
 
         // Variaveis
-        protected Boss boss;
-        protected Movimento movimento;
-        private Estado proximoEstado;
+        private Movimento movimento;
 
-        protected int contadorTempo;
-        protected boolean estadoCompleto;
-
-        public Estado(Boss boss, Movimento movimento) {
-            this.boss = boss;
-            this.movimento = movimento;
-
-            this.contadorTempo = 0;
-        }
-
-        public abstract void incrementarTempo(Fase fase, int tempo);
-
-        public void reset() {
-            this.contadorTempo = 0;
-            this.estadoCompleto = false;
-        }
-
-        // Set
-        public void setMovimento(Movimento movimento) {
-            this.movimento = movimento;
-        }
-
-        public void setProximoEstado(Estado proximoEstado) {
-            this.proximoEstado = proximoEstado;
-        }
-
-        // Get
-        public Estado.Movimento getMovimento() {
-            return this.movimento;
-        }
-
-        public Estado getProximoEstado() {
-            return this.proximoEstado;
-        }
-
-        public boolean getEstadoCompleto() {
-            return this.estadoCompleto;
-        }
-    }
-
-    private class IrParaOCentro extends Estado {
-        public IrParaOCentro(Boss boss) {
-            super(boss, new Estado.Movimento(
-                0.3, 0.3,
-                0, 0
-            ));
-            Point2D.Double centro = new Point2D.Double(
-                0.5 * (MUNDO_LARGURA - 2) + 2,
-                0.2 * MUNDO_ALTURA
+        public IrPara(Boss boss, double alvoX, double alvoY, double velocidadeX, double velocidadeY) {
+            super(boss);
+            movimento = new Movimento(
+                    velocidadeX, velocidadeY,
+                    alvoX, alvoY
             );
-            this.movimento.setAlvo(centro);
+        }
+
+        public IrPara(Boss boss, Point2D.Double alvo, Point2D.Double velocidade) {
+            super(boss);
+            movimento = new Movimento(
+                    velocidade,
+                    alvo
+            );
         }
 
         @Override
@@ -224,32 +237,71 @@ public class Nightbug extends Boss {
 
         @Override
         public void incrementarTempo(Fase fase, int tempo) {
-            if(estadoCompleto)
+            if (estadoCompleto) {
                 return;
+            }
 
             Point2D.Double proximo = movimento.proximoMovimento(boss.x, boss.y);
             Point2D.Double velocidade = movimento.getVelocidade();
             Point2D.Double alvo = movimento.getAlvo();
-            if(Math.abs(proximo.x) < velocidade.x){
+            if (Math.abs(proximo.x) < velocidade.x) {
                 boss.x = alvo.x;
                 proximo.x = 0;
-            }
-            else{
+            } else {
                 boss.x += proximo.x;
             }
-            if(Math.abs(proximo.y) < velocidade.y){
+            if (Math.abs(proximo.y) < velocidade.y) {
                 boss.y = alvo.y;
                 proximo.y = 0;
-            }
-            else{
+            } else {
                 boss.y += proximo.y;
             }
             estadoCompleto = Movimento.isZero(proximo);
         }
+
+        // Set
+        public void setMovimento(Movimento movimento) {
+            this.movimento = movimento;
+        }
+
+        // Get
+        public Movimento getMovimento() {
+            return this.movimento;
+        }
     }
 
-    private class AtaqueParaBaixo1 extends Estado {
-        private class PadraoAtaque{
+    private class IrParaOCentro extends IrPara {
+        public IrParaOCentro(Boss boss, Point2D.Double velocidade) {
+            super(boss,
+                    new Point2D.Double(0.5 * (MUNDO_LARGURA - 2) + 2, 0.2 * MUNDO_ALTURA),
+                    velocidade
+            );
+        }
+    }
+
+    private class IrParaEsquerda extends IrPara {
+        public IrParaEsquerda(Boss boss, Point2D.Double velocidade) {
+            super(boss,
+                    new Point2D.Double(0.1 * (MUNDO_LARGURA - 2) + 2, 0.1 * MUNDO_ALTURA),
+                    velocidade
+            );
+        }
+    }
+
+    private class IrParaDireita extends IrPara {
+        public IrParaDireita(Boss boss, Point2D.Double velocidade) {
+            super(boss,
+                    new Point2D.Double(0.9 * (MUNDO_LARGURA - 2) + 2, 0.1 * MUNDO_ALTURA),
+                    velocidade
+            );
+        }
+    }
+
+    // Ataque
+    private abstract class Ataque extends Estado {
+        
+        protected class PadraoAtaque {
+
             private int rotacaoInicial;
             private int amplitude;
             private int quantidadeAtaques;
@@ -288,22 +340,18 @@ public class Nightbug extends Boss {
 
         }
 
-        private final int intervaloAtaque;
-        private final double velocidadeProjetil;
-        private final PadraoAtaque[] padroes;
-        private int padraoAtual;
+        protected int intervaloAtaque;
+        protected double velocidadeProjetil;
+        protected final ArrayList<PadraoAtaque> padroes;
+        protected int padraoAtual;
+        protected TipoProjetilInimigo tipoProjetil;
 
-        public AtaqueParaBaixo1(Boss boss) {
-            super(boss, new Estado.Movimento(0, 0, 0, 0));
-            
-            this.intervaloAtaque = 60;
-            this.velocidadeProjetil = 0.3;
-            
-            this.padroes = new PadraoAtaque[3];
-            padroes[0] = new PadraoAtaque(90, 120, 10);
-            padroes[1] = new PadraoAtaque(90, 50, 18);
-            padroes[2] = new PadraoAtaque(40, 80, 10);
+        public Ataque(Boss boss) {
+            super(boss);
 
+            this.padroes = new ArrayList<>();
+            intervaloAtaque = 60;
+            velocidadeProjetil = 0.15;
             this.padraoAtual = 0;
         }
 
@@ -315,18 +363,20 @@ public class Nightbug extends Boss {
 
         @Override
         public void incrementarTempo(Fase fase, int tempo) {
-            if(estadoCompleto)
+            if (estadoCompleto) {
                 return;
-            
-            contadorTempo += tempo;
-            if (fase == null || contadorTempo < intervaloAtaque)
-                return;
+            }
 
-            if(padraoAtual >= padroes.length){
+            contadorTempo += tempo;
+            if (fase == null || contadorTempo < intervaloAtaque) {
+                return;
+            }
+
+            if (padraoAtual >= padroes.size()) {
                 estadoCompleto = true;
                 return;
             }
-            PadraoAtaque padrao = padroes[this.padraoAtual];
+            PadraoAtaque padrao = padroes.get(padraoAtual);
             atirarEmLeque(padrao.getRotacaoInicial(), padrao.getQuantidadeAtaques(), padrao.getAmplitude());
             this.padraoAtual++;
             contadorTempo = 0;
@@ -334,24 +384,66 @@ public class Nightbug extends Boss {
 
         /**
          * Atira projéteis em leque a partir do centro do boss.
-         * @param anguloInicial Ângulo inicial em graus (0 = direita, 90 = baixo, 180 = esquerda, 270 = cima)
+         *
+         * @param anguloInicial Ângulo inicial em graus (0 = direita, 90 =
+         * baixo, 180 = esquerda, 270 = cima)
          * @param quantidadeTiros Número de projéteis no leque
          * @param amplitude Amplitude total do leque em graus
          */
         private void atirarEmLeque(double anguloInicial, int quantidadeTiros, double amplitude) {
-            if (faseReferencia == null)
+            if (faseReferencia == null) {
                 return;
+            }
 
             double espacamento = (quantidadeTiros > 1) ? amplitude / (quantidadeTiros - 1) : 0;
-            
+
             for (int i = 0; i < quantidadeTiros; i++) {
                 double angle = anguloInicial - (amplitude / 2.0) + (espacamento * i);
-                
+
                 Projetil p = faseReferencia.getProjetilPool().getProjetilInimigo();
                 if (p != null) {
-                    p.reset(boss.x, boss.y, velocidadeProjetil, angle, TipoProjetil.INIMIGO, TipoProjetilInimigo.OVAL_AZUL_PISCINA_CLARO);
+                    p.reset(boss.x, boss.y, velocidadeProjetil, angle, TipoProjetil.INIMIGO, tipoProjetil);
                 }
             }
+        }
+    }
+
+    private class AtaqueParaBaixo extends Ataque {
+        public AtaqueParaBaixo(Boss boss) {
+            super(boss);
+
+            this.intervaloAtaque = 60;
+            this.velocidadeProjetil = 0.15;
+            this.tipoProjetil = TipoProjetilInimigo.OVAL_AZUL_PISCINA_CLARO;
+
+            padroes.add(new PadraoAtaque(90, 140, 10));
+            padroes.add(new PadraoAtaque(90, 80, 10));
+        }
+    }
+
+    private class AtaqueParaDireita extends Ataque {
+        public AtaqueParaDireita(Boss boss) {
+            super(boss);
+
+            this.intervaloAtaque = 60;
+            this.velocidadeProjetil = 0.15;
+            this.tipoProjetil = TipoProjetilInimigo.ESFERA_AZUL;
+
+            padroes.add(new PadraoAtaque(50, 140, 10));
+            padroes.add(new PadraoAtaque(50, 80, 10));
+        }
+    }
+
+    private class AtaqueParaEsquerda extends Ataque {
+        public AtaqueParaEsquerda(Boss boss) {
+            super(boss);
+
+            this.intervaloAtaque = 60;
+            this.velocidadeProjetil = 0.15;
+            this.tipoProjetil = TipoProjetilInimigo.ESFERA_AZUL;
+
+            padroes.add(new PadraoAtaque(130, 140, 10));
+            padroes.add(new PadraoAtaque(130, 80, 10));
         }
     }
 }

@@ -74,7 +74,7 @@ public class Nightbug extends Boss {
         // Simple logic to switch between idle and moving for demonstration
 
         estado.incrementarTempo(faseReferencia, 1);
-        if(estado.estadoCompleto){
+        if(estado.getEstadoCompleto()){
             estado = estado.getProximoEstado();
             if(estado == null){
                 estado = new IrParaOCentro(this); // Para evitar eventual null pointer
@@ -184,6 +184,10 @@ public class Nightbug extends Boss {
         public Estado getProximoEstado() {
             return this.proximoEstado;
         }
+
+        public boolean getEstadoCompleto() {
+            return this.estadoCompleto;
+        }
     }
 
     private class IrParaOCentro extends Estado {
@@ -191,7 +195,7 @@ public class Nightbug extends Boss {
 
         public IrParaOCentro(Boss boss) {
             super(boss, new Estado.Movimento(
-                0.05, 0.05,
+                0.3, 0.3,
                 0, 0
             ));
             this.centro = new Point2D.Double(

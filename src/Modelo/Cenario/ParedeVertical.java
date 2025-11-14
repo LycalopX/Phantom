@@ -10,15 +10,31 @@ public class ParedeVertical implements ElementoCenario {
     private double speedMultiplier = 1.0;
     private final double velocidadeRelativa;
     private final boolean isParedeEsquerda;
+    private final float alturaNoPontoDeFuga;
+    private final float fatorAlturaNaBorda;
+    private int translacaoX;
+    private int translacaoY;
 
-    public ParedeVertical(BufferedImage textura, boolean isParedeEsquerda, double velocidadeRelativa) {
+    public ParedeVertical(BufferedImage textura, boolean isParedeEsquerda, double velocidadeRelativa, float alturaNoPontoDeFuga, float fatorAlturaNaBorda, int translacaoX, int translacaoY) {
         this.textura = textura;
         this.isParedeEsquerda = isParedeEsquerda;
         this.velocidadeRelativa = velocidadeRelativa;
+        this.alturaNoPontoDeFuga = alturaNoPontoDeFuga;
+        this.fatorAlturaNaBorda = fatorAlturaNaBorda;
+        this.translacaoX = translacaoX;
+        this.translacaoY = translacaoY;
     }
 
     public void relinkImage(BufferedImage textura) {
         this.textura = textura;
+    }
+
+    public void setTranslacaoX(int translacaoX) {
+        this.translacaoX = translacaoX;
+    }
+
+    public void setTranslacaoY(int translacaoY) {
+        this.translacaoY = translacaoY;
     }
 
     @Override
@@ -42,9 +58,6 @@ public class ParedeVertical implements ElementoCenario {
 
         int pontoDeFugaX = larguraTela / 2;
         int horizonteY = alturaTela / 2;
-
-        float alturaNoPontoDeFuga = 40;
-        float fatorAlturaNaBorda = 1.5f; // Efeito de distorção reduzido
 
         float alturaMaximaNaBorda = alturaTela * fatorAlturaNaBorda;
         float limiteAlturaParaDesenhar = alturaMaximaNaBorda * 0.15f;
@@ -71,11 +84,11 @@ public class ParedeVertical implements ElementoCenario {
             int xTextura = (int)(scrollX + z) % textura.getWidth();
             if (xTextura < 0) xTextura += textura.getWidth();
             
-            int yCima = (int)(horizonteY - alturaDaFatia / 2);
-            int yBaixo = (int)(horizonteY + alturaDaFatia / 2);
+            int yCima = (int)(horizonteY - alturaDaFatia / 2) + translacaoY;
+            int yBaixo = (int)(horizonteY + alturaDaFatia / 2) + translacaoY;
 
             g2d.drawImage(textura,
-                x, yCima, x + 1, yBaixo,
+                x + translacaoX, yCima, x + 1 + translacaoX, yBaixo,
                 xTextura, 0, xTextura + 1, textura.getHeight(),
                 null);
         }

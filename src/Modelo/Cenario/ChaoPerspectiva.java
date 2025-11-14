@@ -10,10 +10,14 @@ public class ChaoPerspectiva implements ElementoCenario {
     private double scrollY = 0;
     private double speedMultiplier = 1.0;
     private final double velocidadeRelativa;
+    private final float larguraNoHorizonte;
+    private final float fatorLarguraNaBase;
 
-    public ChaoPerspectiva(BufferedImage textura, double velocidadeRelativa) {
+    public ChaoPerspectiva(BufferedImage textura, double velocidadeRelativa, float larguraNoHorizonte, float fatorLarguraNaBase) {
         this.textura = textura;
         this.velocidadeRelativa = velocidadeRelativa;
+        this.larguraNoHorizonte = larguraNoHorizonte;
+        this.fatorLarguraNaBase = fatorLarguraNaBase;
     }
 
     public void relinkImage(BufferedImage textura) {
@@ -42,14 +46,9 @@ public class ChaoPerspectiva implements ElementoCenario {
         int horizonteY = alturaTela / 2; // Ponto de fuga no meio da tela
         int pontoDeFugaX = larguraTela / 2;
 
-        // Largura do "corredor" no ponto de fuga. Pode ser ajustado.
-        float larguraNoHorizonte = 40; 
-        // A largura na base da tela. Um valor > 1.0 faz parecer que o chão "sai" das laterais.
-        float fatorLarguraNaBase = 2.0f; 
-
         // Calcula o limite de largura para parar de desenhar
         float larguraMaximaNaBase = larguraTela * fatorLarguraNaBase;
-        float limiteLarguraParaDesenhar = larguraMaximaNaBase * 0.15f; // 25% da largura máxima
+        float limiteLarguraParaDesenhar = larguraMaximaNaBase * 0.15f; // 15% da largura máxima
 
         for (int y = horizonteY; y < alturaTela; y++) {
             // Fator de perspectiva (p): 0.0 no horizonte, 1.0 na base da tela.

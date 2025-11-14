@@ -16,6 +16,13 @@ public class ScriptFase5 extends ScriptDeFase {
     private transient BufferedImage texturaChao;
     private transient BufferedImage texturaParede;
 
+    // Parâmetros de perspectiva compartilhados
+    private final float larguraNoHorizonte = 40; // Largura do corredor no ponto de fuga
+    private final float fatorPerspectivaChao = 2f; // Controla a "abertura" da perspectiva
+    private final float fatorPerspectivaParede = 1.5f; // Controla a "abertura" da perspectiva
+    private final int translacaoParedeX = 0; // Offset horizontal para as paredes
+    private final int translacaoParedeY = 0; // Offset vertical para as paredes
+
     public ScriptFase5(Engine engine) {
         super(engine);
         // Auxiliar.SoundManager.getInstance().playMusic("NomeDaMusica", true);
@@ -28,15 +35,15 @@ public class ScriptFase5 extends ScriptDeFase {
             this.texturaChao = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage5/bg5_2.png"));
 
             // 1. O Chão
-            ChaoPerspectiva chao = new ChaoPerspectiva(texturaChao, 1.0);
+            ChaoPerspectiva chao = new ChaoPerspectiva(texturaChao, 0.2, larguraNoHorizonte, fatorPerspectivaChao);
             fase.adicionarElementoCenario(chao);
 
             // 2. Parede Esquerda
-            ParedeVertical paredeEsq = new ParedeVertical(texturaParede, true, 2.5);
+            ParedeVertical paredeEsq = new ParedeVertical(texturaParede, true, 0.1, larguraNoHorizonte, fatorPerspectivaParede, translacaoParedeX, translacaoParedeY);
             fase.adicionarElementoCenario(paredeEsq);
 
             // 3. Parede Direita
-            ParedeVertical paredeDir = new ParedeVertical(texturaParede, false, 2.5);
+            ParedeVertical paredeDir = new ParedeVertical(texturaParede, false, 0.1, larguraNoHorizonte, fatorPerspectivaParede, translacaoParedeX, translacaoParedeY);
             fase.adicionarElementoCenario(paredeDir);
 
         } catch (Exception e) {

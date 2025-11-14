@@ -19,6 +19,7 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import java.awt.Rectangle;
 import java.util.List;
+import Modelo.Inimigos.Boss;
 
 /**
  * @brief Orquestra a lógica principal do jogo, incluindo detecção de colisão,
@@ -70,6 +71,10 @@ public class ControleDeJogo {
         Hero hero = null;
         BombaProjetil bombaAtiva = null;
 
+        // Para saber se o boss foi bombeado
+        boolean bombsOnField = false;
+        Boss boss = null;
+
         projeteisInimigosEspeciais.clear();
         quadtree.clear();
 
@@ -77,7 +82,7 @@ public class ControleDeJogo {
             if (p instanceof Hero) {
                 hero = (Hero) p;
             }
-            
+
             if (p instanceof Item) {
                 if (p.y > ConfigMapa.MUNDO_ALTURA) {
                     p.deactivate();
@@ -89,6 +94,14 @@ public class ControleDeJogo {
 
                 if (p instanceof BombaProjetil) {
                     bombaAtiva = (BombaProjetil) p;
+                }
+
+                if (p instanceof ProjetilBombaHoming) {
+                    bombsOnField = true;
+                }
+
+                if (p instanceof Boss) {
+                    boss = (Boss) p;
                 }
 
                 if (p instanceof Projetil) {
@@ -105,6 +118,10 @@ public class ControleDeJogo {
             }
         }
 
+        if (boss != null && !bombsOnField) {
+            boss.setBombed(false);
+        }
+
         if (hero == null)
             return false;
 
@@ -119,7 +136,7 @@ public class ControleDeJogo {
 
             int raioEmPixels = (int) (bombaAtiva.getRaioAtualGrid() * ConfigMapa.CELL_SIDE);
             int diametroEmPixels = raioEmPixels * 2;
-            
+
             int bombaX = (int) (bombaAtiva.x * ConfigMapa.CELL_SIDE) - raioEmPixels;
             int bombaY = (int) (bombaAtiva.y * ConfigMapa.CELL_SIDE) - raioEmPixels;
             Rectangle areaDaBomba = new Rectangle(bombaX, bombaY, diametroEmPixels, diametroEmPixels);
@@ -133,13 +150,23 @@ public class ControleDeJogo {
                     double dx = bombaAtiva.x - alvo.x;
                     double dy = bombaAtiva.y - alvo.y;
                     double distanciaAoQuadrado = (dx * dx) + (dy * dy);
-                    double raioBombaAoQuadrado = bombaAtiva.getRaioAtualGrid() * bombaAtiva.getRaioAtualGrid();
+                    double raioBombaAoQuadrado = bombaAtiva.hitboxRaio * bombaAtiva.hitboxRaio;
 
                     if (distanciaAoQuadrado < raioBombaAoQuadrado) {
+
                         if (alvo instanceof Projetil) {
                             alvo.deactivate();
+
                         } else if (alvo instanceof Inimigo) {
-                            ((Inimigo) alvo).takeDamage(9999);
+
+                            if (alvo instanceof Boss && !((Boss) alvo).isBombed()) {
+                                ((Boss) alvo).takeDamage(500);
+                                ((Boss) alvo).setBombed(true);
+
+                            } else {
+
+                                ((Inimigo) alvo).takeDamage(9999);
+                            }
                         }
                     }
                 }
@@ -277,6 +304,28 @@ public class ControleDeJogo {
      * @return true se a colisão resultou em dano ao herói, false caso contrário.
      */
     private boolean handleCollision(Personagem p1, Personagem p2, Hero hero) {
+
+        // Boss pode ser bombardeado apenas uma vez por bomba
+        if (p1 instanceof ProjetilBombaHoming && p2 instanceof Boss) {
+            if (((Boss) p2).isBombed()) {
+                return false;
+            }
+
+            ((Boss) p2).takeDamage(500);
+            ((Boss) p2).setBombed(true);
+
+            return false;
+        } else if (p2 instanceof ProjetilBombaHoming && p1 instanceof Boss) {
+            if (((Boss) p1).isBombed()) {
+                return false;
+            }
+
+            ((Boss) p1).takeDamage(500);
+            ((Boss) p1).setBombed(true);
+
+            return false;
+        }
+
         if (p1 instanceof Hero && p2 instanceof Inimigo) {
             return colisaoHeroiInimigo((Hero) p1, (Inimigo) p2);
         } else if (p2 instanceof Hero && p1 instanceof Inimigo) {
@@ -344,6 +393,9 @@ public class ControleDeJogo {
      */
     private void colisaoProjetilHeroiInimigo(Projetil p, Inimigo i, Hero hero) {
         i.takeDamage(Hero.DANO_BALA);
+
+        System.out.println("Projetil atingiu inimigo. Vida restante do inimigo: " + i.getVida() + "Inimigo é : "
+                + i.getClass().getSimpleName());
 
         if (!(p instanceof ProjetilBombaHoming)) {
             p.deactivate();

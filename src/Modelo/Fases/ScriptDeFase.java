@@ -1,6 +1,11 @@
 package Modelo.Fases;
 
+import Auxiliar.LootTable;
+import Controler.Engine;
+import Modelo.Inimigos.Boss;
+import Modelo.Personagem;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Random;
 import java.awt.Color;
 import java.awt.LinearGradientPaint;
@@ -8,15 +13,24 @@ import java.awt.geom.Point2D;
 import Auxiliar.ConfigMapa;
 
 /**
- * @brief Classe abstrata que define o contrato para scripts de fase.
- *        Cada fase do jogo terá uma implementação concreta desta classe
- *        para controlar os eventos e o spawning de inimigos e cenário.
+ * @brief Classe abstrata que define o contrato para scripts de fase. Cada fase
+ * do jogo terá uma implementação concreta desta classe para controlar os
+ * eventos e o spawning de inimigos e cenário.
  */
 public abstract class ScriptDeFase implements Serializable {
-    protected long proximoSpawnInimigo = 0;
-    protected long intervaloSpawnInimigo = 60;
 
     protected Random random = new Random();
+    protected Engine engine;
+
+    // Onda
+    protected ArrayList<Onda> ondas;
+    protected int ondaAtualIndex;
+
+    public ScriptDeFase(Engine engine) {
+        this.engine = engine;
+        this.ondas = new ArrayList<>();
+        this.ondaAtualIndex = -1;
+    }
 
     /**
      * @brief Retorna a cor de sobreposição do fundo para esta fase.
@@ -49,22 +63,22 @@ public abstract class ScriptDeFase implements Serializable {
 
     /**
      * @brief Restaura as referências de imagens transientes nos elementos de
-     *        cenário após a desserialização.
+     * cenário após a desserialização.
      * @param fase A instância da fase cujos elementos precisam ser religados.
      */
     public abstract void relinkarRecursosDosElementos(Fase fase);
 
     /**
      * @brief Atualiza a lógica de spawn de inimigos. Deve ser implementado por
-     *        subclasses.
+     * subclasses.
      * @param fase A instância da fase que este script está controlando.
      */
     public abstract void atualizarInimigos(Fase fase);
 
     /**
      * @brief Atualiza a lógica de spawn de elementos de cenário (como árvores).
-     *        Subclasses podem sobrepor isso. Por padrão, não faz nada.
-     * @param fase             A instância da fase que este script está controlando.
+     * Subclasses podem sobrepor isso. Por padrão, não faz nada.
+     * @param fase A instância da fase que este script está controlando.
      * @param velocidadeScroll A velocidade de rolagem atual do cenário.
      */
     public void atualizarCenario(Fase fase, double velocidadeScroll) {
@@ -72,20 +86,135 @@ public abstract class ScriptDeFase implements Serializable {
 
     /**
      * @brief Preenche o cenário com elementos iniciais (como árvores).
-     *        Subclasses podem sobrepor isso. Por padrão, não faz nada.
+     * Subclasses podem sobrepor isso. Por padrão, não faz nada.
      * @param fase A instância da fase que este script está controlando.
      */
     public void preencherCenarioInicial(Fase fase) {
     }
 
     /**
-     * @brief Método principal chamado pela Fase, que orquestra os spawns.
-     *        Este método final não pode ser sobreposto.
-     * @param fase             A instância da fase que este script está controlando.
+     * @brief Método principal chamado pela Fase, que orquestra os spawns. Este
+     * método final não pode ser sobreposto.
+     * @param fase A instância da fase que este script está controlando.
      * @param velocidadeScroll A velocidade de rolagem atual do cenário.
      */
     public final void atualizar(Fase fase, double velocidadeScroll) {
         atualizarInimigos(fase);
         atualizarCenario(fase, velocidadeScroll);
+    }
+
+    // Onda
+    protected abstract class Onda {
+
+        // Classes
+        protected class InimigoSpawn {
+
+            protected Personagem personagem;
+            protected int tempoAposInicioSpawn;
+
+            public InimigoSpawn(Personagem personagem, int tempoAposInicioSpawn) {
+                this.personagem = personagem;
+                this.tempoAposInicioSpawn = tempoAposInicioSpawn;
+            }
+
+            public void spawn(Fase fase) {
+                if (personagem == null) {
+                    return;
+                }
+                fase.adicionarPersonagem(personagem);
+            }
+        }
+
+        // Variaveis
+        protected ArrayList<InimigoSpawn> inimigos;
+
+        protected int tempoDeEspera;
+        protected int indiceInimigoAtual;
+        protected boolean todosSpawnados;
+
+        public Onda() {
+            this.tempoDeEspera = 0;
+            this.indiceInimigoAtual = 0;
+            this.todosSpawnados = false;
+            this.inimigos = new ArrayList<>();
+        }
+
+        /**
+         * @brief Spawna o próximo inimigo na fase, se houver.
+         * @param fase A instância da fase onde o inimigo será spawnado.
+         * @return O inimigo spawnado ou null se não houver mais inimigos.
+         */
+        private InimigoSpawn proximoInimigo(Fase fase) {
+            if (indiceInimigoAtual < inimigos.size()) {
+                InimigoSpawn inimigo = inimigos.get(indiceInimigoAtual);
+                inimigo.spawn(fase);
+
+                indiceInimigoAtual++;
+                return inimigo;
+            }
+            return null;
+        }
+
+        /**
+         * @brief Incrementa o tempo de espera e spawna inimigos conforme o
+         * tempo progride.
+         * @param tempo O tempo a ser incrementado.
+         * @param fase A instância da fase onde os inimigos serão spawnados.
+         */
+        public void incrementarTempo(int tempo, Fase fase) {
+            if (todosSpawnados) {
+                return;
+            }
+
+            tempoDeEspera -= tempo;
+            if (tempoDeEspera > 0) {
+                return;
+            }
+
+            InimigoSpawn inimigo = proximoInimigo(fase);
+            if (inimigo == null) {
+                todosSpawnados = true;
+                return;
+            }
+
+            tempoDeEspera = inimigo.tempoAposInicioSpawn;
+        }
+
+        /**
+         * @brief Reinicia a onda para permitir que ela seja executada
+         * novamente.
+         */
+        public void reiniciar() {
+            tempoDeEspera = 0;
+            indiceInimigoAtual = 0;
+            todosSpawnados = false;
+        }
+
+        // Getters
+        public boolean getFinalizado() {
+            return todosSpawnados;
+        }
+    }
+
+    protected class OndaFazNada extends Onda {
+
+        public OndaFazNada(Fase fase, int tempoDeEsperaInicial) {
+            super();
+            inimigos.add(new InimigoSpawn(null, tempoDeEsperaInicial));
+        }
+    }
+
+    protected abstract class OndaDeBoss extends Onda{
+        protected Boss boss;
+        protected LootTable lootTable;
+        public OndaDeBoss() {
+            super();
+            this.lootTable = new LootTable();
+        }
+
+        @Override
+        public boolean getFinalizado() {
+            return super.getFinalizado() && !boss.isActive();
+        }
     }
 }

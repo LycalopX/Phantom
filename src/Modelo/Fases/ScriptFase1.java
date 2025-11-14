@@ -1,13 +1,16 @@
 package Modelo.Fases;
 
-import Modelo.Items.ItemType;
-import Auxiliar.LootTable;
-import Auxiliar.SoundManager;
 import Auxiliar.Cenario1.ArvoreParallax;
-import Auxiliar.Personagem.LootItem;
-import Modelo.Cenario.FundoInfinito;
 import static Auxiliar.ConfigMapa.*;
+import Auxiliar.LootTable;
+import Auxiliar.Personagem.LootItem;
+import Auxiliar.SoundManager;
+import Controler.Engine;
+import Modelo.Cenario.FundoInfinito;
+import Modelo.Inimigos.Nightbug;
+import Modelo.Items.ItemType;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 /**
@@ -31,8 +34,8 @@ public class ScriptFase1 extends ScriptDeFase {
     /**
      * @brief Construtor do script da Fase 1. Inicializa a música da fase.
      */
-    public ScriptFase1() {
-        super();
+    public ScriptFase1(Engine engine) {
+        super(engine);
         SoundManager.getInstance().playMusic("Illusionary Night ~ Ghostly Eyes", true);
 
         posicoesXDasDiagonais = new int[NUMERO_DE_DIAGONAIS];
@@ -42,7 +45,8 @@ public class ScriptFase1 extends ScriptDeFase {
     }
 
     /**
-     * @brief Carrega os recursos visuais específicos da fase (imagens de fundo, etc).
+     * @brief Carrega os recursos visuais específicos da fase (imagens de fundo,
+     * etc).
      * @param fase A instância da fase para a qual os recursos serão carregados.
      */
     @Override
@@ -50,7 +54,7 @@ public class ScriptFase1 extends ScriptDeFase {
         try {
             this.imagemFundo = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage1/stage_1_bg1.png"));
             this.imagemArvore = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage1/stage_1_bg2.png"));
-            
+
             fase.adicionarElementoCenario(new FundoInfinito("fundo_principal", this.imagemFundo, 1.0, Modelo.Cenario.DrawLayer.BACKGROUND, 1.0f));
 
         } catch (Exception e) {
@@ -60,12 +64,13 @@ public class ScriptFase1 extends ScriptDeFase {
     }
 
     /**
-     * @brief Restaura as referências de imagens transientes nos elementos de cenário após a desserialização.
+     * @brief Restaura as referências de imagens transientes nos elementos de
+     * cenário após a desserialização.
      * @param fase A instância da fase cujos elementos precisam ser religados.
      */
     @Override
     public void relinkarRecursosDosElementos(Fase fase) {
-        
+
         for (var elemento : fase.getElementosCenario()) {
             if (elemento instanceof FundoInfinito) {
                 FundoInfinito fundo = (FundoInfinito) elemento;
@@ -79,35 +84,38 @@ public class ScriptFase1 extends ScriptDeFase {
         }
     }
 
+
     /**
-     * @brief Controla o spawning de inimigos (FadaComum) em posições aleatórias na parte superior da tela.
+     * @brief Controla o spawning de inimigos (FadaComum) em posições aleatórias
+     * na parte superior da tela.
      */
     @Override
     public void atualizarInimigos(Fase fase) {
-        if (proximoSpawnInimigo <= 0) {
-
-            double xInicial = random.nextDouble() * (MUNDO_LARGURA - 2) + 2;
-            LootTable lootTable = new LootTable();
-
-            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
-            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.5, false, false));
-            lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.02, true, false));
-            fase.adicionarPersonagem(new Modelo.Inimigos.FadaComum1(xInicial, -1.0, lootTable, 40, fase));
-
-            proximoSpawnInimigo = intervaloSpawnInimigo;
-        } else {
-            proximoSpawnInimigo--;
+        if(ondaAtualIndex == -1) {
+            ondas = inicializarOndas(fase);
         }
+
+        if(ondaAtualIndex < ondas.size()){
+            Onda ondaAtual = ondas.get(ondaAtualIndex);
+            ondaAtual.incrementarTempo(1, fase);
+            if (!ondaAtual.getFinalizado()) return;
+        }
+        else{
+            engine.carregarProximaFase();
+        }
+        ondaAtualIndex++;
     }
 
     /**
      * @brief Atualiza a lógica de spawn de elementos de cenário (como árvores).
-     * @param fase             A instância da fase que este script está controlando.
+     * @param fase A instância da fase que este script está controlando.
      * @param velocidadeScroll A velocidade de rolagem atual do cenário.
      */
     @Override
     public void atualizarCenario(Fase fase, double velocidadeScroll) {
-        if (imagemArvore == null) return;
+        if (imagemArvore == null) {
+            return;
+        }
 
         this.distanciaTotalRolada += velocidadeScroll;
 
@@ -142,7 +150,9 @@ public class ScriptFase1 extends ScriptDeFase {
      */
     @Override
     public void preencherCenarioInicial(Fase fase) {
-        if (imagemArvore == null) return;
+        if (imagemArvore == null) {
+            return;
+        }
 
         int tamanhoBase = (int) Math.round(ALTURA_TELA * 0.8);
         while (proximoSpawnY < ALTURA_TELA) {
@@ -158,11 +168,52 @@ public class ScriptFase1 extends ScriptDeFase {
                 int novoX = xBase + (OFFSET_DIAGONAL_X * direcaoDoGrupo);
                 int randomOffsetX = random.nextInt(VARIACAO_ALEATORIA_PIXELS * 2) - VARIACAO_ALEATORIA_PIXELS;
                 int yInicial = (int) proximoSpawnY - tamanhoBase;
-                
+
                 fase.adicionarElementoCenario(new ArvoreParallax(novoX + randomOffsetX, yInicial, tamanhoBase, 2.0, imagemArvore));
                 posicoesXDasDiagonais[i] = novoX;
             }
             proximoSpawnY += DISTANCIA_ENTRE_ONDAS_Y;
+        }
+    }
+
+    // Onda
+    protected ArrayList<Onda> inicializarOndas(Fase fase) {
+        ondas.add(new Onda1(fase));
+        ondas.add(new OndaFazNada(fase, 200));
+        ondas.add(new Onda1(fase));
+        ondas.add(new OndaFazNada(fase, 100));
+        ondas.add(new OndaBoss(fase));
+        ondaAtualIndex = 0;
+        return ondas;
+    }
+    
+    private class Onda1 extends Onda{
+        public Onda1(Fase fase) {
+            super();
+
+            // Adiciona inimigos à onda
+            double xInicial = 0.5 * (MUNDO_LARGURA - 2) + 2;
+            LootTable lootTable = new LootTable();
+
+            // Loot table
+            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
+            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.5, false, false));
+            lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.02, true, false));
+
+            // Inimigos
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial, -1.0, lootTable, 40, fase), 50));
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial + 0.1, -1.0, lootTable, 40, fase), 100));
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial - 0.1, -1.0, lootTable, 40, fase), 0));
+        }
+    }
+
+    private class OndaBoss extends OndaDeBoss{
+        public OndaBoss(Fase fase) {
+            super();
+            lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
+            boss = new Nightbug(0, MUNDO_ALTURA * 0.05, lootTable, 10000, fase);
+
+            inimigos.add(new InimigoSpawn(boss, 0));
         }
     }
 }

@@ -1,10 +1,11 @@
 package Modelo.Fases;
 
-import Modelo.Cenario.DrawLayer;
-import Auxiliar.SoundManager;
 import Auxiliar.Cenario1.ArvoreParallax;
-import Modelo.Cenario.FundoInfinito;
 import static Auxiliar.ConfigMapa.*;
+import Auxiliar.SoundManager;
+import Controler.Engine;
+import Modelo.Cenario.DrawLayer;
+import Modelo.Cenario.FundoInfinito;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
@@ -25,8 +26,8 @@ public class ScriptFase2 extends ScriptDeFase {
     /**
      * @brief Construtor do script da Fase 2.
      */
-    public ScriptFase2() {
-        super();
+    public ScriptFase2(Engine engine) {
+        super(engine);
         SoundManager.getInstance().playMusic("Song of the Night Sparrow ~ Night Bird", true);
     }
 

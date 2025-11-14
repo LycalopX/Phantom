@@ -1,12 +1,11 @@
 package Modelo.Projeteis;
 
+import static Auxiliar.ConfigMapa.*;
 import Auxiliar.Projeteis.HitboxType;
 import Auxiliar.Projeteis.ProjetilTipo;
 import Auxiliar.Projeteis.TipoProjetil;
-import static Auxiliar.ConfigMapa.*;
 import Modelo.Personagem;
 import Modelo.RenderLayer;
-
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.awt.Graphics;
@@ -109,7 +108,11 @@ public class Projetil extends Personagem {
         }
 
         g2d.translate(telaX, telaY);
-        g2d.rotate(this.anguloRad);
+        if(this.tipo == TipoProjetil.INIMIGO) {
+            g2d.rotate(this.anguloRad + Math.toRadians(90));
+        } else {
+            g2d.rotate(this.anguloRad);
+        }
         g2d.drawImage(iImage.getImage(), -this.largura / 2, -this.altura / 2, this.largura, this.altura, null);
         g2d.setComposite(compositeOriginal);
         g2d.setTransform(transformOriginal);

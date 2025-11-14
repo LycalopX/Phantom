@@ -300,9 +300,9 @@ public class Nightbug extends Boss {
             this.velocidadeProjetil = 0.3;
             
             this.padroes = new PadraoAtaque[3];
-            padroes[0] = new PadraoAtaque(90, 120, 20);
-            padroes[1] = new PadraoAtaque(90, 50, 50);
-            padroes[2] = new PadraoAtaque(40, 80, 20);
+            padroes[0] = new PadraoAtaque(90, 120, 10);
+            padroes[1] = new PadraoAtaque(90, 50, 18);
+            padroes[2] = new PadraoAtaque(40, 80, 10);
 
             this.padraoAtual = 0;
         }

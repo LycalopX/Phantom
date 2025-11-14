@@ -15,7 +15,8 @@ public class ParedeVertical implements ElementoCenario {
     private int translacaoX;
     private int translacaoY;
 
-    public ParedeVertical(BufferedImage textura, boolean isParedeEsquerda, double velocidadeRelativa, float alturaNoPontoDeFuga, float fatorAlturaNaBorda, int translacaoX, int translacaoY) {
+    public ParedeVertical(BufferedImage textura, boolean isParedeEsquerda, double velocidadeRelativa,
+            float alturaNoPontoDeFuga, float fatorAlturaNaBorda, int translacaoX, int translacaoY) {
         this.textura = textura;
         this.isParedeEsquerda = isParedeEsquerda;
         this.velocidadeRelativa = velocidadeRelativa;
@@ -54,13 +55,14 @@ public class ParedeVertical implements ElementoCenario {
 
     @Override
     public void desenhar(Graphics2D g2d, int larguraTela, int alturaTela) {
-        if (textura == null) return;
+        if (textura == null)
+            return;
 
         int pontoDeFugaX = larguraTela / 2;
         int horizonteY = alturaTela / 2;
 
         float alturaMaximaNaBorda = alturaTela * fatorAlturaNaBorda;
-        float limiteAlturaParaDesenhar = alturaMaximaNaBorda * 0.15f;
+        float limiteAlturaParaDesenhar = alturaMaximaNaBorda * 0.2f;
 
         int startX = isParedeEsquerda ? 0 : pontoDeFugaX;
         int endX = isParedeEsquerda ? pontoDeFugaX : larguraTela;
@@ -68,29 +70,32 @@ public class ParedeVertical implements ElementoCenario {
         for (int x = startX; x < endX; x++) {
             float p;
             if (isParedeEsquerda) {
-                p = (float)(pontoDeFugaX - x) / (float)pontoDeFugaX;
+                p = (float) (pontoDeFugaX - x) / (float) pontoDeFugaX;
             } else {
-                p = (float)(x - pontoDeFugaX) / (float)(larguraTela - pontoDeFugaX);
+                p = (float) (x - pontoDeFugaX) / (float) (larguraTela - pontoDeFugaX);
             }
 
             float alturaDaFatia = alturaNoPontoDeFuga + p * (alturaMaximaNaBorda - alturaNoPontoDeFuga);
-            
+
             if (alturaDaFatia <= limiteAlturaParaDesenhar) {
                 continue;
             }
 
             float z = 1.0f / (p + 0.0001f);
 
-            int xTextura = (int)(scrollX + z) % textura.getWidth();
-            if (xTextura < 0) xTextura += textura.getWidth();
-            
-            int yCima = (int)(horizonteY - alturaDaFatia / 2) + translacaoY;
-            int yBaixo = (int)(horizonteY + alturaDaFatia / 2) + translacaoY;
+            final float TEXTURE_SCALE = 80.0f;
+            int xTextura = (int) ((scrollX + z) * TEXTURE_SCALE) % textura.getWidth();
+            if (xTextura < 0)
+                xTextura += textura.getWidth();
+
+            int yCima = (int) (horizonteY - alturaDaFatia / 2) + translacaoY;
+            int yBaixo = (int) (horizonteY + alturaDaFatia / 2) + translacaoY;
 
             g2d.drawImage(textura,
-                x + translacaoX, yCima, x + 1 + translacaoX, yBaixo,
-                xTextura, 0, xTextura + 1, textura.getHeight(),
-                null);
+                    x + translacaoX, yCima, x + 1 + translacaoX, yBaixo,
+                    xTextura, 0, xTextura + 1, textura.getHeight(),
+                    null);
+
         }
     }
 

@@ -19,9 +19,9 @@ public class ScriptFase5 extends ScriptDeFase {
     // Parâmetros de perspectiva compartilhados
     private final float larguraNoHorizonte = 40; // Largura do corredor no ponto de fuga
     private final float fatorPerspectivaChao = 2f; // Controla a "abertura" da perspectiva
-    private final float fatorPerspectivaParede = 1.5f; // Controla a "abertura" da perspectiva
+    private final float fatorPerspectivaParede = 0.9f; // Controla a "abertura" da perspectiva
     private final int translacaoParedeX = 0; // Offset horizontal para as paredes
-    private final int translacaoParedeY = 0; // Offset vertical para as paredes
+    private final int translacaoParedeY = (int) (- ConfigMapa.ALTURA_TELA * 0.08); // Offset vertical para as paredes
 
     public ScriptFase5(Engine engine) {
         super(engine);
@@ -35,15 +35,15 @@ public class ScriptFase5 extends ScriptDeFase {
             this.texturaChao = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage5/bg5_2.png"));
 
             // 1. O Chão
-            ChaoPerspectiva chao = new ChaoPerspectiva(texturaChao, 0.2, larguraNoHorizonte, fatorPerspectivaChao);
+            ChaoPerspectiva chao = new ChaoPerspectiva(texturaChao, 0.03, larguraNoHorizonte, fatorPerspectivaChao);
             fase.adicionarElementoCenario(chao);
 
             // 2. Parede Esquerda
-            ParedeVertical paredeEsq = new ParedeVertical(texturaParede, true, 0.1, larguraNoHorizonte, fatorPerspectivaParede, translacaoParedeX, translacaoParedeY);
+            ParedeVertical paredeEsq = new ParedeVertical(texturaParede, true, 0.015, larguraNoHorizonte, fatorPerspectivaParede, translacaoParedeX, translacaoParedeY);
             fase.adicionarElementoCenario(paredeEsq);
 
             // 3. Parede Direita
-            ParedeVertical paredeDir = new ParedeVertical(texturaParede, false, 0.1, larguraNoHorizonte, fatorPerspectivaParede, translacaoParedeX, translacaoParedeY);
+            ParedeVertical paredeDir = new ParedeVertical(texturaParede, false, 0.015, larguraNoHorizonte, fatorPerspectivaParede, translacaoParedeX, translacaoParedeY);
             fase.adicionarElementoCenario(paredeDir);
 
         } catch (Exception e) {

@@ -11,7 +11,6 @@ import java.awt.Graphics2D;
 import java.awt.LinearGradientPaint;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import Modelo.Cenario.DrawLayer;
 import Modelo.Personagem;
 
 public class ScriptFase4 extends ScriptDeFase {
@@ -23,15 +22,20 @@ public class ScriptFase4 extends ScriptDeFase {
     private Random rand = new Random();
 
     private static final int DISTANCIA_ENTRE_ONDAS_Y = 250;
+    private static final double MIN_ROTATION_DEG = 25;
+    private static final double MAX_ROTATION_DEG = 17;
 
     private BufferedImage flipImageHorizontally(BufferedImage image) {
         int width = image.getWidth();
         int height = image.getHeight();
+
         BufferedImage flippedImage = new BufferedImage(width, height, image.getType());
         Graphics2D g = flippedImage.createGraphics();
         AffineTransform at = new AffineTransform();
+
         at.concatenate(AffineTransform.getScaleInstance(-1, 1));
         at.concatenate(AffineTransform.getTranslateInstance(-width, 0));
+
         g.transform(at);
         g.drawImage(image, 0, 0, null);
         g.dispose();
@@ -67,7 +71,7 @@ public class ScriptFase4 extends ScriptDeFase {
     @Override
     public LinearGradientPaint getBackgroundGradient() {
         Point2D start = new Point2D.Float(0, 0);
-        Point2D end = new Point2D.Float(0, ConfigMapa.ALTURA_TELA * 0.15f);
+        Point2D end = new Point2D.Float(0, ConfigMapa.ALTURA_TELA * 0.4f);
         float[] fractions = { 0.0f, 1.0f };
         Color[] colors = { new Color(255, 255, 255, 20), new Color(255, 255, 255, 0) };
         return new LinearGradientPaint(start, end, fractions, colors);
@@ -92,18 +96,38 @@ public class ScriptFase4 extends ScriptDeFase {
 
         if (this.distanciaTotalRolada >= proximoSpawnY) {
             int tamanhoBase = (int) (14 * Personagem.BODY_PROPORTION); // Tamanho base fixo e razoável
-            int yInicial = -tamanhoBase * 2; // Spawn acima da tela
+            int yInicial = (int) (-ConfigMapa.ALTURA_TELA * 1.5); // Garante que o bambu comece completamente acima da tela
 
-            // Gera bambu na zona esquerda (0 a 1/6 da tela) com sprites originais
-            double xEsquerda = rand.nextDouble() * (ConfigMapa.LARGURA_TELA / 6.0);
-            fase.adicionarElementoCenario(new BambuParallax((int)xEsquerda, yInicial, tamanhoBase, velocidadeScroll, this.bamboo_stalk, this.leaves1, this.leaves2));
+            // Calcula um ângulo de rotação aleatório
+            double randAngle = (MIN_ROTATION_DEG) + rand.nextDouble() * (MAX_ROTATION_DEG - MIN_ROTATION_DEG);
 
-            // Gera bambu na zona direita (5/6 a 100% da tela) com sprites invertidos
-            double inicioFaixaDireita = ConfigMapa.LARGURA_TELA * 5.0 / 6.0;
-            double larguraFaixaDireita = ConfigMapa.LARGURA_TELA / 6.0;
-            double xDireita = inicioFaixaDireita + rand.nextDouble() * larguraFaixaDireita;
-            fase.adicionarElementoCenario(new BambuParallax((int)xDireita, yInicial, tamanhoBase, velocidadeScroll, this.flipped_bamboo_stalk, this.flipped_leaves1, this.flipped_leaves2));
-            
+            // Gera bambu na zona esquerda (0 a 1/6 da tela) com sprites originais e rotação
+            // positiva
+            double angleLeft = Math.toRadians(randAngle);
+            int nBambu = 3;
+
+            for (int i = 0; i < nBambu; i++) {
+                double xEsquerda = rand.nextDouble() * (ConfigMapa.LARGURA_TELA / 12.0) - ConfigMapa.LARGURA_TELA / 3;
+
+                fase.adicionarElementoCenario(
+                        new BambuParallax((int) xEsquerda, yInicial, tamanhoBase, velocidadeScroll,
+                                this.bamboo_stalk, this.leaves1, this.leaves2, angleLeft));
+            }
+
+            double angleRight = -Math.toRadians(randAngle);
+
+            // Gera bambu na zona direita (5/6 a 100% da tela) com sprites invertidos e
+            // rotação negativa
+            double inicioFaixaDireita = ConfigMapa.LARGURA_TELA * 11 / 12.0;
+            double larguraFaixaDireita = ConfigMapa.LARGURA_TELA / 12.0;
+
+            for (int i = 0; i < nBambu; i++) {
+
+                double xDireita = inicioFaixaDireita + rand.nextDouble() * larguraFaixaDireita + ConfigMapa.LARGURA_TELA / 3;
+                fase.adicionarElementoCenario(new BambuParallax((int) xDireita, yInicial, tamanhoBase, velocidadeScroll,
+                        this.flipped_bamboo_stalk, this.flipped_leaves1, this.flipped_leaves2, angleRight));
+            }
+
             proximoSpawnY += DISTANCIA_ENTRE_ONDAS_Y;
         }
     }

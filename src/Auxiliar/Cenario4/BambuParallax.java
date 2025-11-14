@@ -16,7 +16,7 @@ public class BambuParallax implements ElementoCenario {
     private final double velocidadeBaseOriginal;
     private double currentSpeedMultiplier = 1.0;
 
-    public BambuParallax(int x, int y, int larguraBase, double velocidadeBase, BufferedImage stalk, BufferedImage leaves1, BufferedImage leaves2) {
+    public BambuParallax(int x, int y, int larguraBase, double velocidadeBase, BufferedImage stalk, BufferedImage leaves1, BufferedImage leaves2, double rotationAngle) {
         this.velocidadeBaseOriginal = velocidadeBase;
 
         // Calcula a altura do caule com base na proporção da imagem
@@ -31,23 +31,23 @@ public class BambuParallax implements ElementoCenario {
         
         // Camada de base (caule) - usa altura calculada
         System.out.println("Criando BambuParallax na posição: " + x + ", " + y + " | Largura: " + widthBambu + " | Altura: " + heightBambu);
-        blocos.add(new BlocoDeFolha(x, y, (int)widthBambu, (int)heightBambu, velocidadeBase, stalk, 1f, 0.9f));
+        blocos.add(new BlocoDeFolha(x, y, (int)widthBambu, (int)heightBambu, velocidadeBase, stalk, 1f, 0.9f, rotationAngle));
 
         // Camada do meio (folhas);
         double velocidadeMedia = velocidadeBase * 1.01;
 
         int xMedio = x - widthFolha1 / 2;
-        int yMedio = y - (int) (heightBambu * 0.15); // Posição relativa à altura do caule
-
-        blocos.add(new BlocoDeFolha(xMedio, yMedio, widthFolha1, heightFolha1, velocidadeMedia, leaves1, 1f, 0.9f));
+        int yMedio = y; // Posição relativa à altura do caule
+        
+        blocos.add(new BlocoDeFolha(xMedio, yMedio, widthFolha1, heightFolha1, velocidadeMedia, leaves1, 1f, 0.9f, rotationAngle));
 
         // Camada do topo (folhas)
         double velocidadePequena = velocidadeBase * 1.02;
 
         int xPequeno = x - widthFolha2 / 2;
-        int yPequeno = y - (int) (heightBambu * 0.3); // Posição relativa à altura do caule
+        int yPequeno = y + (int) (heightBambu * 0.3); // Posição relativa à altura do caule
 
-        this.blocoTopo = new BlocoDeFolha(xPequeno, yPequeno, widthFolha2, heightFolha2, velocidadePequena, leaves2, 1f, 0.9f);
+        this.blocoTopo = new BlocoDeFolha(xPequeno, yPequeno, widthFolha2, heightFolha2, velocidadePequena, leaves2, 1f, 0.9f, rotationAngle);
         blocos.add(this.blocoTopo);
     }
 

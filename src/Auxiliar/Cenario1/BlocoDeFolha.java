@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.AlphaComposite;
 import java.awt.Composite;
+import java.awt.geom.AffineTransform;
 import java.io.Serializable;
 
 public class BlocoDeFolha implements Serializable {
@@ -11,16 +12,17 @@ public class BlocoDeFolha implements Serializable {
     private double x, y;
     private final int largura, altura;
     private final double velocidadeOriginal;
+    private final double rotationAngle; // Em radianos
 
     private transient BufferedImage imagem;
     private final float opacidadeMaxima, opacidadeMinima;
 
     /**
-     * @brief Construtor para um bloco de folha individual, que compõe uma árvore de
+     * @brief Construtor principal para um bloco de folha individual, que compõe uma árvore de
      *        parallax.
      */
     public BlocoDeFolha(double x, double y, int largura, int altura, double velocidade, BufferedImage imagem,
-            float opacidadeMaxima, float opacidadeMinima) {
+            float opacidadeMaxima, float opacidadeMinima, double rotationAngle) {
         this.x = x;
         this.y = y;
         this.imagem = imagem;
@@ -30,6 +32,16 @@ public class BlocoDeFolha implements Serializable {
         this.velocidadeOriginal = velocidade;
         this.opacidadeMaxima = opacidadeMaxima;
         this.opacidadeMinima = opacidadeMinima;
+        this.rotationAngle = rotationAngle;
+    }
+    
+    /**
+     * @brief Construtor para um bloco de folha individual, que compõe uma árvore de
+     *        parallax.
+     */
+    public BlocoDeFolha(double x, double y, int largura, int altura, double velocidade, BufferedImage imagem,
+            float opacidadeMaxima, float opacidadeMinima) {
+        this(x, y, largura, altura, velocidade, imagem, opacidadeMaxima, opacidadeMinima, 0.0);
     }
 
     /**
@@ -47,6 +59,7 @@ public class BlocoDeFolha implements Serializable {
      */
     public void desenhar(Graphics2D g2d, int larguraTela, int alturaTela) {
         Composite originalComposite = g2d.getComposite();
+        AffineTransform originalTransform = g2d.getTransform();
 
         float faixaDeOpacidade = this.opacidadeMaxima - this.opacidadeMinima;
         float pontoFinalFade = alturaTela * 0.85f;
@@ -58,9 +71,15 @@ public class BlocoDeFolha implements Serializable {
 
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alphaFinal));
         
+        // Aplica rotação
+        g2d.translate(x, y + this.altura);
+        g2d.rotate(this.rotationAngle);
+        g2d.translate(-x, -(y + this.altura));
+        
         g2d.drawImage(imagem, (int) x, (int) y, this.largura, this.altura, null);
 
         g2d.setComposite(originalComposite);
+        g2d.setTransform(originalTransform);
     }
 
     /**

@@ -11,6 +11,7 @@ import java.awt.Graphics2D;
 import java.awt.LinearGradientPaint;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import Modelo.Cenario.ElementoCenario;
 import Modelo.Personagem;
 
 public class ScriptFase4 extends ScriptDeFase {
@@ -70,17 +71,26 @@ public class ScriptFase4 extends ScriptDeFase {
 
     @Override
     public LinearGradientPaint getBackgroundGradient() {
-        Point2D start = new Point2D.Float(0, ConfigMapa.ALTURA_TELA * 0.2f);
-        Point2D end = new Point2D.Float(0, ConfigMapa.ALTURA_TELA * 0.6f);
-        float[] fractions = { 0.6f, 1.0f };
-        Color[] colors = { new Color(171, 200, 245, 100), new Color(255, 255, 255, 5) };
+        Point2D start = new Point2D.Float(0, 0);
+        Point2D end = new Point2D.Float(0, ConfigMapa.ALTURA_TELA * 0.6f); // O gradiente ocorre nos primeiros 15% da tela
 
+        float[] fractions = { 0.0f, 0.5f, 1.0f }; // Sólido até 50% do gradiente, depois transição
+        Color[] colors = { new Color(171, 200, 245, 100), new Color(255, 255, 255, 20), new Color(255, 255, 255, 0) }; // Cor sólida, depois transparente
         return new LinearGradientPaint(start, end, fractions, colors);
     }
 
     @Override
     public void relinkarRecursosDosElementos(Fase fase) {
-        // Implementação para desserialização, se necessário
+        for (ElementoCenario elemento : fase.getElementosCenario()) {
+            if (elemento instanceof BambuParallax) {
+                BambuParallax bambu = (BambuParallax) elemento;
+                if (bambu.isFlipped()) {
+                    bambu.relinkImages(flipped_bamboo_stalk, flipped_leaves1, flipped_leaves2);
+                } else {
+                    bambu.relinkImages(bamboo_stalk, leaves1, leaves2);
+                }
+            }
+        }
     }
 
     @Override
@@ -96,45 +106,52 @@ public class ScriptFase4 extends ScriptDeFase {
         this.distanciaTotalRolada += velocidadeScroll;
 
         if (this.distanciaTotalRolada >= proximoSpawnY) {
-            int tamanhoBase = (int) (14 * Personagem.BODY_PROPORTION); // Tamanho base fixo e razoável
-            int yInicial = (int) (-ConfigMapa.ALTURA_TELA * 1.5); // Garante que o bambu comece completamente acima da tela
-
-            // Calcula um ângulo de rotação aleatório
-            double randAngle = (MIN_ROTATION_DEG) + rand.nextDouble() * (MAX_ROTATION_DEG - MIN_ROTATION_DEG);
-
-            // Gera bambu na zona esquerda (0 a 1/6 da tela) com sprites originais e rotação
-            // positiva
-            double angleLeft = Math.toRadians(randAngle);
-            int nBambu = 3;
-
-            for (int i = 0; i < nBambu; i++) {
-                double xEsquerda = rand.nextDouble() * (ConfigMapa.LARGURA_TELA / 12.0) - ConfigMapa.LARGURA_TELA / 3;
-
-                fase.adicionarElementoCenario(
-                        new BambuParallax((int) xEsquerda, yInicial, tamanhoBase, velocidadeScroll,
-                                this.bamboo_stalk, this.leaves1, this.leaves2, angleLeft));
-            }
-
-            double angleRight = -Math.toRadians(randAngle);
-
-            // Gera bambu na zona direita (5/6 a 100% da tela) com sprites invertidos e
-            // rotação negativa
-            double inicioFaixaDireita = ConfigMapa.LARGURA_TELA * 11 / 12.0;
-            double larguraFaixaDireita = ConfigMapa.LARGURA_TELA / 12.0;
-
-            for (int i = 0; i < nBambu; i++) {
-
-                double xDireita = inicioFaixaDireita + rand.nextDouble() * larguraFaixaDireita + ConfigMapa.LARGURA_TELA / 3;
-                fase.adicionarElementoCenario(new BambuParallax((int) xDireita, yInicial, tamanhoBase, velocidadeScroll,
-                        this.flipped_bamboo_stalk, this.flipped_leaves1, this.flipped_leaves2, angleRight));
-            }
-
+            spawnBamboos(fase, velocidadeScroll);
             proximoSpawnY += DISTANCIA_ENTRE_ONDAS_Y;
+        }
+    }
+
+    private void spawnBamboos(Fase fase, double velocidadeScroll) {
+        int tamanhoBase = (int) (14 * Personagem.BODY_PROPORTION); // Tamanho base fixo e razoável
+        int yInicial = (int) (-ConfigMapa.ALTURA_TELA * 1.5); // Garante que o bambu comece completamente acima da tela
+
+        // Calcula um ângulo de rotação aleatório
+        double randAngle = (MIN_ROTATION_DEG) + rand.nextDouble() * (MAX_ROTATION_DEG - MIN_ROTATION_DEG);
+
+        // Gera bambu na zona esquerda (0 a 1/6 da tela) com sprites originais e rotação
+        // positiva
+        double angleLeft = Math.toRadians(randAngle);
+        int nBambu = 3;
+
+        for (int i = 0; i < nBambu; i++) {
+            double xEsquerda = rand.nextDouble() * (ConfigMapa.LARGURA_TELA / 12.0) - ConfigMapa.LARGURA_TELA / 3;
+
+            fase.adicionarElementoCenario(
+                    new BambuParallax((int) xEsquerda, yInicial, tamanhoBase, velocidadeScroll,
+                            this.bamboo_stalk, this.leaves1, this.leaves2, angleLeft, false));
+        }
+
+        double angleRight = -Math.toRadians(randAngle);
+
+        // Gera bambu na zona direita (5/6 a 100% da tela) com sprites invertidos e
+        // rotação negativa
+        double inicioFaixaDireita = ConfigMapa.LARGURA_TELA * 11 / 12.0;
+        double larguraFaixaDireita = ConfigMapa.LARGURA_TELA / 12.0;
+
+        for (int i = 0; i < nBambu; i++) {
+
+            double xDireita = inicioFaixaDireita + rand.nextDouble() * larguraFaixaDireita + ConfigMapa.LARGURA_TELA / 3;
+            fase.adicionarElementoCenario(new BambuParallax((int) xDireita, yInicial, tamanhoBase, velocidadeScroll,
+                    this.flipped_bamboo_stalk, this.flipped_leaves1, this.flipped_leaves2, angleRight, true));
         }
     }
 
     @Override
     public void preencherCenarioInicial(Fase fase) {
-        // Lógica para preencher o cenário inicial removida para simplificar
+        // Preenche o cenário inicial com bambus
+        // A velocidade de scroll inicial pode ser 0 ou um valor padrão, já que eles
+        // serão movidos no primeiro frame de atualização
+        spawnBamboos(fase, 0); // Spawn initial bamboos
+        proximoSpawnY = DISTANCIA_ENTRE_ONDAS_Y; // Set next spawn point for continuous spawning
     }
 }

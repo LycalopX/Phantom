@@ -91,6 +91,7 @@ public class Fase implements Serializable {
 
         if (this.scriptDaFase != null) {
             this.scriptDaFase.carregarRecursos(this);
+            this.scriptDaFase.preencherCenarioInicial(this);
             this.scriptDaFase.relinkarRecursosDosElementos(this);
         }
 

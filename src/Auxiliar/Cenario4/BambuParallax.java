@@ -11,13 +11,15 @@ import Modelo.Personagem;
 
 public class BambuParallax implements ElementoCenario {
 
-    private final List<BlocoDeFolha> blocos = new ArrayList<>();
+    private List<BlocoDeFolha> blocos = new ArrayList<>();
     private final BlocoDeFolha blocoTopo;
     private final double velocidadeBaseOriginal;
     private double currentSpeedMultiplier = 1.0;
+    private final boolean isFlipped;
 
-    public BambuParallax(int x, int y, int larguraBase, double velocidadeBase, BufferedImage stalk, BufferedImage leaves1, BufferedImage leaves2, double rotationAngle) {
+    public BambuParallax(int x, int y, int larguraBase, double velocidadeBase, BufferedImage stalk, BufferedImage leaves1, BufferedImage leaves2, double rotationAngle, boolean isFlipped) {
         this.velocidadeBaseOriginal = velocidadeBase;
+        this.isFlipped = isFlipped;
 
         // Calcula a altura do caule com base na proporção da imagem
         int heightBambu = (int)(stalk.getHeight() * Personagem.BODY_PROPORTION);
@@ -49,6 +51,18 @@ public class BambuParallax implements ElementoCenario {
 
         this.blocoTopo = new BlocoDeFolha(xPequeno, yPequeno, widthFolha2, heightFolha2, velocidadePequena, leaves2, 1f, 0.9f, rotationAngle);
         blocos.add(this.blocoTopo);
+    }
+
+    public boolean isFlipped() {
+        return isFlipped;
+    }
+
+    public void relinkImages(BufferedImage stalk, BufferedImage leaves1, BufferedImage leaves2) {
+        if (blocos.size() >= 3) {
+            blocos.get(0).setImagem(stalk);
+            blocos.get(1).setImagem(leaves1);
+            blocos.get(2).setImagem(leaves2);
+        }
     }
 
     @Override

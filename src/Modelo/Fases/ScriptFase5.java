@@ -1,5 +1,7 @@
 package Modelo.Fases;
 
+import java.util.ArrayList;
+
 import Auxiliar.SoundManager;
 import Controler.Engine;
 
@@ -35,5 +37,12 @@ public class ScriptFase5 extends ScriptDeFase {
         // Preenche o cenário inicial com bambus
         // A velocidade de scroll inicial pode ser 0 ou um valor padrão, já que eles
         // serão movidos no primeiro frame de atualização
+    }
+
+    // Onda
+    @Override
+    protected ArrayList<Onda> inicializarOndas(Fase fase) {
+        // nada
+        return null;
     }
 }

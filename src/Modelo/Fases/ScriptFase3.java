@@ -3,6 +3,8 @@ package Modelo.Fases;
 import Modelo.Cenario.FundoInfinito;
 import Modelo.Cenario.FundoOscilante;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+
 import javax.imageio.ImageIO;
 import java.awt.Color;
 import java.awt.LinearGradientPaint;
@@ -116,5 +118,12 @@ public class ScriptFase3 extends ScriptDeFase {
     @Override
     public void preencherCenarioInicial(Fase fase) {
         // Nada a preencher inicialmente
+    }
+
+    // Onda
+    @Override
+    protected ArrayList<Onda> inicializarOndas(Fase fase) {
+        // nada
+        return null;
     }
 }

@@ -4,6 +4,8 @@ import Auxiliar.Cenario4.BambuParallax;
 import Modelo.Cenario.FundoInfinito;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
+
+import java.util.ArrayList;
 import java.util.Random;
 import Auxiliar.ConfigMapa;
 import java.awt.Color;
@@ -160,5 +162,12 @@ public class ScriptFase4 extends ScriptDeFase {
         // serão movidos no primeiro frame de atualização
         spawnBamboos(fase, 0); // Spawn initial bamboos
         proximoSpawnY = DISTANCIA_ENTRE_ONDAS_Y; // Set next spawn point for continuous spawning
+    }
+
+    // Onda
+    @Override
+    protected ArrayList<Onda> inicializarOndas(Fase fase) {
+        // nada
+        return null;
     }
 }

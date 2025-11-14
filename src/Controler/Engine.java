@@ -10,6 +10,9 @@ import Modelo.Hero.Hero;
 import Modelo.Inimigos.FadaComum1;
 import Modelo.Inimigos.Lorelei;
 import Modelo.Inimigos.Nightbug;
+import Modelo.Inimigos.Reimu;
+import Modelo.Inimigos.Keine;
+import Modelo.Inimigos.Reisen;
 import Modelo.Items.Item;
 import Modelo.Items.ItemType;
 import Modelo.Personagem;
@@ -327,10 +330,16 @@ public class Engine implements Runnable {
         FadaComum1 fada = new FadaComum1(0, 0, new LootTable(), 100, null);
         Nightbug nightbug = new Nightbug(0, 0, new LootTable(), 1000, null);
         Lorelei lorelei = new Lorelei(0, 0, new LootTable(), 1200, null);
+        Reimu reimu = new Reimu(0, 0, new LootTable(), 5000, null);
+        Keine keine = new Keine(0, 0, new LootTable(), 8000, null);
+        Reisen reisen = new Reisen(0, 0, new LootTable(), 6000, null);
 
         salvarPersonagemParaTeste(fada, "enemies/fada_comum.zip");
         salvarPersonagemParaTeste(nightbug, "enemies/nightbug.zip");
         salvarPersonagemParaTeste(lorelei, "enemies/lorelei.zip");
+        salvarPersonagemParaTeste(reimu, "enemies/reimu.zip");
+        salvarPersonagemParaTeste(keine, "enemies/keine.zip");
+        salvarPersonagemParaTeste(reisen, "enemies/reisen.zip");
         System.out.println("Inimigos de teste salvos na pasta do projeto.");
     }
 

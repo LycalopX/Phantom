@@ -17,11 +17,11 @@ public class Lorelei extends Boss {
         this.faseReferencia = fase;
         
         int scaledWidth = (int) (43 * BODY_PROPORTION);
-        int scaledHeight = (int) (61 * BODY_PROPORTION);
+        int scaledHeight = (int) (62 * BODY_PROPORTION);
 
         this.animador = new GerenciadorDeAnimacaoInimigo(
             "imgs/inimigos/boss2_spreadsheet.png",
-            43, 61, 0, 4, 4,
+            43, 62, 0, 4, 4,
             true, // resize = true
             scaledWidth,
             scaledHeight,
@@ -35,10 +35,10 @@ public class Lorelei extends Boss {
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         int scaledWidth = (int) (43 * BODY_PROPORTION);
-        int scaledHeight = (int) (61 * BODY_PROPORTION);
+        int scaledHeight = (int) (62 * BODY_PROPORTION);
         this.animador = new GerenciadorDeAnimacaoInimigo(
             "imgs/inimigos/boss2_spreadsheet.png",
-            43, 61, 0, 4, 4,
+            43, 62, 0, 4, 4,
             true,
             scaledWidth,
             scaledHeight,

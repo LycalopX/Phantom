@@ -12,7 +12,6 @@ import static Auxiliar.ConfigMapa.*;
 import java.io.Serializable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**

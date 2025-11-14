@@ -17,7 +17,6 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import Auxiliar.Debug.ContadorFPS;
 import Auxiliar.Debug.DebugManager;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Comparator;

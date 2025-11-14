@@ -32,7 +32,6 @@ public class BambuParallax implements ElementoCenario {
         int widthFolha2 = (int)(leaves2.getWidth() * Personagem.BODY_PROPORTION);
         
         // Camada de base (caule) - usa altura calculada
-        System.out.println("Criando BambuParallax na posição: " + x + ", " + y + " | Largura: " + widthBambu + " | Altura: " + heightBambu);
         blocos.add(new BlocoDeFolha(x, y, (int)widthBambu, (int)heightBambu, velocidadeBase, stalk, 1f, 0.9f, rotationAngle));
 
         // Camada do meio (folhas);

@@ -13,6 +13,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import Modelo.Cenario.ElementoCenario;
 import Modelo.Personagem;
+import Controler.Engine;
+import Auxiliar.SoundManager;
 
 public class ScriptFase4 extends ScriptDeFase {
 
@@ -25,6 +27,11 @@ public class ScriptFase4 extends ScriptDeFase {
     private static final int DISTANCIA_ENTRE_ONDAS_Y = 250;
     private static final double MIN_ROTATION_DEG = 25;
     private static final double MAX_ROTATION_DEG = 17;
+
+    public ScriptFase4(Engine engine) {
+        super(engine);
+        SoundManager.getInstance().playMusic("Retribution for the Eternal Night ~ Imperishable Night", true);
+    }
 
     private BufferedImage flipImageHorizontally(BufferedImage image) {
         int width = image.getWidth();

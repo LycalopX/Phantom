@@ -9,6 +9,7 @@ import java.awt.LinearGradientPaint;
 import java.awt.geom.Point2D;
 import Auxiliar.ConfigMapa;
 import Auxiliar.SoundManager;
+import Controler.Engine;
 
 /**
  * @brief Script de eventos e spawns para a Fase 3 (placeholder).
@@ -23,8 +24,8 @@ public class ScriptFase3 extends ScriptDeFase {
     /**
      * @brief Construtor do script da Fase 2.
      */
-    public ScriptFase3() {
-        super();
+    public ScriptFase3(Engine engine) {
+        super(engine);
         SoundManager.getInstance().playMusic("Nostalgic Blood of the East ~ Old World", true);
     }
 

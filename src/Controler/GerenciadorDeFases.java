@@ -6,7 +6,7 @@ import Modelo.Fases.ScriptFase1;
 import Modelo.Fases.ScriptFase2;
 import Modelo.Fases.ScriptFase3;
 import Modelo.Fases.ScriptFase4;
-// import Modelo.Fases.ScriptFase5; // Ainda não implementado
+import Modelo.Fases.ScriptFase5; // Ainda não implementado
 
 /**
  * @brief Gerencia a progressão das fases do jogo.
@@ -36,8 +36,7 @@ public class GerenciadorDeFases {
                 script = new ScriptFase4(engine);
                 break;
             case 5:
-                // script = new ScriptFase5(); // Ainda não implementado
-                script = new ScriptFase1(engine); // Fallback para fase 1
+                script = new ScriptFase5(engine); // Fallback para fase 1
                 break;
             default:
                 script = new ScriptFase1(engine);

@@ -36,10 +36,11 @@ public class Nightbug extends Boss {
         this.altura = scaledHeight;
         this.hitboxRaio = (this.largura / 2.0) / Auxiliar.ConfigMapa.CELL_SIDE;
         
-        this.estado = new IrParaOCentro(this);
+        Estado irCentro = new IrParaOCentro(this);
         Estado ataque1 = new AtaqueParaBaixo1(this);
-        this.estado.setProximoEstado(ataque1);
-        ataque1.setProximoEstado(ataque1);
+        irCentro.setProximoEstado(ataque1);
+        ataque1.setProximoEstado(irCentro);
+        this.estado = irCentro;
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -69,8 +70,7 @@ public class Nightbug extends Boss {
 
     @Override
     public boolean isStrafing() {
-        return this.estado.getMovimento().proximoMovimento(this.x, this.y).x != 0 ||
-               this.estado.getMovimento().proximoMovimento(this.x, this.y).y != 0;
+        return this.estado.getMovimento().proximoMovimento(this.x, this.y).x != 0;
     }
 
     @Override
@@ -218,6 +218,11 @@ public class Nightbug extends Boss {
         }
 
         @Override
+        public void reset() {
+            super.reset();
+        }
+
+        @Override
         public void incrementarTempo(Fase fase, int tempo) {
             if(estadoCompleto)
                 return;
@@ -289,31 +294,41 @@ public class Nightbug extends Boss {
         private int padraoAtual;
 
         public AtaqueParaBaixo1(Boss boss) {
-            super(boss, new Estado.Movimento(
-                0, 0,
-                0.5 * (MUNDO_LARGURA - 2) + 2, MUNDO_ALTURA - 2
-            ));
+            super(boss, new Estado.Movimento(0, 0, 0, 0));
             
-            this.intervaloAtaque = 120;
-            this.velocidadeProjetil = 0.2;
+            this.intervaloAtaque = 60;
+            this.velocidadeProjetil = 0.3;
             
             this.padroes = new PadraoAtaque[3];
-            padroes[0] = new PadraoAtaque(90, 9, 11);
-            padroes[1] = new PadraoAtaque(90, 6, 25);
-            padroes[2] = new PadraoAtaque(40, 10, 10);
+            padroes[0] = new PadraoAtaque(90, 120, 20);
+            padroes[1] = new PadraoAtaque(90, 50, 50);
+            padroes[2] = new PadraoAtaque(40, 80, 20);
 
             this.padraoAtual = 0;
         }
 
         @Override
+        public void reset() {
+            super.reset();
+            this.padraoAtual = 0;
+        }
+
+        @Override
         public void incrementarTempo(Fase fase, int tempo) {
-            contadorTempo += tempo;
+            if(estadoCompleto)
+                return;
             
+            contadorTempo += tempo;
             if (fase == null || contadorTempo < intervaloAtaque)
                 return;
 
-            atirarEmLeque(padroes[padraoAtual].getRotacaoInicial(), padroes[padraoAtual].getQuantidadeAtaques(), padroes[padraoAtual].getAmplitude());
-            padraoAtual++;
+            if(padraoAtual >= padroes.length){
+                estadoCompleto = true;
+                return;
+            }
+            PadraoAtaque padrao = padroes[this.padraoAtual];
+            atirarEmLeque(padrao.getRotacaoInicial(), padrao.getQuantidadeAtaques(), padrao.getAmplitude());
+            this.padraoAtual++;
             contadorTempo = 0;
         }
 
@@ -327,16 +342,14 @@ public class Nightbug extends Boss {
             if (faseReferencia == null)
                 return;
 
-            // Calcular o espaçamento entre cada tiro
             double espacamento = (quantidadeTiros > 1) ? amplitude / (quantidadeTiros - 1) : 0;
             
-            // Criar projéteis distribuídos uniformemente no leque
             for (int i = 0; i < quantidadeTiros; i++) {
                 double angle = anguloInicial - (amplitude / 2.0) + (espacamento * i);
                 
                 Projetil p = faseReferencia.getProjetilPool().getProjetilInimigo();
                 if (p != null) {
-                    p.reset(boss.x, boss.y, velocidadeProjetil, angle, TipoProjetil.INIMIGO, TipoProjetilInimigo.ESFERA_AZUL);
+                    p.reset(boss.x, boss.y, velocidadeProjetil, angle, TipoProjetil.INIMIGO, TipoProjetilInimigo.OVAL_AZUL_PISCINA_CLARO);
                 }
             }
         }

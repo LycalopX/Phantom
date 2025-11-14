@@ -4,6 +4,7 @@ import Modelo.Cenario.ElementoCenario;
 import Modelo.Cenario.DrawLayer;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.awt.geom.AffineTransform;
 
 public class BambuParallax implements ElementoCenario {
 
@@ -11,14 +12,15 @@ public class BambuParallax implements ElementoCenario {
     private double initialWidth, initialHeight;
     private double scrollSpeed;
     private double currentSpeedMultiplier = 1.0;
+    private double rotationAngle; // In radians
 
     private transient BufferedImage stalkImage;
     private transient BufferedImage leafImage;
 
     private final double minScale = 0.2;
-    private final double maxScale = 2.5;
+    private final double maxScale = 1.5; // Reduced max scale to prevent "immense" size
 
-    public BambuParallax(double x, double y, double size, double scrollSpeed, BufferedImage stalkImage, BufferedImage leafImage) {
+    public BambuParallax(double x, double y, double size, double scrollSpeed, BufferedImage stalkImage, BufferedImage leafImage, double rotationAngle) {
         this.x = x;
         this.y = y;
         this.initialWidth = size;
@@ -26,6 +28,7 @@ public class BambuParallax implements ElementoCenario {
         this.scrollSpeed = scrollSpeed;
         this.stalkImage = stalkImage;
         this.leafImage = leafImage;
+        this.rotationAngle = rotationAngle;
     }
 
     @Override
@@ -49,11 +52,22 @@ public class BambuParallax implements ElementoCenario {
         double currentWidth = initialWidth * scaleFactor;
         double currentHeight = initialHeight * scaleFactor;
 
-        // Draw stalk
+        // Save original transform
+        AffineTransform originalTransform = g2d.getTransform();
+
+        // Translate to the base of the bamboo for rotation
+        g2d.translate(x, y + currentHeight);
+        g2d.rotate(rotationAngle);
+        g2d.translate(-x, -(y + currentHeight));
+
+        // Draw leaves first
+        g2d.drawImage(leafImage, (int) (x - currentWidth / 2), (int) y, (int) currentWidth, (int) currentHeight, null);
+
+        // Draw stalk on top
         g2d.drawImage(stalkImage, (int) (x - currentWidth / 2), (int) y, (int) currentWidth, (int) currentHeight, null);
 
-        // Draw leaves on top
-        g2d.drawImage(leafImage, (int) (x - currentWidth / 2), (int) y, (int) currentWidth, (int) currentHeight, null);
+        // Restore original transform
+        g2d.setTransform(originalTransform);
     }
 
     @Override
@@ -63,7 +77,7 @@ public class BambuParallax implements ElementoCenario {
 
     @Override
     public DrawLayer getDrawLayer() {
-        return DrawLayer.FOREGROUND; // Bamboos are in the foreground
+        return DrawLayer.FOREGROUND;
     }
 
     public void setImages(BufferedImage stalk, BufferedImage leaves) {

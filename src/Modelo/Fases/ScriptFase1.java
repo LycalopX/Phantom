@@ -212,6 +212,8 @@ public class ScriptFase1 extends ScriptDeFase {
             super();
             lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
             boss = new Nightbug(0, MUNDO_ALTURA * 0.05, lootTable, 10000, fase);
+
+            inimigos.add(new InimigoSpawn(boss, 0));
         }
     }
 }

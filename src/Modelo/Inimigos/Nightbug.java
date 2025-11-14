@@ -15,7 +15,7 @@ import java.io.ObjectInputStream;
 public class Nightbug extends Boss {
 
     private transient GerenciadorDeAnimacaoInimigo animador;
-    private Estado estado;
+    private transient Estado estado;
 
     public Nightbug(double x, double y, LootTable lootTable, double vida, Fase fase) {
         super("", x, y, lootTable, vida);
@@ -54,6 +54,12 @@ public class Nightbug extends Boss {
                 scaledHeight,
                 true // holdLastStrafingFrame
         );
+
+        // Estado
+        this.estado = new IrParaOCentro(this); 
+        Estado ataque1 = new AtaqueParaBaixo1(this);
+        this.estado.setProximoEstado(ataque1);
+        ataque1.setProximoEstado(ataque1);
     }
 
     @Override

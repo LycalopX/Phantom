@@ -2,6 +2,7 @@ package Modelo.Inimigos;
 
 import Auxiliar.ConfigMapa;
 import Auxiliar.LootTable;
+import Auxiliar.SoundManager;
 import Auxiliar.Projeteis.TipoProjetilInimigo;
 import Modelo.Fases.Fase;
 import Modelo.Inimigos.GerenciadorDeAnimacaoInimigo.AnimationState;
@@ -31,7 +32,7 @@ public class Lorelei extends Boss {
             true, // resize = true
             scaledWidth,
             scaledHeight,
-            true // holdLastStrafingFrame
+            false // holdLastStrafingFrame
         );
         this.largura = scaledWidth;
         this.altura = scaledHeight;
@@ -39,6 +40,7 @@ public class Lorelei extends Boss {
         this.chegouAoCentro = false;
         
         setupEstados();
+        SoundManager.getInstance().playMusic("Deaf to All but the Song", true);
     }
 
     private void setupEstados(){

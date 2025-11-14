@@ -55,6 +55,8 @@ public class ScriptFase5 extends ScriptDeFase {
             System.err.println("Erro ao carregar recursos da Fase 5: " + e.getMessage());
             e.printStackTrace();
         }
+
+        SoundManager.getInstance().playMusic("Love-Colored Master Sparkn", false);
     }
 
     @Override

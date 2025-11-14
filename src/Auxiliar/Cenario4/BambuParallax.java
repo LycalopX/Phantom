@@ -33,19 +33,21 @@ public class BambuParallax implements ElementoCenario {
         System.out.println("Criando BambuParallax na posição: " + x + ", " + y + " | Largura: " + widthBambu + " | Altura: " + heightBambu);
         blocos.add(new BlocoDeFolha(x, y, (int)widthBambu, (int)heightBambu, velocidadeBase, stalk, 1f, 0.9f));
 
-        // Camada do meio (folhas)
-        int tamanhoMedio = (int) (widthFolha1 * 0.8);
+        // Camada do meio (folhas);
         double velocidadeMedia = velocidadeBase * 1.01;
-        int xMedio = x + (widthBambu - tamanhoMedio) / 2;
+
+        int xMedio = x - widthFolha1 / 2;
         int yMedio = y - (int) (heightBambu * 0.15); // Posição relativa à altura do caule
-        blocos.add(new BlocoDeFolha(xMedio, yMedio, tamanhoMedio, tamanhoMedio, velocidadeMedia, leaves1, 1f, 0.9f));
+
+        blocos.add(new BlocoDeFolha(xMedio, yMedio, widthFolha1, heightFolha1, velocidadeMedia, leaves1, 1f, 0.9f));
 
         // Camada do topo (folhas)
-        int tamanhoPequeno = (int) (widthFolha2 * 0.6);
         double velocidadePequena = velocidadeBase * 1.02;
-        int xPequeno = x + (widthBambu - tamanhoPequeno) / 2;
+
+        int xPequeno = x - widthFolha2 / 2;
         int yPequeno = y - (int) (heightBambu * 0.3); // Posição relativa à altura do caule
-        this.blocoTopo = new BlocoDeFolha(xPequeno, yPequeno, tamanhoPequeno, tamanhoPequeno, velocidadePequena, leaves2, 1f, 0.9f);
+
+        this.blocoTopo = new BlocoDeFolha(xPequeno, yPequeno, widthFolha2, heightFolha2, velocidadePequena, leaves2, 1f, 0.9f);
         blocos.add(this.blocoTopo);
     }
 

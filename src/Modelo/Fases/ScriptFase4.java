@@ -7,18 +7,36 @@ import javax.imageio.ImageIO;
 import java.util.Random;
 import Auxiliar.ConfigMapa;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.LinearGradientPaint;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import Modelo.Cenario.DrawLayer;
 import Modelo.Personagem;
 
 public class ScriptFase4 extends ScriptDeFase {
 
     private transient BufferedImage bg4_1, bamboo_stalk, leaves1, leaves2;
+    private transient BufferedImage flipped_bamboo_stalk, flipped_leaves1, flipped_leaves2;
     private long proximoSpawnY = 0;
     private double distanciaTotalRolada = 0;
     private Random rand = new Random();
 
-    private static final int DISTANCIA_ENTRE_ONDAS_Y = 250; // Copiado de ScriptFase2
+    private static final int DISTANCIA_ENTRE_ONDAS_Y = 250;
+
+    private BufferedImage flipImageHorizontally(BufferedImage image) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        BufferedImage flippedImage = new BufferedImage(width, height, image.getType());
+        Graphics2D g = flippedImage.createGraphics();
+        AffineTransform at = new AffineTransform();
+        at.concatenate(AffineTransform.getScaleInstance(-1, 1));
+        at.concatenate(AffineTransform.getTranslateInstance(-width, 0));
+        g.transform(at);
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
+        return flippedImage;
+    }
 
     @Override
     public void carregarRecursos(Fase fase) {
@@ -27,6 +45,10 @@ public class ScriptFase4 extends ScriptDeFase {
             bamboo_stalk = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage4/bamboo.png"));
             leaves1 = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage4/leaves1.png"));
             leaves2 = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage4/leaves2.png"));
+
+            flipped_bamboo_stalk = flipImageHorizontally(bamboo_stalk);
+            flipped_leaves1 = flipImageHorizontally(leaves1);
+            flipped_leaves2 = flipImageHorizontally(leaves2);
 
             fase.adicionarElementoCenario(
                     new FundoInfinito("bg4_1", bg4_1, 0.8, Modelo.Cenario.DrawLayer.BACKGROUND, 1.0f));
@@ -72,15 +94,15 @@ public class ScriptFase4 extends ScriptDeFase {
             int tamanhoBase = (int) (14 * Personagem.BODY_PROPORTION); // Tamanho base fixo e razoável
             int yInicial = -tamanhoBase * 2; // Spawn acima da tela
 
-            // Gera bambu na zona esquerda (0 a 1/6 da tela)
+            // Gera bambu na zona esquerda (0 a 1/6 da tela) com sprites originais
             double xEsquerda = rand.nextDouble() * (ConfigMapa.LARGURA_TELA / 6.0);
             fase.adicionarElementoCenario(new BambuParallax((int)xEsquerda, yInicial, tamanhoBase, velocidadeScroll, this.bamboo_stalk, this.leaves1, this.leaves2));
 
-            // Gera bambu na zona direita (5/6 a 100% da tela)
+            // Gera bambu na zona direita (5/6 a 100% da tela) com sprites invertidos
             double inicioFaixaDireita = ConfigMapa.LARGURA_TELA * 5.0 / 6.0;
             double larguraFaixaDireita = ConfigMapa.LARGURA_TELA / 6.0;
             double xDireita = inicioFaixaDireita + rand.nextDouble() * larguraFaixaDireita;
-            fase.adicionarElementoCenario(new BambuParallax((int)xDireita, yInicial, tamanhoBase, velocidadeScroll, this.bamboo_stalk, this.leaves1, this.leaves2));
+            fase.adicionarElementoCenario(new BambuParallax((int)xDireita, yInicial, tamanhoBase, velocidadeScroll, this.flipped_bamboo_stalk, this.flipped_leaves1, this.flipped_leaves2));
             
             proximoSpawnY += DISTANCIA_ENTRE_ONDAS_Y;
         }

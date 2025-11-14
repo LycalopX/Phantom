@@ -1,16 +1,16 @@
 package Modelo.Fases;
 
+import Auxiliar.ConfigMapa;
 import Auxiliar.LootTable;
 import Controler.Engine;
 import Modelo.Inimigos.Boss;
 import Modelo.Personagem;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Random;
 import java.awt.Color;
 import java.awt.LinearGradientPaint;
 import java.awt.geom.Point2D;
-import Auxiliar.ConfigMapa;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * @brief Classe abstrata que define o contrato para scripts de fase. Cada fase
@@ -68,12 +68,27 @@ public abstract class ScriptDeFase implements Serializable {
      */
     public abstract void relinkarRecursosDosElementos(Fase fase);
 
+    protected abstract ArrayList<Onda> inicializarOndas(Fase fase);
+
     /**
-     * @brief Atualiza a lógica de spawn de inimigos. Deve ser implementado por
-     * subclasses.
+     * @brief Chama as ondas da fase definidas em inicializarOndas.
      * @param fase A instância da fase que este script está controlando.
      */
-    public abstract void atualizarInimigos(Fase fase);
+    public void atualizarInimigos(Fase fase){
+        if(ondaAtualIndex == -1) {
+            ondas = inicializarOndas(fase);
+        }
+
+        if(ondaAtualIndex < ondas.size()){
+            Onda ondaAtual = ondas.get(ondaAtualIndex);
+            ondaAtual.incrementarTempo(1, fase);
+            if (!ondaAtual.getFinalizado()) return;
+        }
+        else{
+            engine.carregarProximaFase();
+        }
+        ondaAtualIndex++;
+    }
 
     /**
      * @brief Atualiza a lógica de spawn de elementos de cenário (como árvores).
@@ -196,9 +211,9 @@ public abstract class ScriptDeFase implements Serializable {
         }
     }
 
-    protected class OndaFazNada extends Onda {
+    protected class OndaDeEspera extends Onda {
 
-        public OndaFazNada(Fase fase, int tempoDeEsperaInicial) {
+        public OndaDeEspera(Fase fase, int tempoDeEsperaInicial) {
             super();
             inimigos.add(new InimigoSpawn(null, tempoDeEsperaInicial));
         }

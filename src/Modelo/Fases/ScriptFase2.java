@@ -2,11 +2,16 @@ package Modelo.Fases;
 
 import Auxiliar.Cenario1.ArvoreParallax;
 import static Auxiliar.ConfigMapa.*;
+import Auxiliar.LootTable;
+import Auxiliar.Personagem.LootItem;
 import Auxiliar.SoundManager;
 import Controler.Engine;
 import Modelo.Cenario.DrawLayer;
 import Modelo.Cenario.FundoInfinito;
+import Modelo.Inimigos.Lorelei;
+import Modelo.Items.ItemType;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 /**
@@ -72,14 +77,6 @@ public class ScriptFase2 extends ScriptDeFase {
     }
 
     /**
-     * @brief Controla o spawning de inimigos.
-     */
-    @Override
-    public void atualizarInimigos(Fase fase) {
-        // Lógica de inimigos da Fase 2 (a ser implementada)
-    }
-
-    /**
      * @brief Atualiza a lógica de spawn de elementos de cenário (árvores azuis).
      * @param fase A instância da fase que este script está controlando.
      * @param velocidadeScroll A velocidade de rolagem atual do cenário.
@@ -135,6 +132,47 @@ public class ScriptFase2 extends ScriptDeFase {
             fase.adicionarElementoCenario(new ArvoreParallax((int)xDireita, yInicial, tamanhoBase, 2.0, this.imagemArvoreNormal));
             
             proximoSpawnY += DISTANCIA_ENTRE_ONDAS_Y;
+        }
+    }
+
+    // Ondas
+    @Override
+    protected ArrayList<Onda> inicializarOndas(Fase fase) {
+        ondas.add(new Onda1(fase));
+        ondas.add(new OndaDeEspera(fase, 180));
+        ondas.add(new OndaBoss(fase));
+        ondas.add(new OndaDeEspera(fase, 200));
+        ondaAtualIndex = 0;
+        return ondas;
+    }
+
+    private class Onda1 extends Onda{
+        public Onda1(Fase fase) {
+            super();
+
+            // Adiciona inimigos à onda
+            double xInicial = 0.5 * (MUNDO_LARGURA - 2) + 2;
+            LootTable lootTable = new LootTable();
+
+            // Loot table
+            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
+            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.5, false, false));
+            lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.02, true, false));
+
+            // Inimigos
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial, -1.0, lootTable, 40, fase), 50));
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial + 0.1, -1.0, lootTable, 40, fase), 100));
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial - 0.1, -1.0, lootTable, 40, fase), 0));
+        }
+    }
+
+    private class OndaBoss extends OndaDeBoss{
+        public OndaBoss(Fase fase) {
+            super();
+            lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
+            boss = new Lorelei(0, MUNDO_ALTURA * 0.05, lootTable, 10000, fase);
+
+            inimigos.add(new InimigoSpawn(boss, 0));
         }
     }
 }

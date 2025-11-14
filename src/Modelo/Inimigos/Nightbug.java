@@ -93,9 +93,6 @@ public class Nightbug extends Boss {
 
     @Override
     public void atualizar() {
-        super.atualizar(); // Basic movement from Inimigo
-
-        // Simple logic to switch between idle and moving for demonstration
         estado.incrementarTempo(faseReferencia, 1);
         if (estado.getEstadoCompleto()) {
             estado = estado.getProximoEstado();

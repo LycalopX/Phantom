@@ -84,28 +84,6 @@ public class ScriptFase1 extends ScriptDeFase {
         }
     }
 
-
-    /**
-     * @brief Controla o spawning de inimigos (FadaComum) em posições aleatórias
-     * na parte superior da tela.
-     */
-    @Override
-    public void atualizarInimigos(Fase fase) {
-        if(ondaAtualIndex == -1) {
-            ondas = inicializarOndas(fase);
-        }
-
-        if(ondaAtualIndex < ondas.size()){
-            Onda ondaAtual = ondas.get(ondaAtualIndex);
-            ondaAtual.incrementarTempo(1, fase);
-            if (!ondaAtual.getFinalizado()) return;
-        }
-        else{
-            engine.carregarProximaFase();
-        }
-        ondaAtualIndex++;
-    }
-
     /**
      * @brief Atualiza a lógica de spawn de elementos de cenário (como árvores).
      * @param fase A instância da fase que este script está controlando.
@@ -177,12 +155,14 @@ public class ScriptFase1 extends ScriptDeFase {
     }
 
     // Onda
+    @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
-        ondas.add(new OndaBoss(fase));
-        ondas.add(new OndaFazNada(fase, 200));
+        //ondas.add(new OndaBoss(fase));
+        //ondas.add(new OndaDeEspera(fase, 200));
         ondas.add(new Onda1(fase));
-        ondas.add(new OndaFazNada(fase, 100));
+        ondas.add(new OndaDeEspera(fase, 100));
         ondas.add(new Onda1(fase));
+        ondas.add(new OndaDeEspera(fase, 100));
         ondaAtualIndex = 0;
         return ondas;
     }

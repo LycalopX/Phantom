@@ -1,6 +1,8 @@
 package Modelo.Fases;
 
+import Auxiliar.LootTable;
 import Controler.Engine;
+import Modelo.Inimigos.Boss;
 import Modelo.Personagem;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -173,6 +175,20 @@ public abstract class ScriptDeFase implements Serializable {
         public OndaFazNada(Fase fase, int tempoDeEsperaInicial) {
             super();
             inimigos.add(new InimigoSpawn(null, tempoDeEsperaInicial));
+        }
+    }
+
+    protected abstract class OndaDeBoss extends Onda{
+        protected Boss boss;
+        protected LootTable lootTable;
+        public OndaDeBoss() {
+            super();
+            this.lootTable = new LootTable();
+        }
+
+        @Override
+        public boolean getFinalizado() {
+            return super.getFinalizado() && !boss.isActive();
         }
     }
 }

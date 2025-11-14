@@ -11,6 +11,7 @@ import java.awt.Graphics;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.Serializable;
 
 public class Nightbug extends Boss {
 
@@ -89,7 +90,7 @@ public class Nightbug extends Boss {
         super.autoDesenho(g);
     }
 
-    private abstract class Estado {
+    private abstract static class Estado implements Serializable {
 
         // Classes
         public static class Movimento {
@@ -152,6 +153,7 @@ public class Nightbug extends Boss {
 
         // Variaveis
         protected Boss boss;
+        protected transient Fase fase;
         protected Movimento movimento;
         private Estado proximoEstado;
 
@@ -161,6 +163,7 @@ public class Nightbug extends Boss {
         public Estado(Boss boss, Movimento movimento) {
             this.boss = boss;
             this.movimento = movimento;
+            this.fase = boss.faseReferencia;
 
             this.contadorTempo = 0;
         }
@@ -186,7 +189,7 @@ public class Nightbug extends Boss {
         }
     }
 
-    private class IrParaOCentro extends Estado {
+    private static class IrParaOCentro extends Estado {
         private Point2D.Double centro;
 
         public IrParaOCentro(Boss boss) {
@@ -213,8 +216,8 @@ public class Nightbug extends Boss {
         }
     }
 
-    private class AtaqueParaBaixo1 extends Estado {
-        private class PadraoAtaque{
+    private static class AtaqueParaBaixo1 extends Estado {
+        private static class PadraoAtaque implements Serializable {
             private int rotacaoInicial;
             private int amplitude;
             private int quantidadeAtaques;
@@ -294,7 +297,7 @@ public class Nightbug extends Boss {
          * @param amplitude Amplitude total do leque em graus
          */
         private void atirarEmLeque(double anguloInicial, int quantidadeTiros, double amplitude) {
-            if (faseReferencia == null)
+            if (fase == null)
                 return;
 
             // Calcular o espaçamento entre cada tiro
@@ -304,7 +307,7 @@ public class Nightbug extends Boss {
             for (int i = 0; i < quantidadeTiros; i++) {
                 double angle = anguloInicial - (amplitude / 2.0) + (espacamento * i);
                 
-                Projetil p = faseReferencia.getProjetilPool().getProjetilInimigo();
+                Projetil p = fase.getProjetilPool().getProjetilInimigo();
                 if (p != null) {
                     p.reset(boss.x, boss.y, velocidadeProjetil, angle, TipoProjetil.INIMIGO, TipoProjetilInimigo.ESFERA_AZUL);
                 }

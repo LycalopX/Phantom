@@ -2,7 +2,6 @@ package Modelo.Cenario;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import Auxiliar.ConfigMapa;
 
 public class ChaoPerspectiva implements ElementoCenario {
 

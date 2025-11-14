@@ -394,9 +394,6 @@ public class ControleDeJogo {
     private void colisaoProjetilHeroiInimigo(Projetil p, Inimigo i, Hero hero) {
         i.takeDamage(Hero.DANO_BALA);
 
-        System.out.println("Projetil atingiu inimigo. Vida restante do inimigo: " + i.getVida() + "Inimigo é : "
-                + i.getClass().getSimpleName());
-
         if (!(p instanceof ProjetilBombaHoming)) {
             p.deactivate();
         }

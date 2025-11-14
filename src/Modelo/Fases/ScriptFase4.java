@@ -70,10 +70,11 @@ public class ScriptFase4 extends ScriptDeFase {
 
     @Override
     public LinearGradientPaint getBackgroundGradient() {
-        Point2D start = new Point2D.Float(0, 0);
-        Point2D end = new Point2D.Float(0, ConfigMapa.ALTURA_TELA * 0.4f);
-        float[] fractions = { 0.0f, 1.0f };
-        Color[] colors = { new Color(255, 255, 255, 20), new Color(255, 255, 255, 0) };
+        Point2D start = new Point2D.Float(0, ConfigMapa.ALTURA_TELA * 0.2f);
+        Point2D end = new Point2D.Float(0, ConfigMapa.ALTURA_TELA * 0.6f);
+        float[] fractions = { 0.6f, 1.0f };
+        Color[] colors = { new Color(171, 200, 245, 100), new Color(255, 255, 255, 5) };
+
         return new LinearGradientPaint(start, end, fractions, colors);
     }
 

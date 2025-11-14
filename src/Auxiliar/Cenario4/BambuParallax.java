@@ -37,15 +37,15 @@ public class BambuParallax implements ElementoCenario {
         double velocidadeMedia = velocidadeBase * 1.01;
 
         int xMedio = x - widthFolha1 / 2;
-        int yMedio = y; // Posição relativa à altura do caule
-        
+        int yMedio = y + (int) (heightBambu * 0.2); // Posição relativa à altura do caule
+
         blocos.add(new BlocoDeFolha(xMedio, yMedio, widthFolha1, heightFolha1, velocidadeMedia, leaves1, 1f, 0.9f, rotationAngle));
 
         // Camada do topo (folhas)
         double velocidadePequena = velocidadeBase * 1.02;
 
         int xPequeno = x - widthFolha2 / 2;
-        int yPequeno = y + (int) (heightBambu * 0.3); // Posição relativa à altura do caule
+        int yPequeno = y - (int) (heightBambu * 0.3); // Posição relativa à altura do caule
 
         this.blocoTopo = new BlocoDeFolha(xPequeno, yPequeno, widthFolha2, heightFolha2, velocidadePequena, leaves2, 1f, 0.9f, rotationAngle);
         blocos.add(this.blocoTopo);
@@ -62,7 +62,7 @@ public class BambuParallax implements ElementoCenario {
 
     @Override
     public DrawLayer getDrawLayer() {
-        return DrawLayer.FOREGROUND;
+        return DrawLayer.BACKGROUND;
     }
 
     @Override

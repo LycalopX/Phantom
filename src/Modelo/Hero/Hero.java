@@ -251,7 +251,6 @@ public class Hero extends Personagem {
      *         false caso contrário.
      */
     public boolean takeDamage() {
-        SoundManager.getInstance().playSfx("se_pldead00", 1.5f);
         if (isInvencivel()) {
             return false;
         }

@@ -140,6 +140,7 @@ public class Engine implements Runnable {
                 if (foiAtingido) {
                     estadoAtual = GameState.DEATHBOMB_WINDOW;
                     deathbombTimer = JANELA_DEATHBOMB;
+                    SoundManager.getInstance().playSfx("se_pldead00", 1.5f);
                 }
                 break;
             case DEATHBOMB_WINDOW:

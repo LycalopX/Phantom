@@ -57,7 +57,7 @@ public class ScriptFase5 extends ScriptDeFase {
             Logger.getLogger(ScriptFase5.class.getName()).log(Level.SEVERE, "Erro ao carregar recursos da Fase 5", e);
         }
 
-        SoundManager.getInstance().playMusic("Love-Colored Master Sparkn", false);
+        SoundManager.getInstance().playMusic("Love-Colored Master Spark", false);
     }
 
     @Override

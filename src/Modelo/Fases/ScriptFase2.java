@@ -172,6 +172,7 @@ public class ScriptFase2 extends ScriptDeFase {
             lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
             boss = new Lorelei(0, MUNDO_ALTURA * 0.05, lootTable, 10000, fase);
 
+            SoundManager.getInstance().playMusic("Deaf to All but the Song", true);
             inimigos.add(new InimigoSpawn(boss, 0));
         }
     }

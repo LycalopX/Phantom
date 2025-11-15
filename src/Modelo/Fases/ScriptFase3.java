@@ -12,8 +12,12 @@ import java.awt.geom.Point2D;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import Auxiliar.ConfigMapa;
+import Auxiliar.LootTable;
+import Auxiliar.Personagem.LootItem;
 import Auxiliar.SoundManager;
 import Controler.Engine;
+import Modelo.Items.ItemType;
+import static Auxiliar.ConfigMapa.MUNDO_LARGURA;
 
 /**
  * @brief Script de eventos e spawns para a Fase 3 (placeholder).
@@ -107,11 +111,6 @@ public class ScriptFase3 extends ScriptDeFase {
     }
 
     @Override
-    public void atualizarInimigos(Fase fase) {
-        // Lógica de spawn de inimigos da fase 3 aqui
-    }
-
-    @Override
     public void atualizarCenario(Fase fase, double velocidadeScroll) {
         lastSpeedupTrigger++;
         if (lastSpeedupTrigger > SPEEDUP_INTERVAL) { 
@@ -128,6 +127,19 @@ public class ScriptFase3 extends ScriptDeFase {
     // Onda
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
+        ondas.add(new OndaFadaComum2(fase));
+        ondas.add(new OndaDeEspera(fase, 200));
         return ondas;
+    }
+
+    private class OndaFadaComum2 extends OndaDeEspera {
+        public OndaFadaComum2(Fase fase) {
+            super(fase, 3000); // A onda vai durar 3000 frames (50 segundos)
+            // Adiciona inimigos à onda
+            double xInicial = MUNDO_LARGURA / 2.0;
+            LootTable lootTable = new LootTable();
+            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
+            inimigos.add(0, new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, lootTable, 40, fase), 0));
+        }
     }
 }

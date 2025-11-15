@@ -6,6 +6,7 @@ import Modelo.Personagem;
 import Modelo.RenderLayer;
 import Modelo.Fases.Fase;
 import static Auxiliar.ConfigMapa.*;
+import java.awt.geom.Point2D;
 
 /**
  * @brief Classe abstrata base para todos os inimigos do jogo.
@@ -102,6 +103,147 @@ public abstract class Inimigo extends Personagem {
             this.vida = 0;
             deactivate();
             Auxiliar.SoundManager.getInstance().playSfx("se_enep00", 0.5f);
+        }
+    }
+
+    // --- Sistema de Estados ---
+
+    protected Estado processarEstado(Estado estado, int tempo) {
+        if (estado != null) {
+            estado.incrementarTempo(faseReferencia, tempo);
+            if (estado.getEstadoCompleto()) {
+                estado = estado.getProximoEstado();
+                if (estado == null) {
+                    estado = new EsperarIndefinidamente(this); // Para evitar eventual null pointer
+                }
+                estado.reset();
+            }
+        }
+        return estado;
+    }
+
+    protected abstract class Estado {
+        protected Inimigo inimigo;
+        private Estado proximoEstado;
+        protected int contadorTempo;
+        protected boolean estadoCompleto;
+
+        public Estado(Inimigo inimigo) {
+            this.inimigo = inimigo;
+            this.contadorTempo = 0;
+        }
+
+        public abstract void incrementarTempo(Fase fase, int tempo);
+
+        public void reset() {
+            this.contadorTempo = 0;
+            this.estadoCompleto = false;
+        }
+
+        public void setProximoEstado(Estado proximoEstado) {
+            this.proximoEstado = proximoEstado;
+        }
+
+        public Estado getProximoEstado() {
+            return this.proximoEstado;
+        }
+
+        public boolean getEstadoCompleto() {
+            return this.estadoCompleto;
+        }
+    }
+
+    protected class Esperar extends Estado {
+        protected int duracao;
+        public Esperar(Inimigo inimigo, int duracao) {
+            super(inimigo);
+            this.duracao = duracao;
+        }
+
+        @Override
+        public void incrementarTempo(Fase fase, int tempo) {
+            if (estadoCompleto) return;
+            contadorTempo += tempo;
+            if (contadorTempo >= duracao) {
+                estadoCompleto = true;
+            }
+        }
+    }
+
+    protected class EsperarIndefinidamente extends Estado {
+        public EsperarIndefinidamente(Inimigo inimigo) {
+            super(inimigo);
+        }
+
+        @Override
+        public void incrementarTempo(Fase fase, int tempo) {
+            // Não faz nada, espera indefinidamente
+        }
+    }
+
+    protected class IrPara extends Estado {
+        public static class Movimento {
+            private Point2D.Double velocidade;
+            private Point2D.Double alvo;
+
+            public Movimento(double velocidadeX, double velocidadeY, double alvoX, double alvoY) {
+                this.velocidade = new Point2D.Double(velocidadeX, velocidadeY);
+                this.alvo = new Point2D.Double(alvoX, alvoY);
+            }
+
+            public Movimento(Point2D.Double velocidade, Point2D.Double alvo) {
+                this.velocidade = velocidade;
+                this.alvo = alvo;
+            }
+
+            public Point2D.Double proximoMovimento(double posicaoX, double posicaoY) {
+                double movimentoX = Math.clamp(alvo.x - posicaoX, -velocidade.x, velocidade.x);
+                double movimentoY = Math.clamp(alvo.y - posicaoY, -velocidade.y, velocidade.y);
+                return new Point2D.Double(movimentoX, movimentoY);
+            }
+
+            public static boolean isZero(Point2D.Double movimento) {
+                return movimento.x == 0 && movimento.y == 0;
+            }
+        }
+
+        private Movimento movimento;
+
+        public IrPara(Inimigo inimigo, double alvoX, double alvoY, double velocidade) {
+            super(inimigo);
+            movimento = new Movimento(velocidade, velocidade, alvoX, alvoY);
+        }
+        
+        public IrPara(Inimigo inimigo, double alvoX, double alvoY, double velX, double velY) {
+            super(inimigo);
+            movimento = new Movimento(velX, velY, alvoX, alvoY);
+        }
+
+        public IrPara(Inimigo inimigo, Point2D.Double alvo, Point2D.Double velocidade) {
+            super(inimigo);
+            movimento = new Movimento(velocidade, alvo);
+        }
+
+        @Override
+        public void incrementarTempo(Fase fase, int tempo) {
+            if (estadoCompleto) return;
+
+            Point2D.Double proximo = movimento.proximoMovimento(inimigo.getX(), inimigo.getY());
+            
+            inimigo.setPosition(inimigo.getX() + proximo.x, inimigo.getY() + proximo.y);
+
+            if (Movimento.isZero(proximo)) {
+                 inimigo.setPosition(movimento.alvo.x, movimento.alvo.y);
+                 estadoCompleto = true;
+            }
+        }
+        
+        public void setMovimento(Movimento movimento) {
+            this.movimento = movimento;
+        }
+
+        public Movimento getMovimento() {
+            return this.movimento;
         }
     }
 }

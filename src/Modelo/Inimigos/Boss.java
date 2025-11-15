@@ -196,20 +196,20 @@ public abstract class Boss extends Inimigo {
                 return;
             }
 
-            Point2D.Double proximo = movimento.proximoMovimento(boss.x, boss.y);
+            Point2D.Double proximo = movimento.proximoMovimento(boss.getX(), boss.getY());
             Point2D.Double velocidade = movimento.getVelocidade();
             Point2D.Double alvo = movimento.getAlvo();
             if (Math.abs(proximo.x) < velocidade.x) {
-                boss.x = alvo.x;
+                boss.setPosition(alvo.x, boss.getY());
                 proximo.x = 0;
             } else {
-                boss.x += proximo.x;
+                boss.setPosition(boss.getX() + proximo.x, boss.getY());
             }
             if (Math.abs(proximo.y) < velocidade.y) {
-                boss.y = alvo.y;
+                boss.setPosition(boss.getX(), alvo.y);
                 proximo.y = 0;
             } else {
-                boss.y += proximo.y;
+                boss.setPosition(boss.getX(), boss.getY() + proximo.y);
             }
             estadoCompleto = Movimento.isZero(proximo);
         }

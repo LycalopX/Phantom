@@ -4,7 +4,6 @@ import javax.swing.ImageIcon;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.awt.Graphics;
-import java.io.IOException;
 import Modelo.Personagem;
 
 /**

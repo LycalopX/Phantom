@@ -12,6 +12,8 @@ import Modelo.Inimigos.Lorelei;
 import Modelo.Items.ItemType;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 /**
@@ -51,8 +53,7 @@ public class ScriptFase2 extends ScriptDeFase {
             fase.adicionarElementoCenario(new FundoInfinito("trilha", this.imagemTrilha, 1.0, DrawLayer.BACKGROUND, 0.5f));
 
         } catch (Exception e) {
-            System.err.println("Erro ao carregar recursos da Fase 2: " + e.getMessage());
-            e.printStackTrace();
+            Logger.getLogger(ScriptFase2.class.getName()).log(Level.SEVERE, "Erro ao carregar recursos da Fase 2", e);
         }
     }
 
@@ -142,7 +143,6 @@ public class ScriptFase2 extends ScriptDeFase {
         ondas.add(new OndaDeEspera(fase, 180));
         ondas.add(new OndaBoss(fase));
         ondas.add(new OndaDeEspera(fase, 200));
-        ondaAtualIndex = 0;
         return ondas;
     }
 

@@ -6,7 +6,6 @@ import Modelo.Personagem;
 import Modelo.Projeteis.BombaProjetil;
 import Modelo.RenderLayer;
 import Modelo.Fases.Fase;
-import Auxiliar.SoundManager;
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.awt.Graphics;
@@ -41,7 +40,7 @@ public class Hero extends Personagem {
     private int invencibilidadeTimer = 0;
     private int efeitoBombaTimer = 0;
 
-    public double grabHitboxRaio;
+    private double grabHitboxRaio;
     private boolean isFocoAtivo = false;
 
     private transient GerenciadorDeAnimacaoHeroi animador;
@@ -329,6 +328,10 @@ public class Hero extends Personagem {
      */
     public int getScore() {
         return this.score;
+    }
+
+    public double getGrabHitboxRaio() {
+        return this.grabHitboxRaio;
     }
 
     /**

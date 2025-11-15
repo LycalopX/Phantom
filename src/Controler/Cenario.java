@@ -129,8 +129,7 @@ public class Cenario extends JPanel {
                     double gridX = dropPoint.getX() / ConfigMapa.CELL_SIDE;
                     double gridY = dropPoint.getY() / ConfigMapa.CELL_SIDE;
 
-                    p.x = gridX;
-                    p.y = gridY;
+                    p.setPosition(gridX, gridY);
 
                     if (faseAtual != null) {
                         if (p instanceof Inimigo) {

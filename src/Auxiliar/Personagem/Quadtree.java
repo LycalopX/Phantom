@@ -70,8 +70,8 @@ public class Quadtree {
     private int getIndex(Personagem p) {
         int pLargura = p.getLargura();
         int pAltura = p.getAltura();
-        int pX = (int) (p.x * ConfigMapa.CELL_SIDE - pLargura / 2.0);
-        int pY = (int) (p.y * ConfigMapa.CELL_SIDE - pAltura / 2.0);
+        int pX = (int) (p.getX() * ConfigMapa.CELL_SIDE - pLargura / 2.0);
+        int pY = (int) (p.getY() * ConfigMapa.CELL_SIDE - pAltura / 2.0);
 
         int index = -1;
         double verticalMidpoint = bounds.getX() + (bounds.getWidth() / 2);

@@ -12,6 +12,8 @@ import java.awt.Color;
 import java.awt.LinearGradientPaint;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 public class ScriptFase5 extends ScriptDeFase {
@@ -52,8 +54,7 @@ public class ScriptFase5 extends ScriptDeFase {
             fase.adicionarElementoCenario(paredeDir);
 
         } catch (Exception e) {
-            System.err.println("Erro ao carregar recursos da Fase 5: " + e.getMessage());
-            e.printStackTrace();
+            Logger.getLogger(ScriptFase5.class.getName()).log(Level.SEVERE, "Erro ao carregar recursos da Fase 5", e);
         }
 
         SoundManager.getInstance().playMusic("Love-Colored Master Sparkn", false);
@@ -65,7 +66,7 @@ public class ScriptFase5 extends ScriptDeFase {
             this.texturaParede = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage5/bg5_1.png"));
             this.texturaChao = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage5/bg5_2.png"));
         } catch (Exception e) {
-            System.err.println("Erro ao relinkar recursos da Fase 5: " + e.getMessage());
+            Logger.getLogger(ScriptFase5.class.getName()).log(Level.SEVERE, "Erro ao relinkar recursos da Fase 5", e);
         }
 
         for (ElementoCenario elemento : fase.getElementosCenario()) {
@@ -95,8 +96,7 @@ public class ScriptFase5 extends ScriptDeFase {
     // Onda
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
-        // nada
-        return null;
+        return ondas;
     }
 
     @Override

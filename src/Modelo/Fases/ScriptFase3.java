@@ -9,6 +9,8 @@ import javax.imageio.ImageIO;
 import java.awt.Color;
 import java.awt.LinearGradientPaint;
 import java.awt.geom.Point2D;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import Auxiliar.ConfigMapa;
 import Auxiliar.SoundManager;
 import Controler.Engine;
@@ -22,6 +24,10 @@ public class ScriptFase3 extends ScriptDeFase {
     private transient BufferedImage bg3_3;
     private transient BufferedImage blackPixel;
     private long lastSpeedupTrigger = 0;
+
+    private static final int SPEEDUP_INTERVAL = 500;
+    private static final int SPEEDUP_DURATION = 540;
+    private static final double SPEEDUP_AMPLITUDE = 3.0;
 
     /**
      * @brief Construtor do script da Fase 2.
@@ -51,8 +57,7 @@ public class ScriptFase3 extends ScriptDeFase {
                     Modelo.Cenario.DrawLayer.FOREGROUND, 1f, 0.1f, 0.2f, 100.0f));
 
         } catch (Exception e) {
-            System.err.println("Erro ao carregar recursos da Fase 3: " + e.getMessage());
-            e.printStackTrace();
+            Logger.getLogger(ScriptFase3.class.getName()).log(Level.SEVERE, "Erro ao carregar recursos da Fase 3", e);
         }
     }
 
@@ -63,7 +68,7 @@ public class ScriptFase3 extends ScriptDeFase {
             this.bg3_3 = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage3/bg3_3.png"));
             createBlackPixel();
         } catch (Exception e) {
-            System.err.println("Erro ao relinkar recursos da Fase 3: " + e.getMessage());
+            Logger.getLogger(ScriptFase3.class.getName()).log(Level.SEVERE, "Erro ao relinkar recursos da Fase 3", e);
         }
 
         for (var elemento : fase.getElementosCenario()) {
@@ -109,8 +114,8 @@ public class ScriptFase3 extends ScriptDeFase {
     @Override
     public void atualizarCenario(Fase fase, double velocidadeScroll) {
         lastSpeedupTrigger++;
-        if (lastSpeedupTrigger > 500) { // Aciona a cada 500 frames
-            Fase.triggerGlobalSpeedup(540, 3.0); // Dura 2 segundos (120 frames) com amplitude de 3x
+        if (lastSpeedupTrigger > SPEEDUP_INTERVAL) { 
+            Fase.triggerGlobalSpeedup(SPEEDUP_DURATION, SPEEDUP_AMPLITUDE); 
             lastSpeedupTrigger = 0;
         }
     }
@@ -123,7 +128,6 @@ public class ScriptFase3 extends ScriptDeFase {
     // Onda
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
-        // nada
-        return null;
+        return ondas;
     }
 }

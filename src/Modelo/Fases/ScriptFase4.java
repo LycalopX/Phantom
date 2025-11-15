@@ -13,6 +13,8 @@ import java.awt.Graphics2D;
 import java.awt.LinearGradientPaint;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import Modelo.Cenario.ElementoCenario;
 import Modelo.Personagem;
 import Controler.Engine;
@@ -68,8 +70,7 @@ public class ScriptFase4 extends ScriptDeFase {
                     new FundoInfinito("bg4_1", bg4_1, 0.8, Modelo.Cenario.DrawLayer.BACKGROUND, 1.0f));
 
         } catch (Exception e) {
-            System.err.println("Erro ao carregar recursos da Fase 4: " + e.getMessage());
-            e.printStackTrace();
+            Logger.getLogger(ScriptFase4.class.getName()).log(Level.SEVERE, "Erro ao carregar recursos da Fase 4", e);
         }
     }
 
@@ -167,7 +168,6 @@ public class ScriptFase4 extends ScriptDeFase {
     // Onda
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
-        // nada
-        return null;
+        return ondas;
     }
 }

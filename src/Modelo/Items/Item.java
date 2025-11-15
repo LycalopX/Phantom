@@ -74,11 +74,11 @@ public class Item extends Personagem {
     public void atualizar() {
         if (!this.isActive) return;
 
-        boolean deveAtrair = hero != null && (hero.isBombing() || hero.y < (ALTURA_TELA / CELL_SIDE) * 0.15);
+        boolean deveAtrair = hero != null && (hero.isBombing() || hero.getY() < (ALTURA_TELA / CELL_SIDE) * 0.15);
 
         if (deveAtrair) {
-            double dx = hero.x - this.x;
-            double dy = hero.y - this.y;
+            double dx = hero.getX() - this.x;
+            double dy = hero.getY() - this.y;
             double magnitude = Math.sqrt(dx * dx + dy * dy);
             if (magnitude > 0) {
                 this.x += (dx / magnitude) * VELOCIDADE_ATRACAO;

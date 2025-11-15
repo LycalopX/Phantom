@@ -84,7 +84,7 @@ public class ControleDeJogo {
             }
 
             if (p instanceof Item) {
-                if (p.y > ConfigMapa.MUNDO_ALTURA) {
+                if (p.getY() > ConfigMapa.MUNDO_ALTURA) {
                     p.deactivate();
                 }
             }
@@ -137,8 +137,8 @@ public class ControleDeJogo {
             int raioEmPixels = (int) (bombaAtiva.getRaioAtualGrid() * ConfigMapa.CELL_SIDE);
             int diametroEmPixels = raioEmPixels * 2;
 
-            int bombaX = (int) (bombaAtiva.x * ConfigMapa.CELL_SIDE) - raioEmPixels;
-            int bombaY = (int) (bombaAtiva.y * ConfigMapa.CELL_SIDE) - raioEmPixels;
+            int bombaX = (int) (bombaAtiva.getX() * ConfigMapa.CELL_SIDE) - raioEmPixels;
+            int bombaY = (int) (bombaAtiva.getY() * ConfigMapa.CELL_SIDE) - raioEmPixels;
             Rectangle areaDaBomba = new Rectangle(bombaX, bombaY, diametroEmPixels, diametroEmPixels);
 
             alvosProximos.clear();
@@ -147,10 +147,10 @@ public class ControleDeJogo {
             for (Personagem alvo : alvosProximos) {
                 if ((alvo instanceof Inimigo || alvo instanceof Projetil) && alvo.isActive()) {
 
-                    double dx = bombaAtiva.x - alvo.x;
-                    double dy = bombaAtiva.y - alvo.y;
+                    double dx = bombaAtiva.getX() - alvo.getX();
+                    double dy = bombaAtiva.getY() - alvo.getY();
                     double distanciaAoQuadrado = (dx * dx) + (dy * dy);
-                    double raioBombaAoQuadrado = bombaAtiva.hitboxRaio * bombaAtiva.hitboxRaio;
+                    double raioBombaAoQuadrado = bombaAtiva.getHitboxRaio() * bombaAtiva.getHitboxRaio();
 
                     if (distanciaAoQuadrado < raioBombaAoQuadrado) {
 
@@ -185,14 +185,14 @@ public class ControleDeJogo {
                     continue;
 
                 double somaRaios;
-                double dx = p1.x - p2.x;
-                double dy = p1.y - p2.y;
+                double dx = p1.getX() - p2.getX();
+                double dy = p1.getY() - p2.getY();
 
                 if ((p1 instanceof Hero && p2 instanceof Item) || (p1 instanceof Item && p2 instanceof Hero)) {
                     Item i = (p1 instanceof Item) ? (Item) p1 : (Item) p2;
-                    somaRaios = hero.grabHitboxRaio + i.hitboxRaio;
+                    somaRaios = hero.getGrabHitboxRaio() + i.getHitboxRaio();
                 } else {
-                    somaRaios = p1.hitboxRaio + p2.hitboxRaio;
+                    somaRaios = p1.getHitboxRaio() + p2.getHitboxRaio();
                 }
 
                 if ((dx * dx) + (dy * dy) < (somaRaios * somaRaios)) {
@@ -221,13 +221,13 @@ public class ControleDeJogo {
     public boolean ehPosicaoValida(List<Personagem> umaFase, Personagem personagem, double proximoX,
             double proximoY) {
         for (Personagem p : umaFase) {
-            if (p == personagem || p.isbTransponivel()) {
+            if (p == personagem || p.isTransponivel()) {
                 continue;
             }
 
-            double dx = proximoX - p.x;
-            double dy = proximoY - p.y;
-            double somaRaios = personagem.hitboxRaio + p.hitboxRaio;
+            double dx = proximoX - p.getX();
+            double dy = proximoY - p.getY();
+            double somaRaios = personagem.getHitboxRaio() + p.getHitboxRaio();
 
             if ((dx * dx) + (dy * dy) < (somaRaios * somaRaios)) {
                 return false;
@@ -405,7 +405,7 @@ public class ControleDeJogo {
                 for (LootItem dropInfo : drops) {
                     Item itemCriado = itemPool.getItem(dropInfo.getTipo());
                     if (itemCriado != null) {
-                        itemCriado.init(i.x, i.y);
+                        itemCriado.init(i.getX(), i.getY());
                     }
                 }
             }

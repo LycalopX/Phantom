@@ -1,6 +1,7 @@
 package Controler;
 
 import static Auxiliar.ConfigMapa.*;
+import static Auxiliar.ConfigJogo.*;
 import Auxiliar.ConfigTeclado;
 import Auxiliar.Debug.DebugManager;
 import Auxiliar.LootTable;
@@ -25,6 +26,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -34,11 +37,6 @@ import java.util.zip.ZipOutputStream;
  *        visão e controle.
  */
 public class Engine implements Runnable {
-
-    private static final int FPS = 60;
-    private static final int RESPAWN_X = (LARGURA_TELA / CELL_SIDE) / 2;
-    private static final int RESPAWN_Y = (int) ((ALTURA_TELA / CELL_SIDE) * 0.9);
-
     private Tela tela;
     private Cenario cenario;
     private Thread gameThread;
@@ -53,11 +51,9 @@ public class Engine implements Runnable {
 
     private GameState estadoAtual = GameState.JOGANDO;
     private int respawnTimer = 0;
-    private final int TEMPO_DE_RESPAWN = 60;
     private final Set<Integer> teclasPressionadas = new HashSet<>();
     private final double velocidadeScroll = 2.0 * FATOR_ESCALA_ALTURA;
     private int deathbombTimer = 0;
-    private final int JANELA_DEATHBOMB = 8;
     private boolean removeProjectiles = false;
 
     public enum GameState {
@@ -74,7 +70,7 @@ public class Engine implements Runnable {
     public Engine() {
         this.gerenciadorDeFases = new GerenciadorDeFases();
         this.faseAtual = gerenciadorDeFases.carregarFase(this);
-        this.hero = new Hero("hero/hero_s0.png", RESPAWN_X, RESPAWN_Y);
+        this.hero = new Hero("hero/hero_s0.png", HERO_RESPAWN_X, HERO_RESPAWN_Y);
         this.faseAtual.adicionarPersonagem(hero);
 
         for (Item item : faseAtual.getItemPool().getTodosOsItens()) {
@@ -104,7 +100,7 @@ public class Engine implements Runnable {
      */
     @Override
     public void run() {
-        double drawInterval = 1000000000.0 / FPS;
+        double drawInterval = 1000000000.0 / GAME_FPS;
         double delta = 0;
         long lastTime = System.nanoTime();
 
@@ -139,7 +135,7 @@ public class Engine implements Runnable {
 
                 if (foiAtingido) {
                     estadoAtual = GameState.DEATHBOMB_WINDOW;
-                    deathbombTimer = JANELA_DEATHBOMB;
+                    deathbombTimer = DEATHBOMB_WINDOW_FRAMES;
                     SoundManager.getInstance().playSfx("se_pldead00", 1.5f);
                 }
                 break;
@@ -167,14 +163,14 @@ public class Engine implements Runnable {
                         estadoAtual = GameState.GAME_OVER;
                     } else {
                         estadoAtual = GameState.RESPAWNANDO;
-                        respawnTimer = TEMPO_DE_RESPAWN;
+                        respawnTimer = RESPAWN_TIME_FRAMES;
                     }
                 }
                 break;
             case RESPAWNANDO:
                 respawnTimer--;
 
-                if (respawnTimer == TEMPO_DE_RESPAWN / 2) {
+                if (respawnTimer == RESPAWN_TIME_FRAMES / 2) {
                     removeProjectiles = true;
                 }
 
@@ -184,8 +180,7 @@ public class Engine implements Runnable {
 
                 if (respawnTimer <= 0) {
                     hero.respawn();
-                    hero.x = RESPAWN_X;
-                    hero.y = RESPAWN_Y;
+                    hero.setPosition(HERO_RESPAWN_X, HERO_RESPAWN_Y);
                     estadoAtual = GameState.JOGANDO;
                 }
                 break;
@@ -203,7 +198,7 @@ public class Engine implements Runnable {
         for (int i = 0; i < itensADropar; i++) {
             Item itemDropado = faseAtual.getItemPool().getItem(ItemType.MINI_POWER_UP);
             if (itemDropado != null) {
-                itemDropado.init(hero.x, hero.y);
+                itemDropado.init(hero.getX(), hero.getY());
                 double angulo = -30 - Math.random() * 120;
                 double forca = 0.15;
                 itemDropado.lancarItem(angulo, forca);
@@ -215,7 +210,7 @@ public class Engine implements Runnable {
      * @brief Carrega o estado do jogo a partir de um arquivo 'POO.dat'.
      */
     private synchronized void carregarJogo() {
-        try (FileInputStream fis = new FileInputStream("POO.dat");
+        try (FileInputStream fis = new FileInputStream(SAVE_FILE_NAME);
                 ObjectInputStream ois = new ObjectInputStream(fis)) {
             this.faseAtual = (Fase) ois.readObject();
             cenario.setFase(this.faseAtual);
@@ -223,7 +218,7 @@ public class Engine implements Runnable {
             this.hero = (Hero) this.faseAtual.getHero();
             System.out.println(">>> JOGO CARREGADO!");
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.getLogger(Engine.class.getName()).log(Level.SEVERE, "Erro ao carregar o jogo.", e);
         }
     }
 
@@ -246,7 +241,7 @@ public class Engine implements Runnable {
 
         gerenciadorDeFases.resetar();
         faseAtual = gerenciadorDeFases.carregarFase(this);
-        hero = new Hero("hero/hero_s0.png", RESPAWN_X, RESPAWN_Y);
+        hero = new Hero("hero/hero_s0.png", HERO_RESPAWN_X, HERO_RESPAWN_Y);
 
         faseAtual.adicionarPersonagem(hero);
         cenario.setFase(faseAtual);
@@ -313,12 +308,12 @@ public class Engine implements Runnable {
      * @brief Salva o estado atual da fase em um arquivo 'POO.dat'.
      */
     private synchronized void salvarJogo() {
-        try (FileOutputStream fos = new FileOutputStream("POO.dat");
+        try (FileOutputStream fos = new FileOutputStream(SAVE_FILE_NAME);
                 ObjectOutputStream oos = new ObjectOutputStream(fos)) {
             oos.writeObject(this.faseAtual);
             System.out.println(">>> JOGO SALVO!");
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.getLogger(Engine.class.getName()).log(Level.SEVERE, "Erro ao salvar o jogo.", e);
         }
     }
 
@@ -365,8 +360,7 @@ public class Engine implements Runnable {
                 zos.closeEntry();
             }
         } catch (Exception e) {
-            System.err.println("Erro ao salvar personagem para teste: " + nomeArquivo);
-            e.printStackTrace();
+            Logger.getLogger(Engine.class.getName()).log(Level.SEVERE, "Erro ao salvar personagem para teste: " + nomeArquivo, e);
         }
     }
 

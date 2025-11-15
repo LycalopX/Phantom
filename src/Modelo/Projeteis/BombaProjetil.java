@@ -105,8 +105,8 @@ public class BombaProjetil extends Personagem {
                 double anguloExpansao = i * 22.5;
                 double velocidadeMissil = FATOR_ESCALA_ALTURA * 5.0 / CELL_SIDE;
                 p.resetBombaHoming(
-                    heroReferencia.x,
-                    heroReferencia.y,
+                    heroReferencia.getX(),
+                    heroReferencia.getY(),
                     velocidadeMissil,
                     anguloExpansao,
                     TipoProjetil.JOGADOR,

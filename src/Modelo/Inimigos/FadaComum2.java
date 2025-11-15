@@ -128,8 +128,8 @@ public class FadaComum2 extends Inimigo {
             return;
 
         double angle = 90.0;
-        double dx = hero.x - this.x;
-        double dy = hero.y - this.y;
+        double dx = hero.getX() - this.x;
+        double dy = hero.getY() - this.y;
         angle = Math.toDegrees(Math.atan2(dy, dx));
 
         Projetil p = faseReferencia.getProjetilPool().getProjetilInimigo();

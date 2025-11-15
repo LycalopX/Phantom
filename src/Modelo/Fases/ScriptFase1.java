@@ -11,6 +11,8 @@ import Modelo.Inimigos.Nightbug;
 import Modelo.Items.ItemType;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 /**
@@ -58,8 +60,7 @@ public class ScriptFase1 extends ScriptDeFase {
             fase.adicionarElementoCenario(new FundoInfinito("fundo_principal", this.imagemFundo, 1.0, Modelo.Cenario.DrawLayer.BACKGROUND, 1.0f));
 
         } catch (Exception e) {
-            System.err.println("Erro ao carregar recursos da Fase 1: " + e.getMessage());
-            e.printStackTrace();
+            Logger.getLogger(ScriptFase1.class.getName()).log(Level.SEVERE, "Erro ao carregar recursos da Fase 1", e);
         }
     }
 
@@ -163,7 +164,6 @@ public class ScriptFase1 extends ScriptDeFase {
         ondas.add(new OndaDeEspera(fase, 100));
         ondas.add(new Onda1(fase));
         ondas.add(new OndaDeEspera(fase, 100));
-        ondaAtualIndex = 0;
         return ondas;
     }
     

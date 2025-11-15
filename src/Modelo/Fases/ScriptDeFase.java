@@ -25,11 +25,13 @@ public abstract class ScriptDeFase implements Serializable {
     // Onda
     protected ArrayList<Onda> ondas;
     protected int ondaAtualIndex;
+    private boolean faseIniciada = false;
+    private boolean faseFinalizada = false;
 
     public ScriptDeFase(Engine engine) {
         this.engine = engine;
         this.ondas = new ArrayList<>();
-        this.ondaAtualIndex = -1;
+        this.ondaAtualIndex = 0;
     }
 
     /**
@@ -74,20 +76,31 @@ public abstract class ScriptDeFase implements Serializable {
      * @brief Chama as ondas da fase definidas em inicializarOndas.
      * @param fase A instância da fase que este script está controlando.
      */
-    public void atualizarInimigos(Fase fase){
-        if(ondaAtualIndex == -1) {
-            ondas = inicializarOndas(fase);
+    public void atualizarInimigos(Fase fase) {
+        if (faseFinalizada) {
+            return;
         }
 
-        if(ondaAtualIndex < ondas.size()){
+        if (!faseIniciada) {
+            ondas = inicializarOndas(fase);
+            faseIniciada = true;
+            if (ondas.isEmpty()) {
+                faseFinalizada = true;
+                engine.carregarProximaFase();
+                return;
+            }
+        }
+
+        if (ondaAtualIndex < ondas.size()) {
             Onda ondaAtual = ondas.get(ondaAtualIndex);
             ondaAtual.incrementarTempo(1, fase);
-            if (!ondaAtual.getFinalizado()) return;
-        }
-        else{
+            if (ondaAtual.getFinalizado()) {
+                ondaAtualIndex++;
+            }
+        } else {
+            faseFinalizada = true;
             engine.carregarProximaFase();
         }
-        ondaAtualIndex++;
     }
 
     /**

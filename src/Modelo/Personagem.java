@@ -23,9 +23,9 @@ public abstract class Personagem implements Serializable {
 
     protected transient ImageIcon iImage;
     private String nomeSprite;
-    public double x, y;
+    protected double x, y;
     protected boolean isActive = true;
-    public double hitboxRaio;
+    protected double hitboxRaio;
     protected double vida = 1;
 
     protected int largura;
@@ -131,10 +131,27 @@ public abstract class Personagem implements Serializable {
         carregarImagem();
     }
 
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public void setPosition(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public double getHitboxRaio() {
+        return hitboxRaio;
+    }
+
     /**
      * @brief Verifica se o personagem pode ser atravessado por outros.
      */
-    public boolean isbTransponivel() {
+    public boolean isTransponivel() {
         return bTransponivel;
     }
 
@@ -148,7 +165,7 @@ public abstract class Personagem implements Serializable {
     /**
      * @brief Verifica se o personagem pode causar dano ou ser destruído.
      */
-    public boolean isbMortal() {
+    public boolean isMortal() {
         return bMortal;
     }
 
@@ -176,7 +193,7 @@ public abstract class Personagem implements Serializable {
     /**
      * @brief Define a animação de morte do personagem.
      */
-    public void animaçãoMorte() {
+    public void animacaoMorte() {
     }
 
     /**

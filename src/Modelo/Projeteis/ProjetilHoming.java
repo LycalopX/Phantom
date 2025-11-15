@@ -88,7 +88,7 @@ public class ProjetilHoming extends Projetil {
      *        ao alvo.
      */
     private void ajustarAnguloParaOAlvo() {
-        double anguloParaOAlvo = Math.atan2(alvo.y - this.y, alvo.x - this.x);
+        double anguloParaOAlvo = Math.atan2(alvo.getY() - this.y, alvo.getX() - this.x);
         double diferencaAngulo = anguloParaOAlvo - this.anguloRad;
 
         while (diferencaAngulo > Math.PI)
@@ -112,7 +112,7 @@ public class ProjetilHoming extends Projetil {
 
         for (Personagem p : personagens) {
             if (p instanceof Inimigo) {
-                double distancia = Math.sqrt(Math.pow(p.x - this.x, 2) + Math.pow(p.y - this.y, 2));
+                double distancia = Math.sqrt(Math.pow(p.getX() - this.x, 2) + Math.pow(p.getY() - this.y, 2));
                 if (distancia < menorDistancia) {
                     menorDistancia = distancia;
                     inimigoMaisProximo = (Inimigo) p;

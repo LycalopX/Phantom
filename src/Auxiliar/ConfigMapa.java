@@ -83,4 +83,8 @@ public final class ConfigMapa {
 
     // Proporção de escala baseada na altura da tela
     public static final double FATOR_ESCALA_ALTURA = (double) ALTURA_TELA / 680.0;
+
+    // --- Constantes de Posição ---
+    public static final int HERO_RESPAWN_X = (LARGURA_TELA / CELL_SIDE) / 2;
+    public static final int HERO_RESPAWN_Y = (int) ((ALTURA_TELA / CELL_SIDE) * 0.9);
 }

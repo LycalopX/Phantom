@@ -68,13 +68,13 @@ public class ControladorDoHeroi {
             dy /= Math.sqrt(2);
         }
 
-        double proximoX = heroi.x + dx;
-        double proximoY = heroi.y + dy;
+        double proximoX = heroi.getX() + dx;
+        double proximoY = heroi.getY() + dy;
 
-        double limiteEsquerda = heroi.hitboxRaio;
-        double limiteDireita = ((double) ConfigMapa.LARGURA_TELA / ConfigMapa.CELL_SIDE) - heroi.hitboxRaio;
-        double limiteTopo = heroi.hitboxRaio;
-        double limiteBaixo = ((double) ConfigMapa.ALTURA_TELA / ConfigMapa.CELL_SIDE) - heroi.hitboxRaio;
+        double limiteEsquerda = heroi.getHitboxRaio();
+        double limiteDireita = ((double) ConfigMapa.LARGURA_TELA / ConfigMapa.CELL_SIDE) - heroi.getHitboxRaio();
+        double limiteTopo = heroi.getHitboxRaio();
+        double limiteBaixo = ((double) ConfigMapa.ALTURA_TELA / ConfigMapa.CELL_SIDE) - heroi.getHitboxRaio();
 
         if (proximoX < limiteEsquerda)
             proximoX = limiteEsquerda;
@@ -85,11 +85,11 @@ public class ControladorDoHeroi {
         if (proximoY > limiteBaixo)
             proximoY = limiteBaixo;
 
-        double xFinal = heroi.x, yFinal = heroi.y;
-        if (cj.ehPosicaoValida(fase.getPersonagens(), heroi, proximoX, heroi.y)) {
+        double xFinal = heroi.getX(), yFinal = heroi.getY();
+        if (cj.ehPosicaoValida(fase.getPersonagens(), heroi, proximoX, heroi.getY())) {
             xFinal = proximoX;
         }
-        if (cj.ehPosicaoValida(fase.getPersonagens(), heroi, heroi.x, proximoY)) {
+        if (cj.ehPosicaoValida(fase.getPersonagens(), heroi, heroi.getX(), proximoY)) {
             yFinal = proximoY;
         }
         heroi.mover(xFinal, yFinal);
@@ -100,7 +100,7 @@ public class ControladorDoHeroi {
 
         if (teclas.contains(ConfigTeclado.KEY_SHOOT)) {
             GerenciadorDeArmasHeroi armas = heroi.getSistemaDeArmas();
-            armas.disparar(heroi.x, heroi.y, heroi.getPower(), fase);
+            armas.disparar(heroi.getX(), heroi.getY(), heroi.getPower(), fase);
         }
 
         if (teclas.contains(ConfigTeclado.KEY_BOMB) && heroi.getBombas() > 0 && !heroi.isInvencivel()) {

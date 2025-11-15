@@ -25,7 +25,7 @@ public class Reisen extends Boss {
 
         // 41x82
         this.animador = new GerenciadorDeAnimacaoInimigo(
-                "imgs/inimigos/boss1_spreadsheet.png",
+                "imgs/inimigos/boss5_spreadsheet.png",
                 41, 82, 13, 4, 4,
                 true, // resize = true
                 scaledWidth,

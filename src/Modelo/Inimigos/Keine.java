@@ -25,7 +25,7 @@ public class Keine extends Boss {
 
         // 46x76
         this.animador = new GerenciadorDeAnimacaoInimigo(
-                "imgs/inimigos/boss1_spreadsheet.png",
+                "imgs/inimigos/boss3_spreadsheet.png",
                 46, 76, 13, 4, 4,
                 true, // resize = true
                 scaledWidth,

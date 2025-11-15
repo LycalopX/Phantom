@@ -4,6 +4,7 @@ import javax.swing.ImageIcon;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.awt.Graphics;
+import java.io.IOException;
 import Modelo.Personagem;
 
 /**
@@ -107,7 +108,6 @@ public class GerenciadorDeAnimacaoInimigo {
         try {
             java.net.URL imgURL = getClass().getClassLoader().getResource(nomeArquivo);
             if (imgURL == null) {
-                System.err.println("Spritesheet não encontrado: " + nomeArquivo);
                 return null;
             }
             BufferedImage spriteSheet = ImageIO.read(imgURL);
@@ -133,5 +133,6 @@ public class GerenciadorDeAnimacaoInimigo {
             System.out.println("Erro ao carregar/recortar spritesheet: " + nomeArquivo + " -> " + ex.getMessage());
             return null;
         }
+         
     }
 }

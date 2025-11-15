@@ -1,0 +1,112 @@
+@startuml
+!theme materia
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam crossingCharacter '( )'
+skinparam classSeparatorColor DarkRed
+skinparam classSeparatorThickness 2
+
+title Diagrama Detalhado - Pacote 'Modelo.Hero'
+
+package "Modelo.Hero" {
+    class Hero extends Personagem {
+        {static} + HITBOX_RAIO: double
+        {static} + HERO_VELOCITY: double
+        {static} + DANO_BALA: int
+        - HP, bombas, power, score: int
+        - invencibilidadeTimer, efeitoBombaTimer: int
+        - grabHitboxRaio: double
+        - isFocoAtivo: boolean
+        - animador: GerenciadorDeAnimacaoHeroi
+        - sistemaDeArmas: GerenciadorDeArmasHeroi
+        - estado: HeroState
+        --
+        + Hero(sNomeImagePNG: String, x: double, y: double)
+        + atualizar(): void
+        + atualizarAnimacao(isMovingLeft: boolean, isMovingRight: boolean): void
+        + getSistemaDeArmas(): GerenciadorDeArmasHeroi
+        + mover(novoX: double, novoY: double): void
+        + autoDesenho(g: Graphics): void
+        + respawn(): void
+        + usarBomba(fase: Fase): BombaProjetil
+        + takeDamage(): boolean
+        + processarMorte(): void
+        + isInvencivel(): boolean
+        + getBombas(): int
+        + getHP(): int
+        + getPower(): int
+        + addPower(q: int): void
+        ...
+    }
+
+    enum HeroState {
+        IDLE
+        STRAFING_LEFT
+        STRAFING_RIGHT
+        DE_STRAFING_LEFT
+        DE_STRAFING_RIGHT
+    }
+
+    class GerenciadorDeAnimacaoHeroi {
+        - iImagesStrafingEsquerda: ImageIcon[]
+        - iImagesIdle: ImageIcon[]
+        - iImagesStrafingMax: ImageIcon[]
+        - imagemHitboxFoco: ImageIcon
+        - anguloRotacaoHitbox: double
+        - frameCounter: int
+        - hitboxFadeState: FadeState
+        - hitboxAlpha: float
+        - frameAtualStrafing, delayFrameStrafing: int
+        - frameAtualStrafingMax, delayFrameStrafingMax: int
+        - frameAtualIdle, delayFrameIdle: int
+        --
+        + GerenciadorDeAnimacaoHeroi(largura: int, altura: int)
+        + atualizar(estado: HeroState): boolean
+        + getImagemAtual(estado: HeroState): ImageIcon
+        - resetarAnimacaoStrafing(): void
+        - resetarAnimacaoIdle(): void
+        + iniciarDeStrafing(): void
+        + iniciarFadeInHitbox(): void
+        + iniciarFadeOutHitbox(): void
+        ...
+    }
+
+    class GerenciadorDeArmasHeroi {
+        - tempoDeRecarga: double
+        - cooldownTiroPrincipal: int
+        - cooldownMisseis: int
+        --
+        + atualizarTimers(): void
+        + disparar(x: double, y: double, power: int, fase: Fase): void
+        - adicionarMisseisTeleguiados(x: double, y: double, nivel: int, fase: Fase): void
+        + getNivelTiro(power: int): int
+    }
+}
+
+package "Dependências Externas" {
+    class Personagem
+    class Fase
+    class BombaProjetil
+    class ProjetilPool
+    class Graphics
+    class ImageIcon
+}
+
+' --- Relacionamentos de Herança ---
+Hero --|> Personagem
+
+' --- Relacionamentos de Composição e Agregação ---
+Hero *-- "1" GerenciadorDeAnimacaoHeroi
+Hero *-- "1" GerenciadorDeArmasHeroi
+
+' --- Dependências ---
+Hero ..> HeroState
+Hero ..> Fase
+Hero ..> BombaProjetil
+GerenciadorDeArmasHeroi ..> Fase
+GerenciadorDeArmasHeroi ..> ProjetilPool
+GerenciadorDeAnimacaoHeroi ..> HeroState
+GerenciadorDeAnimacaoHeroi ..> ImageIcon
+GerenciadorDeAnimacaoHeroi ..> Graphics
+
+@enduml

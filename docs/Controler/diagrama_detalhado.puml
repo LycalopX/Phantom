@@ -1,0 +1,154 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam crossingCharacter '( )'
+skinparam classSeparatorColor DarkRed
+skinparam classSeparatorThickness 2
+
+title Diagrama Detalhado - Pacote 'Controler'
+
+package "Pacote Controler" {
+    class Engine implements Runnable {
+        - tela: Tela
+        - cenario: Cenario
+        - gameThread: Thread
+        - slowMotionCounter: int
+        - faseAtual: Fase
+        - hero: Hero
+        - controleDeJogo: ControleDeJogo
+        - controladorHeroi: ControladorDoHeroi
+        - gerenciadorDeFases: GerenciadorDeFases
+        - estadoAtual: GameState
+        - respawnTimer: int
+        - teclasPressionadas: Set<Integer>
+        - velocidadeScroll: double
+        - deathbombTimer: int
+        - removeProjectiles: boolean
+        --
+        + Engine()
+        + run(): void
+        - atualizar(): void
+        - dropItensAoMorrer(powerAtual: int): void
+        - carregarJogo(): void
+        + startGameThread(): void
+        - reiniciarJogo(): void
+        - configurarTeclado(): void
+        - salvarJogo(): void
+        - salvarInimigosParaTeste(): void
+        - salvarPersonagemParaTeste(p: Personagem, nomeArquivo: String): void
+        + carregarProximaFase(): void
+        + getEstadoAtual(): GameState
+    }
+
+    class ControleDeJogo {
+        - quadtree: Quadtree
+        - itemPool: ItemPool
+        - projeteisInimigosEspeciais: ArrayList<Projetil>
+        - novosObjetos: ArrayList<Personagem>
+        - alvosProximos: ArrayList<Personagem>
+        - vizinhosPotenciais: ArrayList<Personagem>
+        --
+        + ControleDeJogo(itemPool: ItemPool)
+        + desenhaTudo(e: List<Personagem>, g: Graphics): void
+        + processaTudo(personagens: List<Personagem>, removeProjectiles: boolean): boolean
+        + ehPosicaoValida(umaFase: List<Personagem>, personagem: Personagem, proximoX: double, proximoY: double): boolean
+        - aplicarEfeitoDoItem(heroi: Hero, item: Item): void
+        - checarColisaoRetangular(hero: Hero, projeteisRetangulares: ArrayList<Projetil>): boolean
+        - handleCollision(p1: Personagem, p2: Personagem, hero: Hero): boolean
+        - colisaoHeroiInimigo(h: Hero, i: Inimigo): boolean
+        - colisaoHeroiProjetilInimigo(h: Hero, p: Projetil): boolean
+        - colisaoProjetilHeroiInimigo(p: Projetil, i: Inimigo, hero: Hero): void
+    }
+
+    class ControladorDoHeroi {
+        - engine: Engine
+        - f2Pressionado: boolean
+        --
+        + ControladorDoHeroi(engine: Engine)
+        + processarInput(teclas: Set<Integer>, heroi: Hero, fase: Fase, cj: ControleDeJogo): void
+    }
+
+    class GerenciadorDeFases {
+        - nivelAtual: int
+        - TOTAL_DE_FASES: int
+        --
+        + carregarFase(engine: Engine): Fase
+        + proximaFase(engine: Engine): Fase
+        + irParaFase(numeroDaFase: int, engine: Engine): Fase
+        + resetar(): void
+    }
+
+    class Cenario extends JPanel {
+        - faseAtual: Fase
+        - contadorFPS: ContadorFPS
+        - estadoDoJogo: GameState
+        - imagemGameOver: BufferedImage
+        - corFundoOverlay: Color
+        - corDeathbombOverlay: Color
+        - fonteHUD: Font
+        - gradienteFundo: LinearGradientPaint
+        --
+        + Cenario()
+        - setupDropTarget(): void
+        - processarArquivoSolto(file: File, dropPoint: Point): void
+        + setFase(fase: Fase): void
+        + paintComponent(g: Graphics): void
+        - desenharHUD(g2d: Graphics2D): void
+        + setEstadoDoJogo(estado: GameState): void
+        - desenharTelaGameOver(g: Graphics): void
+        - carregarImagensGameOver(): void
+        + atualizarContadorFPS(): void
+    }
+
+    class Tela extends JFrame {
+        + Tela()
+    }
+}
+
+package "Dependências Externas" {
+    class Fase
+    class Hero
+    class Personagem
+    class Item
+    class Inimigo
+    class Projetil
+    class Quadtree
+    class ItemPool
+    class ContadorFPS
+    class JFrame
+    class JPanel
+    enum GameState
+}
+
+' --- Relacionamentos ---
+Engine *-- "1" Tela
+Engine *-- "1" Cenario
+Engine *-- "1" ControleDeJogo
+Engine *-- "1" ControladorDoHeroi
+Engine *-- "1" GerenciadorDeFases
+Engine o-- "1" Fase
+Engine o-- "1" Hero
+
+Tela *-- "1" Cenario
+
+ControladorDoHeroi ..> Engine
+ControladorDoHeroi ..> Hero
+ControladorDoHeroi ..> Fase
+ControladorDoHeroi ..> ControleDeJogo
+
+ControleDeJogo ..> Quadtree
+ControleDeJogo ..> ItemPool
+ControleDeJogo ..> Personagem
+ControleDeJogo ..> Hero
+ControleDeJogo ..> Inimigo
+ControleDeJogo ..> Item
+ControleDeJogo ..> Projetil
+
+Cenario ..> Fase
+Cenario ..> ContadorFPS
+Cenario ..> GameState
+
+GerenciadorDeFases ..> Fase
+GerenciadorDeFases ..> Engine
+
+@enduml

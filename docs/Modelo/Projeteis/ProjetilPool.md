@@ -1,25 +1,27 @@
-# Classe `ProjetilPool`
+# ProjetilPool
 
-**Pacote:** `Modelo.Projeteis`
-
-## Descrição
-
-Implementa o padrão de projeto **Object Pool** para gerenciar projéteis de forma eficiente. Em vez de criar e destruir objetos de projéteis constantemente (o que é custoso e pode causar pausas do Garbage Collector), esta classe pré-instancia um grande número de projéteis no início do jogo e os reutiliza.
+A classe `ProjetilPool` é um exemplo do padrão de projeto "Object Pool". Sua função é gerenciar coleções de objetos `Projetil` para evitar a sobrecarga de criar (`new`) e destruir (coletor de lixo) objetos em alta frequência, o que é comum em jogos com muitos tiros.
 
 ## Funcionamento
 
-1.  **Inicialização**: No construtor, a classe cria várias listas (`ArrayList`) e as preenche com instâncias inativas de cada tipo de projétil (`Projetil`, `ProjetilHoming`, etc.).
-2.  **Requisição**: Quando o jogo precisa de um projétil, ele chama um dos métodos `get...()` (e.g., `getProjetilNormal()`).
-3.  **Reutilização**: O método percorre a lista correspondente e retorna o primeiro projétil que encontrar com o estado `isActive = false`.
-4.  **Reset**: O projétil retornado tem seu estado reiniciado pelo método `reset()` com novas coordenadas, velocidade e ângulo, e é então ativado.
+- **Inicialização**: No construtor, a `ProjetilPool` pré-aloca e cria um número fixo de instâncias para cada tipo de projétil (`Projetil`, `ProjetilHoming`, etc.) e as armazena em `ArrayList`s. Todos os projéteis começam como "inativos".
+- **Requisição**: Quando uma arma precisa disparar, em vez de criar um novo projétil, ela chama um método como `getProjetilNormal()`. Este método varre a lista correspondente e retorna o primeiro projétil que encontrar com o estado `isActive() == false`.
+- **Reciclagem**: O projétil retornado é então reconfigurado com uma nova posição, velocidade e ângulo usando seu método `reset()`. Quando o projétil sai da tela ou atinge um alvo, ele não é destruído; seu método `deactivate()` é chamado, o que simplesmente o marca como inativo, pronto para ser requisitado e reutilizado novamente.
+
+## Piscinas Internas
+
+A `ProjetilPool` mantém piscinas separadas para diferentes categorias de projéteis para facilitar o gerenciamento:
+- `poolNormais` (tiro principal do herói)
+- `poolHoming` (mísseis teleguiados do herói)
+- `poolBombaHoming` (mísseis da bomba)
+- `poolInimigos` (todos os projéteis de inimigos)
 
 ## Métodos Principais
 
-### `ProjetilPool(...)`
-*   **@brief** Construtor que inicializa e pré-aloca as piscinas de objetos para cada tipo de projétil.
-
-### `getTodosOsProjeteis()`
-*   **@brief** Retorna uma única lista contendo todos os projéteis de todas as piscinas, para que possam ser adicionados à lista principal de renderização e processamento da fase.
-
-### `getProjetilNormal()` / `getProjetilHoming()` / etc.
-*   **@brief** Métodos para requisitar um projétil inativo de uma piscina específica.
+| Método | Retorno | Descrição |
+|---|---|---|
+| `getProjetilNormal()` | `Projetil` | Retorna um projétil normal inativo da piscina. |
+| `getProjetilHoming()` | `ProjetilHoming` | Retorna um projétil teleguiado inativo da piscina. |
+| `getProjetilBombaHoming()` | `ProjetilBombaHoming` | Retorna um projétil de bomba inativo da piscina. |
+| `getProjetilInimigo()` | `Projetil` | Retorna um projétil de inimigo inativo da piscina. |
+| `getTodosOsProjeteis()` | `ArrayList<Projetil>` | Retorna uma lista única contendo todos os projéteis de todas as piscinas, usada para adicioná-los à lista principal de personagens da fase. |

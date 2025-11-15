@@ -1,0 +1,84 @@
+@startuml
+!theme materia
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam crossingCharacter '( )'
+skinparam classSeparatorColor DarkRed
+skinparam classSeparatorThickness 2
+
+title Diagrama Detalhado - Pacote 'Modelo.Items'
+
+package "Modelo.Items" {
+    class Item extends Personagem {
+        - tipo: ItemType
+        - spriteRecortado: ImageIcon
+        - hero: Hero
+        - velX, velY: double
+        - launchTimer: int
+        --
+        + Item(tipo: ItemType)
+        + init(x: double, y: double): void
+        + setHero(hero: Hero): void
+        + lancarItem(anguloEmGraus: double, forca: double): void
+        + atualizar(): void
+        - recortarSprite(): void
+        + autoDesenho(g: Graphics): void
+        + getTipo(): ItemType
+    }
+
+    class ItemPool {
+        - pool: EnumMap<ItemType, ArrayList<Item>>
+        - maxActiveItems: int
+        --
+        + ItemPool()
+        + getItem(type: ItemType): Item
+        + getTodosOsItens(): ArrayList<Item>
+        + updateHighWatermark(): void
+        + getMaxActiveItems(): int
+    }
+
+    enum ItemType {
+        MINI_POWER_UP
+        SCORE_POINT
+        POWER_UP
+        BOMB
+        FULL_POWER
+        ONE_UP
+        BOMB_SCORE
+        --
+        - spriteX, spriteY: int
+        - scoreValue, powerValue, bombValue: int
+        - poolSize: int
+        {static} - LARGURA, ALTURA: int
+        --
+        + getSpriteX(): int
+        + getScoreValue(): int
+        ...
+    }
+}
+
+package "Dependências Externas" {
+    class Personagem
+    class Hero
+    class ImageIcon
+    class Graphics
+    class EnumMap
+    class ArrayList
+}
+
+' --- Relacionamentos de Herança ---
+Item --|> Personagem
+
+' --- Relacionamentos de Composição e Agregação ---
+ItemPool o-- "many" Item
+
+' --- Dependências ---
+Item ..> ItemType
+Item ..> Hero
+Item ..> ImageIcon
+Item ..> Graphics
+ItemPool ..> ItemType
+ItemPool ..> EnumMap
+ItemPool ..> ArrayList
+
+@enduml

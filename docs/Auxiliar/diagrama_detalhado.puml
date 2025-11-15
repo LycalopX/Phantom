@@ -1,0 +1,257 @@
+@startuml
+!theme materia
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam crossingCharacter '( )'
+skinparam classSeparatorColor DarkRed
+skinparam classSeparatorThickness 2
+
+title Diagrama Detalhado - Pacote 'Auxiliar'
+
+package "Auxiliar" {
+    class ConfigJogo <<Utility>> {
+        {static} + GAME_FPS: int
+        {static} + RESPAWN_TIME_FRAMES: int
+        {static} + DEATHBOMB_WINDOW_FRAMES: int
+        {static} + SAVE_FILE_NAME: String
+    }
+
+    class ConfigMapa <<Utility>> {
+        {static} + MUNDO_LARGURA: int
+        {static} + MUNDO_ALTURA: int
+        {static} + LARGURA_TELA: int
+        {static} + ALTURA_TELA: int
+        {static} + CELL_SIDE: int
+        {static} + FATOR_ESCALA_ALTURA: double
+        {static} + HERO_RESPAWN_X: int
+        {static} + HERO_RESPAWN_Y: int
+    }
+
+    class ConfigTeclado <<Utility>> {
+        {static} + KEY_UP: int
+        {static} + KEY_DOWN: int
+        {static} + KEY_LEFT: int
+        {static} + KEY_RIGHT: int
+        {static} + KEY_SHOOT: int
+        {static} + KEY_BOMB: int
+        {static} + KEY_SAVE: int
+        {static} + KEY_LOAD: int
+        {static} + KEY_RESTART: int
+    }
+
+    class LootTable {
+        - itens: ArrayList<LootItem>
+        {static} - random: Random
+        --
+        + LootTable()
+        + addItem(item: LootItem): void
+        + gerarDrops(): ArrayList<LootItem>
+    }
+
+    class SoundManager <<Singleton>> {
+        {static} - instance: SoundManager
+        - sfxMap: Map<String, Sound>
+        - musicMap: Map<String, Music>
+        - GLOBAL_VOLUME: float
+        - globalSfxVolume: float
+        - globalMusicVolume: float
+        {static} - SFX_FILES: String[]
+        {static} - MUSIC_FILES: String[]
+        --
+        - SoundManager()
+        {static} + init(): void
+        {static} + shutdown(): void
+        {static} + getInstance(): SoundManager
+        - loadSounds(): void
+        + playSfx(name: String, volume: double): void
+        + playMusic(name: String, loop: boolean): void
+        + stopAllMusic(): void
+        + setSfxVolume(volume: float): void
+        + setMusicVolume(volume: float): void
+    }
+}
+
+package "Auxiliar.Debug" {
+    class ContadorFPS {
+        - ultimoTempo: long
+        - frames: int
+        - fpsExibido: int
+        --
+        + ContadorFPS()
+        + atualizar(): void
+        + getFPSString(): String
+    }
+
+    class DebugManager <<Utility>> {
+        {static} - active: boolean
+        --
+        {static} + toggle(): void
+        {static} + isActive(): boolean
+    }
+}
+
+package "Auxiliar.Personagem" {
+    class LootItem {
+        + item: ItemType
+        - probabilidade: double
+        - quantidadeMin: int
+        - quantidadeMax: int
+        - attractToHero: boolean
+        --
+        + LootItem(item: ItemType, min: int, max: int, prob: double, thrown: boolean, attract: boolean)
+        + getProbabilidade(): double
+        + getQuantidadeMin(): int
+        + getQuantidadeMax(): int
+        + isAttractToHero(): boolean
+        + getTipo(): ItemType
+    }
+
+    class Quadtree {
+        - MAX_OBJECTS: int
+        - MAX_LEVELS: int
+        - level: int
+        - objects: ArrayList<Personagem>
+        - bounds: Rectangle
+        - nodes: Quadtree[]
+        --
+        + Quadtree(pLevel: int, pBounds: Rectangle)
+        + clear(): void
+        - split(): void
+        - getIndex(p: Personagem): int
+        + insert(p: Personagem): void
+        + retrieve(returnObjects: ArrayList<Personagem>, p: Personagem): ArrayList<Personagem>
+        + retrieve(returnObjects: ArrayList<Personagem>, pBounds: Rectangle): ArrayList<Personagem>
+    }
+}
+
+package "Auxiliar.Projeteis" {
+    enum HitboxType {
+        CIRCULAR
+        RECTANGULAR
+    }
+    enum TipoProjetil {
+        JOGADOR
+        INIMIGO
+    }
+    enum TipoProjetilInimigo {
+        ESFERA_PRETA
+        ESFERA_VERMELHA
+        ESFERA_GRANDE_AMARELA
+        ...
+    }
+    interface ProjetilTipo {
+        {abstract} + getImagem(): ImageIcon
+        {abstract} + getSpriteWidth(): int
+        {abstract} + getSpriteHeight(): int
+        {abstract} + getHitboxType(): HitboxType
+        {abstract} + getHitboxWidth(): int
+        {abstract} + getHitboxHeight(): int
+    }
+
+    package "Definicoes" {
+        class CarregadorDeDefinicoes <<Singleton>> {
+            {static} - instance: CarregadorDeDefinicoes
+            - spritesheets: Map<String, String>
+            - projeteis: Map<String, DefinicaoProjetil>
+            --
+            - CarregadorDeDefinicoes()
+            {static} + getInstance(): CarregadorDeDefinicoes
+            - carregar(): void
+            + getDefinicaoProjetil(id: String): DefinicaoProjetil
+            + getSpritesheetPath(id: String): String
+        }
+
+        class DefinicaoProjetil {
+            - id: String
+            - spritesheet: String
+            - x, y, w, h: int
+            - hitbox: HitboxDef
+            --
+            + DefinicaoProjetil(id: String, spritesheet: String, x: int, y: int, w: int, h: int, hitbox: HitboxDef)
+            + getId(): String
+            + getSpritesheet(): String
+            ...
+        }
+        class "DefinicaoProjetil.HitboxDef" as HitboxDef {
+            - type: HitboxType
+            - w, h: int
+            --
+            + HitboxDef(type: HitboxType, w: int, h: int)
+            + getType(): HitboxType
+            ...
+        }
+    }
+}
+
+package "Auxiliar.Cenario" {
+    class ArvoreParallax implements ElementoCenario {
+        - blocos: List<BlocoDeFolha>
+        - blocoTopo: BlocoDeFolha
+        - velocidadeBaseOriginal: double
+        - currentSpeedMultiplier: double
+        --
+        + ArvoreParallax(x: int, y: int, tamanho: int, vel: double, img: BufferedImage)
+        + setSpeedMultiplier(multiplier: double): void
+        + setImagem(imagem: BufferedImage): void
+        + getDrawLayer(): DrawLayer
+        + mover(velocidade: double): void
+        + desenhar(g2d: Graphics2D, w: int, h: int): void
+        + estaForaDaTela(h: int): boolean
+    }
+
+    class BlocoDeFolha {
+        - x, y: double
+        - largura, altura: int
+        - velocidadeOriginal: double
+        - rotationAngle: double
+        - imagem: BufferedImage
+        - opacidadeMaxima, opacidadeMinima: float
+        --
+        + BlocoDeFolha(x: double, y: double, w: int, h: int, vel: double, img: BufferedImage, opMax: float, opMin: float)
+        + moverComAjuste(fator: double): void
+        + desenhar(g2d: Graphics2D, w: int, h: int): void
+        + setImagem(imagem: BufferedImage): void
+        + getY(): double
+    }
+
+    class BambuParallax implements ElementoCenario {
+        - blocos: List<BlocoDeFolha>
+        - blocoTopo: BlocoDeFolha
+        - isFlipped: boolean
+        --
+        + BambuParallax(x: int, y: int, w: int, vel: double, stalk: BufferedImage, l1: BufferedImage, l2: BufferedImage, angle: double, flipped: boolean)
+        + isFlipped(): boolean
+        + relinkImages(stalk: BufferedImage, l1: BufferedImage, l2: BufferedImage): void
+        ...
+    }
+}
+
+package "Dependências Externas" {
+    interface ElementoCenario
+    class Personagem
+    enum ItemType
+}
+
+' --- Controle de Layout ---
+"Auxiliar" -[hidden]down-> "Auxiliar.Debug"
+"Auxiliar.Debug" -[hidden]down-> "Auxiliar.Personagem"
+"Auxiliar.Personagem" -[hidden]down-> "Auxiliar.Projeteis"
+"Auxiliar.Projeteis" -[hidden]down-> "Auxiliar.Cenario"
+"Auxiliar.Cenario" -[hidden]down-> "Dependências Externas"
+
+' --- Relacionamentos ---
+LootTable o-- "many" LootItem
+Quadtree o-- "many" Personagem
+CarregadorDeDefinicoes *-- "many" DefinicaoProjetil
+DefinicaoProjetil *-- "1" HitboxDef
+ArvoreParallax o-- "many" BlocoDeFolha
+BambuParallax o-- "many" BlocoDeFolha
+
+TipoProjetilInimigo ..|> ProjetilTipo
+ProjetilTipo ..> HitboxType
+LootItem ..> ItemType
+
+ArvoreParallax ..|> ElementoCenario
+BambuParallax ..|> ElementoCenario
+
+@enduml

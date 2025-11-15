@@ -1,0 +1,104 @@
+@startuml
+!theme materia
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam crossingCharacter '( )'
+skinparam classSeparatorColor DarkRed
+skinparam classSeparatorThickness 2
+
+title Diagrama Detalhado - Pacote 'Modelo.Cenario'
+
+package "Modelo.Cenario" {
+    interface ElementoCenario {
+        {abstract} + desenhar(g2d: Graphics2D, larguraTela: int, alturaTela: int): void
+        {abstract} + mover(velocidadeAtualDoFundo: double): void
+        {abstract} + setSpeedMultiplier(multiplier: double): void
+        {abstract} + estaForaDaTela(alturaTela: int): boolean
+        {abstract} + getDrawLayer(): DrawLayer
+    }
+
+    enum DrawLayer {
+        BACKGROUND
+        FOREGROUND
+    }
+
+    class FundoInfinito implements ElementoCenario {
+        # imagem: BufferedImage
+        # y: double
+        - velocidadeRelativa: double
+        - camada: DrawLayer
+        - id: String
+        # opacidade: float
+        - speedMultiplier: double
+        --
+        + FundoInfinito(id: String, imagem: BufferedImage, velocidadeRelativa: double, camada: DrawLayer, opacidade: float)
+        + setSpeedMultiplier(multiplier: double): void
+        + setImagem(imagem: BufferedImage): void
+        + getId(): String
+        + getVelocidadeRelativa(): double
+        + getDrawLayer(): DrawLayer
+        + mover(velocidadeBase: double): void
+        + desenhar(g2d: Graphics2D, larguraTela: int, alturaTela: int): void
+        + estaForaDaTela(alturaTela: int): boolean
+    }
+
+    class FundoOscilante extends FundoInfinito {
+        - minOpacity: float
+        - maxOpacity: float
+        - oscillationSpeed: float
+        - time: int
+        --
+        + FundoOscilante(id: String, imagem: BufferedImage, vel: double, camada: DrawLayer, initialOp: float, minOp: float, maxOp: float, oscSpeed: float)
+        + mover(velocidadeBase: double): void
+        + desenhar(g2d: Graphics2D, larguraTela: int, alturaTela: int): void
+    }
+
+    class ChaoPerspectiva implements ElementoCenario {
+        - textura: BufferedImage
+        - scrollY: double
+        - speedMultiplier: double
+        - velocidadeRelativa: double
+        - larguraNoHorizonte: float
+        - fatorLarguraNaBase: float
+        --
+        + ChaoPerspectiva(textura: BufferedImage, vel: double, larguraHorizonte: float, fatorLarguraBase: float)
+        + relinkImage(textura: BufferedImage): void
+        ...
+    }
+
+    class ParedeVertical implements ElementoCenario {
+        - textura: BufferedImage
+        - scrollX: double
+        - speedMultiplier: double
+        - velocidadeRelativa: double
+        - isParedeEsquerda: boolean
+        - alturaNoPontoDeFuga: float
+        - fatorAlturaNaBorda: float
+        - translacaoX, translacaoY: int
+        --
+        + ParedeVertical(textura: BufferedImage, isEsq: boolean, vel: double, alturaFuga: float, fatorBorda: float, transX: int, transY: int)
+        + relinkImage(textura: BufferedImage): void
+        ...
+    }
+}
+
+package "Dependências Externas" {
+    class Graphics2D
+    class BufferedImage
+}
+
+' --- Relacionamentos de Herança ---
+FundoInfinito ..|> ElementoCenario
+FundoOscilante --|> FundoInfinito
+ChaoPerspectiva ..|> ElementoCenario
+ParedeVertical ..|> ElementoCenario
+
+' --- Dependências ---
+ElementoCenario ..> Graphics2D
+ElementoCenario ..> DrawLayer
+FundoInfinito ..> BufferedImage
+FundoOscilante ..> BufferedImage
+ChaoPerspectiva ..> BufferedImage
+ParedeVertical ..> BufferedImage
+
+@enduml

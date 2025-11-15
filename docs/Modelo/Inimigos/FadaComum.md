@@ -1,26 +1,34 @@
-# Classe `FadaComum`
+# Fada Comum (Padrão de Inimigos)
 
-**Pacote:** `Modelo.Inimigos`
+Não existe uma classe `FadaComum` única. Em vez disso, o projeto usa várias classes (`FadaComum1`, `FadaComum2`, etc.) que herdam diretamente de `Inimigo`. Cada uma implementa um comportamento de IA (movimento e ataque) ligeiramente diferente, mas seguem um padrão geral.
 
-## Descrição
+## FadaComum1
 
-Implementação de um inimigo comum do tipo "fada". Esta classe possui uma máquina de estados interna simples para controlar seu comportamento.
+Esta é a fada mais simples.
 
-## Máquina de Estados
+- **Movimento**: Entra na tela, move-se para uma posição `targetY` enquanto oscila horizontalmente (usando uma função seno), e depois sai da tela.
+- **Ataque**: Enquanto está na posição de alvo, atira um único projétil em direção ao herói em intervalos regulares.
 
-O comportamento da fada é dividido em três estados:
+## FadaComum2
 
-1.  **`ENTERING`**: A fada entra na tela com um movimento senoidal.
-2.  **`SHOOTING`**: A fada para em uma posição e dispara projéteis em direção ao herói por um determinado período.
-3.  **`EXITING`**: Após o período de tiro, a fada se move para fora da tela e é desativada.
+Esta fada usa o sistema de `Estado` da classe `Inimigo` para criar um comportamento mais complexo.
 
-## Métodos Principais
+- **Movimento**: Segue uma sequência de estados `IrPara` para se mover para diferentes pontos da tela.
+- **Ataque**: Utiliza um estado customizado `MovimentoAtirando`, que combina a lógica de `IrPara` com a capacidade de disparar projéteis em um padrão circular em intervalos regulares enquanto se move.
 
-### `FadaComum(...)`
-*   **@brief** Construtor que inicializa a fada, definindo seu estado inicial como `ENTERING`.
+## FadaComum3
 
-### `atualizar()`
-*   **@brief** Implementa a lógica da máquina de estados, atualizando o movimento e o comportamento de tiro da fada com base em seu estado atual.
+Esta fada também usa o sistema de `Estado` para um padrão de ataque chamado "Pressão Dupla".
 
-### `atirar()`
-*   **@brief** Cria e dispara um projétil em direção à posição atual do herói.
+- **Movimento**: Move-se para uma posição e permanece lá.
+- **Ataque**: Executa uma sequência de ataques:
+    1.  `AtaqueEmLequeMirado`: Dispara um leque de projéteis lentos e grandes.
+    2.  `Esperar`: Faz uma pequena pausa.
+    3.  `AtaqueEmLequeMirado`: Dispara um leque de projéteis mais rápidos e numerosos.
+    4.  `Esperar`: Faz uma pausa mais longa antes de sair da tela.
+    
+    Uma característica notável é que o ataque é sempre direcionado para baixo (ângulo de 90 graus), independentemente da posição do herói.
+
+## FadaComum4
+
+Esta classe parece ser um placeholder ou um trabalho em andamento, pois sua lógica de `atualizar()` está praticamente vazia.

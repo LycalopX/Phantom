@@ -1,21 +1,24 @@
-# Classe `Personagem`
+# Personagem
 
-**Pacote:** `Modelo`
+`Personagem` é uma classe abstrata fundamental que serve como base para todas as entidades ativas no jogo, como o herói, inimigos, projéteis e itens.
 
-## Descrição
+## Propriedades Comuns
 
-Classe abstrata que serve como base para todas as entidades do jogo (Herói, Inimigos, Itens, Projéteis). Define propriedades e comportamentos comuns, como posição, imagem, hitbox e estado (ativo/inativo).
+Ela define um conjunto de propriedades e comportamentos que são compartilhados por todos os "personagens" do jogo:
 
-## Métodos Principais
+- **Posição e Tamanho**: Coordenadas `x`, `y` no grid do jogo, e `largura`, `altura` em pixels.
+- **Sprite**: Uma `ImageIcon` para a representação visual. A classe lida com o carregamento do arquivo de imagem.
+- **Hitbox**: Um `hitboxRaio` que define a área de colisão circular padrão.
+- **Estado**: Um booleano `isActive` para controlar se o personagem deve ser processado e desenhado. Isso é crucial para o sistema de "pooling" de objetos.
+- **Atributos de Jogo**: Propriedades como `vida`, `bTransponivel` (se pode ser atravessado) e `bMortal` (se pode ser destruído).
 
-### `Personagem(...)`
-*   **@brief** Construtores que inicializam as propriedades do personagem. A versão automática calcula o tamanho e a hitbox com base nas dimensões da imagem e em uma proporção global.
+## Métodos Abstratos
 
-### `atualizar()`
-*   **@brief** Método abstrato que deve ser implementado por todas as subclasses para definir seu comportamento a cada frame.
+A classe `Personagem` força suas subclasses a implementar dois métodos essenciais:
 
-### `autoDesenho(Graphics g)`
-*   **@brief** Desenha a hitbox de debug do personagem se o modo de debug estiver ativo.
+- **`atualizar()`**: Define a lógica que o personagem executa a cada frame (movimento, ataque, etc.).
+- **`getRenderLayer()`**: Retorna um `RenderLayer`, que é usado para ordenar o desenho dos personagens na tela (Z-ordering), garantindo que o jogador seja desenhado sobre os inimigos, por exemplo.
 
-### `activate()` / `deactivate()`
-*   **@brief** Métodos para ativar ou desativar o personagem, controlando se ele deve ser processado e renderizado no jogo.
+## Serialização
+
+A classe implementa `Serializable`, permitindo que o estado dos personagens (e, por consequência, o estado da fase) seja salvo e carregado. O `readObject` customizado garante que a `ImageIcon` (marcada como `transient`) seja recarregada após a desserialização.

@@ -10,6 +10,19 @@ Navigate through 5 challenging stages, defeating waves of enemies and dodging in
 
 A detailed documentation of the project's architecture, packages, and classes can be found in the [DOCUMENTACAO.md](DOCUMENTACAO.md) file.
 
+### Diagramas UML Detalhados
+
+Para uma compreensão aprofundada da estrutura de cada pacote, os seguintes diagramas UML detalhados foram gerados. Eles incluem classes, atributos, métodos e relacionamentos, e podem ser visualizados copiando o conteúdo do arquivo e colando-o em um [renderizador online do PlantUML](http://www.plantuml.com/plantuml/uml/).
+
+*   [Pacote Controler](docs/Controler/diagrama_detalhado.puml)
+*   [Pacote Auxiliar](docs/Auxiliar/diagrama_detalhado.puml)
+*   [Pacote Modelo.Cenario](docs/Modelo/Cenario/diagrama_detalhado.puml)
+*   [Pacote Modelo.Fases](docs/Modelo/Fases/diagrama_detalhado.puml)
+*   [Pacote Modelo.Hero](docs/Modelo/Hero/diagrama_detalhado.puml)
+*   [Pacote Modelo.Inimigos](docs/Modelo/Inimigos/diagrama_detalhado.puml)
+*   [Pacote Modelo.Items](docs/Modelo/Items/diagrama_detalhado.puml)
+*   [Pacote Modelo.Projeteis](docs/Modelo/Projeteis/diagrama_detalhado.puml)
+
 ## Assets
 
 Here are some examples of the game's assets:

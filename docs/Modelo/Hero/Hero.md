@@ -1,27 +1,32 @@
-# Classe `Hero`
+# Hero
 
-**Pacote:** `Modelo.Hero`
+A classe `Hero` estende `Personagem` e representa o avatar controlado pelo jogador. Ela encapsula todos os atributos e comportamentos específicos do herói.
 
-## Descrição
+## Atributos Principais
 
-Representa o personagem principal do jogo, controlado pelo jogador. Herda da classe `Personagem` e gerencia seus próprios status, como HP, bombas, poder e pontuação.
+- **Recursos**: `HP` (pontos de vida), `bombas`, `power` (poder que melhora as armas) e `score` (pontuação).
+- **Timers**: `invencibilidadeTimer` (para invencibilidade após ser atingido ou usar bomba) e `efeitoBombaTimer`.
+- **Hitboxes**: Além da hitbox de dano padrão, possui uma `grabHitboxRaio` maior para coletar itens.
+- **Modo Foco**: Um booleano `isFocoAtivo` que é ativado ao segurar a tecla Shift, reduzindo a velocidade do herói e exibindo sua hitbox.
 
-## Métodos Principais
+## Componentes Delegados
 
-### `Hero(...)`
-*   **@brief** Construtor que inicializa o herói, definindo sua hitbox, e instanciando seus gerenciadores de animação e armas.
+A lógica do `Hero` é dividida em componentes para melhor organização:
 
-### `atualizar()`
-*   **@brief** Atualiza o estado interno do herói que não depende de input, como os timers de invencibilidade e de efeito da bomba.
+- **`GerenciadorDeAnimacaoHeroi`**: Controla qual sprite do herói é exibido com base em seu estado de movimento (parado, movendo para a esquerda/direita).
+- **`GerenciadorDeArmasHeroi`**: Gerencia a lógica de tiro, incluindo tipo de projétil, cadência e mísseis teleguiados, com base no nível de `power` atual.
 
-### `atualizarAnimacao(...)`
-*   **@brief** Atualiza a máquina de estados da animação do herói com base no input de movimento recebido do `ControladorDoHeroi`.
+## Máquina de Estados de Animação
 
-### `usarBomba(Fase fase)`
-*   **@brief** Utiliza uma bomba (se disponível), criando o `BombaProjetil` e ativando os timers de invencibilidade e efeito da bomba.
+O `Hero` possui uma máquina de estados interna (`HeroState`) para gerenciar as transições de animação de forma suave. Os estados incluem `IDLE`, `STRAFING_LEFT`, `STRAFING_RIGHT`, e os estados de transição `DE_STRAFING_LEFT` e `DE_STRAFING_RIGHT`, que garantem que a animação de "parada" seja executada antes de o herói voltar ao estado `IDLE`.
 
-### `takeDamage()` / `processarMorte()`
-*   **@brief** Gerenciam a lógica de quando o herói recebe dano e quando sua vida chega a zero.
+## Métodos Notáveis
 
-### `respawn()`
-*   **@brief** Reinicia o estado do herói após a morte, restaurando suas bombas, zerando seu poder e concedendo invencibilidade temporária.
+| Método | Retorno | Descrição |
+|---|---|---|
+| `atualizarAnimacao(boolean isMovingLeft, boolean isMovingRight)` | `void` | Atualiza a máquina de estados da animação com base no input de movimento. |
+| `usarBomba(Fase fase)` | `BombaProjetil` | Usa uma bomba (se disponível), gasta o recurso, ativa a invencibilidade e cria o objeto `BombaProjetil`. |
+| `takeDamage()` | `boolean` | Processa o dano recebido. Retorna `true` se o dano foi efetivo (herói não estava invencível). |
+| `processarMorte()` | `void` | Reduz o HP, zera o poder e desativa o herói. |
+| `respawn()` | `void` | Reinicia o estado do herói após a morte, restaurando bombas, zerando poder e ativando a invencibilidade temporária. |
+| `setFocoAtivo(boolean isFocoAtivo)` | `void` | Ativa ou desativa o modo de foco, controlando a animação da hitbox. |

@@ -1,18 +1,16 @@
-# Classe `LootTable`
+# LootTable
 
-**Pacote:** `Auxiliar`
+A classe `LootTable` representa uma tabela de itens que podem ser "dropados" por um inimigo ao ser derrotado. Cada inimigo pode ter sua própria `LootTable`, permitindo uma grande customização de recompensas.
 
-## Descrição
+## Funcionamento
 
-Representa uma tabela de loot que pode ser associada a um inimigo. Ela contém uma lista de possíveis `LootItem` que podem ser "dropados" quando o inimigo é derrotado.
+Uma `LootTable` contém uma lista de objetos `LootItem`. Cada `LootItem` define um tipo de item, a quantidade (mínima e máxima) que pode ser dropada e a probabilidade (de 0.0 a 1.0) de isso acontecer.
 
-## Métodos Principais
+Quando o método `gerarDrops()` é chamado, a classe itera sobre todos os `LootItem` possíveis. Para cada um, um número aleatório é gerado e comparado com a probabilidade do item. Se o "roll" for bem-sucedido, uma quantidade aleatória do item (entre o mínimo e o máximo definidos) é adicionada à lista de drops a serem gerados na fase.
 
-### `LootTable()`
-*   **@brief** Construtor que inicializa a lista de itens da tabela.
+## Métodos Públicos
 
-### `addItem(LootItem item)`
-*   **@brief** Adiciona um novo item possível (`LootItem`) à tabela de loot.
-
-### `gerarDrops()`
-*   **@brief** Processa a tabela de loot. Para cada item, ele "rola um dado" com base na probabilidade do item. Se o item for sorteado, ele gera uma quantidade aleatória (entre o mínimo e o máximo definidos no `LootItem`) e retorna uma lista com os itens que foram efetivamente dropados.
+| Método | Retorno | Descrição |
+|---|---|---|
+| `addItem(LootItem item)` | `void` | Adiciona um novo item possível à tabela de loot. |
+| `gerarDrops()` | `ArrayList<LootItem>` | Processa a tabela, rolando as probabilidades para cada item e retorna uma lista contendo os drops que foram efetivamente gerados. |

@@ -1,21 +1,21 @@
-# Classe `Quadtree`
+# Quadtree
 
-**Pacote:** `Auxiliar.Personagem`
+A classe `Quadtree` implementa a estrutura de dados de mesmo nome, que é uma árvore onde cada nó interno tem exatamente quatro filhos. Ela é usada para particionar um espaço bidimensional (a tela do jogo) subdividindo-o recursivamente em quatro quadrantes.
 
-## Descrição
+## Propósito no Jogo
 
-Implementa uma estrutura de dados Quadtree para otimizar a detecção de colisão espacial. A Quadtree divide o espaço de jogo em quadrantes recursivamente, permitindo que as verificações de colisão sejam feitas apenas entre objetos que estão próximos uns dos outros.
+O principal objetivo da Quadtree neste projeto é otimizar a **detecção de colisão**. Em vez de verificar cada personagem contra todos os outros personagens na fase (um processo de complexidade O(n²)), a Quadtree permite verificar colisões apenas entre personagens que estão no mesmo quadrante ou em quadrantes adjacentes. Isso reduz drasticamente o número de comparações necessárias a cada frame, melhorando significativamente o desempenho, especialmente com muitos projéteis e inimigos na tela.
 
-## Métodos Principais
+## Funcionamento
 
-### `Quadtree(int pLevel, Rectangle pBounds)`
-*   **@brief** Construtor que cria um nó da Quadtree para uma determinada área (`pBounds`) e nível de profundidade (`pLevel`).
+- **Inserção**: Quando um personagem é inserido (`insert(Personagem p)`), a Quadtree determina em qual quadrante ele se encaixa. Se um nó da árvore atinge sua capacidade máxima de objetos (`MAX_OBJECTS`) e ainda não atingiu a profundidade máxima (`MAX_LEVELS`), ele se subdivide (`split()`) em quatro nós filhos, e seus objetos são redistribuídos entre eles.
+- **Recuperação**: O método `retrieve(returnObjects, p)` é o mais importante. Dado um personagem, ele retorna uma lista de todos os outros personagens que estão próximos o suficiente para potencialmente colidir com ele, buscando apenas nos quadrantes relevantes.
 
-### `clear()`
-*   **@brief** Limpa recursivamente a árvore, removendo todos os objetos e sub-nós.
+## Métodos Públicos
 
-### `insert(Personagem p)`
-*   **@brief** Insere um personagem na árvore. Se um nó atinge sua capacidade máxima de objetos, ele se subdivide em quatro nós filhos e distribui seus objetos entre eles.
-
-### `retrieve(ArrayList<Personagem> returnObjects, Personagem p)`
-*   **@brief** Retorna uma lista de personagens que estão no mesmo quadrante (ou quadrantes sobrepostos) que o personagem `p`, fornecendo uma lista de candidatos potenciais para a verificação de colisão.
+| Método | Retorno | Descrição |
+|---|---|---|
+| `clear()` | `void` | Limpa a Quadtree recursivamente, removendo todos os objetos e nós filhos. |
+| `insert(Personagem p)` | `void` | Insere um personagem na Quadtree. |
+| `retrieve(ArrayList<Personagem> returnObjects, Personagem p)` | `ArrayList<Personagem>` | Preenche a lista `returnObjects` com todos os personagens que podem colidir com o personagem `p`. |
+| `retrieve(ArrayList<Personagem> returnObjects, Rectangle pBounds)` | `ArrayList<Personagem>` | Preenche a lista `returnObjects` com todos os personagens que podem colidir com uma determinada área retangular. |

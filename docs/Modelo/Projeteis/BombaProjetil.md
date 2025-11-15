@@ -1,24 +1,21 @@
-# Classe `BombaProjetil`
+# BombaProjetil
 
-**Pacote:** `Modelo.Projeteis`
+A classe `BombaProjetil` representa o efeito visual e funcional da bomba do jogador. Diferente de outros projéteis, ela herda diretamente de `Personagem`, pois seu comportamento não é um simples movimento linear.
 
-## Descrição
+## Funcionamento
 
-Representa o efeito da bomba do herói. Esta classe não é um projétil no sentido tradicional, mas sim um efeito de área que limpa projéteis inimigos e causa dano.
+Quando o jogador usa uma bomba, uma instância de `BombaProjetil` é criada na posição do herói.
 
-## Comportamento
-
-1.  **Expansão**: Ao ser ativada, a bomba cria uma área de dano circular que se expande rapidamente a partir da posição do herói.
-2.  **Dano e Limpeza**: Qualquer inimigo ou projétil inimigo dentro deste raio é destruído.
-3.  **Lançamento de Mísseis**: Ao final de sua curta duração, a bomba é desativada e lança uma barragem de `ProjetilBombaHoming` em um padrão circular.
+1.  **Expansão**: O método `atualizar()` é chamado a cada frame, aumentando o `raioAtualGrid` da bomba de zero até um `raioMaximoGrid` ao longo de sua `duracao`. Essa área circular em expansão é usada pelo `ControleDeJogo` para detectar e danificar inimigos e projéteis que estão dentro dela.
+2.  **Desenho**: O método `autoDesenho()` desenha um círculo translúcido na tela que corresponde ao raio atual da bomba, fornecendo o feedback visual da área de efeito.
+3.  **Finalização**: Quando a duração da bomba termina, seu método `deactivate()` é chamado. Antes de se desativar, ele executa o método `lancarMisseis()`.
+4.  **Lançar Mísseis**: O método `lancarMisseis()` cria uma barragem de `ProjetilBombaHoming`, que são os projéteis teleguiados que saem ao final da bomba, completando o efeito.
 
 ## Métodos Principais
 
-### `BombaProjetil(...)`
-*   **@brief** Construtor que inicializa o efeito da bomba na posição do herói.
-
-### `atualizar()`
-*   **@brief** Atualiza o raio de expansão da bomba a cada frame.
-
-### `deactivate()`
-*   **@brief** Sobrescreve o método padrão para garantir que a barragem de mísseis seja lançada no momento em que a bomba é desativada.
+| Método | Retorno | Descrição |
+|---|---|---|
+| `atualizar()` | `void` | Aumenta o raio de efeito da bomba a cada frame. |
+| `deactivate()` | `void` | Lança os mísseis teleguiados e então desativa o objeto da bomba. |
+| `autoDesenho(Graphics g)` | `void` | Desenha a área de efeito circular e translúcida da bomba. |
+| `getRaioAtualGrid()` | `double` | Retorna o raio atual da bomba em unidades de grid, usado para detecção de colisão. |

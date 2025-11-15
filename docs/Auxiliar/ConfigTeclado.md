@@ -1,14 +1,19 @@
-# Classe `ConfigTeclado`
+# ConfigTeclado
 
-**Pacote:** `Auxiliar`
+A classe `ConfigTeclado` centraliza todas as configurações de mapeamento de teclas do jogo. Como uma classe final com um construtor privado, ela não pode ser instanciada, servindo apenas como um contêiner estático para constantes.
 
-## Descrição
+Isso facilita a manutenção e a alteração dos controles do jogo, pois todas as teclas estão definidas em um único local.
 
-Classe `final` que centraliza as constantes de configuração do teclado, mapeando as ações do jogo para códigos de tecla específicos (`KeyEvent`).
+## Constantes de Teclado
 
-## Constantes Principais
-
-*   **`KEY_UP`, `KEY_DOWN`, `KEY_LEFT`, `KEY_RIGHT`**: Teclas de movimentação do jogador.
-*   **`KEY_SHOOT`**: Tecla de disparo.
-*   **`KEY_BOMB`**: Tecla para usar a bomba.
-*   **`KEY_SAVE` / `KEY_LOAD` / `KEY_RESTART`**: Teclas para ações do jogo, como salvar, carregar e reiniciar.
+| Constante | Valor (KeyEvent) | Descrição |
+|---|---|---|
+| `KEY_UP` | `KeyEvent.VK_W` | Tecla para movimentar o herói para cima. |
+| `KEY_DOWN` | `KeyEvent.VK_S` | Tecla para movimentar o herói para baixo. |
+| `KEY_LEFT` | `KeyEvent.VK_A` | Tecla para movimentar o herói para a esquerda. |
+| `KEY_RIGHT`| `KeyEvent.VK_D` | Tecla para movimentar o herói para a direita. |
+| `KEY_SHOOT`| `KeyEvent.VK_K` | Tecla para o herói disparar. |
+| `KEY_BOMB` | `KeyEvent.VK_L` | Tecla para o herói usar uma bomba. |
+| `KEY_SAVE` | `KeyEvent.VK_P` | Tecla para salvar o estado do jogo. |
+| `KEY_LOAD` | `KeyEvent.VK_R` | Tecla para carregar o estado do jogo. |
+| `KEY_RESTART`| `KeyEvent.VK_R` | Tecla para reiniciar o jogo (na tela de Game Over). |

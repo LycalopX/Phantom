@@ -1,0 +1,135 @@
+@startuml
+!theme materia
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam crossingCharacter '( )'
+skinparam classSeparatorColor DarkRed
+skinparam classSeparatorThickness 2
+
+title Diagrama Detalhado - Pacote 'Modelo.Fases'
+
+package "Modelo.Fases" {
+    class Fase {
+        - personagens: CopyOnWriteArrayList<Personagem>
+        - scriptDaFase: ScriptDeFase
+        - projetilPool: ProjetilPool
+        - itemPool: ItemPool
+        - elementosCenario: CopyOnWriteArrayList<ElementoCenario>
+        {static} - isSpeedingUp: boolean
+        {static} - speedupTimer, speedupDuration: int
+        {static} - speedupAmplitude, globalSpeedMultiplier: double
+        --
+        + Fase(script: ScriptDeFase)
+        {static} + triggerGlobalSpeedup(duration: int, amplitude: double): void
+        + atualizar(velocidadeScroll: double): void
+        + getScript(): ScriptDeFase
+        + getProjetilPool(): ProjetilPool
+        + getItemPool(): ItemPool
+        + getPersonagens(): List<Personagem>
+        + getElementosCenario(): List<ElementoCenario>
+        + adicionarPersonagem(p: Personagem): void
+        + adicionarElementoCenario(e: ElementoCenario): void
+        + getHero(): Personagem
+    }
+
+    abstract class ScriptDeFase {
+        # random: Random
+        # engine: Engine
+        # ondas: ArrayList<Onda>
+        # ondaAtualIndex: int
+        - faseIniciada, faseFinalizada: boolean
+        --
+        + ScriptDeFase(engine: Engine)
+        {abstract} + carregarRecursos(fase: Fase): void
+        {abstract} + relinkarRecursosDosElementos(fase: Fase): void
+        {abstract} # inicializarOndas(fase: Fase): ArrayList<Onda>
+        + atualizarInimigos(fase: Fase): void
+        + atualizarCenario(fase: Fase, velocidadeScroll: double): void
+        + preencherCenarioInicial(fase: Fase): void
+        + atualizar(fase: Fase, velocidadeScroll: double): void
+        + getBackgroundOverlayColor(): Color
+        + getBackgroundGradient(): LinearGradientPaint
+    }
+
+    class "ScriptDeFase.Onda" as Onda {
+        # inimigos: ArrayList<InimigoSpawn>
+        # tempoDeEspera: int
+        # indiceInimigoAtual: int
+        # todosSpawnados: boolean
+        --
+        + Onda()
+        - proximoInimigo(fase: Fase): InimigoSpawn
+        + incrementarTempo(tempo: int, fase: Fase): void
+        + reiniciar(): void
+        + getFinalizado(): boolean
+    }
+    
+    class "ScriptDeFase.Onda.InimigoSpawn" as InimigoSpawn {
+        # personagem: Personagem
+        # tempoAposInicioSpawn: int
+        --
+        + InimigoSpawn(personagem: Personagem, tempo: int)
+        + spawn(fase: Fase): void
+    }
+
+    class "ScriptDeFase.OndaDeEspera" as OndaDeEspera extends Onda {
+        + OndaDeEspera(fase: Fase, tempo: int)
+    }
+
+    abstract class "ScriptDeFase.OndaDeBoss" as OndaDeBoss extends Onda {
+        # boss: Boss
+        # lootTable: LootTable
+        --
+        + OndaDeBoss()
+        + getFinalizado(): boolean
+    }
+
+    class ScriptFase1 extends ScriptDeFase
+    class ScriptFase2 extends ScriptDeFase
+    class ScriptFase3 extends ScriptDeFase
+    class ScriptFase4 extends ScriptDeFase
+    class ScriptFase5 extends ScriptDeFase
+}
+
+package "Dependências Externas" {
+    class Personagem
+    class ProjetilPool
+    class ItemPool
+    class ElementoCenario
+    class Engine
+    class Boss
+    class LootTable
+    class Color
+    class LinearGradientPaint
+}
+
+' --- Relacionamentos de Herança ---
+ScriptFase1 --|> ScriptDeFase
+ScriptFase2 --|> ScriptDeFase
+ScriptFase3 --|> ScriptDeFase
+ScriptFase4 --|> ScriptDeFase
+ScriptFase5 --|> ScriptDeFase
+
+OndaDeEspera --|> Onda
+OndaDeBoss --|> Onda
+
+' --- Relacionamentos de Composição e Agregação ---
+Fase o-- "1" ScriptDeFase
+Fase *-- "1" ProjetilPool
+Fase *-- "1" ItemPool
+Fase o-- "many" Personagem
+Fase o-- "many" ElementoCenario
+
+ScriptDeFase +-- Onda
+Onda +-- InimigoSpawn
+
+' --- Dependências ---
+ScriptDeFase ..> Engine
+ScriptDeFase ..> Color
+ScriptDeFase ..> LinearGradientPaint
+Onda ..> Fase
+InimigoSpawn ..> Personagem
+OndaDeBoss ..> Boss
+OndaDeBoss ..> LootTable
+
+@enduml

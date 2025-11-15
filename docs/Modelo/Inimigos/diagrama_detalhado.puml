@@ -1,0 +1,122 @@
+@startuml
+!theme materia
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam crossingCharacter '( )'
+skinparam classSeparatorColor DarkRed
+skinparam classSeparatorThickness 2
+
+title Diagrama Detalhado - Pacote 'Modelo.Inimigos'
+
+package "Modelo.Inimigos" {
+
+    package "Hierarquia Principal" {
+        abstract class Inimigo {
+            + lootTable: LootTable
+            + vida: double
+            # faseReferencia: Fase
+            # initialX: double
+            --
+            + Inimigo(sNomeImagePNG: String, x: double, y: double, lootTable: LootTable, vida: double)
+            + initialize(fase: Fase): void
+            {abstract} + isStrafing(): boolean
+            + takeDamage(damage: double): void
+            + getAnguloEmDirecaoAoHeroi(): double
+            # processarEstado(estado: Estado, tempo: int): Estado
+        }
+
+        abstract class Boss extends Inimigo {
+            isBombed: boolean
+            --
+            + Boss(sNomeImagePNG: String, x: double, y: double, lootTable: LootTable, vida: double)
+            + setBombed(bombed: boolean): void
+            + isBombed(): boolean
+        }
+    }
+
+    package "Estados de IA" {
+        abstract class "Inimigo.Estado" as Estado {
+            # inimigo: Inimigo
+            - proximoEstado: Estado
+            # contadorTempo: int
+            # estadoCompleto: boolean
+            --
+            + Estado(inimigo: Inimigo)
+            {abstract} + incrementarTempo(fase: Fase, tempo: int): void
+        }
+
+        class "Inimigo.Esperar" as Esperar extends Estado
+        class "Inimigo.IrPara" as IrPara extends Estado
+
+        abstract class "Boss.Ataque" as Ataque extends Estado {
+            # intervaloAtaque: int
+            # velocidadeProjetil: double
+            # tipoProjetil: TipoProjetilInimigo
+        }
+
+        abstract class "Boss.AtaqueEmLeque" as AtaqueEmLeque extends Ataque
+
+        class "Boss.Ataque.PadraoAtaque" as PadraoAtaque
+        class "Boss.AtaqueEmLeque.PadraoLeque" as PadraoLeque
+    }
+
+    package "Inimigos Concretos" {
+        class FadaComum1 extends Inimigo
+        class FadaComum2 extends Inimigo
+        class FadaComum3 extends Inimigo
+        class FadaComum4 extends Inimigo
+        class Nightbug extends Boss
+        class Lorelei extends Boss
+        class Keine extends Boss
+        class Reimu extends Boss
+        class Reisen extends Boss
+    }
+    
+    class GerenciadorDeAnimacaoInimigo
+}
+
+package "Dependências Externas" {
+    class Personagem
+    class Fase
+    class LootTable
+    class TipoProjetilInimigo
+}
+
+' --- Controle de Layout ---
+"Hierarquia Principal" -[hidden]down-> "Estados de IA"
+"Estados de IA" -[hidden]down-> "Inimigos Concretos"
+"Inimigos Concretos" -[hidden]down-> GerenciadorDeAnimacaoInimigo
+
+' --- Relacionamentos de Herança ---
+Inimigo --|> Personagem
+Boss --|> Inimigo
+
+Esperar --|> Estado
+IrPara --|> Estado
+Ataque --|> Estado
+AtaqueEmLeque --|> Ataque
+
+FadaComum1 --|> Inimigo
+FadaComum2 --|> Inimigo
+FadaComum3 --|> Inimigo
+FadaComum4 --|> Inimigo
+Nightbug --|> Boss
+Lorelei --|> Boss
+Keine --|> Boss
+Reimu --|> Boss
+Reisen --|> Boss
+
+PadraoLeque --|> PadraoAtaque
+
+' --- Relacionamentos de Composição e Agregação ---
+Inimigo +-- Estado
+Inimigo +-- GerenciadorDeAnimacaoInimigo
+Boss +-- Ataque
+Ataque +-- PadraoAtaque
+
+' --- Dependências ---
+Inimigo ..> Fase
+Inimigo ..> LootTable
+Ataque ..> TipoProjetilInimigo
+
+@enduml

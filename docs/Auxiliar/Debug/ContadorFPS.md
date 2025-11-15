@@ -1,18 +1,16 @@
-# Classe `ContadorFPS`
+# ContadorFPS
 
-**Pacote:** `Auxiliar.Debug`
+A classe `ContadorFPS` é um componente de depuração usado para medir e exibir a taxa de quadros por segundo (Frames Per Second) do jogo.
 
-## Descrição
+## Funcionamento
 
-Uma classe utilitária para calcular e formatar a taxa de quadros por segundo (FPS) do jogo.
+A cada frame do jogo, o método `atualizar()` é chamado. Ele incrementa um contador de frames. A classe também armazena o tempo da última atualização de FPS. Se a diferença entre o tempo atual e o último tempo armazenado for maior ou igual a um segundo, o valor do contador de frames é copiado para a variável `fpsExibido`, o contador é zerado e o tempo da última atualização é renovado.
 
-## Métodos Principais
+O método `getFPSString()` pode então ser chamado a qualquer momento para obter uma string formatada, como "FPS: 60", para ser desenhada na tela.
 
-### `ContadorFPS()`
-*   **@brief** Construtor que inicializa as variáveis de controle de tempo e contagem de frames.
+## Métodos Públicos
 
-### `atualizar()`
-*   **@brief** Incrementa o contador de frames a cada chamada. Se um segundo tiver passado desde a última atualização, ele atualiza o valor de `fpsExibido` e reseta o contador.
-
-### `getFPSString()`
-*   **@brief** Retorna o último valor de FPS calculado, formatado como uma `String` (e.g., "FPS: 60").
+| Método | Retorno | Descrição |
+|---|---|---|
+| `atualizar()` | `void` | Atualiza o contador de frames. Se um segundo passou, calcula o novo valor de FPS a ser exibido. |
+| `getFPSString()` | `String` | Retorna o último valor de FPS calculado, formatado como uma string para exibição. |

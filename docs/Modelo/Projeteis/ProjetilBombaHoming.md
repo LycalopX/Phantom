@@ -1,24 +1,24 @@
-# Classe `ProjetilBombaHoming`
+# ProjetilBombaHoming
 
-**Pacote:** `Modelo.Projeteis`
+Esta classe estende `ProjetilHoming` e representa os mísseis especiais que são disparados ao final do efeito de uma bomba do jogador.
 
-## Descrição
+## Comportamento
 
-Subclasse de `ProjetilHoming` que representa os mísseis especiais lançados pela bomba do herói. Este projétil possui um comportamento de três fases.
+Ela herda a capacidade de perseguição de `ProjetilHoming`, mas adiciona uma fase inicial ao seu comportamento, controlada por uma nova máquina de estados:
 
-## Máquina de Estados
+1.  **`EXPANDINDO`**: Logo após ser criado, o míssil viaja em linha reta para fora a partir da posição do jogador por um curto período (`DURACAO_EXPANSAO`). Isso cria o efeito visual de uma "explosão" de mísseis se espalhando.
+2.  **`PERSEGUINDO`**: Após a fase de expansão, o míssil entra no estado de perseguição normal, herdado de `ProjetilHoming`, e começa a procurar e perseguir o inimigo mais próximo.
 
-1.  **`EXPANDINDO`**: O projétil é lançado para fora a partir do herói em um padrão circular e se move em linha reta por um curto período.
-2.  **`PERSEGUINDO`**: Após a fase de expansão, o projétil ativa a lógica de perseguição herdada de `ProjetilHoming` e começa a caçar o inimigo mais próximo.
-3.  **Fim de Vida**: O projétil tem um tempo de vida limitado e se desativa após um certo período, independentemente de ter atingido um alvo.
+## Efeito Visual
+
+A classe sobrescreve o método `autoDesenho()` para adicionar um efeito visual customizado:
+- **Rastro (Trail)**: Mantém um histórico das últimas posições (`positionHistory`) e as desenha com uma transparência decrescente, criando um efeito de rastro.
+- **Pulsação**: O tamanho do sprite do míssil é animado usando uma função seno (`Math.sin`), fazendo-o pulsar e se destacar visualmente.
 
 ## Métodos Principais
 
-### `resetBombaHoming(...)`
-*   **@brief** Reseta o projétil para um novo disparo, definindo seu estado inicial como `EXPANDINDO` e reiniciando seus timers.
-
-### `atualizar()`
-*   **@brief** Implementa a lógica da máquina de estados e o timer de vida do projétil.
-
-### `autoDesenho(Graphics g)`
-*   **@brief** Desenha o projétil com um efeito visual customizado, incluindo um rastro e uma animação de pulsação.
+| Método | Retorno | Descrição |
+|---|---|---|
+| `resetBombaHoming(...)` | `void` | Reseta o estado do míssil, definindo seu estado inicial para `EXPANDINDO`. |
+| `atualizar()` | `void` | Gerencia a transição do estado de `EXPANDINDO` para `PERSEGUINDO` e então delega para a lógica de atualização da superclasse. |
+| `autoDesenho(Graphics g)` | `void` | Desenha o míssil com seus efeitos visuais customizados de rastro e pulsação. |

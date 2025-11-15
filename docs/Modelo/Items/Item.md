@@ -1,25 +1,25 @@
-# Classe `Item`
+# Item
 
-**Pacote:** `Modelo.Items`
+A classe `Item` representa todos os objetos coletáveis no jogo, como power-ups, bombas e pontos. Ela herda de `Personagem`.
 
-## Descrição
+## Comportamento Físico
 
-Representa um item coletável no jogo, como power-ups e bombas. Herda de `Personagem` e possui sua própria lógica de movimento e física.
+Um `Item` possui uma física simples:
+- **Gravidade**: Após ser "dropado" por um inimigo, ele cai lentamente com uma aceleração constante (`GRAVIDADE`) até atingir uma velocidade máxima de queda (`MAX_FALL_SPEED`).
+- **Lançamento**: Itens dropados pelo jogador ao morrer (`lancarItem`) recebem um impulso inicial e ignoram a gravidade por um curto período.
+- **Atração**: Sob certas condições (o jogador está perto do topo da tela ou usando uma bomba), todos os itens na tela ignoram sua física normal e se movem diretamente em direção ao herói para serem coletados automaticamente.
 
-## Comportamento
+## Pooling e Sprites
 
-Um item pode ter dois comportamentos principais:
-
-1.  **Queda Livre**: Por padrão, o item cai com uma leve aceleração (gravidade).
-2.  **Atração**: Se o jogador estiver no topo da tela ou se uma bomba estiver ativa, todos os itens na tela são atraídos em direção ao herói, facilitando a coleta.
+- **Pooling**: Itens são gerenciados pela `ItemPool`. Em vez de criar e destruir objetos `Item` constantemente, eles são reciclados. Um item "inativo" da pool é pego, inicializado com uma nova posição (`init()`) e "ativado". Quando coletado ou sai da tela, ele é simplesmente desativado, pronto para ser reutilizado.
+- **Sprites**: Todos os sprites de itens estão em uma única imagem (`items.png`). O método `recortarSprite()` seleciona o sprite correto do spritesheet com base no `ItemType` do item.
 
 ## Métodos Principais
 
-### `Item(...)`
-*   **@brief** Construtor que define o tipo do item e recorta seu sprite específico a partir de um spritesheet compartilhado.
-
-### `atualizar()`
-*   **@brief** Atualiza a posição do item a cada frame, aplicando a lógica de gravidade ou de atração em direção ao herói.
-
-### `lancarItem(...)`
-*   **@brief** Dá ao item um impulso inicial em uma direção específica. Usado quando o herói morre e seus power-ups são espalhados.
+| Método | Retorno | Descrição |
+|---|---|---|
+| `init(double x, double y)` | `void` | Inicializa (ou reseta) um item da pool, definindo sua posição inicial e ativando-o. |
+| `setHero(Hero hero)` | `void` | Fornece ao item uma referência ao herói, necessária para o comportamento de atração. |
+| `lancarItem(double anguloEmGraus, double forca)` | `void` | Dá ao item um impulso inicial, usado quando o herói morre e dropa seus power-ups. |
+| `atualizar()` | `void` | Atualiza a posição do item a cada frame, aplicando a lógica de gravidade, lançamento ou atração. |
+| `recortarSprite()` | `void` | Um método interno para carregar e recortar o sprite correto do spritesheet de itens. |

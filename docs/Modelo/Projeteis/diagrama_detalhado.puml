@@ -1,0 +1,122 @@
+@startuml
+!theme materia
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam crossingCharacter '( )'
+skinparam classSeparatorColor DarkRed
+skinparam classSeparatorThickness 2
+
+title Diagrama Detalhado - Pacote 'Modelo.Projeteis'
+
+package "Modelo.Projeteis" {
+    class Projetil extends Personagem {
+        # velocidade: double
+        # anguloRad: double
+        # tipo: TipoProjetil
+        # tipoDetalhado: ProjetilTipo
+        --
+        + Projetil(sNomeImagePNG: String)
+        + reset(x: double, y: double, vel: double, angulo: double, tipo: TipoProjetil, tipoDetalhado: ProjetilTipo): void
+        + atualizar(): void
+        + autoDesenho(g: Graphics): void
+        + getTipoHitbox(): HitboxType
+        + getBounds(): Rectangle
+        + estaForaDaTela(): boolean
+        + getTipo(): TipoProjetil
+    }
+
+    class ProjetilHoming extends Projetil {
+        - estadoAtual: HomingState
+        - alvo: Inimigo
+        - personagens: List<Personagem>
+        - taxaDeCurva: double
+        - inertiaTimer: int
+        --
+        + ProjetilHoming(sNomeImagePNG: String, personagens: List<Personagem>)
+        + resetHoming(x: double, y: double, vel: double, angulo: double, tipo: TipoProjetil, tipoDetalhado: ProjetilTipo): void
+        + atualizar(): void
+        - ajustarAnguloParaOAlvo(): void
+        - encontrarAlvoMaisProximo(personagens: List<Personagem>): void
+    }
+
+    class ProjetilBombaHoming extends ProjetilHoming {
+        - estadoAtual: EstadoBomba
+        - tempoDeVida, tempoDeExpansao: int
+        - positionHistory: List<Point2D.Double>
+        --
+        + ProjetilBombaHoming(sNomeImagePNG: String, personagens: List<Personagem>)
+        + resetBombaHoming(x: double, y: double, vel: double, angulo: double, tipo: TipoProjetil, tipoDetalhado: ProjetilTipo): void
+        + atualizar(): void
+        + autoDesenho(g: Graphics): void
+    }
+
+    class BombaProjetil extends Personagem {
+        - duracao: int
+        - raioMaximoGrid, raioAtualGrid: double
+        - faseReferencia: Fase
+        - heroReferencia: Hero
+        --
+        + BombaProjetil(x: double, y: double, fase: Fase, hero: Hero)
+        + atualizar(): void
+        + deactivate(): void
+        + autoDesenho(g: Graphics): void
+        - lancarMisseis(): void
+        + getRaioAtualGrid(): double
+    }
+
+    class ProjetilPool {
+        - poolNormais: ArrayList<Projetil>
+        - poolHoming: ArrayList<ProjetilHoming>
+        - poolBombaHoming: ArrayList<ProjetilBombaHoming>
+        - poolInimigos: ArrayList<Projetil>
+        --
+        + ProjetilPool(tamanhoNormais: int, tamanhoHoming: int, tamanhoBombaHoming: int, tamanhoInimigos: int, personagens: List<Personagem>)
+        + getTodosOsProjeteis(): ArrayList<Projetil>
+        + getProjetilNormal(): Projetil
+        + getProjetilHoming(): ProjetilHoming
+        + getProjetilBombaHoming(): ProjetilBombaHoming
+        + getProjetilInimigo(): Projetil
+        ...
+    }
+    
+    enum TipoProjetilHeroi implements "Auxiliar.Projeteis.ProjetilTipo" {
+        NORMAL, HOMING, BOMBA
+    }
+}
+
+package "Dependências Externas" {
+    class Personagem
+    class Inimigo
+    class Fase
+    class Hero
+    enum "Auxiliar.Projeteis.TipoProjetil" as TipoProjetil
+    interface "Auxiliar.Projeteis.ProjetilTipo" as ProjetilTipo
+    enum "Auxiliar.Projeteis.HitboxType" as HitboxType
+    class Point2D.Double
+    class Rectangle
+    class Graphics
+}
+
+' --- Relacionamentos de Herança ---
+Projetil --|> Personagem
+ProjetilHoming --|> Projetil
+ProjetilBombaHoming --|> ProjetilHoming
+BombaProjetil --|> Personagem
+TipoProjetilHeroi ..|> ProjetilTipo
+
+' --- Relacionamentos de Composição e Agregação ---
+ProjetilPool o-- "many" Projetil
+ProjetilPool o-- "many" ProjetilHoming
+ProjetilPool o-- "many" ProjetilBombaHoming
+
+' --- Dependências ---
+Projetil ..> TipoProjetil
+Projetil ..> ProjetilTipo
+Projetil ..> HitboxType
+Projetil ..> Rectangle
+ProjetilHoming ..> Inimigo
+BombaProjetil ..> Fase
+BombaProjetil ..> Hero
+ProjetilPool ..> Personagem
+
+@enduml

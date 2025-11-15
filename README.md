@@ -10,34 +10,6 @@ Navigate through 5 challenging stages, defeating waves of enemies and dodging in
 
 A detailed documentation of the project's architecture, packages, and classes can be found in the [DOCUMENTACAO.md](DOCUMENTACAO.md) file.
 
-### Diagramas UML Detalhados
-
-Para uma compreensão aprofundada da estrutura de cada pacote, os seguintes diagramas UML detalhados foram gerados e podem ser visualizados diretamente aqui:
-
-#### Pacote Controler
-![Diagrama UML Detalhado - Pacote Controler](docs/Controler/image.png)
-
-#### Pacote Auxiliar
-![Diagrama UML Detalhado - Pacote Auxiliar](docs/Auxiliar/image.png)
-
-#### Pacote Modelo.Cenario
-![Diagrama UML Detalhado - Pacote Modelo.Cenario](docs/Modelo/Cenario/image.png)
-
-#### Pacote Modelo.Fases
-![Diagrama UML Detalhado - Pacote Modelo.Fases](docs/Modelo/Fases/image.png)
-
-#### Pacote Modelo.Hero
-![Diagrama UML Detalhado - Pacote Modelo.Hero](docs/Modelo/Hero/image.png)
-
-#### Pacote Modelo.Inimigos
-![Diagrama UML Detalhado - Pacote Modelo.Inimigos](docs/Modelo/Inimigos/image.png)
-
-#### Pacote Modelo.Items
-![Diagrama UML Detalhado - Pacote Modelo.Items](docs/Modelo/Items/image.png)
-
-#### Pacote Modelo.Projeteis
-![Diagrama UML Detalhado - Pacote Modelo.Projeteis](docs/Modelo/Projeteis/image.png)
-
 ## Assets
 
 Here are some examples of the game's assets:
@@ -118,3 +90,31 @@ The project follows a Model-View-Controller (MVC) architecture to separate conce
 *   Java
 *   Swing (for the GUI)
 *   Apache Ant (for building)
+
+### Diagramas UML Detalhados
+
+Para uma compreensão aprofundada da estrutura de cada pacote, os seguintes diagramas UML detalhados foram gerados e podem ser visualizados diretamente aqui:
+
+#### Pacote Controler
+![Diagrama UML Detalhado - Pacote Controler](docs/Controler/image.png)
+
+#### Pacote Auxiliar
+![Diagrama UML Detalhado - Pacote Auxiliar](docs/Auxiliar/image.png)
+
+#### Pacote Modelo.Cenario
+![Diagrama UML Detalhado - Pacote Modelo.Cenario](docs/Modelo/Cenario/image.png)
+
+#### Pacote Modelo.Fases
+![Diagrama UML Detalhado - Pacote Modelo.Fases](docs/Modelo/Fases/image.png)
+
+#### Pacote Modelo.Hero
+![Diagrama UML Detalhado - Pacote Modelo.Hero](docs/Modelo/Hero/image.png)
+
+#### Pacote Modelo.Inimigos
+![Diagrama UML Detalhado - Pacote Modelo.Inimigos](docs/Modelo/Inimigos/image.png)
+
+#### Pacote Modelo.Items
+![Diagrama UML Detalhado - Pacote Modelo.Items](docs/Modelo/Items/image.png)
+
+#### Pacote Modelo.Projeteis
+![Diagrama UML Detalhado - Pacote Modelo.Projeteis](docs/Modelo/Projeteis/image.png)

@@ -12,16 +12,31 @@ A detailed documentation of the project's architecture, packages, and classes ca
 
 ### Diagramas UML Detalhados
 
-Para uma compreensão aprofundada da estrutura de cada pacote, os seguintes diagramas UML detalhados foram gerados. Eles incluem classes, atributos, métodos e relacionamentos, e podem ser visualizados copiando o conteúdo do arquivo e colando-o em um [renderizador online do PlantUML](http://www.plantuml.com/plantuml/uml/).
+Para uma compreensão aprofundada da estrutura de cada pacote, os seguintes diagramas UML detalhados foram gerados e podem ser visualizados diretamente aqui:
 
-*   [Pacote Controler](docs/Controler/diagrama_detalhado.puml)
-*   [Pacote Auxiliar](docs/Auxiliar/diagrama_detalhado.puml)
-*   [Pacote Modelo.Cenario](docs/Modelo/Cenario/diagrama_detalhado.puml)
-*   [Pacote Modelo.Fases](docs/Modelo/Fases/diagrama_detalhado.puml)
-*   [Pacote Modelo.Hero](docs/Modelo/Hero/diagrama_detalhado.puml)
-*   [Pacote Modelo.Inimigos](docs/Modelo/Inimigos/diagrama_detalhado.puml)
-*   [Pacote Modelo.Items](docs/Modelo/Items/diagrama_detalhado.puml)
-*   [Pacote Modelo.Projeteis](docs/Modelo/Projeteis/diagrama_detalhado.puml)
+#### Pacote Controler
+![Diagrama UML Detalhado - Pacote Controler](docs/Controler/image.png)
+
+#### Pacote Auxiliar
+![Diagrama UML Detalhado - Pacote Auxiliar](docs/Auxiliar/image.png)
+
+#### Pacote Modelo.Cenario
+![Diagrama UML Detalhado - Pacote Modelo.Cenario](docs/Modelo/Cenario/image.png)
+
+#### Pacote Modelo.Fases
+![Diagrama UML Detalhado - Pacote Modelo.Fases](docs/Modelo/Fases/image.png)
+
+#### Pacote Modelo.Hero
+![Diagrama UML Detalhado - Pacote Modelo.Hero](docs/Modelo/Hero/image.png)
+
+#### Pacote Modelo.Inimigos
+![Diagrama UML Detalhado - Pacote Modelo.Inimigos](docs/Modelo/Inimigos/image.png)
+
+#### Pacote Modelo.Items
+![Diagrama UML Detalhado - Pacote Modelo.Items](docs/Modelo/Items/image.png)
+
+#### Pacote Modelo.Projeteis
+![Diagrama UML Detalhado - Pacote Modelo.Projeteis](docs/Modelo/Projeteis/image.png)
 
 ## Assets
 

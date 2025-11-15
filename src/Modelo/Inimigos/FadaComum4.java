@@ -12,10 +12,7 @@ import java.awt.Graphics;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
-
 // Implementar IA melhorada
-
-
 
 /**
  * @brief Representa um inimigo comum do tipo "fada", com um padrão de movimento
@@ -25,8 +22,6 @@ public class FadaComum4 extends Inimigo {
 
     private enum State {
         ENTERING,
-        SHOOTING,
-        EXITING
     }
 
     private State currentState;
@@ -46,9 +41,15 @@ public class FadaComum4 extends Inimigo {
         super("", x, y, lootTable, 40);
         this.currentState = State.ENTERING;
         this.faseReferencia = fase;
-        this.animador = new GerenciadorDeAnimacaoInimigo();
-        this.largura = (int) (30.0 * BODY_PROPORTION);
-        this.altura = (int) (30.0 * BODY_PROPORTION);
+        this.animador = new GerenciadorDeAnimacaoInimigo(
+                "imgs/inimigos/enemy4_spreadsheet.png",
+                32, 32, 0, 4, 4,
+                true,
+                (int) (32.0 * BODY_PROPORTION),
+                (int) (32.0 * BODY_PROPORTION),
+                false);
+        this.largura = (int) (32.0 * BODY_PROPORTION);
+        this.altura = (int) (32.0 * BODY_PROPORTION);
         this.hitboxRaio = (this.largura / 2.0) / CELL_SIDE;
     }
 
@@ -57,7 +58,13 @@ public class FadaComum4 extends Inimigo {
      */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
-        this.animador = new GerenciadorDeAnimacaoInimigo();
+        this.animador = new GerenciadorDeAnimacaoInimigo(
+                "imgs/inimigos/enemy4_spreadsheet.png",
+                32, 32, 0, 4, 4,
+                true,
+                (int) (32.0 * BODY_PROPORTION),
+                (int) (32.0 * BODY_PROPORTION),
+                false);
     }
 
     /**
@@ -70,46 +77,15 @@ public class FadaComum4 extends Inimigo {
 
     @Override
     public boolean isStrafing() {
-        return currentState == State.ENTERING || currentState == State.EXITING;
+        return false;
     }
 
     /**
-     * @brief Atualiza a lógica do inimigo, incluindo sua máquina de estados de movimento e ataque.
+     * @brief Atualiza a lógica do inimigo, incluindo sua máquina de estados de
+     *        movimento e ataque.
      */
     @Override
     public void atualizar() {
-        switch (currentState) {
-            case ENTERING:
-                y += 0.1;
-                x = initialX + Math.sin(y * frequency) * amplitude;
-                if (y >= targetY) {
-                    y = targetY;
-                    currentState = State.SHOOTING;
-                }
-                break;
-            case SHOOTING:
-                shootDuration--;
-                shootTimer--;
-                if (shootTimer <= 0) {
-                    atirar();
-                    if (shootDuration % 2 == 0) {
-                        Auxiliar.SoundManager.getInstance().playSfx("se_tan01", 1.0f);
-                    } else {
-                        Auxiliar.SoundManager.getInstance().playSfx("se_tan02", 1.0f);
-                    }
-                    shootTimer = shootInterval;
-                }
-                if (shootDuration <= 0) {
-                    currentState = State.EXITING;
-                }
-                break;
-            case EXITING:
-                y -= 0.05;
-                if (y < -1) {
-                    deactivate();
-                }
-                break;
-        }
 
         animador.atualizar(isStrafing() ? AnimationState.STRAFING : AnimationState.IDLE);
     }
@@ -125,6 +101,7 @@ public class FadaComum4 extends Inimigo {
         if (hero == null)
             return;
 
+            /*
         double angle = 90.0;
         double dx = hero.getX() - this.x;
         double dy = hero.getY() - this.y;
@@ -134,10 +111,12 @@ public class FadaComum4 extends Inimigo {
         if (p != null) {
             p.reset(this.x, this.y, 0.1, angle, TipoProjetil.INIMIGO, TipoProjetilInimigo.ESFERA_AZUL);
         }
+            */
     }
 
     /**
-     * @brief Desenha o inimigo na tela, selecionando a animação correta com base em seu estado.
+     * @brief Desenha o inimigo na tela, selecionando a animação correta com base em
+     *        seu estado.
      */
     @Override
     public void autoDesenho(Graphics g) {

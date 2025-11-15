@@ -106,6 +106,20 @@ public abstract class Inimigo extends Personagem {
         }
     }
 
+    /**
+     * @brief Retorna o ângulo em graus do inimigo em direção ao herói.
+     * @return O ângulo em graus (0 = direita, 90 = baixo, 180 = esquerda, 270 = cima).
+     */
+    public double getAnguloEmDirecaoAoHeroi() {
+        if (faseReferencia == null || faseReferencia.getHero() == null) {
+            return 0; // Ou um valor padrão, se o herói não estiver disponível
+        }
+        Personagem hero = faseReferencia.getHero();
+        double dx = hero.getX() - this.x;
+        double dy = hero.getY() - this.y;
+        return Math.toDegrees(Math.atan2(dy, dx));
+    }
+
     // --- Sistema de Estados ---
 
     protected Estado processarEstado(Estado estado, int tempo) {

@@ -18,7 +18,12 @@ import java.util.logging.Logger;
 import Modelo.Cenario.ElementoCenario;
 import Modelo.Personagem;
 import Controler.Engine;
+import Auxiliar.LootTable;
+import Auxiliar.Personagem.LootItem;
 import Auxiliar.SoundManager;
+import Modelo.Inimigos.FadaComum3;
+import Modelo.Items.ItemType;
+import static Auxiliar.ConfigMapa.MUNDO_LARGURA;
 
 public class ScriptFase4 extends ScriptDeFase {
 
@@ -105,7 +110,8 @@ public class ScriptFase4 extends ScriptDeFase {
 
     @Override
     public void atualizarInimigos(Fase fase) {
-        // Lógica de inimigos da Fase 4
+        super.atualizarInimigos(fase);
+        // Lógica de inimigos específica da Fase 4 pode ser adicionada aqui no futuro
     }
 
     @Override
@@ -168,6 +174,19 @@ public class ScriptFase4 extends ScriptDeFase {
     // Onda
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
+        ondas.add(new OndaFadaComum3(fase));
+        ondas.add(new OndaDeEspera(fase, 200)); // Pequena pausa após a fada
         return ondas;
+    }
+
+    private class OndaFadaComum3 extends OndaDeEspera {
+        public OndaFadaComum3(Fase fase) {
+            super(fase, 3000); // A onda vai durar 3000 frames (50 segundos)
+            // Adiciona inimigos à onda
+            double xInicial = MUNDO_LARGURA / 2.0;
+            LootTable lootTable = new LootTable();
+            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
+            inimigos.add(0, new InimigoSpawn(new FadaComum3(xInicial, -1.0, lootTable, 60, fase), 0));
+        }
     }
 }

@@ -113,17 +113,10 @@ public class FadaComum1 extends Inimigo {
      * @brief Cria e dispara um projétil em direção ao herói.
      */
     private void atirar() {
-        if (faseReferencia == null)
+        if (faseReferencia == null || faseReferencia.getHero() == null)
             return;
 
-        Personagem hero = faseReferencia.getHero();
-        if (hero == null)
-            return;
-
-        double angle = 90.0;
-        double dx = hero.getX() - this.x;
-        double dy = hero.getY() - this.y;
-        angle = Math.toDegrees(Math.atan2(dy, dx));
+        double angle = getAnguloEmDirecaoAoHeroi();
 
         Projetil p = faseReferencia.getProjetilPool().getProjetilInimigo();
         if (p != null) {

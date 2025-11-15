@@ -136,10 +136,12 @@ public class ScriptFase3 extends ScriptDeFase {
         public OndaFadaComum2(Fase fase) {
             super(fase, 3000); // A onda vai durar 3000 frames (50 segundos)
             // Adiciona inimigos à onda
-            double xInicial = MUNDO_LARGURA / 2.0;
             LootTable lootTable = new LootTable();
             lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
-            inimigos.add(0, new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, lootTable, 40, fase), 0));
+
+            inimigos.add(0, new InimigoSpawn(new Modelo.Inimigos.FadaComum2(MUNDO_LARGURA / 2, -1.0, lootTable, 200, fase), 0));
+            inimigos.add(1, new InimigoSpawn(new Modelo.Inimigos.FadaComum2(MUNDO_LARGURA * 1/3, -1.0, lootTable, 500, fase), 0));
+            inimigos.add(2, new InimigoSpawn(new Modelo.Inimigos.FadaComum2(MUNDO_LARGURA * 2/3, -1.0, lootTable, 200, fase), 0));
         }
     }
 }

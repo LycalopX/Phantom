@@ -2,7 +2,6 @@ package Modelo.Inimigos;
 
 import Auxiliar.LootTable;
 import Modelo.Fases.Fase;
-import Modelo.Personagem;
 import Modelo.Projeteis.Projetil;
 import Auxiliar.Projeteis.TipoProjetil;
 import Auxiliar.Projeteis.TipoProjetilInimigo;

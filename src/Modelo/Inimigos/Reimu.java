@@ -54,11 +54,14 @@ public class Reimu extends Boss {
         // Teia
         Estado teia = new TeiaDeTiros(this, 1);
         this.estadoTeia = teia;
-        mudarPodeAtacar.setProximoEstado(teia);
+        estadoTeia.setProximoEstado(teia);
 
         // Ataque
         Estado ataqueTeliguiado = new AtaqueTeliguiadoDosLados(this);
+        Estado espera = new Esperar(this, 180);
         estadoAtaque = ataqueTeliguiado;
+        ataqueTeliguiado.setProximoEstado(espera);
+        espera.setProximoEstado(ataqueTeliguiado);
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -149,6 +152,7 @@ public class Reimu extends Boss {
     private class AtaqueTeliguiadoDosLados extends MultiplosEstados {
 
         private final int QUANTIDADE_ATAQUES = 5;
+        private final TipoProjetilInimigo TIPO_PROJETIL = TipoProjetilInimigo.ESFERA_GRANDE_AMARELA_OCA;
         
         private class AtaqueEsquerda extends AtaqueEmUmaLinhaNoJogador {
             public AtaqueEsquerda(Boss boss, int quantidadeAtaques, int intervaloAtaque) {
@@ -157,7 +161,7 @@ public class Reimu extends Boss {
                         new Point2D.Double(0.0, ConfigMapa.MUNDO_ALTURA)
                 );
                 this.velocidadeProjetil = 0.3;
-                this.tipoProjetil = TipoProjetilInimigo.ESFERA_VERMELHA;
+                this.tipoProjetil = TIPO_PROJETIL;
                 this.padroes.add(new PadraoAtaque(0, quantidadeAtaques));
                 this.intervaloAtaque = intervaloAtaque;
             }
@@ -170,7 +174,7 @@ public class Reimu extends Boss {
                         new Point2D.Double(ConfigMapa.MUNDO_LARGURA, ConfigMapa.MUNDO_ALTURA)
                 );
                 this.velocidadeProjetil = 0.3;
-                this.tipoProjetil = TipoProjetilInimigo.ESFERA_VERMELHA;
+                this.tipoProjetil = TIPO_PROJETIL;
                 this.padroes.add(new PadraoAtaque(0, quantidadeAtaques));
                 this.intervaloAtaque = intervaloAtaque;
             }
@@ -193,7 +197,7 @@ public class Reimu extends Boss {
 
         private final double VELOCIDADE_PROJETIL = 0.5;
         private final TipoProjetilInimigo TIPO_PROJETIL = TipoProjetilInimigo.OVAL_CINZA;
-        private final int TEMPO_ENTRE_ATAQUES = 5;
+        private final int TEMPO_ENTRE_ATAQUES = 10;
 
         public AtaqueLateralTeia(Boss boss, int duracao) {
             super(boss);

@@ -91,13 +91,13 @@ public abstract class Boss extends Inimigo {
                 return;
             }
 
-
-            atirar(padroes.get(padraoAtual));
-            if(repeticoes < padroes.get(padraoAtual).repeticoes - 1){
-                repeticoes++;
-            } else {
+            if(repeticoes >= padroes.get(padraoAtual).repeticoes){
                 repeticoes = 0;
                 padraoAtual++;
+            }
+            else{
+                repeticoes++;
+                atirar(padroes.get(padraoAtual));
             }
             
             contadorTempo -= intervaloAtaque;
@@ -193,7 +193,28 @@ public abstract class Boss extends Inimigo {
 
         @Override
         protected void atirar(PadraoAtaque padrao) {
-            atirarEmLinha(coluna.getPosicaoInicial(), coluna.getPosicaoFinal(), padrao.getQuantidadeAtaques(), getAnguloEmDirecaoAoHeroi() + padrao.getRotacao());
+            atirarEmLinhaNoJogador(coluna.getPosicaoInicial(), coluna.getPosicaoFinal(), padrao.getQuantidadeAtaques(), padrao.getRotacao());
+        }
+
+        protected void atirarEmLinhaNoJogador(Point2D.Double posicaoInicial, Point2D.Double posicaoFinal, int quantidade, double offset) {
+            if (faseReferencia == null) {
+                return;
+            }
+
+            // Calcular o espaçamento entre cada projétil
+            double espacamentoX = (quantidade > 1) ? (posicaoFinal.x - posicaoInicial.x) / (quantidade - 1) : 0;
+            double espacamentoY = (quantidade > 1) ? (posicaoFinal.y - posicaoInicial.y) / (quantidade - 1) : 0;
+
+            // Criar projéteis distribuídos uniformemente na linha
+            for (int i = 0; i < quantidade; i++) {
+                double posX = posicaoInicial.x + (espacamentoX * i);
+                double posY = posicaoInicial.y + (espacamentoY * i);
+
+                Projetil p = faseReferencia.getProjetilPool().getProjetilInimigo();
+                if (p != null) {
+                    p.reset(posX, posY, velocidadeProjetil, getAnguloEmDirecaoAoHeroi(posX, posY) + offset, TipoProjetil.INIMIGO, tipoProjetil);
+                }
+            }
         }
     }
 

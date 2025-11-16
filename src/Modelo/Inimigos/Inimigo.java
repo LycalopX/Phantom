@@ -103,12 +103,16 @@ public abstract class Inimigo extends Personagem {
      * @return O ângulo em graus (0 = direita, 90 = baixo, 180 = esquerda, 270 = cima).
      */
     public double getAnguloEmDirecaoAoHeroi() {
+        return getAnguloEmDirecaoAoHeroi(this.x, this.y);
+    }
+
+    public double getAnguloEmDirecaoAoHeroi(double x, double y) {
         if (faseReferencia == null || faseReferencia.getHero() == null) {
             return 0; // Ou um valor padrão, se o herói não estiver disponível
         }
         Personagem hero = faseReferencia.getHero();
-        double dx = hero.getX() - this.x;
-        double dy = hero.getY() - this.y;
+        double dx = hero.getX() - x;
+        double dy = hero.getY() - y;
         return Math.toDegrees(Math.atan2(dy, dx));
     }
 

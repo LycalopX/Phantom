@@ -155,7 +155,7 @@ public class ScriptFase2 extends ScriptDeFase {
         ondas.add(new OndaDeEspera(fase, 200));
 
         ondas.add(new Onda2(fase));
-        ondas.add(new OndaDeEspera(fase, 1000));
+        ondas.add(new OndaDeEspera(fase, 500));
 
         ondas.add(new Onda3(fase));
         ondas.add(new OndaDeEspera(fase, 600));

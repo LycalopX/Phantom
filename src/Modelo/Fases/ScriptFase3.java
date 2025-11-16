@@ -127,21 +127,22 @@ public class ScriptFase3 extends ScriptDeFase {
     // Onda
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
-        ondas.add(new OndaFadaComum1Comportamento2(fase));
+        ondas.add(new OndaFadaComum2Comportamento2(fase));
         ondas.add(new OndaDeEspera(fase, 200));
         ondas.add(new OndaBoss(fase));
         ondas.add(new OndaDeEspera(fase, 200));
         return ondas;
     }
 
-    private class OndaFadaComum1Comportamento2 extends OndaDeEspera {
-        public OndaFadaComum1Comportamento2(Fase fase) {
+    private class OndaFadaComum2Comportamento2 extends OndaDeEspera {
+        public OndaFadaComum2Comportamento2(Fase fase) {
             super(fase, 3000); // A onda vai durar 3000 frames (50 segundos)
             // Adiciona inimigos à onda
             LootTable lootTable = new LootTable();
             lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
 
-            inimigos.add(0, new InimigoSpawn(new Modelo.Inimigos.FadaComum1(MUNDO_LARGURA / 3, -1.0, lootTable, 200, fase, "", 2), 0));
+            // Gerar uma FadaComum2 com comportamento 2
+            inimigos.add(0, new InimigoSpawn(new Modelo.Inimigos.FadaComum2(MUNDO_LARGURA / 3, -1.0, lootTable, 200, fase, "", 2), 0));
         }
     }
 

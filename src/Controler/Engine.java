@@ -9,6 +9,9 @@ import Auxiliar.SoundManager;
 import Modelo.Fases.Fase;
 import Modelo.Hero.Hero;
 import Modelo.Inimigos.FadaComum1;
+import Modelo.Inimigos.FadaComum2;
+import Modelo.Inimigos.FadaComum3;
+import Modelo.Inimigos.FadaComum4;
 import Modelo.Inimigos.Lorelei;
 import Modelo.Inimigos.Nightbug;
 import Modelo.Inimigos.Reimu;
@@ -212,7 +215,7 @@ public class Engine implements Runnable {
     private synchronized void carregarJogo() {
         try (FileInputStream fis = new FileInputStream(SAVE_FILE_NAME);
                 ObjectInputStream ois = new ObjectInputStream(fis)) {
-                    
+
             this.faseAtual = (Fase) ois.readObject();
             cenario.setFase(this.faseAtual);
             this.controleDeJogo.setItemPool(this.faseAtual.getItemPool());
@@ -326,14 +329,20 @@ public class Engine implements Runnable {
      */
     private void salvarInimigosParaTeste() {
         System.out.println("Salvando inimigos para teste...");
-        FadaComum1 fada = new FadaComum1(0, 0, new LootTable(), 100, null, null);
+        FadaComum1 fada1 = new FadaComum1(0, 0, new LootTable(), 100, null, "", 1);
+        FadaComum2 fada2 = new FadaComum2(0, 0, new LootTable(), 100, null, "", 1);
+        FadaComum3 fada3 = new FadaComum3(0, 0, 0, new LootTable(), 100, null, "", 1);
+        FadaComum4 fada4 = new FadaComum4(0, 0, new LootTable(), 100, null, "", 1);
         Nightbug nightbug = new Nightbug(0, 0, new LootTable(), 1000, null);
         Lorelei lorelei = new Lorelei(0, 0, new LootTable(), 1200, null);
         Reimu reimu = new Reimu(0, 0, new LootTable(), 5000, null);
         Keine keine = new Keine(0, 0, new LootTable(), 8000, null);
         Reisen reisen = new Reisen(0, 0, new LootTable(), 6000, null);
 
-        salvarPersonagemParaTeste(fada, "enemies/fada_comum.zip");
+        salvarPersonagemParaTeste(fada1, "enemies/fada_comum1.zip");
+        salvarPersonagemParaTeste(fada2, "enemies/fada_comum2.zip");
+        salvarPersonagemParaTeste(fada3, "enemies/fada_comum3.zip");
+        salvarPersonagemParaTeste(fada4, "enemies/fada_comum4.zip");
         salvarPersonagemParaTeste(nightbug, "enemies/nightbug.zip");
         salvarPersonagemParaTeste(lorelei, "enemies/lorelei.zip");
         salvarPersonagemParaTeste(reimu, "enemies/reimu.zip");

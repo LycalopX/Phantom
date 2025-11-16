@@ -36,10 +36,9 @@ public class FadaComum1 extends Inimigo {
     /**
      * @brief Construtor da FadaComum.
      */
-    public FadaComum1(double x, double y, LootTable lootTable, double vida, Fase fase, String skin) {
+    public FadaComum1(double x, double y, LootTable lootTable, double vida, Fase fase, String skin, int behaviorType) {
         super("", x, y, lootTable, vida);
 
-        this.currentState = State.ENTERING;
         this.faseReferencia = fase;
         this.animador = new GerenciadorDeAnimacaoInimigo(
                 "imgs/inimigos/enemy1_spreadsheet" + skin + ".png",
@@ -52,6 +51,16 @@ public class FadaComum1 extends Inimigo {
         this.largura = (int) (30.0 * BODY_PROPORTION);
         this.altura = (int) (30.0 * BODY_PROPORTION);
         this.hitboxRaio = (this.largura / 2.0) / CELL_SIDE;
+
+        switch (behaviorType) {
+            case 1:
+            default:
+                this.currentState = State.ENTERING;
+                break;
+            case 2:
+                // Novo comportamento a ser implementado
+                break;
+        }
     }
 
     /**

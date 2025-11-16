@@ -197,9 +197,21 @@ public class Engine implements Runnable {
      * @brief Gera os itens que são dropados pelo herói ao morrer.
      */
     private void dropItensAoMorrer(int powerAtual) {
-        int itensADropar = (int) (powerAtual * 0.9);
-        for (int i = 0; i < itensADropar; i++) {
+        int nMiniPowerUp = (int) (powerAtual * 0.9) % 5;
+        int nPowerUp = (int) (powerAtual * 0.9) / 5;
+
+        for (int i = 0; i < nMiniPowerUp; i++) {
             Item itemDropado = faseAtual.getItemPool().getItem(ItemType.MINI_POWER_UP);
+            if (itemDropado != null) {
+                itemDropado.init(hero.getX(), hero.getY());
+                double angulo = -30 - Math.random() * 120;
+                double forca = 0.15;
+                itemDropado.lancarItem(angulo, forca);
+            }
+        }
+
+        for (int i = 0; i < nPowerUp; i++) {
+            Item itemDropado = faseAtual.getItemPool().getItem(ItemType.POWER_UP);
             if (itemDropado != null) {
                 itemDropado.init(hero.getX(), hero.getY());
                 double angulo = -30 - Math.random() * 120;
@@ -372,7 +384,8 @@ public class Engine implements Runnable {
                 zos.closeEntry();
             }
         } catch (Exception e) {
-            Logger.getLogger(Engine.class.getName()).log(Level.SEVERE, "Erro ao salvar personagem para teste: " + nomeArquivo, e);
+            Logger.getLogger(Engine.class.getName()).log(Level.SEVERE,
+                    "Erro ao salvar personagem para teste: " + nomeArquivo, e);
         }
     }
 

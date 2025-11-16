@@ -31,11 +31,6 @@ public class ScriptFase3 extends ScriptDeFase {
     private transient BufferedImage bg3_1;
     private transient BufferedImage bg3_3;
     private transient BufferedImage blackPixel;
-    private long lastSpeedupTrigger = 0;
-
-    private static final int SPEEDUP_INTERVAL = 500;
-    private static final int SPEEDUP_DURATION = 540;
-    private static final double SPEEDUP_AMPLITUDE = 3.0;
 
     /**
      * @brief Construtor do script da Fase 2.
@@ -115,15 +110,6 @@ public class ScriptFase3 extends ScriptDeFase {
     }
 
     @Override
-    public void atualizarCenario(Fase fase, double velocidadeScroll) {
-        lastSpeedupTrigger++;
-        if (lastSpeedupTrigger > SPEEDUP_INTERVAL) {
-            Fase.triggerGlobalSpeedup(SPEEDUP_DURATION, SPEEDUP_AMPLITUDE);
-            lastSpeedupTrigger = 0;
-        }
-    }
-
-    @Override
     public void preencherCenarioInicial(Fase fase) {
         // Nada a preencher inicialmente
     }
@@ -135,13 +121,17 @@ public class ScriptFase3 extends ScriptDeFase {
         ondas.add(new Onda1(fase));
         ondas.add(new OndaDeEspera(fase, 200));
 
+        ondas.add(new OndaDeSpeedup(540, 1.25));
         ondas.add(new Onda2(fase));
         ondas.add(new OndaDeEspera(fase, 200));
 
         ondas.add(new Onda3(fase));
         ondas.add(new OndaDeEspera(fase, 200));
 
+        ondas.add(new OndaDeSpeedup(540, 1.25));
         ondas.add(new Onda4(fase));
+
+        ondas.add(new OndaDeSpeedup(200, 5.0));
         ondas.add(new OndaDeEspera(fase, 200));
 
         ondas.add(new OndaBoss(fase));

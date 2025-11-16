@@ -272,4 +272,16 @@ public abstract class ScriptDeFase implements Serializable {
             SoundManager.getInstance().playMusic(musica, true);
         }
     }
+
+    protected class OndaDeSpeedup extends Onda {
+        public OndaDeSpeedup(int duration, double amplitude) {
+            super();
+            inimigos.add(new InimigoSpawn(null, 1) {
+                @Override
+                public void spawn(Fase fase) {
+                    Fase.triggerGlobalSpeedup(duration, amplitude);
+                }
+            });
+        }
+    }
 }

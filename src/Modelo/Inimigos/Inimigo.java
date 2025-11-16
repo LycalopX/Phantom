@@ -7,6 +7,7 @@ import Modelo.Personagem;
 import Modelo.RenderLayer;
 import java.awt.Graphics;
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 
 /**
  * @brief Classe abstrata base para todos os inimigos do jogo.
@@ -128,7 +129,7 @@ public abstract class Inimigo extends Personagem {
         return estado;
     }
 
-    protected abstract class Estado {
+    protected abstract class Estado implements Serializable {
         protected Inimigo inimigo;
         private Estado proximoEstado;
         protected int contadorTempo;
@@ -188,7 +189,7 @@ public abstract class Inimigo extends Personagem {
     }
 
     protected class IrPara extends Estado {
-        public static class Movimento {
+        public static class Movimento implements Serializable {
             private final Point2D.Double velocidade;
             private Point2D.Double alvo;
 

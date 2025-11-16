@@ -17,7 +17,7 @@ public class FadaComum3 extends Inimigo {
     private Estado estadoAtual;
     private transient GerenciadorDeAnimacaoInimigo animador;
 
-    public FadaComum3(double x, double y, LootTable lootTable, double vida, Fase fase, String skin) {
+    public FadaComum3(double x, double y, double targetX, LootTable lootTable, double vida, Fase fase, String skin) {
         super("", x, y, lootTable, vida);
         this.faseReferencia = fase;
 
@@ -33,12 +33,12 @@ public class FadaComum3 extends Inimigo {
         this.hitboxRaio = (this.largura / 2.0) / CELL_SIDE;
 
         // Define a sequência de estados para o padrão "Pressão Dupla"
-        Estado entrada = new IrPara(this, x, 5, 0.1);
+        Estado entrada = new IrPara(this, targetX, 5, 0.1);
         Estado ataqueLento = new AtaqueEmLequeMirado(this, 5, 45, 0.105, TipoProjetilInimigo.ESFERA_GRANDE_AMARELA); // 5 tiros, 30% mais lento
         Estado pausaAposAtaqueLento = new Esperar(this, 30); // Meio segundo de pausa
         Estado ataqueRapido = new AtaqueEmLequeMirado(this, 8, 60, 0.15, TipoProjetilInimigo.ESFERA_AMARELA); // 8 tiros
         Estado pausaAntesSaida = new Esperar(this, 120); // 2 segundos de pausa antes de sair
-        Estado saida = new IrPara(this, x, -2, 0.15);
+        Estado saida = new IrPara(this, targetX, -2, 0.15);
 
         entrada.setProximoEstado(ataqueLento);
         ataqueLento.setProximoEstado(pausaAposAtaqueLento);

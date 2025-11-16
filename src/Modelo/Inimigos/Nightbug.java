@@ -2,7 +2,6 @@ package Modelo.Inimigos;
 
 import static Auxiliar.ConfigMapa.*;
 import Auxiliar.LootTable;
-import Auxiliar.SoundManager;
 import Auxiliar.Projeteis.TipoProjetilInimigo;
 import Modelo.Fases.Fase;
 import Modelo.Inimigos.GerenciadorDeAnimacaoInimigo.AnimationState;
@@ -36,7 +35,6 @@ public class Nightbug extends Boss {
         this.hitboxRaio = (this.largura / 2.0) / Auxiliar.ConfigMapa.CELL_SIDE;
 
         setupEstados();
-        SoundManager.getInstance().playMusic("Wriggling Autumn Moon ~ Mooned Insect", true);
     }
 
     private void setupEstados() {

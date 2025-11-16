@@ -139,9 +139,9 @@ public class ScriptFase2 extends ScriptDeFase {
     // Ondas
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
+        ondas.add(new OndaBoss(fase));
         ondas.add(new Onda1(fase));
         ondas.add(new OndaDeEspera(fase, 180));
-        ondas.add(new OndaBoss(fase));
         ondas.add(new OndaDeEspera(fase, 200));
         return ondas;
     }
@@ -168,11 +168,10 @@ public class ScriptFase2 extends ScriptDeFase {
 
     private class OndaBoss extends OndaDeBoss{
         public OndaBoss(Fase fase) {
-            super();
+            super("Deaf to All but the Song");
             lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
             boss = new Lorelei(0, MUNDO_ALTURA * 0.05, lootTable, 10000, fase);
 
-            SoundManager.getInstance().playMusic("Deaf to All but the Song", true);
             inimigos.add(new InimigoSpawn(boss, 0));
         }
     }

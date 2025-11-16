@@ -1,11 +1,11 @@
 package Modelo.Inimigos;
 
-import java.awt.Graphics;
+import static Auxiliar.ConfigMapa.*;
 import Auxiliar.LootTable;
+import Modelo.Fases.Fase;
 import Modelo.Personagem;
 import Modelo.RenderLayer;
-import Modelo.Fases.Fase;
-import static Auxiliar.ConfigMapa.*;
+import java.awt.Graphics;
 import java.awt.geom.Point2D;
 
 /**
@@ -197,8 +197,8 @@ public abstract class Inimigo extends Personagem {
 
     protected class IrPara extends Estado {
         public static class Movimento {
-            private Point2D.Double velocidade;
-            private Point2D.Double alvo;
+            private final Point2D.Double velocidade;
+            private final Point2D.Double alvo;
 
             public Movimento(double velocidadeX, double velocidadeY, double alvoX, double alvoY) {
                 this.velocidade = new Point2D.Double(velocidadeX, velocidadeY);

@@ -158,12 +158,13 @@ public class ScriptFase1 extends ScriptDeFase {
     // Onda
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
-        ondas.add(new OndaBoss(fase));
         ondas.add(new OndaDeEspera(fase, 200));
         ondas.add(new Onda1(fase));
         ondas.add(new OndaDeEspera(fase, 100));
         ondas.add(new Onda1(fase));
         ondas.add(new OndaDeEspera(fase, 100));
+        ondas.add(new OndaBoss(fase));
+        ondas.add(new OndaDeEspera(fase, 180));
         return ondas;
     }
     
@@ -189,7 +190,7 @@ public class ScriptFase1 extends ScriptDeFase {
 
     private class OndaBoss extends OndaDeBoss{
         public OndaBoss(Fase fase) {
-            super();
+            super("Wriggling Autumn Moon ~ Mooned Insect");
             lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
             boss = new Nightbug(0, MUNDO_ALTURA * 0.05, lootTable, 10000, fase);
 

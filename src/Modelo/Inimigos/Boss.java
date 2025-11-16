@@ -98,7 +98,7 @@ public abstract class Boss extends Inimigo {
         // Classes
         protected class PadraoLeque extends PadraoAtaque {
 
-            private int amplitude;
+            private final int amplitude;
 
             public PadraoLeque(int rotacao, int amplitude, int quantidadeAtaques) {
                 super(rotacao, quantidadeAtaques);
@@ -146,6 +146,19 @@ public abstract class Boss extends Inimigo {
                 if (p != null) {
                     p.reset(posicaoX, posicaoY, velocidadeProjetil, angle, TipoProjetil.INIMIGO, tipoProjetil);
                 }
+            }
+        }
+    }
+
+    protected abstract class AtaqueEmLequeNoJogador extends AtaqueEmLeque {
+        public AtaqueEmLequeNoJogador(Boss boss) {
+            super(boss);
+        }
+
+        @Override
+        protected void atirar(PadraoAtaque padrao) {
+            if (padrao instanceof PadraoLeque leque) {
+                atirarEmLeque(inimigo.getX(), inimigo.getY(), getAnguloEmDirecaoAoHeroi(), leque.getQuantidadeAtaques(), leque.getAmplitude());
             }
         }
     }

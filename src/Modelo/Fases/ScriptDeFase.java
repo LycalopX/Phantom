@@ -2,6 +2,7 @@ package Modelo.Fases;
 
 import Auxiliar.ConfigMapa;
 import Auxiliar.LootTable;
+import Auxiliar.SoundManager;
 import Controler.Engine;
 import Modelo.Inimigos.Boss;
 import Modelo.Personagem;
@@ -132,6 +133,10 @@ public abstract class ScriptDeFase implements Serializable {
     }
 
     // Onda
+    protected interface ITocarMusica {
+        void tocarMusicaDeOnda(String musica);
+    }
+
     protected abstract class Onda {
 
         // Classes
@@ -232,17 +237,39 @@ public abstract class ScriptDeFase implements Serializable {
         }
     }
 
-    protected abstract class OndaDeBoss extends Onda{
+    protected abstract class OndaDeBoss extends OndaComMusica{
         protected Boss boss;
         protected LootTable lootTable;
-        public OndaDeBoss() {
-            super();
+        public OndaDeBoss(String musica) {
+            super(musica);
             this.lootTable = new LootTable();
         }
 
         @Override
         public boolean getFinalizado() {
             return super.getFinalizado() && !boss.isActive();
+        }
+    }
+
+    protected class OndaComMusica extends Onda implements ITocarMusica {
+        private final String musica;
+
+        public OndaComMusica(String musica) {
+            super();
+            this.musica = musica;
+        }
+
+        @Override
+        public void incrementarTempo(int tempo, Fase fase) {
+            super.incrementarTempo(tempo, fase);
+            if (tempoDeEspera == 0) {
+                tocarMusicaDeOnda(musica);
+            }
+        }
+
+        @Override
+        public void tocarMusicaDeOnda(String musica) {
+            SoundManager.getInstance().playMusic(musica, true);
         }
     }
 }

@@ -21,7 +21,7 @@ import java.util.Random;
 public abstract class ScriptDeFase implements Serializable {
 
     protected Random random = new Random();
-    protected Engine engine;
+    protected transient Engine engine;
 
     // Onda
     protected ArrayList<Onda> ondas;
@@ -137,10 +137,10 @@ public abstract class ScriptDeFase implements Serializable {
         void tocarMusicaDeOnda(String musica);
     }
 
-    protected abstract class Onda {
+    protected abstract class Onda implements Serializable {
 
         // Classes
-        protected class InimigoSpawn {
+        protected class InimigoSpawn implements Serializable {
 
             protected Personagem personagem;
             protected int tempoAposAcaoPrevia;
@@ -270,6 +270,18 @@ public abstract class ScriptDeFase implements Serializable {
         @Override
         public void tocarMusicaDeOnda(String musica) {
             SoundManager.getInstance().playMusic(musica, true);
+        }
+    }
+
+    protected class OndaDeSpeedup extends Onda {
+        public OndaDeSpeedup(int duration, double amplitude) {
+            super();
+            inimigos.add(new InimigoSpawn(null, 1) {
+                @Override
+                public void spawn(Fase fase) {
+                    Fase.triggerGlobalSpeedup(duration, amplitude);
+                }
+            });
         }
     }
 }

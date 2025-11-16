@@ -151,13 +151,17 @@ public class ScriptFase2 extends ScriptDeFase {
     // Ondas
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
+        ondas.add(new OndaDeEspera(fase, 240));
+
         ondas.add(new Onda1(fase));
         ondas.add(new OndaDeEspera(fase, 200));
 
+        ondas.add(new OndaDeSpeedup(540, 1.25));
         ondas.add(new Onda2(fase));
         ondas.add(new OndaDeEspera(fase, 500));
 
         ondas.add(new Onda3(fase));
+        ondas.add(new OndaDeSpeedup(600, 2));
         ondas.add(new OndaDeEspera(fase, 600));
 
         ondas.add(new OndaBoss(fase));

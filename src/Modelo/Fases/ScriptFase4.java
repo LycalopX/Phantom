@@ -187,7 +187,7 @@ public class ScriptFase4 extends ScriptDeFase {
             double xInicial = MUNDO_LARGURA / 2.0;
             LootTable lootTable = new LootTable();
             lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
-            inimigos.add(0, new InimigoSpawn(new FadaComum3(xInicial, -1.0, xInicial, lootTable, 60, fase, null), 0));
+            inimigos.add(0, new InimigoSpawn(new FadaComum3(xInicial, -1.0, xInicial, lootTable, 60, fase, "", 1), 0));
         }
     }
 

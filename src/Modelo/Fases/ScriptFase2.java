@@ -155,7 +155,7 @@ public class ScriptFase2 extends ScriptDeFase {
         ondas.add(new OndaDeEspera(fase, 200));
 
         ondas.add(new Onda2(fase));
-        ondas.add(new OndaDeEspera(fase, 1000));
+        ondas.add(new OndaDeEspera(fase, 500));
 
         ondas.add(new Onda3(fase));
         ondas.add(new OndaDeEspera(fase, 600));
@@ -182,12 +182,12 @@ public class ScriptFase2 extends ScriptDeFase {
             for (int i = 0; i < 5; i++) {
                 xInicial = (4 + ((MUNDO_LARGURA - 8) * random.nextDouble()));
                 inimigos.add(
-                        new InimigoSpawn(new FadaComum3(xInicial, -1.0, xInicial, lootTable, 180, fase, ""), 40));
+                        new InimigoSpawn(new FadaComum3(xInicial, -1.0, xInicial, lootTable, 180, fase, "", 1), 40));
             }
             for (int i = 0; i < 10; i++) {
                 xInicial = (4 + ((MUNDO_LARGURA - 8) * random.nextDouble()));
                 inimigos.add(
-                        new InimigoSpawn(new FadaComum1(xInicial, -1.0, lootTable, 140, fase, ""), 40));
+                        new InimigoSpawn(new FadaComum1(xInicial, -1.0, lootTable, 140, fase, "", 1), 40));
             }
         }
     }
@@ -209,9 +209,9 @@ public class ScriptFase2 extends ScriptDeFase {
             for (int i = 0; i < 5; i++) {
                 yInicial = (4 + ((MUNDO_ALTURA * 0.2) * random.nextDouble()));
                 inimigos.add(
-                        new InimigoSpawn(new FadaComum3(-1, yInicial, 4, lootTable, 40, fase, "_hat"), 0));
+                        new InimigoSpawn(new FadaComum3(-1, yInicial, 4, lootTable, 40, fase, "_hat", 1), 0));
                 inimigos.add(
-                        new InimigoSpawn(new FadaComum3(MUNDO_LARGURA + 1, yInicial, MUNDO_LARGURA - 4, lootTable, 180, fase, "_hat"), 0));
+                        new InimigoSpawn(new FadaComum3(MUNDO_LARGURA + 1, yInicial, MUNDO_LARGURA - 4, lootTable, 180, fase, "_hat", 1), 0));
             }
         }
     }
@@ -232,15 +232,15 @@ public class ScriptFase2 extends ScriptDeFase {
             for (int i = 0; i < 3; i++) {
                 xInicial = ((MUNDO_LARGURA) * (i + 3) / 12);
                 inimigos.add(
-                        new InimigoSpawn(new FadaComum1(xInicial, -1.0, lootTable, 150, fase, ""), 0));
+                        new InimigoSpawn(new FadaComum1(xInicial, -1.0, lootTable, 150, fase, "", 1), 0));
 
                 xInicial = ((MUNDO_LARGURA) * (i + 4) / 12);
                 inimigos.add(
-                        new InimigoSpawn(new FadaComum2(xInicial, -1.0, lootTable, 150, fase, ""), 0));
+                        new InimigoSpawn(new FadaComum2(xInicial, -1.0, lootTable, 150, fase, "", 1), 0));
 
                 xInicial = ((MUNDO_LARGURA) * (i + 5) / 12);
                 inimigos.add(
-                        new InimigoSpawn(new FadaComum3(xInicial, -1.0, xInicial, lootTable, 150, fase, ""), 0));
+                        new InimigoSpawn(new FadaComum3(xInicial, -1.0, xInicial, lootTable, 150, fase, "", 1), 0));
             }
         }
     }

@@ -189,7 +189,7 @@ public class ScriptFase1 extends ScriptDeFase {
             for (int i = 0; i < 10; i++) {
                 xInicial = (4 + ((MUNDO_LARGURA - 8) * random.nextDouble()));
                 inimigos.add(
-                        new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial, -1.0, lootTable, 80, fase, ""), 40));
+                        new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial, -1.0, lootTable, 80, fase, "", 1), 40));
             }
         }
     }
@@ -210,7 +210,7 @@ public class ScriptFase1 extends ScriptDeFase {
             for (int i = 0; i < 3; i++) {
                 xInicial = ((MUNDO_LARGURA) * (i + 2) / 6);
                 inimigos.add(
-                        new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, lootTable, 600, fase, ""), 0));
+                        new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, lootTable, 600, fase, "", 1), 0));
             }
         }
     }
@@ -225,13 +225,13 @@ public class ScriptFase1 extends ScriptDeFase {
 
             LootTable emptyLoot = new LootTable();
             double xInicial = (2 + ((MUNDO_LARGURA - 3) * random.nextDouble()));
-                        new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, emptyLoot, 600, fase, ""), 600);
+                        new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, emptyLoot, 600, fase, "", 1), 600);
 
             xInicial = (2 + ((MUNDO_LARGURA - 3) * random.nextDouble()));
-                        new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, emptyLoot, 600, fase, ""), 0);
+                        new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, emptyLoot, 600, fase, "", 1), 0);
 
             xInicial = (2 + ((MUNDO_LARGURA - 3) * random.nextDouble()));
-                        new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, emptyLoot, 600, fase, ""), 0);
+                        new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, emptyLoot, 600, fase, "", 1), 0);
         }
     }
 }

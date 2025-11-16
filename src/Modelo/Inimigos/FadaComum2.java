@@ -16,7 +16,7 @@ public class FadaComum2 extends Inimigo {
     private Estado estadoAtual;
     private transient GerenciadorDeAnimacaoInimigo animador;
 
-    public FadaComum2(double x, double y, LootTable lootTable, double vida, Fase fase, String skin) {
+    public FadaComum2(double x, double y, LootTable lootTable, double vida, Fase fase, String skin, int behaviorType) {
         super("", x, y, lootTable, vida);
         this.faseReferencia = fase;
 
@@ -33,27 +33,35 @@ public class FadaComum2 extends Inimigo {
         this.altura = (int) (32.0 * BODY_PROPORTION);
         this.hitboxRaio = (this.largura / 2.0) / CELL_SIDE;
         
-        // Define a nova sequência de estados
-        Estado entrada = new IrPara(this, x, 6, 0.1);
-        
-        Estado ataqueMovendo1 = new MovimentoAtirando(this, MUNDO_LARGURA - 5, 8, 0.1, 30);
-        Estado ataqueMovendo2 = new MovimentoAtirando(this, 5, 8, 0.2, 30);
-        
-        Estado pausa = new Esperar(this, 120); // Pausa de 2 segundos
-        
-        Estado ataqueMovendo3 = new MovimentoAtirando(this, MUNDO_LARGURA - 5, 8, 0.1, 30);
-        Estado ataqueMovendo4 = new MovimentoAtirando(this, 5, 8, 0.2, 30);
+        switch (behaviorType) {
+            case 1:
+            default:
+                // Define a nova sequência de estados
+                Estado entrada = new IrPara(this, x, 6, 0.1);
+                
+                Estado ataqueMovendo1 = new MovimentoAtirando(this, MUNDO_LARGURA - 5, 8, 0.1, 30);
+                Estado ataqueMovendo2 = new MovimentoAtirando(this, 5, 8, 0.2, 30);
+                
+                Estado pausa = new Esperar(this, 120); // Pausa de 2 segundos
+                
+                Estado ataqueMovendo3 = new MovimentoAtirando(this, MUNDO_LARGURA - 5, 8, 0.1, 30);
+                Estado ataqueMovendo4 = new MovimentoAtirando(this, 5, 8, 0.2, 30);
 
-        Estado saida = new IrPara(this, x, -2, 0.2);
+                Estado saida = new IrPara(this, x, -2, 0.2);
 
-        entrada.setProximoEstado(ataqueMovendo1);
-        ataqueMovendo1.setProximoEstado(ataqueMovendo2);
-        ataqueMovendo2.setProximoEstado(pausa);
-        pausa.setProximoEstado(ataqueMovendo3);
-        ataqueMovendo3.setProximoEstado(ataqueMovendo4);
-        ataqueMovendo4.setProximoEstado(saida);
-        
-        this.estadoAtual = entrada;
+                entrada.setProximoEstado(ataqueMovendo1);
+                ataqueMovendo1.setProximoEstado(ataqueMovendo2);
+                ataqueMovendo2.setProximoEstado(pausa);
+                pausa.setProximoEstado(ataqueMovendo3);
+                ataqueMovendo3.setProximoEstado(ataqueMovendo4);
+                ataqueMovendo4.setProximoEstado(saida);
+                
+                this.estadoAtual = entrada;
+                break;
+            case 2:
+                // Novo comportamento a ser implementado
+                break;
+        }
     }
 
     @Override

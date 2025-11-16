@@ -186,7 +186,7 @@ public class Lorelei extends Boss {
         public AtaqueParaBaixo(Boss boss) {
             super(boss);
 
-            this.intervaloAtaque = 10;
+            this.intervaloAtaque = 20;
             this.velocidadeProjetil = 0.15;
             this.tipoProjetil = TipoProjetilInimigo.ESFERA_AMARELA;
 

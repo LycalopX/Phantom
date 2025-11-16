@@ -48,4 +48,8 @@ public class LootTable implements Serializable {
         }
         return dropsGerados;
     }
+
+    public ArrayList<LootItem> getItems() {
+        return this.itens;
+    }
 }

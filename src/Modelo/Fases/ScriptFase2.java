@@ -153,8 +153,13 @@ public class ScriptFase2 extends ScriptDeFase {
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
         ondas.add(new Onda1(fase));
         ondas.add(new OndaDeEspera(fase, 200));
+
         ondas.add(new Onda2(fase));
-        ondas.add(new OndaDeEspera(fase, 500));
+        ondas.add(new OndaDeEspera(fase, 1000));
+
+        ondas.add(new Onda3(fase));
+        ondas.add(new OndaDeEspera(fase, 600));
+
         ondas.add(new OndaBoss(fase));
         ondas.add(new OndaDeEspera(fase, 180));
         return ondas;
@@ -204,9 +209,38 @@ public class ScriptFase2 extends ScriptDeFase {
             for (int i = 0; i < 5; i++) {
                 yInicial = (4 + ((MUNDO_ALTURA * 0.2) * random.nextDouble()));
                 inimigos.add(
-                        new InimigoSpawn(new FadaComum3(-1, yInicial, 4, lootTable, 180, fase, "_hat"), 0));
+                        new InimigoSpawn(new FadaComum3(-1, yInicial, 4, lootTable, 40, fase, "_hat"), 0));
                 inimigos.add(
                         new InimigoSpawn(new FadaComum3(MUNDO_LARGURA + 1, yInicial, MUNDO_LARGURA - 4, lootTable, 180, fase, "_hat"), 0));
+            }
+        }
+    }
+
+    private class Onda3 extends Onda {
+        public Onda3(Fase fase) {
+            super();
+
+            // Adiciona inimigos à onda
+            double xInicial;
+            LootTable lootTable = new LootTable();
+
+            // Loot table
+            lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.5, true, false));
+            lootTable.addItem(new LootItem(ItemType.BOMB, 1, 1, 0.1, true, false));
+
+            // Inimigos
+            for (int i = 0; i < 3; i++) {
+                xInicial = ((MUNDO_LARGURA) * (i + 3) / 12);
+                inimigos.add(
+                        new InimigoSpawn(new FadaComum1(xInicial, -1.0, lootTable, 150, fase, ""), 0));
+
+                xInicial = ((MUNDO_LARGURA) * (i + 4) / 12);
+                inimigos.add(
+                        new InimigoSpawn(new FadaComum2(xInicial, -1.0, lootTable, 150, fase, ""), 0));
+
+                xInicial = ((MUNDO_LARGURA) * (i + 5) / 12);
+                inimigos.add(
+                        new InimigoSpawn(new FadaComum3(xInicial, -1.0, xInicial, lootTable, 150, fase, ""), 0));
             }
         }
     }
@@ -215,7 +249,7 @@ public class ScriptFase2 extends ScriptDeFase {
         public OndaBoss(Fase fase) {
             super("Deaf to All but the Song");
             lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
-            boss = new Lorelei(0, MUNDO_ALTURA * 0.05, lootTable, 10000, fase);
+            boss = new Lorelei(0, MUNDO_ALTURA * 0.05, lootTable, 6000, fase);
 
             inimigos.add(new InimigoSpawn(boss, 0));
         }

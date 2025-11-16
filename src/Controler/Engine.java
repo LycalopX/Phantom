@@ -194,7 +194,7 @@ public class Engine implements Runnable {
      * @brief Gera os itens que são dropados pelo herói ao morrer.
      */
     private void dropItensAoMorrer(int powerAtual) {
-        int itensADropar = powerAtual / 2;
+        int itensADropar = (int) (powerAtual * 0.9);
         for (int i = 0; i < itensADropar; i++) {
             Item itemDropado = faseAtual.getItemPool().getItem(ItemType.MINI_POWER_UP);
             if (itemDropado != null) {
@@ -212,8 +212,10 @@ public class Engine implements Runnable {
     private synchronized void carregarJogo() {
         try (FileInputStream fis = new FileInputStream(SAVE_FILE_NAME);
                 ObjectInputStream ois = new ObjectInputStream(fis)) {
+                    
             this.faseAtual = (Fase) ois.readObject();
             cenario.setFase(this.faseAtual);
+            this.controleDeJogo.setItemPool(this.faseAtual.getItemPool());
 
             this.hero = (Hero) this.faseAtual.getHero();
             System.out.println(">>> JOGO CARREGADO!");
@@ -246,6 +248,7 @@ public class Engine implements Runnable {
         faseAtual.adicionarPersonagem(hero);
         cenario.setFase(faseAtual);
         cenario.setEstadoDoJogo(estadoAtual);
+        this.controleDeJogo.setItemPool(this.faseAtual.getItemPool());
 
         SoundManager.getInstance().playMusic("Illusionary Night ~ Ghostly Eyes", true);
     }
@@ -371,6 +374,7 @@ public class Engine implements Runnable {
         this.faseAtual = gerenciadorDeFases.proximaFase(this);
         this.faseAtual.adicionarPersonagem(hero);
         cenario.setFase(this.faseAtual);
+        this.controleDeJogo.setItemPool(this.faseAtual.getItemPool());
     }
 
     /**

@@ -15,7 +15,6 @@ public abstract class Inimigo extends Personagem {
 
     private static final long serialVersionUID = 1L;
 
-    public LootTable lootTable;
     public double vida;
     protected transient Fase faseReferencia;
     protected double initialX;
@@ -77,13 +76,6 @@ public abstract class Inimigo extends Personagem {
         int telaY = (int) Math.round(y * CELL_SIDE) - (this.altura / 2);
         g.drawImage(iImage.getImage(), telaX, telaY, largura, altura, null);
         super.autoDesenho(g);
-    }
-
-    /**
-     * @brief Retorna a tabela de loot do inimigo.
-     */
-    public LootTable getLootTable() {
-        return this.lootTable;
     }
 
     /**

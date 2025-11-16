@@ -48,6 +48,10 @@ public class ControleDeJogo {
         this.vizinhosPotenciais = new ArrayList<>();
     }
 
+    public void setItemPool(ItemPool itemPool) {
+        this.itemPool = itemPool;
+    }
+
     /**
      * @brief Desenha todos os personagens de uma lista na tela.
      */
@@ -403,6 +407,7 @@ public class ControleDeJogo {
             LootTable tabela = i.getLootTable();
             if (tabela != null) {
                 ArrayList<LootItem> drops = tabela.gerarDrops();
+
                 for (LootItem dropInfo : drops) {
                     Item itemCriado = itemPool.getItem(dropInfo.getTipo());
                     if (itemCriado != null) {

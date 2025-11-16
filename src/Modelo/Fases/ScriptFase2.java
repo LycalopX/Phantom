@@ -186,12 +186,12 @@ public class ScriptFase2 extends ScriptDeFase {
             for (int i = 0; i < 5; i++) {
                 xInicial = (4 + ((MUNDO_LARGURA - 8) * random.nextDouble()));
                 inimigos.add(
-                        new InimigoSpawn(new FadaComum3(xInicial, -1.0, xInicial, lootTable, 180, fase, "", 1), 40));
+                        new InimigoSpawn(new FadaComum3(xInicial, -1.0, xInicial, lootTable, 360, fase, "", 1), 40));
             }
             for (int i = 0; i < 10; i++) {
                 xInicial = (4 + ((MUNDO_LARGURA - 8) * random.nextDouble()));
                 inimigos.add(
-                        new InimigoSpawn(new FadaComum1(xInicial, -1.0, lootTable, 140, fase, "", 1), 40));
+                        new InimigoSpawn(new FadaComum1(xInicial, -1.0, lootTable, 280, fase, "", 1), 40));
             }
         }
     }
@@ -215,7 +215,7 @@ public class ScriptFase2 extends ScriptDeFase {
                 inimigos.add(
                         new InimigoSpawn(new FadaComum3(-1, yInicial, 4, lootTable, 40, fase, "_hat", 1), 0));
                 inimigos.add(
-                        new InimigoSpawn(new FadaComum3(MUNDO_LARGURA + 1, yInicial, MUNDO_LARGURA - 4, lootTable, 180, fase, "_hat", 1), 0));
+                        new InimigoSpawn(new FadaComum3(MUNDO_LARGURA + 1, yInicial, MUNDO_LARGURA - 4, lootTable, 360, fase, "_hat", 1), 0));
             }
         }
     }
@@ -236,15 +236,15 @@ public class ScriptFase2 extends ScriptDeFase {
             for (int i = 0; i < 3; i++) {
                 xInicial = ((MUNDO_LARGURA) * (i + 3) / 12);
                 inimigos.add(
-                        new InimigoSpawn(new FadaComum1(xInicial, -1.0, lootTable, 150, fase, "", 1), 0));
+                        new InimigoSpawn(new FadaComum1(xInicial, -1.0, lootTable, 300, fase, "", 1), 0));
 
                 xInicial = ((MUNDO_LARGURA) * (i + 4) / 12);
                 inimigos.add(
-                        new InimigoSpawn(new FadaComum2(xInicial, -1.0, lootTable, 150, fase, "", 1), 0));
+                        new InimigoSpawn(new FadaComum2(xInicial, -1.0, lootTable, 300, fase, "", 1), 0));
 
                 xInicial = ((MUNDO_LARGURA) * (i + 5) / 12);
                 inimigos.add(
-                        new InimigoSpawn(new FadaComum3(xInicial, -1.0, xInicial, lootTable, 150, fase, "", 1), 0));
+                        new InimigoSpawn(new FadaComum3(xInicial, -1.0, xInicial, lootTable, 300, fase, "", 1), 0));
             }
         }
     }
@@ -253,7 +253,7 @@ public class ScriptFase2 extends ScriptDeFase {
         public OndaBoss(Fase fase) {
             super("Deaf to All but the Song");
             lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
-            boss = new Lorelei(0, MUNDO_ALTURA * 0.05, lootTable, 6000, fase);
+            boss = new Lorelei(0, MUNDO_ALTURA * 0.05, lootTable, 10000, fase);
 
             inimigos.add(new InimigoSpawn(boss, 0));
         }

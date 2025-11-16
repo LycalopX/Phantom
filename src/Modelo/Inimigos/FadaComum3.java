@@ -79,33 +79,6 @@ public class FadaComum3 extends Inimigo {
 
     // --- Novos Estados de Ataque ---
 
-    private class AtaqueMirado extends Estado {
-        private double velocidadeProjetil;
-        private TipoProjetilInimigo tipoProjetil;
-
-        public AtaqueMirado(Inimigo inimigo, double velocidade, TipoProjetilInimigo tipo) {
-            super(inimigo);
-            this.velocidadeProjetil = velocidade;
-            this.tipoProjetil = tipo;
-        }
-
-        @Override
-        public void incrementarTempo(Fase fase, int tempo) {
-            if (estadoCompleto) return;
-
-            Personagem hero = fase.getHero();
-            if (hero != null) {
-                double angulo = inimigo.getAnguloEmDirecaoAoHeroi();
-                Projetil p = fase.getProjetilPool().getProjetilInimigo();
-                if (p != null) {
-                    p.reset(inimigo.getX(), inimigo.getY(), velocidadeProjetil, angulo, TipoProjetil.INIMIGO, tipoProjetil);
-                    Auxiliar.SoundManager.getInstance().playSfx("se_tan00", 0.8f);
-                }
-            }
-            this.estadoCompleto = true;
-        }
-    }
-
     private class AtaqueEmLequeMirado extends Estado {
         private int quantidadeTiros;
         private double amplitudeLeque;

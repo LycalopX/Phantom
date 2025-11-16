@@ -12,35 +12,15 @@ import java.awt.Graphics;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
-// Implementar IA melhorada
-
-/**
- * @brief Representa um inimigo comum do tipo "fada", com um padrão de movimento
- *        e ataque predefinido.
- */
 public class FadaComum4 extends Inimigo {
 
-    private enum State {
-        ENTERING,
-    }
-
-    private State currentState;
-    private double targetY = 8;
-    private double amplitude = 4;
-    private double frequency = 0.5;
-    private int shootTimer = 0;
-    private int shootInterval = 60;
-    private int shootDuration = 300;
-
+    private Estado estadoAtual;
     private transient GerenciadorDeAnimacaoInimigo animador;
 
-    /**
-     * @brief Construtor da FadaComum.
-     */
     public FadaComum4(double x, double y, LootTable lootTable, double vida, Fase fase) {
-        super("", x, y, lootTable, 40);
-        this.currentState = State.ENTERING;
+        super("", x, y, lootTable, 150); // Vida maior para durar mais
         this.faseReferencia = fase;
+
         this.animador = new GerenciadorDeAnimacaoInimigo(
                 "imgs/inimigos/enemy4_spreadsheet.png",
                 32, 32, 0, 4, 4,
@@ -51,11 +31,36 @@ public class FadaComum4 extends Inimigo {
         this.largura = (int) (32.0 * BODY_PROPORTION);
         this.altura = (int) (32.0 * BODY_PROPORTION);
         this.hitboxRaio = (this.largura / 2.0) / CELL_SIDE;
+
+        // Define a sequência de estados para a "Espiral da Morte"
+        Estado irParaCentro = new IrPara(this, MUNDO_LARGURA / 2.0, 6, 0.1);
+        Estado ataqueEspiral = new AtaqueEspiral(this, 3, 2.0, 480); // 3 frames de cooldown, 2 graus de rotação, 8 segundos de duração
+        Estado sair = new IrPara(this, MUNDO_LARGURA / 2.0, -2, 0.1);
+
+        irParaCentro.setProximoEstado(ataqueEspiral);
+        ataqueEspiral.setProximoEstado(sair);
+
+        this.estadoAtual = irParaCentro;
     }
 
-    /**
-     * @brief Método para desserialização, recarrega o gerenciador de animação.
-     */
+    @Override
+    public void atualizar() {
+        this.estadoAtual = processarEstado(this.estadoAtual, 1);
+        animador.atualizar(isStrafing() ? AnimationState.STRAFING : AnimationState.IDLE);
+    }
+
+    @Override
+    public boolean isStrafing() {
+        // Animação de strafing durante o ataque para parecer mais ativa
+        return estadoAtual instanceof AtaqueEspiral;
+    }
+
+    @Override
+    public void autoDesenho(Graphics g) {
+        this.iImage = animador.getImagemAtual(isStrafing() ? AnimationState.STRAFING : AnimationState.IDLE);
+        super.autoDesenho(g);
+    }
+
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         this.animador = new GerenciadorDeAnimacaoInimigo(
@@ -67,60 +72,50 @@ public class FadaComum4 extends Inimigo {
                 false);
     }
 
-    /**
-     * @brief Inicializa a referência da fase para o inimigo.
-     */
-    @Override
-    public void initialize(Fase fase) {
-        this.faseReferencia = fase;
-    }
+    // --- Novo Estado para o Ataque Espiral ---
 
-    @Override
-    public boolean isStrafing() {
-        return false;
-    }
+    private class AtaqueEspiral extends Estado {
+        private double anguloAtual = 0;
+        private int cooldownTiro;
+        private final int cooldownTiroInicial;
+        private final double velocidadeRotacao;
+        private int duracaoAtaque;
 
-    /**
-     * @brief Atualiza a lógica do inimigo, incluindo sua máquina de estados de
-     *        movimento e ataque.
-     */
-    @Override
-    public void atualizar() {
-
-        animador.atualizar(isStrafing() ? AnimationState.STRAFING : AnimationState.IDLE);
-    }
-
-    /**
-     * @brief Cria e dispara um projétil em direção ao herói.
-     */
-    private void atirar() {
-        if (faseReferencia == null)
-            return;
-
-        Personagem hero = faseReferencia.getHero();
-        if (hero == null)
-            return;
-
-            /*
-        double angle = 90.0;
-        double dx = hero.getX() - this.x;
-        double dy = hero.getY() - this.y;
-        angle = Math.toDegrees(Math.atan2(dy, dx));
-
-        Projetil p = faseReferencia.getProjetilPool().getProjetilInimigo();
-        if (p != null) {
-            p.reset(this.x, this.y, 0.1, angle, TipoProjetil.INIMIGO, TipoProjetilInimigo.ESFERA_AZUL);
+        public AtaqueEspiral(Inimigo inimigo, int cooldownTiro, double velocidadeRotacao, int duracao) {
+            super(inimigo);
+            this.cooldownTiroInicial = cooldownTiro;
+            this.cooldownTiro = 0;
+            this.velocidadeRotacao = velocidadeRotacao;
+            this.duracaoAtaque = duracao;
         }
-            */
-    }
 
-    /**
-     * @brief Desenha o inimigo na tela, selecionando a animação correta com base em
-     *        seu estado.
-     */
-    @Override
-    public void autoDesenho(Graphics g) {
-        this.iImage = animador.getImagemAtual(isStrafing() ? AnimationState.STRAFING : AnimationState.IDLE);
-        super.autoDesenho(g);
+        @Override
+        public void incrementarTempo(Fase fase, int tempo) {
+            if (estadoCompleto) return;
+
+            duracaoAtaque -= tempo;
+            if (duracaoAtaque <= 0) {
+                this.estadoCompleto = true;
+                return;
+            }
+
+            cooldownTiro -= tempo;
+            if (cooldownTiro <= 0) {
+                if (fase != null) {
+                    Projetil p = fase.getProjetilPool().getProjetilInimigo();
+                    if (p != null) {
+                        p.reset(inimigo.getX(), inimigo.getY(), 0.08, anguloAtual, TipoProjetil.INIMIGO, TipoProjetilInimigo.FLECHA_VERMELHO_ESCURO);
+                    }
+                    Auxiliar.SoundManager.getInstance().playSfx("se_tan00", 0.6f);
+                }
+                cooldownTiro = cooldownTiroInicial;
+            }
+
+            // Rotaciona o ângulo para o próximo tiro
+            anguloAtual += velocidadeRotacao;
+            if (anguloAtual >= 360) {
+                anguloAtual -= 360;
+            }
+        }
     }
 }

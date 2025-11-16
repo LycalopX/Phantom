@@ -67,7 +67,9 @@ public class Projetil extends Personagem {
             this.altura = (int) ((double) tipoDetalhado.getSpriteHeight() * BODY_PROPORTION * FATOR_ESCALA_ALTURA);
 
             if (tipoDetalhado.getHitboxType() == HitboxType.CIRCULAR) {
-                this.hitboxRaio = (tipoDetalhado.getHitboxWidth() * BODY_PROPORTION) / 2.0 / CELL_SIDE;
+                // Correção: Usa a média de w e h da hitbox do JSON e aplica a escala correta, sem BODY_PROPORTION.
+                double raioMedio = (tipoDetalhado.getHitboxWidth() + tipoDetalhado.getHitboxHeight()) / 2.0;
+                this.hitboxRaio = (raioMedio  * BODY_PROPORTION) / 2.0 / CELL_SIDE;
             } else {
                 this.hitboxRaio = 0;
             }

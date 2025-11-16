@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import Auxiliar.SoundManager;
 import Auxiliar.ConfigMapa;
+import Auxiliar.LootTable;
+import Modelo.Items.ItemType;
 import Controler.Engine;
 import Modelo.Cenario.ChaoPerspectiva;
 import Modelo.Cenario.ElementoCenario;
@@ -78,24 +80,22 @@ public class ScriptFase5 extends ScriptDeFase {
         }
     }
 
-    @Override
-    public void atualizarInimigos(Fase fase) {
-        // Lógica de spawn de inimigos para a Fase 5 virá aqui
-    }
-
-    @Override
-    public void atualizarCenario(Fase fase, double velocidadeScroll) {
-        // A lógica de movimento já está nas próprias classes de perspectiva
-    }
-
-    @Override
-    public void preencherCenarioInicial(Fase fase) {
-        // Não é necessário, pois os planos são contínuos
-    }
-
     // Onda
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
+        // LootTable para a FadaComum4
+        LootTable lootFada4 = new LootTable();
+        lootFada4.addItem(new Auxiliar.Personagem.LootItem(ItemType.SCORE_POINT, 1, 1, 1.0, false, false));
+        lootFada4.addItem(new Auxiliar.Personagem.LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, false, false));
+
+        // Cria uma nova onda para a FadaComum4
+        Onda ondaFada4 = new Onda() {{
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum4(ConfigMapa.MUNDO_LARGURA / 2.0, -1.0, lootFada4, 50, fase), 120)); // Spawn após 2 segundos
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum4(ConfigMapa.MUNDO_LARGURA / 2.0, -1.0, lootFada4, 50, fase), 120)); // Spawn após 2 segundos
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum4(ConfigMapa.MUNDO_LARGURA / 2.0, -1.0, lootFada4, 50, fase), 120)); // Spawn após 2 segundos
+        }};
+        ondas.add(ondaFada4);
+        ondas.add(new OndaDeEspera(fase, 300)); // Espera 5 segundos após a fada
         return ondas;
     }
 

@@ -21,7 +21,7 @@ import java.awt.Color;
  */
 public class Hero extends Personagem {
 
-    public static final double HITBOX_RAIO = 5.75;
+    public static final double HITBOX_RAIO = 5.5;
     public static final double HITBOX_RAIO_FANTASY_SEAL = 25.0;
     public static final double HERO_VELOCITY = (((double) LARGURA_TELA) * 0.03763);
     public static final int DANO_BALA = 40;

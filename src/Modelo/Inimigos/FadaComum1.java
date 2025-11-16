@@ -11,35 +11,17 @@ import java.awt.Graphics;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
-/**
- * @brief Representa um inimigo comum do tipo "fada", com um padrão de movimento
- *        e ataque predefinido.
- */
 public class FadaComum1 extends Inimigo {
 
-    private enum State {
-        ENTERING,
-        SHOOTING,
-        EXITING
-    }
-
-    private State currentState;
-    private double targetY = 8;
-    private double amplitude = 4;
-    private double frequency = 0.5;
-    private int shootTimer = 0;
-    private int shootInterval = 60;
-    private int shootDuration = 300;
-
     private transient GerenciadorDeAnimacaoInimigo animador;
+    private int behaviorType;
+    private Estado estadoAtual;
 
-    /**
-     * @brief Construtor da FadaComum.
-     */
     public FadaComum1(double x, double y, LootTable lootTable, double vida, Fase fase, String skin, int behaviorType) {
         super("", x, y, lootTable, vida);
 
         this.faseReferencia = fase;
+        this.behaviorType = behaviorType;
         this.animador = new GerenciadorDeAnimacaoInimigo(
                 "imgs/inimigos/enemy1_spreadsheet" + skin + ".png",
                 30, 30, 2, 4, 4,
@@ -53,19 +35,34 @@ public class FadaComum1 extends Inimigo {
         this.hitboxRaio = (this.largura / 2.0) / CELL_SIDE;
 
         switch (behaviorType) {
+            case 2:
+                // Novo Comportamento
+                Estado entrada2 = new IrPara(this, this.x, 8, 0.1);
+                Estado atirando1_2 = new AtirandoMirado(this, 30, 150); // First shooting phase
+                Estado mover = new IrPara(this, MUNDO_LARGURA - this.x, 8, 0.3);
+                Estado atirando2_2 = new AtirandoMirado(this, 30, 150); // Second shooting phase
+                Estado saida2 = new IrPara(this, MUNDO_LARGURA - this.x, -2, 0.05);
+
+                entrada2.setProximoEstado(atirando1_2);
+                atirando1_2.setProximoEstado(mover);
+                mover.setProximoEstado(atirando2_2);
+                atirando2_2.setProximoEstado(saida2);
+                this.estadoAtual = entrada2;
+                break;
             case 1:
             default:
-                this.currentState = State.ENTERING;
-                break;
-            case 2:
-                // Novo comportamento a ser implementado
+                // Comportamento Original
+                Estado entrada1 = new MovimentoSinusoidalEntrando(this, 8, 4, 0.5);
+                Estado atirando1 = new AtirandoMirado(this, 60, 300);
+                Estado saida1 = new IrPara(this, this.initialX, -2, 0.05);
+
+                entrada1.setProximoEstado(atirando1);
+                atirando1.setProximoEstado(saida1);
+                this.estadoAtual = entrada1;
                 break;
         }
     }
 
-    /**
-     * @brief Método para desserialização, recarrega o gerenciador de animação.
-     */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         this.animador = new GerenciadorDeAnimacaoInimigo(
@@ -77,9 +74,6 @@ public class FadaComum1 extends Inimigo {
                 false);
     }
 
-    /**
-     * @brief Inicializa a referência da fase para o inimigo.
-     */
     @Override
     public void initialize(Fase fase) {
         this.faseReferencia = fase;
@@ -87,73 +81,103 @@ public class FadaComum1 extends Inimigo {
 
     @Override
     public boolean isStrafing() {
-        return currentState == State.ENTERING || currentState == State.EXITING;
+        return !(estadoAtual instanceof AtirandoMirado);
     }
 
-    /**
-     * @brief Atualiza a lógica do inimigo, incluindo sua máquina de estados de
-     *        movimento e ataque.
-     */
     @Override
     public void atualizar() {
-        switch (currentState) {
-            case ENTERING:
-                y += 0.1;
-                x = initialX + Math.sin(y * frequency) * amplitude;
-                if (y >= targetY) {
-                    y = targetY;
-                    currentState = State.SHOOTING;
-                }
-                break;
-            case SHOOTING:
-                shootDuration--;
-                shootTimer--;
-                if (shootTimer <= 0) {
-                    atirar();
-                    if (shootDuration % 2 == 0) {
-                        Auxiliar.SoundManager.getInstance().playSfx("se_tan01", 1.0f);
-                    } else {
-                        Auxiliar.SoundManager.getInstance().playSfx("se_tan02", 1.0f);
-                    }
-                    shootTimer = shootInterval;
-                }
-                if (shootDuration <= 0) {
-                    currentState = State.EXITING;
-                }
-                break;
-            case EXITING:
-                y -= 0.05;
-                if (y < -1) {
-                    deactivate();
-                }
-                break;
-        }
-
+        this.estadoAtual = processarEstado(this.estadoAtual, 1);
         animador.atualizar(isStrafing() ? AnimationState.STRAFING : AnimationState.IDLE);
     }
 
-    /**
-     * @brief Cria e dispara um projétil em direção ao herói.
-     */
     private void atirar() {
         if (faseReferencia == null || faseReferencia.getHero() == null)
             return;
 
         double angle = getAnguloEmDirecaoAoHeroi();
 
-        Projetil p = faseReferencia.getProjetilPool().getProjetilInimigo();
-        if (p != null) {
-            p.reset(this.x, this.y, 0.1, angle, TipoProjetil.INIMIGO, TipoProjetilInimigo.ESFERA_AZUL);
+        if (this.behaviorType == 2) {
+            double spread = 15.0;
+            Projetil p1 = faseReferencia.getProjetilPool().getProjetilInimigo();
+            if (p1 != null) p1.reset(this.x, this.y, 0.1, angle, TipoProjetil.INIMIGO, TipoProjetilInimigo.ESFERA_AZUL);
+            
+            Projetil p2 = faseReferencia.getProjetilPool().getProjetilInimigo();
+            if (p2 != null) p2.reset(this.x, this.y, 0.1, angle - spread, TipoProjetil.INIMIGO, TipoProjetilInimigo.ESFERA_AZUL);
+            
+            Projetil p3 = faseReferencia.getProjetilPool().getProjetilInimigo();
+            if (p3 != null) p3.reset(this.x, this.y, 0.1, angle + spread, TipoProjetil.INIMIGO, TipoProjetilInimigo.ESFERA_AZUL);
+        } else {
+            Projetil p = faseReferencia.getProjetilPool().getProjetilInimigo();
+            if (p != null) {
+                p.reset(this.x, this.y, 0.1, angle, TipoProjetil.INIMIGO, TipoProjetilInimigo.ESFERA_AZUL);
+            }
         }
     }
 
-    /**
-     * @brief Desenha o inimigo na tela, selecionando a animação correta com base em
-     *        seu estado.
-     */
     @Override
     public void autoDesenho(Graphics g) {
         this.iImage = animador.getImagemAtual(isStrafing() ? AnimationState.STRAFING : AnimationState.IDLE);
         super.autoDesenho(g);
+    }
+
+    // --- Estados Personalizados ---
+
+    private class MovimentoSinusoidalEntrando extends Estado {
+        private double targetY;
+        private double amplitude;
+        private double frequency;
+
+        public MovimentoSinusoidalEntrando(Inimigo inimigo, double targetY, double amplitude, double frequency) {
+            super(inimigo);
+            this.targetY = targetY;
+            this.amplitude = amplitude;
+            this.frequency = frequency;
+        }
+
+        @Override
+        public void incrementarTempo(Fase fase, int tempo) {
+            if (estadoCompleto) return;
+            y += 0.1 * tempo;
+            x = initialX + Math.sin(y * frequency) * amplitude;
+            if (y >= targetY) {
+                y = targetY;
+                estadoCompleto = true;
+            }
+        }
+    }
+
+    private class AtirandoMirado extends Estado {
+        private int shootTimer;
+        private int shootInterval;
+        private int shootDuration;
+
+        public AtirandoMirado(Inimigo inimigo, int interval, int duration) {
+            super(inimigo);
+            this.shootInterval = interval;
+            this.shootDuration = duration;
+            this.shootTimer = 0;
+        }
+
+        @Override
+        public void incrementarTempo(Fase fase, int tempo) {
+            if (estadoCompleto) return;
+
+            shootDuration -= tempo;
+            shootTimer -= tempo;
+
+            if (shootTimer <= 0) {
+                atirar();
+                if (shootDuration % 2 == 0) {
+                    Auxiliar.SoundManager.getInstance().playSfx("se_tan01", 1.0f);
+                } else {
+                    Auxiliar.SoundManager.getInstance().playSfx("se_tan02", 1.0f);
+                }
+                shootTimer = shootInterval;
+            }
+
+            if (shootDuration <= 0) {
+                estadoCompleto = true;
+            }
+        }
     }
 }

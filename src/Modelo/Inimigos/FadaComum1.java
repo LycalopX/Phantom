@@ -99,13 +99,16 @@ public class FadaComum1 extends Inimigo {
         if (this.behaviorType == 2) {
             double spread = 15.0;
             Projetil p1 = faseReferencia.getProjetilPool().getProjetilInimigo();
-            if (p1 != null) p1.reset(this.x, this.y, 0.1, angle, TipoProjetil.INIMIGO, TipoProjetilInimigo.ESFERA_AZUL);
-            
+            if (p1 != null)
+                p1.reset(this.x, this.y, 0.1, angle, TipoProjetil.INIMIGO, TipoProjetilInimigo.ESFERA_AZUL);
+
             Projetil p2 = faseReferencia.getProjetilPool().getProjetilInimigo();
-            if (p2 != null) p2.reset(this.x, this.y, 0.1, angle - spread, TipoProjetil.INIMIGO, TipoProjetilInimigo.ESFERA_AZUL);
-            
+            if (p2 != null)
+                p2.reset(this.x, this.y, 0.1, angle - spread, TipoProjetil.INIMIGO, TipoProjetilInimigo.ESFERA_AZUL);
+
             Projetil p3 = faseReferencia.getProjetilPool().getProjetilInimigo();
-            if (p3 != null) p3.reset(this.x, this.y, 0.1, angle + spread, TipoProjetil.INIMIGO, TipoProjetilInimigo.ESFERA_AZUL);
+            if (p3 != null)
+                p3.reset(this.x, this.y, 0.1, angle + spread, TipoProjetil.INIMIGO, TipoProjetilInimigo.ESFERA_AZUL);
         } else {
             Projetil p = faseReferencia.getProjetilPool().getProjetilInimigo();
             if (p != null) {
@@ -136,7 +139,8 @@ public class FadaComum1 extends Inimigo {
 
         @Override
         public void incrementarTempo(Fase fase, int tempo) {
-            if (estadoCompleto) return;
+            if (estadoCompleto)
+                return;
             y += 0.1 * tempo;
             x = initialX + Math.sin(y * frequency) * amplitude;
             if (y >= targetY) {
@@ -160,7 +164,8 @@ public class FadaComum1 extends Inimigo {
 
         @Override
         public void incrementarTempo(Fase fase, int tempo) {
-            if (estadoCompleto) return;
+            if (estadoCompleto)
+                return;
 
             shootDuration -= tempo;
             shootTimer -= tempo;

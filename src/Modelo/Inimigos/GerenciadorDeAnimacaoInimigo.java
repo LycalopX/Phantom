@@ -4,7 +4,6 @@ import javax.swing.ImageIcon;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.awt.Graphics;
-import Modelo.Personagem;
 
 /**
  * @brief Gerencia as animações para os inimigos, carregando e alternando os
@@ -27,20 +26,6 @@ public class GerenciadorDeAnimacaoInimigo {
     private int delayFrame = 0;
     private boolean holdLastStrafingFrame;
     private AnimationState currentState = AnimationState.IDLE;
-
-    /**
-     * @brief Construtor do gerenciador. Carrega os spritesheets do inimigo se ainda
-     *        não foram carregados.
-     */
-    public GerenciadorDeAnimacaoInimigo() {
-        this(
-                "imgs/inimigos/enemy1_spreadsheet.png",
-                30, 30, 2, 4, 4,
-                true,
-                (int) (30.0 * Personagem.BODY_PROPORTION),
-                (int) (30.0 * Personagem.BODY_PROPORTION),
-                false);
-    }
 
     public GerenciadorDeAnimacaoInimigo(String spritesheetPath, int spriteWidth, int spriteHeight, int gap,
             int idleFrames, int movingFrames, boolean resize, int newWidth, int newHeight,

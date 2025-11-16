@@ -392,6 +392,7 @@ public class ControleDeJogo {
      *        aplicando dano e gerando loot se o inimigo for destruído.
      */
     private void colisaoProjetilHeroiInimigo(Projetil p, Inimigo i, Hero hero) {
+
         i.takeDamage(Hero.DANO_BALA);
 
         if (!(p instanceof ProjetilBombaHoming)) {

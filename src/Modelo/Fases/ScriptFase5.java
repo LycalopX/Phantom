@@ -90,9 +90,9 @@ public class ScriptFase5 extends ScriptDeFase {
 
         // Cria uma nova onda para a FadaComum4
         Onda ondaFada4 = new Onda() {{
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum4(ConfigMapa.MUNDO_LARGURA / 2.0, -1.0, lootFada4, 50, fase), 120)); // Spawn após 2 segundos
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum4(ConfigMapa.MUNDO_LARGURA / 2.0, -1.0, lootFada4, 50, fase), 120)); // Spawn após 2 segundos
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum4(ConfigMapa.MUNDO_LARGURA / 2.0, -1.0, lootFada4, 50, fase), 120)); // Spawn após 2 segundos
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum4(ConfigMapa.MUNDO_LARGURA / 2.0, -1.0, lootFada4, 50, fase, null), 120)); // Spawn após 2 segundos
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum4(ConfigMapa.MUNDO_LARGURA / 2.0, -1.0, lootFada4, 50, fase, null), 120)); // Spawn após 2 segundos
+            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum4(ConfigMapa.MUNDO_LARGURA / 2.0, -1.0, lootFada4, 50, fase, null), 120)); // Spawn após 2 segundos
         }};
         ondas.add(ondaFada4);
         ondas.add(new OndaDeEspera(fase, 300)); // Espera 5 segundos após a fada

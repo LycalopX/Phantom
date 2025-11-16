@@ -17,12 +17,12 @@ public class FadaComum3 extends Inimigo {
     private Estado estadoAtual;
     private transient GerenciadorDeAnimacaoInimigo animador;
 
-    public FadaComum3(double x, double y, LootTable lootTable, double vida, Fase fase) {
-        super("", x, y, lootTable, 60);
+    public FadaComum3(double x, double y, LootTable lootTable, double vida, Fase fase, String skin) {
+        super("", x, y, lootTable, vida);
         this.faseReferencia = fase;
 
         this.animador = new GerenciadorDeAnimacaoInimigo(
-                "imgs/inimigos/enemy3_spreadsheet.png",
+                "imgs/inimigos/enemy1_spreadsheet" + skin + ".png",
                 32, 32, 0, 4, 4,
                 true,
                 (int) (32.0 * BODY_PROPORTION),

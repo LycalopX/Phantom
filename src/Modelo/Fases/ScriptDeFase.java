@@ -143,11 +143,11 @@ public abstract class ScriptDeFase implements Serializable {
         protected class InimigoSpawn {
 
             protected Personagem personagem;
-            protected int tempoAposInicioSpawn;
+            protected int tempoAposAcaoPrevia;
 
-            public InimigoSpawn(Personagem personagem, int tempoAposInicioSpawn) {
+            public InimigoSpawn(Personagem personagem, int tempoAposAcaoPrevia) {
                 this.personagem = personagem;
-                this.tempoAposInicioSpawn = tempoAposInicioSpawn;
+                this.tempoAposAcaoPrevia = tempoAposAcaoPrevia;
             }
 
             public void spawn(Fase fase) {
@@ -210,7 +210,7 @@ public abstract class ScriptDeFase implements Serializable {
                 return;
             }
 
-            tempoDeEspera = inimigo.tempoAposInicioSpawn;
+            tempoDeEspera = inimigo.tempoAposAcaoPrevia;
         }
 
         /**

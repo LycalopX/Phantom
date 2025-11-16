@@ -323,7 +323,7 @@ public class Engine implements Runnable {
      */
     private void salvarInimigosParaTeste() {
         System.out.println("Salvando inimigos para teste...");
-        FadaComum1 fada = new FadaComum1(0, 0, new LootTable(), 100, null);
+        FadaComum1 fada = new FadaComum1(0, 0, new LootTable(), 100, null, null);
         Nightbug nightbug = new Nightbug(0, 0, new LootTable(), 1000, null);
         Lorelei lorelei = new Lorelei(0, 0, new LootTable(), 1200, null);
         Reimu reimu = new Reimu(0, 0, new LootTable(), 5000, null);

@@ -2,7 +2,6 @@ package Modelo.Inimigos;
 
 import Auxiliar.LootTable;
 import Modelo.Fases.Fase;
-import Modelo.Personagem;
 import Modelo.Projeteis.Projetil;
 import Auxiliar.Projeteis.TipoProjetil;
 import Auxiliar.Projeteis.TipoProjetilInimigo;
@@ -17,12 +16,12 @@ public class FadaComum4 extends Inimigo {
     private Estado estadoAtual;
     private transient GerenciadorDeAnimacaoInimigo animador;
 
-    public FadaComum4(double x, double y, LootTable lootTable, double vida, Fase fase) {
-        super("", x, y, lootTable, 150); // Vida maior para durar mais
+    public FadaComum4(double x, double y, LootTable lootTable, double vida, Fase fase, String skin) {
+        super("", x, y, lootTable, vida); // Vida maior para durar mais
         this.faseReferencia = fase;
 
         this.animador = new GerenciadorDeAnimacaoInimigo(
-                "imgs/inimigos/enemy4_spreadsheet.png",
+                "imgs/inimigos/enemy1_spreadsheet" + skin + ".png",
                 32, 32, 0, 4, 4,
                 true,
                 (int) (32.0 * BODY_PROPORTION),

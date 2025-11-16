@@ -48,7 +48,7 @@ public class ScriptFase1 extends ScriptDeFase {
 
     /**
      * @brief Carrega os recursos visuais específicos da fase (imagens de fundo,
-     * etc).
+     *        etc).
      * @param fase A instância da fase para a qual os recursos serão carregados.
      */
     @Override
@@ -57,7 +57,8 @@ public class ScriptFase1 extends ScriptDeFase {
             this.imagemFundo = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage1/stage_1_bg1.png"));
             this.imagemArvore = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage1/stage_1_bg2.png"));
 
-            fase.adicionarElementoCenario(new FundoInfinito("fundo_principal", this.imagemFundo, 1.0, Modelo.Cenario.DrawLayer.BACKGROUND, 1.0f));
+            fase.adicionarElementoCenario(new FundoInfinito("fundo_principal", this.imagemFundo, 1.0,
+                    Modelo.Cenario.DrawLayer.BACKGROUND, 1.0f));
 
         } catch (Exception e) {
             Logger.getLogger(ScriptFase1.class.getName()).log(Level.SEVERE, "Erro ao carregar recursos da Fase 1", e);
@@ -66,7 +67,7 @@ public class ScriptFase1 extends ScriptDeFase {
 
     /**
      * @brief Restaura as referências de imagens transientes nos elementos de
-     * cenário após a desserialização.
+     *        cenário após a desserialização.
      * @param fase A instância da fase cujos elementos precisam ser religados.
      */
     @Override
@@ -87,7 +88,7 @@ public class ScriptFase1 extends ScriptDeFase {
 
     /**
      * @brief Atualiza a lógica de spawn de elementos de cenário (como árvores).
-     * @param fase A instância da fase que este script está controlando.
+     * @param fase             A instância da fase que este script está controlando.
      * @param velocidadeScroll A velocidade de rolagem atual do cenário.
      */
     @Override
@@ -115,8 +116,9 @@ public class ScriptFase1 extends ScriptDeFase {
                 int randomOffsetX = random.nextInt(VARIACAO_ALEATORIA_PIXELS * 2) - VARIACAO_ALEATORIA_PIXELS;
                 int yInicial = -tamanhoBase;
 
-                fase.adicionarElementoCenario(new ArvoreParallax(novoX + randomOffsetX, yInicial, tamanhoBase, velocidadeScroll,
-                        imagemArvore));
+                fase.adicionarElementoCenario(
+                        new ArvoreParallax(novoX + randomOffsetX, yInicial, tamanhoBase, velocidadeScroll,
+                                imagemArvore));
                 posicoesXDasDiagonais[i] = novoX;
             }
             proximoSpawnY += DISTANCIA_ENTRE_ONDAS_Y;
@@ -148,7 +150,8 @@ public class ScriptFase1 extends ScriptDeFase {
                 int randomOffsetX = random.nextInt(VARIACAO_ALEATORIA_PIXELS * 2) - VARIACAO_ALEATORIA_PIXELS;
                 int yInicial = (int) proximoSpawnY - tamanhoBase;
 
-                fase.adicionarElementoCenario(new ArvoreParallax(novoX + randomOffsetX, yInicial, tamanhoBase, 2.0, imagemArvore));
+                fase.adicionarElementoCenario(
+                        new ArvoreParallax(novoX + randomOffsetX, yInicial, tamanhoBase, 2.0, imagemArvore));
                 posicoesXDasDiagonais[i] = novoX;
             }
             proximoSpawnY += DISTANCIA_ENTRE_ONDAS_Y;
@@ -160,20 +163,21 @@ public class ScriptFase1 extends ScriptDeFase {
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
         ondas.add(new OndaDeEspera(fase, 200));
         ondas.add(new Onda1(fase));
-        ondas.add(new OndaDeEspera(fase, 100));
+        ondas.add(new OndaDeEspera(fase, 200));
         ondas.add(new Onda1(fase));
-        ondas.add(new OndaDeEspera(fase, 100));
+        ondas.add(new Onda2(fase));
+        ondas.add(new OndaDeEspera(fase, 400));
         ondas.add(new OndaBoss(fase));
         ondas.add(new OndaDeEspera(fase, 180));
         return ondas;
     }
-    
-    private class Onda1 extends Onda{
+
+    private class Onda1 extends Onda {
         public Onda1(Fase fase) {
             super();
 
             // Adiciona inimigos à onda
-            double xInicial = 0.5 * (MUNDO_LARGURA - 2) + 2;
+            double xInicial;
             LootTable lootTable = new LootTable();
 
             // Loot table
@@ -182,19 +186,52 @@ public class ScriptFase1 extends ScriptDeFase {
             lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.02, true, false));
 
             // Inimigos
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial, -1.0, lootTable, 40, fase), 50));
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial + 0.1, -1.0, lootTable, 40, fase), 100));
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial - 0.1, -1.0, lootTable, 40, fase), 0));
+            for (int i = 0; i < 10; i++) {
+                xInicial = (4 + ((MUNDO_LARGURA - 8) * random.nextDouble()));
+                inimigos.add(
+                        new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial, -1.0, lootTable, 80, fase, ""), 40));
+            }
         }
     }
 
-    private class OndaBoss extends OndaDeBoss{
+    public class Onda2 extends Onda {
+        public Onda2(Fase fase) {
+            super();
+
+            // Adiciona inimigos à onda
+            double xInicial;
+            LootTable lootTable = new LootTable();
+
+            // Loot table
+            lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.5, true, false));
+            lootTable.addItem(new LootItem(ItemType.BOMB, 1, 1, 0.1, true, false));
+
+            // Inimigos
+            for (int i = 0; i < 3; i++) {
+                xInicial = ((MUNDO_LARGURA) * (i + 2) / 6);
+                inimigos.add(
+                        new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, lootTable, 600, fase, ""), 0));
+            }
+        }
+    }
+
+    private class OndaBoss extends OndaDeBoss {
         public OndaBoss(Fase fase) {
             super("Wriggling Autumn Moon ~ Mooned Insect");
             lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
             boss = new Nightbug(0, MUNDO_ALTURA * 0.05, lootTable, 10000, fase);
 
             inimigos.add(new InimigoSpawn(boss, 0));
+
+            LootTable emptyLoot = new LootTable();
+            double xInicial = (2 + ((MUNDO_LARGURA - 3) * random.nextDouble()));
+                        new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, emptyLoot, 600, fase, ""), 600);
+
+            xInicial = (2 + ((MUNDO_LARGURA - 3) * random.nextDouble()));
+                        new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, emptyLoot, 600, fase, ""), 0);
+
+            xInicial = (2 + ((MUNDO_LARGURA - 3) * random.nextDouble()));
+                        new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, emptyLoot, 600, fase, ""), 0);
         }
     }
 }

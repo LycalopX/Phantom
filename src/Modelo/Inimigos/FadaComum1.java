@@ -36,11 +36,19 @@ public class FadaComum1 extends Inimigo {
     /**
      * @brief Construtor da FadaComum.
      */
-    public FadaComum1(double x, double y, LootTable lootTable, double vida, Fase fase) {
-        super("", x, y, lootTable, 40);
+    public FadaComum1(double x, double y, LootTable lootTable, double vida, Fase fase, String skin) {
+        super("", x, y, lootTable, vida);
+
         this.currentState = State.ENTERING;
         this.faseReferencia = fase;
-        this.animador = new GerenciadorDeAnimacaoInimigo();
+        this.animador = new GerenciadorDeAnimacaoInimigo(
+                "imgs/inimigos/enemy1_spreadsheet" + skin + ".png",
+                30, 30, 2, 4, 4,
+                true,
+                (int) (30.0 * BODY_PROPORTION),
+                (int) (30.0 * BODY_PROPORTION),
+                false);
+
         this.largura = (int) (30.0 * BODY_PROPORTION);
         this.altura = (int) (30.0 * BODY_PROPORTION);
         this.hitboxRaio = (this.largura / 2.0) / CELL_SIDE;
@@ -51,7 +59,13 @@ public class FadaComum1 extends Inimigo {
      */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
-        this.animador = new GerenciadorDeAnimacaoInimigo();
+        this.animador = new GerenciadorDeAnimacaoInimigo(
+                "imgs/inimigos/enemy1_spreadsheet.png",
+                30, 30, 2, 4, 4,
+                true,
+                (int) (30.0 * BODY_PROPORTION),
+                (int) (30.0 * BODY_PROPORTION),
+                false);
     }
 
     /**
@@ -68,7 +82,8 @@ public class FadaComum1 extends Inimigo {
     }
 
     /**
-     * @brief Atualiza a lógica do inimigo, incluindo sua máquina de estados de movimento e ataque.
+     * @brief Atualiza a lógica do inimigo, incluindo sua máquina de estados de
+     *        movimento e ataque.
      */
     @Override
     public void atualizar() {
@@ -124,7 +139,8 @@ public class FadaComum1 extends Inimigo {
     }
 
     /**
-     * @brief Desenha o inimigo na tela, selecionando a animação correta com base em seu estado.
+     * @brief Desenha o inimigo na tela, selecionando a animação correta com base em
+     *        seu estado.
      */
     @Override
     public void autoDesenho(Graphics g) {

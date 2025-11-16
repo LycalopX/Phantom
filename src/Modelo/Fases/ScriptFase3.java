@@ -9,6 +9,10 @@ import Controler.Engine;
 import Modelo.Cenario.FundoInfinito;
 import Modelo.Cenario.FundoOscilante;
 import Modelo.Inimigos.Keine;
+import Modelo.Inimigos.FadaComum1;
+import Modelo.Inimigos.FadaComum2;
+import Modelo.Inimigos.FadaComum3;
+import Modelo.Inimigos.FadaComum4;
 import Modelo.Items.ItemType;
 import java.awt.Color;
 import java.awt.LinearGradientPaint;
@@ -113,8 +117,8 @@ public class ScriptFase3 extends ScriptDeFase {
     @Override
     public void atualizarCenario(Fase fase, double velocidadeScroll) {
         lastSpeedupTrigger++;
-        if (lastSpeedupTrigger > SPEEDUP_INTERVAL) { 
-            Fase.triggerGlobalSpeedup(SPEEDUP_DURATION, SPEEDUP_AMPLITUDE); 
+        if (lastSpeedupTrigger > SPEEDUP_INTERVAL) {
+            Fase.triggerGlobalSpeedup(SPEEDUP_DURATION, SPEEDUP_AMPLITUDE);
             lastSpeedupTrigger = 0;
         }
     }
@@ -127,26 +131,114 @@ public class ScriptFase3 extends ScriptDeFase {
     // Onda
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
-        ondas.add(new OndaFadaComum2Comportamento2(fase));
+        ondas.add(new OndaDeEspera(fase, 240));
+        ondas.add(new Onda1(fase));
         ondas.add(new OndaDeEspera(fase, 200));
+
+        ondas.add(new Onda2(fase));
+        ondas.add(new OndaDeEspera(fase, 200));
+
+        ondas.add(new Onda3(fase));
+        ondas.add(new OndaDeEspera(fase, 200));
+
+        ondas.add(new Onda4(fase));
+        ondas.add(new OndaDeEspera(fase, 200));
+
         ondas.add(new OndaBoss(fase));
         ondas.add(new OndaDeEspera(fase, 200));
         return ondas;
     }
 
-    private class OndaFadaComum2Comportamento2 extends OndaDeEspera {
-        public OndaFadaComum2Comportamento2(Fase fase) {
-            super(fase, 3000); // A onda vai durar 3000 frames (50 segundos)
-            // Adiciona inimigos à onda
+    private class Onda1 extends Onda {
+        public Onda1(Fase fase) {
+            
             LootTable lootTable = new LootTable();
-            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
+            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.5, false, false));
+            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, false, false));
 
-            // Gerar uma FadaComum2 com comportamento 2
-            inimigos.add(0, new InimigoSpawn(new Modelo.Inimigos.FadaComum2(MUNDO_LARGURA / 3, -1.0, lootTable, 200, fase, "", 2), 0));
+            inimigos.add(
+                    new InimigoSpawn(new FadaComum2(MUNDO_LARGURA * 0.3, -1.0, lootTable, 300, fase, "_hat", 2), 200));
+            inimigos.add(
+                    new InimigoSpawn(new FadaComum2(MUNDO_LARGURA * 0.7, -1.0, lootTable, 300, fase, "_hat", 2), 200));
+            inimigos.add(
+                    new InimigoSpawn(new FadaComum2(MUNDO_LARGURA * 0.5, -1.0, lootTable, 300, fase, "_hat", 2), 200));
         }
     }
 
-    private class OndaBoss extends OndaDeBoss{
+    private class Onda2 extends Onda {
+        public Onda2(Fase fase) {
+            double xInicial;
+
+            LootTable lootTable = new LootTable();
+            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.5, false, false));
+            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, false, false));
+
+
+            for (int i = 0; i < 5; i++) {
+                xInicial = (4 + ((MUNDO_LARGURA - 8) * random.nextDouble()));
+                inimigos.add(
+                        new InimigoSpawn(new FadaComum1(xInicial, -1.0, lootTable, 160, fase, "", 1),
+                                40));
+            }
+            for (int i = 0; i < 4; i++) {
+                xInicial = (MUNDO_LARGURA * (i + 1) / 6);
+                inimigos.add(
+                        new InimigoSpawn(new FadaComum1(xInicial, -1.0, lootTable, 400, fase, "", 2),
+                                80));
+            }
+        }
+    }
+
+    private class Onda3 extends Onda {
+        public Onda3(Fase fase) {
+
+            // Adiciona inimigos à onda
+            double xInicial;
+            LootTable lootTable = new LootTable();
+
+            // Loot table
+            lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.4, true, false));
+            lootTable.addItem(new LootItem(ItemType.BOMB, 1, 1, 0.02, true, false));
+
+            // Inimigos
+            for (int i = 0; i < 5; i++) {
+                xInicial = (4 + ((MUNDO_LARGURA - 8) * random.nextDouble()));
+                inimigos.add(
+                        new InimigoSpawn(new FadaComum2(xInicial, -1.0, lootTable, 200, fase, "", 1),
+                                80));
+            }
+
+            for (int i = 0; i < 3; i++) {
+                xInicial = ((MUNDO_LARGURA) * (i + 2) / 6);
+                inimigos.add(
+                        new InimigoSpawn(new FadaComum4(xInicial, -1.0, lootTable, 300, fase, "_bears", 1), 80));
+            }
+
+        }
+    }
+
+    private class Onda4 extends Onda {
+        public Onda4(Fase fase) {
+
+            // Adiciona inimigos à onda
+            double xInicial;
+
+            // Loot table
+            LootTable lootTable = new LootTable();
+            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.5, false, false));
+            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, false, false));
+
+            // Inimigos
+            for (int i = 0; i < 3; i++) {
+                xInicial = ((MUNDO_LARGURA) * (i + 2) / 6);
+                inimigos.add(
+                        new InimigoSpawn(new FadaComum3(xInicial, -1.0, xInicial, lootTable, 300, fase, "_hat", 1), 300));
+            }
+
+        }
+    }
+
+    private class OndaBoss extends OndaDeBoss {
         public OndaBoss(Fase fase) {
             super("Deaf to All but the Song");
             lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));

@@ -15,9 +15,13 @@ public final class ConfigTeclado {
 
     // Movimentação Player
     public static final int KEY_UP = KeyEvent.VK_W;
+    public static final int ARROW_UP = KeyEvent.VK_UP;
     public static final int KEY_DOWN = KeyEvent.VK_S;
+    public static final int ARROW_DOWN = KeyEvent.VK_DOWN;
     public static final int KEY_LEFT = KeyEvent.VK_A;
+    public static final int ARROW_LEFT = KeyEvent.VK_LEFT;
     public static final int KEY_RIGHT = KeyEvent.VK_D;
+    public static final int ARROW_RIGHT = KeyEvent.VK_RIGHT;
 
     // Ações Player
     public static final int KEY_SHOOT = KeyEvent.VK_K;

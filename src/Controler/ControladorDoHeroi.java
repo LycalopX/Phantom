@@ -1,13 +1,13 @@
 package Controler;
 
-import java.util.Set;
-import java.awt.event.KeyEvent;
 import Auxiliar.ConfigMapa;
 import Auxiliar.ConfigTeclado;
 import Modelo.Fases.Fase;
-import Modelo.Projeteis.BombaProjetil;
 import Modelo.Hero.GerenciadorDeArmasHeroi;
 import Modelo.Hero.Hero;
+import Modelo.Projeteis.BombaProjetil;
+import java.awt.event.KeyEvent;
+import java.util.Set;
 
 /**
  * @brief Classe responsável por traduzir os inputs do teclado em ações para o
@@ -54,13 +54,13 @@ public class ControladorDoHeroi {
             f2Pressionado = false; // Reseta a trava quando a tecla F2 é solta
         }
 
-        if (teclas.contains(ConfigTeclado.KEY_UP))
+        if (teclas.contains(ConfigTeclado.KEY_UP) || teclas.contains(ConfigTeclado.ARROW_UP))
             dy -= velocidadeAtual;
-        if (teclas.contains(ConfigTeclado.KEY_DOWN))
+        if (teclas.contains(ConfigTeclado.KEY_DOWN) || teclas.contains(ConfigTeclado.ARROW_DOWN))
             dy += velocidadeAtual;
-        if (teclas.contains(ConfigTeclado.KEY_LEFT))
+        if (teclas.contains(ConfigTeclado.KEY_LEFT) || teclas.contains(ConfigTeclado.ARROW_LEFT))
             dx -= velocidadeAtual;
-        if (teclas.contains(ConfigTeclado.KEY_RIGHT))
+        if (teclas.contains(ConfigTeclado.KEY_RIGHT) || teclas.contains(ConfigTeclado.ARROW_RIGHT))
             dx += velocidadeAtual;
 
         if (dx != 0 && dy != 0) {

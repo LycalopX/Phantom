@@ -26,9 +26,9 @@ public abstract class Boss extends Inimigo {
 
     protected abstract class Ataque extends Estado {
         // Classes
-        protected abstract class PadraoAtaque {
-            private int rotacao;
-            private int quantidadeAtaques;
+        protected class PadraoAtaque {
+            private final int rotacao;
+            private final int quantidadeAtaques;
 
             public PadraoAtaque(int rotacao, int quantidadeAtaques) {
                 this.rotacao = rotacao;
@@ -73,14 +73,15 @@ public abstract class Boss extends Inimigo {
             }
 
             contadorTempo += tempo;
-            if (fase == null || contadorTempo < intervaloAtaque) {
-                return;
-            }
-
             if (padraoAtual >= padroes.size()) {
                 estadoCompleto = true;
                 return;
             }
+
+            if (fase == null || contadorTempo < intervaloAtaque) {
+                return;
+            }
+
 
             atirar(padroes.get(padraoAtual));
             this.padraoAtual++;
@@ -94,9 +95,120 @@ public abstract class Boss extends Inimigo {
         protected abstract void atirar(PadraoAtaque padrao);
     }
 
+    protected abstract class AtaqueEmColuna extends Ataque {
+        // Classes
+        protected class Coluna{
+            protected final Point2D.Double posicaoInicial;
+            protected final Point2D.Double posicaoFinal;
+
+            public Coluna(Point2D.Double posicaoInicial, Point2D.Double posicaoFinal) {
+                this.posicaoInicial = posicaoInicial;
+                this.posicaoFinal = posicaoFinal;
+            }
+
+            public Coluna() {
+                this.posicaoInicial = new Point2D.Double(0, 0);
+                this.posicaoFinal = new Point2D.Double(0, 0);
+            }
+
+            // Get
+            public Point2D.Double getPosicaoInicial() {
+                return this.posicaoInicial;
+            }
+
+            public Point2D.Double getPosicaoFinal() {
+                return this.posicaoFinal;
+            }
+        }
+
+        public AtaqueEmColuna(Boss boss) {
+            super(boss);
+        }
+
+        /**
+         * Atira projéteis em linha distribuídos uniformemente entre duas posições.
+         * 
+         * @param posicaoInicial Posição inicial da linha (Point2D.Double)
+         * @param posicaoFinal Posição final da linha (Point2D.Double)
+         * @param quantidade Número de projéteis a serem disparados na linha
+         * @param rotacao Ângulo de disparo em graus (0 = direita, 90 = baixo, 180 = esquerda, 270 = cima)
+         */
+        protected void atirarEmLinha(Point2D.Double posicaoInicial, Point2D.Double posicaoFinal, int quantidade, double rotacao) {
+            if (faseReferencia == null) {
+                return;
+            }
+
+            // Calcular o espaçamento entre cada projétil
+            double espacamentoX = (quantidade > 1) ? (posicaoFinal.x - posicaoInicial.x) / (quantidade - 1) : 0;
+            double espacamentoY = (quantidade > 1) ? (posicaoFinal.y - posicaoInicial.y) / (quantidade - 1) : 0;
+
+            // Criar projéteis distribuídos uniformemente na linha
+            for (int i = 0; i < quantidade; i++) {
+                double posX = posicaoInicial.x + (espacamentoX * i);
+                double posY = posicaoInicial.y + (espacamentoY * i);
+
+                Projetil p = faseReferencia.getProjetilPool().getProjetilInimigo();
+                if (p != null) {
+                    p.reset(posX, posY, velocidadeProjetil, rotacao, TipoProjetil.INIMIGO, tipoProjetil);
+                }
+            }
+        }
+    }
+
+    protected abstract class AtaqueEmUmaLinha extends AtaqueEmColuna {
+
+        protected final Coluna coluna;
+
+        public AtaqueEmUmaLinha(Boss boss, Point2D.Double posicaoInicial, Point2D.Double posicaoFinal) {
+            super(boss);
+            this.coluna = new Coluna(posicaoInicial, posicaoFinal);
+        }
+
+        @Override
+        protected void atirar(PadraoAtaque padrao) {
+            atirarEmLinha(coluna.getPosicaoInicial(), coluna.getPosicaoFinal(), padrao.getQuantidadeAtaques(), padrao.getRotacao());
+        }
+    }
+
+    protected abstract class MultiplosEstados extends Estado {
+        
+        protected final ArrayList<Estado> estados;
+
+        public MultiplosEstados(Boss boss) {
+            super(boss);
+            this.estados = new ArrayList<>();
+        }
+
+        @Override
+        public void incrementarTempo(Fase fase, int tempo) {
+            if (estadoCompleto) {
+                return;
+            }
+            contadorTempo += tempo;
+            boolean todasLinhasCompletas = true;
+            for (Estado estado : estados) {
+                estado.incrementarTempo(fase, tempo);
+                if (!estado.getEstadoCompleto()) {
+                    todasLinhasCompletas = false;
+                }
+            }
+            if (todasLinhasCompletas) {
+                estadoCompleto = true;
+            }
+        }
+
+        @Override
+        public void reset() {
+            super.reset();
+            for (Estado estado : estados) {
+                estado.reset();
+            }
+        }
+    }
+
     protected abstract class AtaqueEmLeque extends Ataque {
         // Classes
-        protected class PadraoLeque extends PadraoAtaque {
+        public class PadraoLeque extends PadraoAtaque {
 
             private final int amplitude;
 
@@ -163,7 +275,7 @@ public abstract class Boss extends Inimigo {
         }
     }
 
-    protected abstract class AtaqueEmLequeNaPosicao extends AtaqueEmLeque {
+    protected class AtaqueEmLequeNaPosicao extends AtaqueEmLeque {
         protected Point2D.Double posicaoAtaque;
 
         public AtaqueEmLequeNaPosicao(Boss boss) {

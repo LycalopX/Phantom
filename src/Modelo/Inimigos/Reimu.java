@@ -3,7 +3,6 @@ package Modelo.Inimigos;
 import static Auxiliar.ConfigMapa.*;
 import Auxiliar.LootTable;
 import Auxiliar.SoundManager;
-import Auxiliar.Projeteis.TipoProjetilInimigo;
 import Modelo.Fases.Fase;
 import Modelo.Inimigos.GerenciadorDeAnimacaoInimigo.AnimationState;
 import java.awt.Graphics;
@@ -41,23 +40,7 @@ public class Reimu extends Boss {
     }
 
     private void setupEstados() {
-        Estado irCentro = new IrParaOCentro(this, new Point2D.Double(0.2, 0.2));
-        Estado irEsquerda = new IrParaEsquerda(this, new Point2D.Double(0.5, 0.2));
-        Estado irDireita = new IrParaDireita(this, new Point2D.Double(0.5, 0.2));
-
-        Estado ataqueParaBaixo = new AtaqueParaBaixo(this);
-        Estado ataqueParaDireita = new AtaqueParaDireita(this);
-        Estado ataqueParaEsquerda = new AtaqueParaEsquerda(this);
-
-        estado = irCentro;
-        irCentro.setProximoEstado(ataqueParaBaixo);
-
-        ataqueParaBaixo.setProximoEstado(irEsquerda);
-        irEsquerda.setProximoEstado(ataqueParaDireita);
-
-        ataqueParaDireita.setProximoEstado(irDireita);
-        irDireita.setProximoEstado(ataqueParaEsquerda);
-        ataqueParaEsquerda.setProximoEstado(irCentro);
+        
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -110,64 +93,6 @@ public class Reimu extends Boss {
                     new Point2D.Double(0.5 * (MUNDO_LARGURA - 2) + 2, 0.2 * MUNDO_ALTURA),
                     velocidade
             );
-        }
-    }
-
-    private class IrParaEsquerda extends IrPara {
-        public IrParaEsquerda(Boss boss, Point2D.Double velocidade) {
-            super(boss,
-                    new Point2D.Double(0.1 * (MUNDO_LARGURA - 2) + 2, 0.1 * MUNDO_ALTURA),
-                    velocidade
-            );
-        }
-    }
-
-    private class IrParaDireita extends IrPara {
-        public IrParaDireita(Boss boss, Point2D.Double velocidade) {
-            super(boss,
-                    new Point2D.Double(0.9 * (MUNDO_LARGURA - 2) + 2, 0.1 * MUNDO_ALTURA),
-                    velocidade
-            );
-        }
-    }
-
-    // Ataque
-    private class AtaqueParaBaixo extends AtaqueEmLeque {
-        public AtaqueParaBaixo(Boss boss) {
-            super(boss);
-
-            this.intervaloAtaque = 60;
-            this.velocidadeProjetil = 0.15;
-            this.tipoProjetil = TipoProjetilInimigo.OVAL_AZUL_PISCINA_CLARO;
-
-            padroes.add(new PadraoLeque(90, 140, 10));
-            padroes.add(new PadraoLeque(90, 80, 10));
-        }
-    }
-
-    private class AtaqueParaDireita extends AtaqueEmLeque {
-        public AtaqueParaDireita(Boss boss) {
-            super(boss);
-
-            this.intervaloAtaque = 60;
-            this.velocidadeProjetil = 0.15;
-            this.tipoProjetil = TipoProjetilInimigo.ESFERA_AZUL;
-
-            padroes.add(new PadraoLeque(50, 140, 10));
-            padroes.add(new PadraoLeque(50, 80, 10));
-        }
-    }
-
-    private class AtaqueParaEsquerda extends AtaqueEmLeque {
-        public AtaqueParaEsquerda(Boss boss) {
-            super(boss);
-
-            this.intervaloAtaque = 60;
-            this.velocidadeProjetil = 0.15;
-            this.tipoProjetil = TipoProjetilInimigo.ESFERA_AZUL;
-
-            padroes.add(new PadraoLeque(130, 140, 10));
-            padroes.add(new PadraoLeque(130, 80, 10));
         }
     }
 }

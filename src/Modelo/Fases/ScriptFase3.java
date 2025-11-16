@@ -1,23 +1,23 @@
 package Modelo.Fases;
 
-import Modelo.Cenario.FundoInfinito;
-import Modelo.Cenario.FundoOscilante;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-
-import javax.imageio.ImageIO;
-import java.awt.Color;
-import java.awt.LinearGradientPaint;
-import java.awt.geom.Point2D;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import Auxiliar.ConfigMapa;
+import static Auxiliar.ConfigMapa.MUNDO_LARGURA;
 import Auxiliar.LootTable;
 import Auxiliar.Personagem.LootItem;
 import Auxiliar.SoundManager;
 import Controler.Engine;
+import Modelo.Cenario.FundoInfinito;
+import Modelo.Cenario.FundoOscilante;
+import Modelo.Inimigos.Keine;
 import Modelo.Items.ItemType;
-import static Auxiliar.ConfigMapa.MUNDO_LARGURA;
+import java.awt.Color;
+import java.awt.LinearGradientPaint;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 
 /**
  * @brief Script de eventos e spawns para a Fase 3 (placeholder).
@@ -127,6 +127,7 @@ public class ScriptFase3 extends ScriptDeFase {
     // Onda
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
+        ondas.add(new OndaBoss(fase));
         ondas.add(new OndaFadaComum2(fase));
         ondas.add(new OndaDeEspera(fase, 200));
         return ondas;
@@ -142,6 +143,16 @@ public class ScriptFase3 extends ScriptDeFase {
             inimigos.add(0, new InimigoSpawn(new Modelo.Inimigos.FadaComum2(MUNDO_LARGURA / 2, -1.0, lootTable, 200, fase, null), 0));
             inimigos.add(1, new InimigoSpawn(new Modelo.Inimigos.FadaComum2(MUNDO_LARGURA * 1/3, -1.0, lootTable, 500, fase, null), 0));
             inimigos.add(2, new InimigoSpawn(new Modelo.Inimigos.FadaComum2(MUNDO_LARGURA * 2/3, -1.0, lootTable, 200, fase, null), 0));
+        }
+    }
+
+    private class OndaBoss extends OndaDeBoss{
+        public OndaBoss(Fase fase) {
+            super("Deaf to All but the Song");
+            lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
+            boss = new Keine(0, ConfigMapa.MUNDO_ALTURA * 0.05, lootTable, 10000, fase);
+
+            inimigos.add(new InimigoSpawn(boss, 0));
         }
     }
 }

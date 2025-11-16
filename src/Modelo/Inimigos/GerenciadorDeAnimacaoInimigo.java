@@ -107,6 +107,7 @@ public class GerenciadorDeAnimacaoInimigo {
         try {
             java.net.URL imgURL = getClass().getClassLoader().getResource(nomeArquivo);
             if (imgURL == null) {
+                System.out.println("Erro ao carregar spritesheet: " + nomeArquivo + " não encontrado.");
                 return null;
             }
             BufferedImage spriteSheet = ImageIO.read(imgURL);

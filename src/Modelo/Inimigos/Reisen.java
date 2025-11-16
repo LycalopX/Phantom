@@ -26,7 +26,7 @@ public class Reisen extends Boss {
         // 41x82
         this.animador = new GerenciadorDeAnimacaoInimigo(
                 "imgs/inimigos/boss5_spreadsheet.png",
-                41, 82, 13, 4, 4,
+                41, 82, 0, 4, 4,
                 true, // resize = true
                 scaledWidth,
                 scaledHeight,
@@ -65,8 +65,8 @@ public class Reisen extends Boss {
         int scaledWidth = (int) (41 * BODY_PROPORTION);
         int scaledHeight = (int) (82 * BODY_PROPORTION);
         this.animador = new GerenciadorDeAnimacaoInimigo(
-                "imgs/inimigos/boss1_spreadsheet.png",
-                41, 82, 13, 4, 4,
+                "imgs/inimigos/boss5_spreadsheet.png",
+                41, 82, 0, 4, 4,
                 true,
                 scaledWidth,
                 scaledHeight,

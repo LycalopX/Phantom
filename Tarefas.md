@@ -1,42 +1,33 @@
-### A. Requisitos Essenciais (Obrigatórios pelo PDF)
+# Backlog de Funcionalidades e Melhorias
 
-2.  **Criar um Gerenciador de Fases (Requisito 1 e 4 do PDF)**
-    *   **Seu Status:** 🟡 PARCIALMENTE CONCLUÍDO
-    *   **Minha Análise:** ✅ **Confirmo.** O `GerenciadorDeFases` existe e carrega 5 `ScriptDeFase` diferentes. A `Engine` tem um método `carregarProximaFase()`, mas ele nunca é chamado. Falta a condição de término da fase para acionar a transição.
+Este arquivo lista as próximas tarefas e ideias para a evolução do projeto "Phantom".
 
 ---
 
-### B. Recursos de Polimento (Funcionalidades do Jogo)
+### 1. Menu Principal e Sistema de Pause
+*   **Objetivo:** Dar ao jogo uma estrutura mais completa, permitindo que o jogador inicie o jogo a partir de um menu e pause a ação quando necessário.
+*   **Plano de Ação:**
+    1.  **Menu Principal:**
+        *   Criar um novo `JPanel` chamado `MenuPanel` com botões como "Iniciar Jogo" e "Sair".
+        *   Alterar a classe `Main` para exibir o `MenuPanel` inicialmente, em vez de iniciar a `Engine` diretamente.
+        *   Ao clicar em "Iniciar Jogo", o `MenuPanel` é substituído pelo `Cenario` e a thread da `Engine` é iniciada.
+    2.  **Sistema de Pause:**
+        *   Adicionar um novo estado `PAUSADO` ao `GameState` da `Engine`.
+        *   No listener de teclado da `Engine`, mapear uma tecla (como 'P' ou 'Esc') para alternar entre os estados `JOGANDO` e `PAUSADO`.
+        *   Quando em `PAUSADO`, o loop principal da `Engine` deve pular a lógica de `atualizar()` para todos os elementos do jogo.
+        *   No `SoundManager`, adicionar métodos `pausarTudo()` e `retomarTudo()` para que a música e os sons parem junto com o jogo.
+        *   No `Cenario`, desenhar uma sobreposição na tela (ex: um texto "PAUSADO") quando o jogo estiver neste estado.
 
-6.  **IA de Inimigos e Padrões de Tiro (Danmaku)**
-    *   **Seu Status:** 🟡 PLANEJAMENTO CONCLUÍDO
-    *   **Minha Análise:** ✅ **Confirmo.** A `FadaComum` tem uma máquina de estados simples e agora atira na direção do herói. É uma base sólida para criar padrões mais complexos.
+### 2. Transição Automática de Fases
+*   **Objetivo:** Fazer o jogo avançar para a próxima fase assim que o jogador completar a atual.
+*   **Plano de Ação:**
+    1.  Na `Engine`, dentro do loop principal (no estado `JOGANDO`), verificar continuamente se a fase atual terminou: `fase.getScript().isFinalizada()`.
+    2.  Quando a condição for verdadeira, chamar o método `GerenciadorDeFases.proximaFase()` para obter o novo objeto `Fase`.
+    3.  Substituir a fase antiga pela nova na `Engine` e no `Cenario`, talvez com um pequeno efeito de transição (como um fade-out/fade-in).
 
-9.  **Efeitos Sonoros e Outras Utilidades**
-    *   **Seu Status:** ❌ NÃO IMPLEMENTADO
-    *   **Minha Análise:** 🟡 **CORREÇÃO.** O status aqui é parcialmente concluído. O `SoundManager` **está implementado** e funcionando, carregando e tocando tanto SFX quanto música. Faltam as funcionalidades de Pausa.
-
-10. **Backgrounds Diferentes por Fase**
-    *   **Seu Status:** ❌ NÃO IMPLEMENTADO
-    *   **Minha Análise:** ✅ **Confirmo.** O `Fase.carregarRecursos()` carrega um caminho fixo.
-
----
-
-#### **4. Novas Funcionalidades e Refinamentos (New Features / Refinements)**
-
-// FINAL
-
-*   **Adicionar "morte" animada para projéteis:**
-    *   **Problema:** Projéteis desaparecem abruptamente da tela.
-    *   **Análise:** Atualmente, os projéteis são simplesmente desativados e retornados ao `ProjetilPool`.
-    *   **Ação Sugerida:**
-        1.  Adicionar um estado `MORRENDO` e um contador de animação à classe `Projetil.java`.
-        2.  Implementar no método `deactivate()` em `Projetil.java`. Em vez de remover o projétil instantaneamente, este método o colocaria no estado `MORRENDO`.
-        3.  No método de desenho do projétil, se ele estiver no estado `MORRENDO`, desenhar uma animação (ex: fade out, encolher, ou um pequeno sprite de explosão de `effect_projectiles.png`).
-        4.  Quando a animação terminar, o projétil é finalmente retornado ao `ProjetilPool`.
-
-
-
-minhas anotações feias que precisam ser formatadas bonitinhas:
-1. boss precisa ter diferentes hps - toda vez que ele estoura, passamos para uma nova fase:
-comportamento do boss precisa ser definido por blocos de state diferentes, que modificam conforme sua fase.
+### 4. Barra de Vida para Chefes (Boss UI)
+*   **Objetivo:** Fornecer ao jogador um feedback visual claro sobre o progresso da batalha contra um chefe.
+*   **Plano de Ação:**
+    1.  Na classe `Cenario`, no método `paintComponent`, verificar se existe um `Boss` ativo na fase.
+    2.  Se existir, obter sua vida atual e máxima para calcular a porcentagem de vida.
+    3.  Desenhar uma barra de vida no topo da tela que represente essa porcentagem.

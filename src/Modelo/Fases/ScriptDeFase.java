@@ -21,7 +21,7 @@ import java.util.Random;
 public abstract class ScriptDeFase implements Serializable {
 
     protected Random random = new Random();
-    protected Engine engine;
+    protected transient Engine engine;
 
     // Onda
     protected ArrayList<Onda> ondas;
@@ -137,10 +137,10 @@ public abstract class ScriptDeFase implements Serializable {
         void tocarMusicaDeOnda(String musica);
     }
 
-    protected abstract class Onda {
+    protected abstract class Onda implements Serializable {
 
         // Classes
-        protected class InimigoSpawn {
+        protected class InimigoSpawn implements Serializable {
 
             protected Personagem personagem;
             protected int tempoAposAcaoPrevia;

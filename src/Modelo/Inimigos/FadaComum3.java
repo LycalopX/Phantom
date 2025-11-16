@@ -22,7 +22,7 @@ public class FadaComum3 extends Inimigo {
         this.faseReferencia = fase;
 
         this.animador = new GerenciadorDeAnimacaoInimigo(
-                "imgs/inimigos/enemy1_spreadsheet" + skin + ".png",
+                "imgs/inimigos/enemy3_spreadsheet" + skin + ".png",
                 32, 32, 0, 4, 4,
                 true,
                 (int) (32.0 * BODY_PROPORTION),

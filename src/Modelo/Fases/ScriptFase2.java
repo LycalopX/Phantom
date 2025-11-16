@@ -10,6 +10,9 @@ import Modelo.Cenario.DrawLayer;
 import Modelo.Cenario.FundoInfinito;
 import Modelo.Inimigos.Lorelei;
 import Modelo.Items.ItemType;
+import Modelo.Inimigos.FadaComum1;
+import Modelo.Inimigos.FadaComum2;
+import Modelo.Inimigos.FadaComum3;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -48,9 +51,11 @@ public class ScriptFase2 extends ScriptDeFase {
             this.imagemFundo = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage2/bg1.png"));
             this.imagemTrilha = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage2/bg3.png"));
             this.imagemArvoreNormal = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage2/bg2.png"));
-            
-            fase.adicionarElementoCenario(new FundoInfinito("fundo_principal", this.imagemFundo, 0.5, DrawLayer.BACKGROUND, 1.0f));
-            fase.adicionarElementoCenario(new FundoInfinito("trilha", this.imagemTrilha, 1.0, DrawLayer.BACKGROUND, 0.5f));
+
+            fase.adicionarElementoCenario(
+                    new FundoInfinito("fundo_principal", this.imagemFundo, 0.5, DrawLayer.BACKGROUND, 1.0f));
+            fase.adicionarElementoCenario(
+                    new FundoInfinito("trilha", this.imagemTrilha, 1.0, DrawLayer.BACKGROUND, 0.5f));
 
         } catch (Exception e) {
             Logger.getLogger(ScriptFase2.class.getName()).log(Level.SEVERE, "Erro ao carregar recursos da Fase 2", e);
@@ -58,7 +63,8 @@ public class ScriptFase2 extends ScriptDeFase {
     }
 
     /**
-     * @brief Restaura as referências de imagens transientes nos elementos de cenário após a desserialização.
+     * @brief Restaura as referências de imagens transientes nos elementos de
+     *        cenário após a desserialização.
      * @param fase A instância da fase cujos elementos precisam ser religados.
      */
     @Override
@@ -79,12 +85,13 @@ public class ScriptFase2 extends ScriptDeFase {
 
     /**
      * @brief Atualiza a lógica de spawn de elementos de cenário (árvores azuis).
-     * @param fase A instância da fase que este script está controlando.
+     * @param fase             A instância da fase que este script está controlando.
      * @param velocidadeScroll A velocidade de rolagem atual do cenário.
      */
     @Override
     public void atualizarCenario(Fase fase, double velocidadeScroll) {
-        if (imagemArvoreNormal == null) return;
+        if (imagemArvoreNormal == null)
+            return;
 
         this.distanciaTotalRolada += velocidadeScroll;
 
@@ -96,14 +103,16 @@ public class ScriptFase2 extends ScriptDeFase {
             double inicioFaixaEsquerda = -LARGURA_TELA / 2.0;
             double larguraFaixaEsquerda = LARGURA_TELA / 6.0; // (-1/3) - (-1/2) = 1/6
             double xEsquerda = inicioFaixaEsquerda + random.nextDouble() * larguraFaixaEsquerda;
-            fase.adicionarElementoCenario(new ArvoreParallax((int)xEsquerda, yInicial, tamanhoBase, velocidadeScroll, this.imagemArvoreNormal));
+            fase.adicionarElementoCenario(new ArvoreParallax((int) xEsquerda, yInicial, tamanhoBase, velocidadeScroll,
+                    this.imagemArvoreNormal));
 
             // Gera árvore da direita na faixa [7/12, 9/12]
             double inicioFaixaDireita = LARGURA_TELA * 7.0 / 12.0;
             double larguraFaixaDireita = LARGURA_TELA / 6.0; // 9/12 - 7/12 = 2/12 = 1/6
             double xDireita = inicioFaixaDireita + random.nextDouble() * larguraFaixaDireita;
-            fase.adicionarElementoCenario(new ArvoreParallax((int)xDireita, yInicial, tamanhoBase, velocidadeScroll, this.imagemArvoreNormal));
-            
+            fase.adicionarElementoCenario(new ArvoreParallax((int) xDireita, yInicial, tamanhoBase, velocidadeScroll,
+                    this.imagemArvoreNormal));
+
             proximoSpawnY += DISTANCIA_ENTRE_ONDAS_Y;
         }
     }
@@ -114,7 +123,8 @@ public class ScriptFase2 extends ScriptDeFase {
      */
     @Override
     public void preencherCenarioInicial(Fase fase) {
-        if (imagemArvoreNormal == null) return;
+        if (imagemArvoreNormal == null)
+            return;
 
         int tamanhoBase = (int) Math.round(LARGURA_TELA * 0.825);
         while (proximoSpawnY < ALTURA_TELA) {
@@ -124,14 +134,16 @@ public class ScriptFase2 extends ScriptDeFase {
             double inicioFaixaEsquerda = -LARGURA_TELA / 2.0;
             double larguraFaixaEsquerda = LARGURA_TELA / 6.0; // (-1/3) - (-1/2) = 1/6
             double xEsquerda = inicioFaixaEsquerda + random.nextDouble() * larguraFaixaEsquerda;
-            fase.adicionarElementoCenario(new ArvoreParallax((int)xEsquerda, yInicial, tamanhoBase, 2.0, this.imagemArvoreNormal));
+            fase.adicionarElementoCenario(
+                    new ArvoreParallax((int) xEsquerda, yInicial, tamanhoBase, 2.0, this.imagemArvoreNormal));
 
             // Gera árvore da direita na faixa [7/12, 9/12]
             double inicioFaixaDireita = LARGURA_TELA * 7.0 / 12.0;
             double larguraFaixaDireita = LARGURA_TELA / 6.0; // 9/12 - 7/12 = 2/12 = 1/6
             double xDireita = inicioFaixaDireita + random.nextDouble() * larguraFaixaDireita;
-            fase.adicionarElementoCenario(new ArvoreParallax((int)xDireita, yInicial, tamanhoBase, 2.0, this.imagemArvoreNormal));
-            
+            fase.adicionarElementoCenario(
+                    new ArvoreParallax((int) xDireita, yInicial, tamanhoBase, 2.0, this.imagemArvoreNormal));
+
             proximoSpawnY += DISTANCIA_ENTRE_ONDAS_Y;
         }
     }
@@ -139,19 +151,21 @@ public class ScriptFase2 extends ScriptDeFase {
     // Ondas
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
-        ondas.add(new OndaBoss(fase));
         ondas.add(new Onda1(fase));
-        ondas.add(new OndaDeEspera(fase, 180));
         ondas.add(new OndaDeEspera(fase, 200));
+        ondas.add(new Onda2(fase));
+        ondas.add(new OndaDeEspera(fase, 500));
+        ondas.add(new OndaBoss(fase));
+        ondas.add(new OndaDeEspera(fase, 180));
         return ondas;
     }
 
-    private class Onda1 extends Onda{
+    private class Onda1 extends Onda {
         public Onda1(Fase fase) {
             super();
 
             // Adiciona inimigos à onda
-            double xInicial = 0.5 * (MUNDO_LARGURA - 2) + 2;
+            double xInicial;
             LootTable lootTable = new LootTable();
 
             // Loot table
@@ -160,13 +174,44 @@ public class ScriptFase2 extends ScriptDeFase {
             lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.02, true, false));
 
             // Inimigos
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial, -1.0, lootTable, 40, fase, null), 50));
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial + 0.1, -1.0, lootTable, 40, fase, null), 100));
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial - 0.1, -1.0, lootTable, 40, fase, null), 0));
+            for (int i = 0; i < 5; i++) {
+                xInicial = (4 + ((MUNDO_LARGURA - 8) * random.nextDouble()));
+                inimigos.add(
+                        new InimigoSpawn(new FadaComum3(xInicial, -1.0, lootTable, 180, fase, ""), 40));
+            }
+            for (int i = 0; i < 10; i++) {
+                xInicial = (4 + ((MUNDO_LARGURA - 8) * random.nextDouble()));
+                inimigos.add(
+                        new InimigoSpawn(new FadaComum1(xInicial, -1.0, lootTable, 140, fase, ""), 40));
+            }
         }
     }
 
-    private class OndaBoss extends OndaDeBoss{
+    private class Onda2 extends Onda {
+        public Onda2(Fase fase) {
+            super();
+
+            // Adiciona inimigos à onda
+            double yInicial;
+            LootTable lootTable = new LootTable();
+
+            // Loot table
+            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
+            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.5, false, false));
+            lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.02, true, false));
+
+            // Inimigos
+            for (int i = 0; i < 5; i++) {
+                yInicial = (4 + ((MUNDO_ALTURA * 0.2) * random.nextDouble()));
+                inimigos.add(
+                        new InimigoSpawn(new FadaComum3(-1, yInicial, lootTable, 180, fase, "_hat"), 0));
+                inimigos.add(
+                        new InimigoSpawn(new FadaComum3(MUNDO_LARGURA + 1, yInicial, lootTable, 180, fase, "_hat"), 0));
+            }
+        }
+    }
+
+    private class OndaBoss extends OndaDeBoss {
         public OndaBoss(Fase fase) {
             super("Deaf to All but the Song");
             lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));

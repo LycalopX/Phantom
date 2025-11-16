@@ -57,8 +57,8 @@ public class Reimu extends Boss {
         mudarPodeAtacar.setProximoEstado(teia);
 
         // Ataque
-        Estado ataqueTeia = new TeiaDeTiros(this, 4);
-        estadoAtaque = ataqueTeia;
+        Estado ataqueTeliguiado = new AtaqueTeliguiadoDosLados(this);
+        estadoAtaque = ataqueTeliguiado;
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -144,6 +144,49 @@ public class Reimu extends Boss {
             super.incrementarTempo(fase, tempo);
         }
     }
+
+    // Ataque
+    private class AtaqueTeliguiadoDosLados extends MultiplosEstados {
+
+        private final int QUANTIDADE_ATAQUES = 5;
+        
+        private class AtaqueEsquerda extends AtaqueEmUmaLinhaNoJogador {
+            public AtaqueEsquerda(Boss boss, int quantidadeAtaques, int intervaloAtaque) {
+                super(boss,
+                        new Point2D.Double(0.0, 0.0),
+                        new Point2D.Double(0.0, ConfigMapa.MUNDO_ALTURA)
+                );
+                this.velocidadeProjetil = 0.3;
+                this.tipoProjetil = TipoProjetilInimigo.ESFERA_VERMELHA;
+                this.padroes.add(new PadraoAtaque(0, quantidadeAtaques));
+                this.intervaloAtaque = intervaloAtaque;
+            }
+        }
+
+        private class AtaqueDireita extends AtaqueEmUmaLinhaNoJogador {
+            public AtaqueDireita(Boss boss, int quantidadeAtaques, int intervaloAtaque) {
+                super(boss,
+                        new Point2D.Double(ConfigMapa.MUNDO_LARGURA, 0.0),
+                        new Point2D.Double(ConfigMapa.MUNDO_LARGURA, ConfigMapa.MUNDO_ALTURA)
+                );
+                this.velocidadeProjetil = 0.3;
+                this.tipoProjetil = TipoProjetilInimigo.ESFERA_VERMELHA;
+                this.padroes.add(new PadraoAtaque(0, quantidadeAtaques));
+                this.intervaloAtaque = intervaloAtaque;
+            }
+        }
+
+        public AtaqueTeliguiadoDosLados(Boss boss) {
+            super(boss);
+
+            // Linhas de ataque
+            estados.add(new AtaqueEsquerda(boss, QUANTIDADE_ATAQUES, 10));
+            estados.add(new AtaqueDireita(boss, QUANTIDADE_ATAQUES, 10));
+        }
+    }
+
+    // 5 teligados de cada lado
+    // Bean em X
 
     // Teia
     private class AtaqueLateralTeia extends AtaqueEmLequeNoJogador {

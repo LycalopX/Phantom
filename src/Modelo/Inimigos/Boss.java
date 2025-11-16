@@ -185,6 +185,18 @@ public abstract class Boss extends Inimigo {
         }
     }
 
+    protected class AtaqueEmUmaLinhaNoJogador extends AtaqueEmUmaLinha {
+
+        public AtaqueEmUmaLinhaNoJogador(Boss boss, Point2D.Double posicaoInicial, Point2D.Double posicaoFinal) {
+            super(boss, posicaoInicial, posicaoFinal);
+        }
+
+        @Override
+        protected void atirar(PadraoAtaque padrao) {
+            atirarEmLinha(coluna.getPosicaoInicial(), coluna.getPosicaoFinal(), padrao.getQuantidadeAtaques(), getAnguloEmDirecaoAoHeroi() + padrao.getRotacao());
+        }
+    }
+
     protected abstract class MultiplosEstados extends Estado {
         
         protected final ArrayList<Estado> estados;
@@ -297,7 +309,7 @@ public abstract class Boss extends Inimigo {
         }
     }
 
-    protected abstract class AtaqueEmLequeNoJogador extends AtaqueEmLeque {        
+    protected class AtaqueEmLequeNoJogador extends AtaqueEmLeque {        
         public AtaqueEmLequeNoJogador(Boss boss) {
             super(boss);
         }
@@ -324,5 +336,5 @@ public abstract class Boss extends Inimigo {
                 atirarEmLeque(posicaoAtaque.x, posicaoAtaque.y, leque.getRotacao(), leque.getQuantidadeAtaques(), leque.getAmplitude());
             }
         }
-    }
+    }    
 }

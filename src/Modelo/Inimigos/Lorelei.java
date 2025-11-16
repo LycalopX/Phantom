@@ -153,14 +153,6 @@ public class Lorelei extends Boss {
                     velocidade
             );
         }
-
-        @Override
-        public void incrementarTempo(Fase fase, int tempo){
-            super.incrementarTempo(fase, tempo);
-            if (estadoCompleto) {
-                atacarParaBaixo = true;
-            }
-        }
     }
 
     private class IrParaEsquerda extends IrPara {

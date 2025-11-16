@@ -1,29 +1,29 @@
 package Modelo.Fases;
 
 import Auxiliar.Cenario4.BambuParallax;
-import Modelo.Cenario.FundoInfinito;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
-
-import java.util.ArrayList;
-import java.util.Random;
 import Auxiliar.ConfigMapa;
+import static Auxiliar.ConfigMapa.MUNDO_LARGURA;
+import Auxiliar.LootTable;
+import Auxiliar.Personagem.LootItem;
+import Auxiliar.SoundManager;
+import Controler.Engine;
+import Modelo.Cenario.ElementoCenario;
+import Modelo.Cenario.FundoInfinito;
+import Modelo.Inimigos.FadaComum3;
+import Modelo.Inimigos.Reimu;
+import Modelo.Items.ItemType;
+import Modelo.Personagem;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.LinearGradientPaint;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import Modelo.Cenario.ElementoCenario;
-import Modelo.Personagem;
-import Controler.Engine;
-import Auxiliar.LootTable;
-import Auxiliar.Personagem.LootItem;
-import Auxiliar.SoundManager;
-import Modelo.Inimigos.FadaComum3;
-import Modelo.Items.ItemType;
-import static Auxiliar.ConfigMapa.MUNDO_LARGURA;
+import javax.imageio.ImageIO;
 
 public class ScriptFase4 extends ScriptDeFase {
 
@@ -174,6 +174,7 @@ public class ScriptFase4 extends ScriptDeFase {
     // Onda
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
+        ondas.add(new OndaBoss(fase));
         ondas.add(new OndaFadaComum3(fase));
         ondas.add(new OndaDeEspera(fase, 200)); // Pequena pausa após a fada
         return ondas;
@@ -187,6 +188,16 @@ public class ScriptFase4 extends ScriptDeFase {
             LootTable lootTable = new LootTable();
             lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
             inimigos.add(0, new InimigoSpawn(new FadaComum3(xInicial, -1.0, xInicial, lootTable, 60, fase, "", 1), 0));
+        }
+    }
+
+    private class OndaBoss extends OndaDeBoss{
+        public OndaBoss(Fase fase) {
+            super("Deaf to All but the Song");
+            lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
+            boss = new Reimu(0, ConfigMapa.MUNDO_ALTURA * 0.05, lootTable, 10000, fase);
+
+            inimigos.add(new InimigoSpawn(boss, 0));
         }
     }
 }

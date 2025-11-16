@@ -29,10 +29,16 @@ public abstract class Boss extends Inimigo {
         protected class PadraoAtaque {
             private final int rotacao;
             private final int quantidadeAtaques;
+            private final int repeticoes;
 
-            public PadraoAtaque(int rotacao, int quantidadeAtaques) {
+            public PadraoAtaque(int rotacao, int quantidadeAtaques, int repeticoes) {
                 this.rotacao = rotacao;
                 this.quantidadeAtaques = quantidadeAtaques;
+                this.repeticoes = repeticoes;
+            }
+
+            public PadraoAtaque(int rotacao, int quantidadeAtaques) {
+                this(rotacao, quantidadeAtaques, 1);
             }
 
             public int getRotacao() {
@@ -49,6 +55,7 @@ public abstract class Boss extends Inimigo {
         protected double velocidadeProjetil;
         protected final ArrayList<PadraoAtaque> padroes;
         protected int padraoAtual;
+        protected int repeticoes;
         protected TipoProjetilInimigo tipoProjetil;
 
         public Ataque(Boss boss) {
@@ -58,12 +65,14 @@ public abstract class Boss extends Inimigo {
             intervaloAtaque = 60;
             velocidadeProjetil = 0.15;
             this.padraoAtual = 0;
+            this.repeticoes = 0;
         }
 
         @Override
         public void reset() {
             super.reset();
             this.padraoAtual = 0;
+            this.repeticoes = 0;
         }
 
         @Override
@@ -84,7 +93,13 @@ public abstract class Boss extends Inimigo {
 
 
             atirar(padroes.get(padraoAtual));
-            this.padraoAtual++;
+            if(repeticoes < padroes.get(padraoAtual).repeticoes - 1){
+                repeticoes++;
+            } else {
+                repeticoes = 0;
+                padraoAtual++;
+            }
+            
             contadorTempo -= intervaloAtaque;
         }
 
@@ -170,13 +185,33 @@ public abstract class Boss extends Inimigo {
         }
     }
 
+    protected class AtaqueEmUmaLinhaNoJogador extends AtaqueEmUmaLinha {
+
+        public AtaqueEmUmaLinhaNoJogador(Boss boss, Point2D.Double posicaoInicial, Point2D.Double posicaoFinal) {
+            super(boss, posicaoInicial, posicaoFinal);
+        }
+
+        @Override
+        protected void atirar(PadraoAtaque padrao) {
+            atirarEmLinha(coluna.getPosicaoInicial(), coluna.getPosicaoFinal(), padrao.getQuantidadeAtaques(), getAnguloEmDirecaoAoHeroi() + padrao.getRotacao());
+        }
+    }
+
     protected abstract class MultiplosEstados extends Estado {
         
         protected final ArrayList<Estado> estados;
+        protected int repeticoes;
+        protected int contadorRepeticoes = 0;
 
         public MultiplosEstados(Boss boss) {
             super(boss);
             this.estados = new ArrayList<>();
+            this.repeticoes = 1;
+        }
+
+        public MultiplosEstados(Boss boss, int repeticoes) {
+            this(boss);
+            this.repeticoes = repeticoes;
         }
 
         @Override
@@ -193,7 +228,14 @@ public abstract class Boss extends Inimigo {
                 }
             }
             if (todasLinhasCompletas) {
-                estadoCompleto = true;
+                contadorRepeticoes++;
+                if (contadorRepeticoes >= repeticoes) {
+                    estadoCompleto = true;
+                } else {
+                    for (Estado estado : estados) {
+                        estado.reset();
+                    }
+                }
             }
         }
 
@@ -217,11 +259,16 @@ public abstract class Boss extends Inimigo {
                 this.amplitude = amplitude;
             }
 
+            public PadraoLeque(int rotacao, int amplitude, int quantidadeAtaques, int repeticoes) {
+                super(rotacao, quantidadeAtaques, repeticoes);
+                this.amplitude = amplitude;
+            }
+
+            // Get
             public int getAmplitude() {
                 return this.amplitude;
             }
         }
-
 
         public AtaqueEmLeque(Boss boss) {
             super(boss);
@@ -262,7 +309,7 @@ public abstract class Boss extends Inimigo {
         }
     }
 
-    protected abstract class AtaqueEmLequeNoJogador extends AtaqueEmLeque {
+    protected class AtaqueEmLequeNoJogador extends AtaqueEmLeque {        
         public AtaqueEmLequeNoJogador(Boss boss) {
             super(boss);
         }
@@ -270,7 +317,7 @@ public abstract class Boss extends Inimigo {
         @Override
         protected void atirar(PadraoAtaque padrao) {
             if (padrao instanceof PadraoLeque leque) {
-                atirarEmLeque(inimigo.getX(), inimigo.getY(), getAnguloEmDirecaoAoHeroi(), leque.getQuantidadeAtaques(), leque.getAmplitude());
+                atirarEmLeque(inimigo.getX(), inimigo.getY(), getAnguloEmDirecaoAoHeroi() + padrao.getRotacao(), leque.getQuantidadeAtaques(), leque.getAmplitude());
             }
         }
     }
@@ -289,5 +336,5 @@ public abstract class Boss extends Inimigo {
                 atirarEmLeque(posicaoAtaque.x, posicaoAtaque.y, leque.getRotacao(), leque.getQuantidadeAtaques(), leque.getAmplitude());
             }
         }
-    }
+    }    
 }

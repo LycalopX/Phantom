@@ -190,7 +190,7 @@ public abstract class Inimigo extends Personagem {
     protected class IrPara extends Estado {
         public static class Movimento {
             private final Point2D.Double velocidade;
-            private final Point2D.Double alvo;
+            private Point2D.Double alvo;
 
             public Movimento(double velocidadeX, double velocidadeY, double alvoX, double alvoY) {
                 this.velocidade = new Point2D.Double(velocidadeX, velocidadeY);
@@ -210,6 +210,40 @@ public abstract class Inimigo extends Personagem {
 
             public static boolean isZero(Point2D.Double movimento) {
                 return movimento.x == 0 && movimento.y == 0;
+            }
+
+            // Set
+            public void setAlvo(Point2D.Double novoAlvo) {
+                this.alvo = novoAlvo;
+            }
+            
+            public void setAlvo(double alvoX, double alvoY) {
+                this.alvo = new Point2D.Double(alvoX, alvoY);
+            }
+
+            public void setAlvoX(double alvoX) {
+                this.alvo.x = alvoX;
+            }
+
+            public void setAlvoY(double alvoY) {
+                this.alvo.y = alvoY;
+            }
+
+            // Get
+            public Point2D.Double getAlvo() {
+                return this.alvo;
+            }
+
+            public double getAlvoX() {
+                return this.alvo.x;
+            }
+
+            public double getAlvoY() {
+                return this.alvo.y;
+            }
+
+            public Point2D.Double getVelocidade() {
+                return this.velocidade;
             }
         }
 

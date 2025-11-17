@@ -11,6 +11,8 @@ import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 
 /**
  * @brief Classe base para todos os projéteis do jogo.
@@ -30,6 +32,17 @@ public class Projetil extends Personagem {
         this.bMortal = true;
         this.bTransponivel = true;
         deactivate();
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        if (this.tipoDetalhado != null) {
+            this.iImage = this.tipoDetalhado.getImagem();
+            if (this.iImage != null) {
+                this.originalSpriteWidth = this.iImage.getIconWidth();
+                this.originalSpriteHeight = this.iImage.getIconHeight();
+            }
+        }
     }
 
     @Override

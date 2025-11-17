@@ -93,6 +93,7 @@ public class Lorelei extends Boss {
             scaledHeight,
             true // holdLastStrafingFrame
         );
+        setupEstados();
     }
 
     @Override

@@ -4,7 +4,7 @@ import Auxiliar.ConfigMapa;
 import Auxiliar.LootTable;
 import Auxiliar.SoundManager;
 import Controler.Engine;
-import Modelo.Inimigos.Boss;
+import Modelo.Inimigos.*;
 import Modelo.Personagem;
 import java.awt.Color;
 import java.awt.LinearGradientPaint;
@@ -153,6 +153,9 @@ public abstract class ScriptDeFase implements Serializable {
             public void spawn(Fase fase) {
                 if (personagem == null) {
                     return;
+                }
+                if (personagem instanceof Inimigo) {
+                    ((Inimigo) personagem).initialize(fase);
                 }
                 fase.adicionarPersonagem(personagem);
             }

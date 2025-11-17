@@ -8,15 +8,7 @@ import Auxiliar.LootTable;
 import Auxiliar.SoundManager;
 import Modelo.Fases.Fase;
 import Modelo.Hero.Hero;
-import Modelo.Inimigos.FadaComum1;
-import Modelo.Inimigos.FadaComum2;
-import Modelo.Inimigos.FadaComum3;
-import Modelo.Inimigos.FadaComum4;
-import Modelo.Inimigos.Lorelei;
-import Modelo.Inimigos.Nightbug;
-import Modelo.Inimigos.Reimu;
-import Modelo.Inimigos.Keine;
-import Modelo.Inimigos.Reisen;
+import Modelo.Inimigos.*;
 import Modelo.Items.Item;
 import Modelo.Items.ItemType;
 import Modelo.Personagem;
@@ -233,6 +225,14 @@ public class Engine implements Runnable {
             this.controleDeJogo.setItemPool(this.faseAtual.getItemPool());
 
             this.hero = (Hero) this.faseAtual.getHero();
+            for (Item item : this.faseAtual.getItemPool().getTodosOsItens()) {
+                item.setHero(this.hero);
+            }
+            for (Personagem p : this.faseAtual.getPersonagens()) {
+                if (p instanceof Inimigo) {
+                    ((Inimigo) p).initialize(this.faseAtual);
+                }
+            }
             System.out.println(">>> JOGO CARREGADO!");
         } catch (Exception e) {
             Logger.getLogger(Engine.class.getName()).log(Level.SEVERE, "Erro ao carregar o jogo.", e);
@@ -261,6 +261,11 @@ public class Engine implements Runnable {
         hero = new Hero("hero/hero_s0.png", HERO_RESPAWN_X, HERO_RESPAWN_Y);
 
         faseAtual.adicionarPersonagem(hero);
+        for (Personagem p : this.faseAtual.getPersonagens()) {
+            if (p instanceof Inimigo) {
+                ((Inimigo) p).initialize(this.faseAtual);
+            }
+        }
         cenario.setFase(faseAtual);
         cenario.setEstadoDoJogo(estadoAtual);
         this.controleDeJogo.setItemPool(this.faseAtual.getItemPool());

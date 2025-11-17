@@ -12,7 +12,6 @@ import Modelo.Cenario.FundoInfinito;
 import Modelo.Inimigos.FadaComum1;
 import Modelo.Inimigos.FadaComum2;
 import Modelo.Inimigos.FadaComum3;
-import Modelo.Inimigos.FadaComum4;
 import Modelo.Inimigos.Reimu;
 import Modelo.Items.ItemType;
 import Modelo.Personagem;

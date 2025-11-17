@@ -51,11 +51,15 @@ public class Engine implements Runnable {
     private int deathbombTimer = 0;
     private boolean removeProjectiles = false;
 
+    private int menuSelection = 0;
+    private boolean showQuitConfirmation = false;
+
     public enum GameState {
         JOGANDO,
         DEATHBOMB_WINDOW,
         RESPAWNANDO,
-        GAME_OVER
+        GAME_OVER,
+        PAUSADO
     }
 
     /**
@@ -75,9 +79,8 @@ public class Engine implements Runnable {
         controleDeJogo = new ControleDeJogo(faseAtual.getItemPool());
         controladorHeroi = new ControladorDoHeroi(this);
 
-        cenario = new Cenario();
+        cenario = new Cenario(this);
         cenario.setFase(faseAtual);
-        cenario.setEstadoDoJogo(estadoAtual);
 
         tela = new Tela();
         tela.add(cenario);
@@ -118,8 +121,10 @@ public class Engine implements Runnable {
      *        morrendo, etc.).
      */
     private synchronized void atualizar() {
-        faseAtual.getItemPool().updateHighWatermark();
-        faseAtual.getProjetilPool().updateHighWatermark();
+        if (estadoAtual != GameState.PAUSADO) {
+            faseAtual.getItemPool().updateHighWatermark();
+            faseAtual.getProjetilPool().updateHighWatermark();
+        }
 
         switch (estadoAtual) {
             case JOGANDO:
@@ -133,6 +138,9 @@ public class Engine implements Runnable {
                     deathbombTimer = DEATHBOMB_WINDOW_FRAMES;
                     SoundManager.getInstance().playSfx("se_pldead00", 1.5f);
                 }
+                break;
+            case PAUSADO:
+                // A lógica do jogo está parada. A entrada do menu é tratada em configurarTeclado().
                 break;
             case DEATHBOMB_WINDOW:
                 controladorHeroi.processarInput(teclasPressionadas, hero, faseAtual, controleDeJogo);
@@ -182,7 +190,6 @@ public class Engine implements Runnable {
             case GAME_OVER:
                 break;
         }
-        cenario.setEstadoDoJogo(estadoAtual);
     }
 
     /**
@@ -267,7 +274,6 @@ public class Engine implements Runnable {
             }
         }
         cenario.setFase(faseAtual);
-        cenario.setEstadoDoJogo(estadoAtual);
         this.controleDeJogo.setItemPool(this.faseAtual.getItemPool());
 
         SoundManager.getInstance().playMusic("Illusionary Night ~ Ghostly Eyes", true);
@@ -281,9 +287,54 @@ public class Engine implements Runnable {
             @Override
             public void keyPressed(KeyEvent e) {
 
+                if (estadoAtual == GameState.PAUSADO) {
+                    if (showQuitConfirmation) {
+                        if (e.getKeyCode() == ConfigTeclado.KEY_SELECT) {
+                            // Lógica para sair do jogo (ainda não implementada)
+                            System.exit(0);
+                        } else if (e.getKeyCode() == ConfigTeclado.KEY_CANCEL) {
+                            showQuitConfirmation = false;
+                            SoundManager.getInstance().playSfx("se_ok00", 1.5f);
+                        }
+                    } else {
+                        if (e.getKeyCode() == ConfigTeclado.ARROW_UP || e.getKeyCode() == ConfigTeclado.KEY_UP) {
+                            menuSelection = (menuSelection - 1 + 2) % 2;
+                            SoundManager.getInstance().playSfx("se_select00", 1.5f);
+                        } else if (e.getKeyCode() == ConfigTeclado.ARROW_DOWN || e.getKeyCode() == ConfigTeclado.KEY_DOWN) {
+                            menuSelection = (menuSelection + 1) % 2;
+                            SoundManager.getInstance().playSfx("se_select00", 1.5f);
+                        } else if (e.getKeyCode() == ConfigTeclado.KEY_SELECT) {
+                            if (menuSelection == 0) { // Return to Game
+                                estadoAtual = GameState.JOGANDO;
+                                SoundManager.getInstance().resumeMusic();
+                                SoundManager.getInstance().playSfx("se_ok00", 1.5f);
+                            } else { // Quit
+                                showQuitConfirmation = true;
+                                SoundManager.getInstance().playSfx("se_ok00", 1.5f);
+                            }
+                        } else if (e.getKeyCode() == ConfigTeclado.KEY_CANCEL) {
+                            estadoAtual = GameState.JOGANDO;
+                            SoundManager.getInstance().resumeMusic();
+                            SoundManager.getInstance().playSfx("se_ok00", 1.5f);
+                        }
+                    }
+                    return;
+                }
+
+                if (e.getKeyCode() == ConfigTeclado.KEY_PAUSE) {
+                    if (estadoAtual == GameState.JOGANDO) {
+                        estadoAtual = GameState.PAUSADO;
+                        menuSelection = 0;
+                        showQuitConfirmation = false;
+                        SoundManager.getInstance().pauseMusic();
+                        SoundManager.getInstance().playSfx("se_pause", 1.5f);
+                    }
+                    return;
+                }
+
                 if (estadoAtual == GameState.GAME_OVER && e.getKeyCode() == ConfigTeclado.KEY_RESTART) {
                     reiniciarJogo();
-                    SoundManager.getInstance().playSfx("se_ok00", 1f);
+                    SoundManager.getInstance().playSfx("se_ok00", 1.5f);
                     return;
                 }
                 if (e.getKeyCode() == ConfigTeclado.KEY_SAVE) {
@@ -414,5 +465,13 @@ public class Engine implements Runnable {
      */
     public GameState getEstadoAtual() {
         return this.estadoAtual;
+    }
+
+    public int getMenuSelection() {
+        return menuSelection;
+    }
+
+    public boolean isShowQuitConfirmation() {
+        return showQuitConfirmation;
     }
 }

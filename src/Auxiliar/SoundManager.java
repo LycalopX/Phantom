@@ -12,6 +12,7 @@ public class SoundManager {
     private static SoundManager instance;
     private final Map<String, Sound> sfxMap;
     private final Map<String, Music> musicMap;
+    private Music currentMusic;
 
     private float GLOBAL_VOLUME = 0.3f;
 
@@ -132,12 +133,23 @@ public class SoundManager {
         stopAllMusic();
 
         if (musicMap.containsKey(name)) {
-            Music music = musicMap.get(name);
-            System.out.println("Playing music: " + name + " | Music object: " + music);
-            // This now works for your MP3s
-            music.play(loop, globalMusicVolume);
+            currentMusic = musicMap.get(name);
+            System.out.println("Playing music: " + name + " | Music object: " + currentMusic);
+            currentMusic.play(loop, globalMusicVolume);
         } else {
             System.err.println("Music not found in map: " + name);
+        }
+    }
+
+    public void pauseMusic() {
+        if (currentMusic != null && currentMusic.playing()) {
+            currentMusic.pause();
+        }
+    }
+
+    public void resumeMusic() {
+        if (currentMusic != null) {
+            currentMusic.resume();
         }
     }
 
@@ -145,6 +157,7 @@ public class SoundManager {
         for (Music music : musicMap.values()) {
             music.stop();
         }
+        currentMusic = null;
     }
 
     public void setSfxVolume(float volume) {

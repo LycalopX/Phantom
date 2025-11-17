@@ -32,8 +32,9 @@ import java.util.List;
 public class Cenario extends JPanel {
     private Fase faseAtual;
     private ContadorFPS contadorFPS;
-    private Engine.GameState estadoDoJogo;
+    private Engine engine;
     private BufferedImage imagemGameOver;
+    private MenuPausa menuPausa;
 
     // Otimização: Pré-alocar objetos de desenho para evitar criação em loop
     private Color corFundoOverlay;
@@ -46,12 +47,13 @@ public class Cenario extends JPanel {
      *        contador de FPS e a funcionalidade de arrastar e soltar
      *        (drag-and-drop).
      */
-    public Cenario() {
+    public Cenario(Engine engine) {
+        this.engine = engine;
         this.setPreferredSize(new Dimension(ConfigMapa.LARGURA_TELA, ConfigMapa.ALTURA_TELA));
         this.setFocusable(false);
         this.setBackground(Color.BLACK);
         this.contadorFPS = new ContadorFPS();
-
+        this.menuPausa = new MenuPausa();
         setupDropTarget();
     }
 
@@ -175,8 +177,8 @@ public class Cenario extends JPanel {
             return;
         }
 
-        if (estadoDoJogo == null || estadoDoJogo == Engine.GameState.JOGANDO
-                || estadoDoJogo == Engine.GameState.RESPAWNANDO || estadoDoJogo == Engine.GameState.DEATHBOMB_WINDOW) {
+        if (engine.getEstadoAtual() == null || engine.getEstadoAtual() == Engine.GameState.JOGANDO
+                || engine.getEstadoAtual() == Engine.GameState.RESPAWNANDO || engine.getEstadoAtual() == Engine.GameState.DEATHBOMB_WINDOW) {
 
             Graphics2D g2d = (Graphics2D) g;
 
@@ -200,7 +202,7 @@ public class Cenario extends JPanel {
                 }
             }
 
-            if (estadoDoJogo == Engine.GameState.DEATHBOMB_WINDOW) {
+            if (engine.getEstadoAtual() == Engine.GameState.DEATHBOMB_WINDOW) {
                 g.setColor(corDeathbombOverlay);
                 g.fillRect(0, 0, getWidth(), getHeight());
             }
@@ -218,9 +220,44 @@ public class Cenario extends JPanel {
             if (DebugManager.isActive()) {
                 desenharHUD(g2d);
             }
-        } else if (estadoDoJogo == Engine.GameState.GAME_OVER) {
+        } else if (engine.getEstadoAtual() == Engine.GameState.PAUSADO) {
+            desenharCenaDoJogo((Graphics2D) g);
+            menuPausa.desenhar((Graphics2D) g, engine.getMenuSelection(), engine.isShowQuitConfirmation(), getWidth(), getHeight());
+        } else if (engine.getEstadoAtual() == Engine.GameState.GAME_OVER) {
             desenharTelaGameOver(g);
             SoundManager.getInstance().stopAllMusic();
+        }
+    }
+
+    private void desenharCenaDoJogo(Graphics2D g2d) {
+        // 1. Desenha os elementos da camada de fundo
+        for (var elemento : faseAtual.getElementosCenario()) {
+            if (elemento.getDrawLayer() == Modelo.Cenario.DrawLayer.BACKGROUND) {
+                elemento.desenhar(g2d, getWidth(), getHeight());
+            }
+        }
+
+        // 2. Aplica os gradientes de cor sobre o fundo
+        g2d.setColor(corFundoOverlay);
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+        g2d.setPaint(gradienteFundo);
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+
+        // 3. Desenha os elementos da camada de frente
+        for (var elemento : faseAtual.getElementosCenario()) {
+            if (elemento.getDrawLayer() == Modelo.Cenario.DrawLayer.FOREGROUND) {
+                elemento.desenhar(g2d, getWidth(), getHeight());
+            }
+        }
+
+        // 4. Desenha os personagens com ordenação de camada
+        ArrayList<Personagem> personagensParaRenderizar = new ArrayList<>(faseAtual.getPersonagens());
+        personagensParaRenderizar.sort(Comparator.comparing(p -> p.getRenderLayer().ordinal()));
+
+        for (Personagem p : personagensParaRenderizar) {
+            if (p.isActive()) {
+                p.autoDesenho(g2d);
+            }
         }
     }
 
@@ -244,13 +281,6 @@ public class Cenario extends JPanel {
             g2d.drawString("Score: " + h.getScore(), 10, 140);
             g2d.drawString("Mísseis: " + h.getNivelDeMisseis(), 10, 160);
         }
-    }
-
-    /**
-     * @brief Define o estado atual do jogo, para controlar o que é desenhado.
-     */
-    public void setEstadoDoJogo(Engine.GameState estado) {
-        this.estadoDoJogo = estado;
     }
 
     /**

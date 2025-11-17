@@ -31,4 +31,8 @@ public final class ConfigTeclado {
     public static final int KEY_SAVE = KeyEvent.VK_P;
     public static final int KEY_LOAD = KeyEvent.VK_R;
     public static final int KEY_RESTART = KeyEvent.VK_R;
+    
+    public static final int KEY_PAUSE = KeyEvent.VK_ESCAPE;
+    public static final int KEY_SELECT = KeyEvent.VK_ENTER;
+    public static final int KEY_CANCEL = KeyEvent.VK_ESCAPE;
 }

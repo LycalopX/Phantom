@@ -1,7 +1,7 @@
 # Build output
 /build/
-/dist/
-!/dist/lib/*
+dist/*
+!dist/lib/
 
 # Other
 /nbproject/private/

@@ -15,10 +15,10 @@ public class ProjetilPool implements Serializable {
     private ArrayList<ProjetilBombaHoming> poolBombaHoming;
     private ArrayList<Projetil> poolInimigos;
 
-    private int maxActiveNormais = 0;
-    private int maxActiveHoming = 0;
-    private int maxActiveBombaHoming = 0;
-    private int maxActiveInimigos = 0;
+    private volatile int maxActiveNormais = 0;
+    private volatile int maxActiveHoming = 0;
+    private volatile int maxActiveBombaHoming = 0;
+    private volatile int maxActiveInimigos = 0;
 
     /**
      * @brief Construtor da piscina de projéteis. Inicializa as piscinas para cada

@@ -9,7 +9,10 @@ import Auxiliar.SoundManager;
 import Controler.Engine;
 import Modelo.Cenario.ElementoCenario;
 import Modelo.Cenario.FundoInfinito;
+import Modelo.Inimigos.FadaComum1;
+import Modelo.Inimigos.FadaComum2;
 import Modelo.Inimigos.FadaComum3;
+import Modelo.Inimigos.FadaComum4;
 import Modelo.Inimigos.Reimu;
 import Modelo.Items.ItemType;
 import Modelo.Personagem;
@@ -174,20 +177,91 @@ public class ScriptFase4 extends ScriptDeFase {
     // Onda
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
+        ondas.add(new OndaDeEspera(fase, 250)); 
+        ondas.add(new Onda1(fase));
+
+        ondas.add(new OndaDeEspera(fase, 250));
+        ondas.add(new Onda2(fase));
+
+        ondas.add(new OndaDeSpeedup(540, 1.3));
+        ondas.add(new OndaDeEspera(fase, 200));
+        ondas.add(new Onda3(fase));
+
+        ondas.add(new OndaDeEspera(fase, 300));
+        ondas.add(new Onda4(fase));
+
+        ondas.add(new OndaDeSpeedup(200, 2.5));
+        ondas.add(new OndaDeEspera(fase, 700)); 
+
         ondas.add(new OndaBoss(fase));
-        ondas.add(new OndaFadaComum3(fase));
-        ondas.add(new OndaDeEspera(fase, 200)); // Pequena pausa após a fada
+        ondas.add(new OndaDeEspera(fase, 200)); 
         return ondas;
     }
 
-    private class OndaFadaComum3 extends OndaDeEspera {
-        public OndaFadaComum3(Fase fase) {
-            super(fase, 3000); // A onda vai durar 3000 frames (50 segundos)
+    private class Onda1 extends Onda {
+        public Onda1(Fase fase) {
+            super(); // A onda vai durar 3000 frames (50 segundos)
+
             // Adiciona inimigos à onda
             double xInicial = MUNDO_LARGURA / 2.0;
             LootTable lootTable = new LootTable();
             lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
-            inimigos.add(0, new InimigoSpawn(new FadaComum3(xInicial, -1.0, xInicial, lootTable, 60, fase, "", 1), 0));
+            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.5, true, false));
+            inimigos.add(0, new InimigoSpawn(new FadaComum3(xInicial, -1.0, xInicial, lootTable, 60, fase, "", 2), 0));
+            inimigos.add(0, new InimigoSpawn(new FadaComum3(xInicial * 0.66, -1.0, xInicial * 0.66, lootTable, 60, fase, "", 2), 0));
+            inimigos.add(0, new InimigoSpawn(new FadaComum3(xInicial * 1.33, -1.0, xInicial * 1.33, lootTable, 60, fase, "", 2), 0));
+        }
+    }
+
+    private class Onda2 extends Onda {
+        public Onda2(Fase fase) {
+            super(); // A onda vai durar 3000 frames (50 segundos)
+
+            // Adiciona inimigos à onda
+            double xInicial;
+            LootTable lootTable = new LootTable();
+            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
+            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.5, true, false));
+            
+            for (int i = 0; i < 5; i++) {
+                xInicial = ((i + 1) / 7.0) * MUNDO_LARGURA;
+                inimigos.add(
+                        new InimigoSpawn(new FadaComum3(xInicial, -1.0, xInicial, lootTable, 80, fase, "_bears", 1),
+                                0));
+            }
+        }
+    }
+
+    private class Onda3 extends Onda {
+        public Onda3(Fase fase) {
+            super();
+
+            LootTable lootTable = new LootTable();
+            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
+            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.5, true, false));
+
+            inimigos.add(new InimigoSpawn(new FadaComum2(MUNDO_LARGURA * 0.1, -1, lootTable, 400, fase, "_hat", 2), 20));
+            inimigos.add(new InimigoSpawn(new FadaComum2(MUNDO_LARGURA * 0.9, -1, lootTable, 400, fase, "_hat", 2), 200));
+            inimigos.add(new InimigoSpawn(new FadaComum2(MUNDO_LARGURA * 0.1, -1, lootTable, 400, fase, "_hat", 2), 20));
+            inimigos.add(new InimigoSpawn(new FadaComum2(MUNDO_LARGURA * 0.9, -1, lootTable, 400, fase, "_hat", 2), 0));
+        }
+    }
+
+    private class Onda4 extends Onda {
+        public Onda4(Fase fase) {
+            super();
+            
+            LootTable lootTable = new LootTable();
+            lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
+            lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.5, true, false));
+
+            for (int i = 0; i < 10; i++) {
+                double xInicial1 = ((MUNDO_LARGURA - 2) * ( 1 - i / 24.0));
+                double xInicial2 = ((MUNDO_LARGURA - 2) * ( i / 24.0));
+
+                inimigos.add(new InimigoSpawn(new FadaComum1(xInicial1, -1.0, lootTable, 300, fase, "_bears", 2), 40));
+                inimigos.add(new InimigoSpawn(new FadaComum1(xInicial2, -1.0, lootTable, 300, fase, "_bears", 2), 40));
+            }
         }
     }
 

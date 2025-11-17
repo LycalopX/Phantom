@@ -10,7 +10,7 @@ import java.util.EnumMap;
  */
 public class ItemPool implements Serializable {
     private EnumMap<ItemType, ArrayList<Item>> pool;
-    private int maxActiveItems = 0;
+    private volatile int maxActiveItems = 0;
 
     /**
      * @brief Construtor da piscina de itens.

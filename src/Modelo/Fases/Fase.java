@@ -40,7 +40,7 @@ public class Fase implements Serializable {
      */
     public Fase(ScriptDeFase script) {
         this.personagens = new CopyOnWriteArrayList<>();
-        this.projetilPool = new ProjetilPool(20, 25, 16, 150, personagens);
+        this.projetilPool = new ProjetilPool(20, 25, 16, 500, personagens);
         this.itemPool = new ItemPool();
         this.elementosCenario = new CopyOnWriteArrayList<>();
         this.scriptDaFase = script;

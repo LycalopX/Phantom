@@ -57,7 +57,7 @@ public class ScriptFase3 extends ScriptDeFase {
             fase.adicionarElementoCenario(
                     new FundoInfinito("darken_layer", this.blackPixel, 0, Modelo.Cenario.DrawLayer.BACKGROUND, 0.8f));
             fase.adicionarElementoCenario(new FundoOscilante("bg3_3", this.bg3_3, 1.2,
-                    Modelo.Cenario.DrawLayer.FOREGROUND, 1f, 0.1f, 0.2f, 100.0f));
+                    Modelo.Cenario.DrawLayer.FOREGROUND, 1f, 0.1f, 0.8f, 50.0f));
 
         } catch (Exception e) {
             Logger.getLogger(ScriptFase3.class.getName()).log(Level.SEVERE, "Erro ao carregar recursos da Fase 3", e);
@@ -109,11 +109,6 @@ public class ScriptFase3 extends ScriptDeFase {
 
     }
 
-    @Override
-    public void preencherCenarioInicial(Fase fase) {
-        // Nada a preencher inicialmente
-    }
-
     // Onda
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
@@ -147,9 +142,9 @@ public class ScriptFase3 extends ScriptDeFase {
             lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, false, false));
 
             inimigos.add(
-                    new InimigoSpawn(new FadaComum2(MUNDO_LARGURA * 0.3, -1.0, lootTable, 600, fase, "_hat", 2), 200));
+                    new InimigoSpawn(new FadaComum2(MUNDO_LARGURA * 0.2, -1.0, lootTable, 600, fase, "_hat", 2), 200));
             inimigos.add(
-                    new InimigoSpawn(new FadaComum2(MUNDO_LARGURA * 0.7, -1.0, lootTable, 600, fase, "_hat", 2), 200));
+                    new InimigoSpawn(new FadaComum2(MUNDO_LARGURA * 0.8, -1.0, lootTable, 600, fase, "_hat", 2), 200));
             inimigos.add(
                     new InimigoSpawn(new FadaComum2(MUNDO_LARGURA * 0.5, -1.0, lootTable, 600, fase, "_hat", 2), 200));
         }
@@ -232,7 +227,7 @@ public class ScriptFase3 extends ScriptDeFase {
         public OndaBoss(Fase fase) {
             super("Deaf to All but the Song");
             lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
-            boss = new Keine(0, ConfigMapa.MUNDO_ALTURA * 0.05, lootTable, 15000, fase);
+            boss = new Keine(0, ConfigMapa.MUNDO_ALTURA * 0.05, lootTable, 30000, fase);
 
             inimigos.add(new InimigoSpawn(boss, 0));
         }

@@ -5,6 +5,8 @@ import Modelo.Fases.Fase;
 import Modelo.Hero.Hero;
 import Modelo.Inimigos.Inimigo;
 import Auxiliar.ConfigMapa;
+import Auxiliar.SoundManager;
+
 import java.awt.*;
 import java.awt.dnd.*;
 import java.awt.datatransfer.DataFlavor;
@@ -218,6 +220,7 @@ public class Cenario extends JPanel {
             }
         } else if (estadoDoJogo == Engine.GameState.GAME_OVER) {
             desenharTelaGameOver(g);
+            SoundManager.getInstance().stopAllMusic();
         }
     }
 

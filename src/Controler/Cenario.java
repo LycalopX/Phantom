@@ -2,6 +2,7 @@ package Controler;
 
 import Modelo.Personagem;
 import Modelo.Fases.Fase;
+import Modelo.Fases.ScriptCreditos;
 import Modelo.Hero.Hero;
 import Modelo.Inimigos.Inimigo;
 import Auxiliar.ConfigMapa;
@@ -177,6 +178,14 @@ public class Cenario extends JPanel {
             return;
         }
 
+        if (faseAtual.getScript() instanceof ScriptCreditos) {
+            ((ScriptCreditos) faseAtual.getScript()).render((Graphics2D) g);
+            if (faseAtual.getHero() != null && faseAtual.getHero().isActive()) {
+                faseAtual.getHero().autoDesenho((Graphics2D) g);
+            }
+            return;
+        }
+
         if (engine.getEstadoAtual() == null || engine.getEstadoAtual() == Engine.GameState.JOGANDO
                 || engine.getEstadoAtual() == Engine.GameState.RESPAWNANDO
                 || engine.getEstadoAtual() == Engine.GameState.DEATHBOMB_WINDOW) {
@@ -225,9 +234,9 @@ public class Cenario extends JPanel {
         // 4. Desenha os personagens com ordenação de camada
         ArrayList<Personagem> personagensParaRenderizar = new ArrayList<>();
         personagensParaRenderizar.add(faseAtual.getHero());
-        personagensParaRenderizar.addAll(faseAtual.getInimigos());
-        personagensParaRenderizar.addAll(faseAtual.getProjeteis());
-        personagensParaRenderizar.addAll(faseAtual.getItens());
+        personagensParaRenderizar.addAll((List<Personagem>) (List<?>) faseAtual.getInimigos());
+        personagensParaRenderizar.addAll((List<Personagem>) (List<?>) faseAtual.getProjeteis());
+        personagensParaRenderizar.addAll((List<Personagem>) (List<?>) faseAtual.getItens());
 
         personagensParaRenderizar.sort(Comparator.comparing(p -> p.getRenderLayer().ordinal()));
 

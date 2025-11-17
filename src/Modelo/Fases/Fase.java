@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import Modelo.Items.Item;
 
@@ -26,15 +28,15 @@ import Modelo.Items.Item;
 public class Fase implements Serializable {
 
     private Hero hero;
-    private ArrayList<Inimigo> inimigos;
-    private ArrayList<Projetil> projeteis;
-    private ArrayList<Item> itens;
-    private ArrayList<BombaProjetil> bombas;
+    private List<Inimigo> inimigos;
+    private List<Projetil> projeteis;
+    private List<Item> itens;
+    private List<BombaProjetil> bombas;
 
     private ScriptDeFase scriptDaFase;
     private ProjetilPool projetilPool;
     private ItemPool itemPool;
-    private ArrayList<ElementoCenario> elementosCenario;
+    private List<ElementoCenario> elementosCenario;
 
     private static boolean isSpeedingUp = false;
     private static int speedupTimer = 0;
@@ -47,15 +49,15 @@ public class Fase implements Serializable {
      * @param script O script que define os eventos e spawns desta fase.
      */
     public Fase(ScriptDeFase script) {
-        this.inimigos = new ArrayList<>();
+        this.inimigos = new CopyOnWriteArrayList<>();
         this.projetilPool = new ProjetilPool(20, 25, 16, 1000);
         this.itemPool = new ItemPool();
-        this.elementosCenario = new ArrayList<>();
+        this.elementosCenario = new CopyOnWriteArrayList<>();
         this.scriptDaFase = script;
-        this.bombas = new ArrayList<>();
+        this.bombas = new CopyOnWriteArrayList<>();
 
-        this.projeteis = new ArrayList<>(projetilPool.getTodosOsProjeteis());
-        this.itens = new ArrayList<>(itemPool.getTodosOsItens());
+        this.projeteis = new CopyOnWriteArrayList<>(projetilPool.getTodosOsProjeteis());
+        this.itens = new CopyOnWriteArrayList<>(itemPool.getTodosOsItens());
 
         if (this.scriptDaFase != null) {
             this.scriptDaFase.carregarRecursos(this);
@@ -178,19 +180,19 @@ public class Fase implements Serializable {
         return todos;
     }
 
-    public ArrayList<Inimigo> getInimigos() {
+    public List<Inimigo> getInimigos() {
         return inimigos;
     }
 
-    public ArrayList<Projetil> getProjeteis() {
+    public List<Projetil> getProjeteis() {
         return projeteis;
     }
 
-    public ArrayList<Item> getItens() {
+    public List<Item> getItens() {
         return itens;
     }
 
-    public ArrayList<BombaProjetil> getBombas() {
+    public List<BombaProjetil> getBombas() {
         return bombas;
     }
 

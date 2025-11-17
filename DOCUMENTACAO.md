@@ -1,179 +1,68 @@
-## Diagrama de Arquitetura (UML)
+# Documentação do Projeto: Phantom
 
-<details>
-<summary>Clique para expandir e ver o código do diagrama UML (PlantUML)</summary>
+## 1. Visão Geral do Projeto
 
-O código abaixo pode ser copiado e colado no [renderizador online do PlantUML](http://www.plantuml.com/plantuml/uml/) para gerar o diagrama de classes do projeto.
+**Phantom** é um jogo 2D de tiro vertical do gênero *shoot 'em up* (ou *shmup*), com elementos de *bullet hell*. O jogador controla um herói que deve navegar por fases repletas de inimigos, desviar de uma grande quantidade de projéteis e derrotar chefes para progredir.
 
-```plantuml
-@startuml
-!theme materia
+O jogo é construído em Java e utiliza uma estrutura de pacotes que separa a lógica de controle, o modelo de dados e as classes auxiliares, seguindo um padrão semelhante ao MVC (Model-View-Controller).
 
-' Oculta atributos e métodos para um diagrama mais limpo.
-' Remova as duas linhas abaixo se quiser ver mais detalhes.
-hide empty members
-skinparam classAttributeIconSize 0
+## 2. Estrutura do Código
 
-title Diagrama de Classes - Projeto Phantom
+O código-fonte está organizado principalmente nos seguintes pacotes dentro de `src/`:
 
-package "Controler" <<Frame>> {
-    class Engine {
-        + run()
-        - atualizar()
-    }
-    class ControleDeJogo {
-        - quadtree: Quadtree
-        + processaTudo()
-    }
-    class GerenciadorDeFases
-    class Tela extends JFrame
-    class Cenario extends JPanel
-}
+-   `Controler`: Contém as classes que gerenciam a lógica principal do jogo, o estado e o fluxo de execução.
+-   `Modelo`: Define as estruturas de dados para todos os objetos do jogo, como o herói, inimigos, projéteis e itens.
+-   `Auxiliar`: Abriga classes de utilidade para configurações, gerenciamento de som, e outras funcionalidades de suporte.
+-   `Assets`: Armazena todos os recursos visuais (sprites, planos de fundo) e de áudio.
 
-package "Modelo" <<Code>> {
-    abstract class Personagem {
-        # x: double
-        # y: double
-        + {abstract} atualizar()
-        + autoDesenho()
-    }
+### 2.1. Pacote `Controler` (O Cérebro do Jogo)
 
-    package "Fases" {
-        class Fase {
-            - personagens: List<Personagem>
-        }
-        abstract class ScriptDeFase {
-            + {abstract} carregarRecursos()
-            + {abstract} atualizarInimigos()
-        }
-        class ScriptFase1 extends ScriptDeFase
-    }
+Este pacote é responsável pela execução do jogo.
 
-    package "Entidades" {
-        class Hero extends Personagem
-        abstract class Inimigo extends Personagem
-        class FadaComum1 extends Inimigo
-        abstract class Boss extends Inimigo
-        class Projetil extends Personagem
-        class Item extends Personagem
-    }
-}
+-   **`Engine.java`**: É o coração do projeto, contendo o *game loop* principal. Esta classe inicializa a janela do jogo e gerencia os ciclos de atualização (`update`) e renderização (`draw`), garantindo que o jogo rode a uma taxa de quadros constante (definida em `Auxiliar/ConfigJogo.java`).
+-   **`ControleDeJogo.java`**: Atua como o maestro do jogo. Ele gerencia o estado atual (menu, jogando, pausa, game over), processa os inputs do jogador através do `ControladorDoHeroi` e coordena as interações entre o herói, inimigos e o cenário.
+-   **`GerenciadorDeFases.java`**: Responsável por carregar e gerenciar a progressão das fases do jogo. Ele utiliza "scripts" de fase para determinar quando e onde os inimigos devem aparecer.
+-   **`ControladorDoHeroi.java`**: Traduz os inputs do teclado (configurados em `Auxiliar/ConfigTeclado.java`) em ações para o personagem do jogador, como movimento e disparo.
 
-package "Auxiliar" <<Toolkit>> {
-    class ProjetilPool
-    class ItemPool
-    class Quadtree
-    class SoundManager << (S, #FF7700) Singleton >>
-    class CarregadorDeDefinicoes << (S, #FF7700) Singleton >>
-}
+### 2.2. Pacote `Modelo` (As Entidades do Jogo)
 
-class Main
+Este pacote define a "aparência" e o "comportamento" de tudo que existe no jogo.
 
-' --- Relacionamentos Principais ---
+-   **`Personagem.java`**: Classe base abstrata para todas as entidades vivas do jogo (herói e inimigos). Define atributos comuns como posição (`x`, `y`), vida (`HP`), e métodos para movimentação e lógica de atualização.
+-   **`Hero/Hero.java`**: Especialização de `Personagem` que representa o jogador. Contém lógicas específicas como o gerenciamento de armas e a resposta aos comandos do usuário.
+-   **`Inimigos/Inimigo.java`**: Classe base para os adversários. As classes concretas (ex: `FadaComum`, `Boss`) herdam dela e implementam comportamentos de ataque e movimento específicos.
+-   **`Projeteis/Projetil.java`**: Classe base para todos os projéteis. As definições de comportamento, dano e aparência dos projéteis são carregadas de um arquivo externo (`recursos/definicoes_projeteis.json`), permitindo fácil customização sem alterar o código Java. Existem especializações como `ProjetilHoming` (teleguiado).
+-   **`Items/Item.java`**: Representa os itens que os inimigos podem dropar ao serem derrotados (ex: power-ups, pontos). A chance de drop é gerenciada pela classe `Auxiliar/LootTable.java`.
 
-Main ..> Engine : cria e inicia
+### 2.3. Pacote `Auxiliar` (Ferramentas de Suporte)
 
-Engine *-- "1" Fase : gerencia
-Engine *-- "1" ControleDeJogo : utiliza
-Engine *-- "1" GerenciadorDeFases : utiliza
-Engine ..> Cenario : atualiza
+Este pacote contém classes que fornecem funcionalidades essenciais para o jogo.
 
-Tela *-- "1" Cenario : contém
+-   **`ConfigJogo.java`**: Armazena constantes globais, como a resolução da tela, a taxa de quadros por segundo (FPS) e outras configurações de jogabilidade.
+-   **`ConfigTeclado.java`**: Mapeia as teclas do teclado para as ações do jogo, permitindo que a configuração dos controles seja centralizada.
+-   **`SoundManager.java`**: Gerencia a reprodução de músicas de fundo (OST) e efeitos sonoros (SFX), utilizando a biblioteca **TinySound**.
+-   **`LootTable.java`**: Implementa um sistema de "tabela de loot" para determinar quais itens um inimigo dropará com base em probabilidades.
 
-Fase *-- "1" ScriptDeFase : é controlada por
-Fase o-- "many" Personagem : contém
-Fase *-- "1" ProjetilPool
-Fase *-- "1" ItemPool
+## 3. Recursos e Configuração
 
-GerenciadorDeFases ..> ScriptFase1 : cria
+-   **Gráficos**: Todos os sprites de personagens, projéteis, itens e cenários estão localizados em `src/Assets/`. A estrutura de subpastas organiza os recursos por tipo (herói, inimigos, etc.).
+-   **Áudio**: As músicas e efeitos sonoros estão em `src/OST/`, separados em `Music` e `SFX`.
+-   **Definições de Projéteis**: O arquivo `recursos/definicoes_projeteis.json` é um ponto central para a customização de projéteis. Ele permite que desenvolvedores ou designers ajustem atributos como velocidade, dano, padrão de movimento e sprite de cada tipo de projétil sem precisar recompilar o código.
 
-ControleDeJogo ..> Quadtree : utiliza para colisões
+## 4. Bibliotecas Externas
 
-' --- Relacionamentos de Herança ---
-Hero --|> Personagem
-Inimigo --|> Personagem
-Projetil --|> Personagem
-Item --|> Personagem
-Boss --|> Inimigo
-FadaComum1 --|> Inimigo
+O projeto utiliza as seguintes bibliotecas de terceiros, localizadas na pasta `lib/`:
 
-' --- Relacionamentos de Uso (Singletons e outros) ---
-Projetil ..> CarregadorDeDefinicoes : usa para obter definições
-Engine ..> SoundManager : usa para tocar sons
+-   **`tinysound.jar`**: Uma biblioteca leve para reprodução de áudio em Java. É a principal responsável pelo som no jogo, gerenciada através do `SoundManager`.
+-   **`json-20250517.jar`**: Biblioteca para processar o formato JSON. É utilizada para ler e interpretar o arquivo de definições de projéteis.
+-   **`jlayer-1.0.1.jar`, `mp3spi-1.9.5-1.jar`, `tritonus_share-0.3.6.jar`**: Conjunto de bibliotecas que adicionam suporte à reprodução de arquivos de áudio no formato MP3.
 
-note right of Engine
-  **Coração do Jogo**
-  Contém o Game Loop principal
-  e a máquina de estados
-  (Jogando, GameOver, etc).
-end note
+## 5. Como Compilar e Executar
 
-note top of Personagem
-  **Classe Base Abstrata**
-  Define o comportamento
-  comum de todas as
-  entidades do jogo.
-end note
+O projeto utiliza o **Apache Ant** como ferramenta de build, com o script de configuração em `build.xml`. Para compilar e executar o projeto, os seguintes passos seriam necessários (assumindo que o Ant está instalado):
 
-note left of ScriptDeFase
-  **Design de Nível**
-  Cada script define os
-  eventos e inimigos
-  de uma fase específica,
-  tornando o jogo extensível.
-end note
-@enduml
-```
+1.  **Compilar o código**: Executar o comando `ant compile` no terminal, na raiz do projeto.
+2.  **Criar o JAR executável**: Executar o comando `ant jar`.
+3.  **Executar o jogo**: Executar o arquivo JAR gerado na pasta `dist/` com o comando `java -jar dist/Phantom.jar`.
 
-</details>
-
-# Documentação do Projeto Phantom
-
-Esta pasta contém a documentação detalhada da arquitetura e das classes do projeto Phantom.
-
-## Estrutura
-
-A documentação está organizada de acordo com a estrutura de pacotes do projeto.
-
-### Pacote `Controler`
-
-*   [Engine](./Controler/Engine.md)
-*   [ControleDeJogo](./Controler/ControleDeJogo.md)
-*   [ControladorDoHeroi](./Controler/ControladorDoHeroi.md)
-*   [GerenciadorDeFases](./Controler/GerenciadorDeFases.md)
-*   [Cenario](./Controler/Cenario.md)
-*   [Tela](./Controler/Tela.md)
-
-### Pacote `Auxiliar`
-
-*   [ConfigMapa](./Auxiliar/ConfigMapa.md)
-*   [ConfigTeclado](./Auxiliar/ConfigTeclado.md)
-*   [LootTable](./Auxiliar/LootTable.md)
-*   [SoundManager](./Auxiliar/SoundManager.md)
-*   [Debug/ContadorFPS](./Auxiliar/Debug/ContadorFPS.md)
-*   [Debug/DebugManager](./Auxiliar/Debug/DebugManager.md)
-*   [Personagem/Quadtree](./Auxiliar/Personagem/Quadtree.md)
-*   [Cenario1/ArvoreParallax](./Auxiliar/Cenario1/ArvoreParallax.md)
-*   [Projeteis/Definicoes/CarregadorDeDefinicoes](./Auxiliar/Projeteis/Definicoes/CarregadorDeDefinicoes.md)
-
-### Pacote `Modelo`
-
-*   [Personagem](./Modelo/Personagem.md)
-*   **Fases**
-    *   [Fase](./Modelo/Fases/Fase.md)
-    *   [ScriptDeFase](./Modelo/Fases/ScriptDeFase.md)
-*   **Hero**
-    *   [Hero](./Modelo/Hero/Hero.md)
-    *   [GerenciadorDeAnimacaoHeroi](./Modelo/Hero/GerenciadorDeAnimacaoHeroi.md)
-    *   [GerenciadorDeArmasHeroi](./Modelo/Hero/GerenciadorDeArmasHeroi.md)
-*   **Inimigos**
-    *   [Inimigo](./Modelo/Inimigos/Inimigo.md)
-    *   [FadaComum](./Modelo/Inimigos/FadaComum.md)
-*   **Items**
-    *   [Item](./Modelo/Items/Item.md)
-*   **Projeteis**
-    *   [Projetil](./Modelo/Projeteis/Projetil.md)
-    *   [ProjetilHoming](./Modelo/Projeteis/ProjetilHoming.md)
-    *   [ProjetilBombaHoming](./Modelo/Projeteis/ProjetilBombaHoming.md)
-    *   [BombaProjetil](./Modelo/Projeteis/BombaProjetil.md)
-    *   [ProjetilPool](./Modelo/Projeteis/ProjetilPool.md)
+Este resumo abrange a arquitetura central, as principais funcionalidades e os componentes técnicos do projeto Phantom, fornecendo uma base sólida para entender seu funcionamento.

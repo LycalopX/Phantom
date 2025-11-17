@@ -66,7 +66,7 @@ public class ControleDeJogo {
      *        Utiliza uma Quadtree para otimizar a detecção de colisão.
      * @return true se o herói foi atingido, false caso contrário.
      */
-    public boolean processaTudo(Hero hero, ArrayList<Inimigo> inimigos, ArrayList<Projetil> projeteis, ArrayList<Item> itens, ArrayList<BombaProjetil> bombas, boolean removeProjectiles) {
+    public boolean processaTudo(Hero hero, List<Inimigo> inimigos, List<Projetil> projeteis, List<Item> itens, List<BombaProjetil> bombas, boolean removeProjectiles) {
         if (hero == null)
             return false;
 
@@ -212,7 +212,7 @@ public class ControleDeJogo {
      *        checando por colisões com outros personagens não transponíveis.
      * @return true se a posição for válida, false caso contrário.
      */
-    public boolean ehPosicaoValida(ArrayList<Inimigo> inimigos, Personagem personagem, double proximoX,
+    public boolean ehPosicaoValida(List<Inimigo> inimigos, Personagem personagem, double proximoX,
             double proximoY) {
         for (Personagem p : inimigos) {
             if (p == personagem || p.isTransponivel()) {

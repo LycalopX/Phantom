@@ -1,0 +1,154 @@
+\documentclass[10pt, a5paper]{article}
+
+% --- PACOTES -----------------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[portuguese]{babel}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[a5paper, margin=1cm]{geometry}
+\usepackage{xcolor}
+\usepackage[many]{tcolorbox}
+\usepackage{lettrine}
+\usepackage{multicol}
+\usepackage{wrapfig}
+\usepackage{helvet} % Fonte Helvetica
+\renewcommand{\familydefault}{\sfdefault}
+
+% --- CORES E ESTILOS ---------------------------------------------------------
+\definecolor{darkblue}{HTML}{0A1931}
+\definecolor{lightblue}{HTML}{185ADB}
+\definecolor{orange}{HTML}{FFC947}
+
+% Fundo da página
+\usepackage{pagecolor}
+\pagecolor{darkblue}
+\color{white}
+
+% Estilo das seções
+\usepackage{titlesec}
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{orange}}
+  {}
+  {0em}
+  {}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{lightblue}}
+  {}
+  {0em}
+  {}
+
+% Caixa de informações customizada
+\newtcolorbox{infobox}{
+    colback=lightblue!20!darkblue,
+    colframe=orange,
+    boxrule=1pt,
+    sharp corners,
+    enhanced,
+    shadow={2pt}{-2pt}{0pt}{black!50}
+}
+
+% --- DOCUMENTO ---------------------------------------------------------------
+\begin{document}
+\pagestyle{empty}
+
+% --- CABEÇALHO ---------------------------------------------------------------
+\begin{tcolorbox][
+    colback=darkblue,
+    colframe=orange,
+    boxrule=2pt,
+    sharp corners,
+    halign=center,
+    valign=center,
+    enhanced,
+    shadow={4pt}{-4pt}{0pt}{black!50}
+]
+    {\Huge \bfseries \color{white} PHANTOM PROJECT}
+\end{tcolorbox}
+\vspace{4pt}
+
+% --- CONTEÚDO EM DUAS COLUNAS ------------------------------------------------
+\begin{multicols}{2}
+
+% --- HISTÓRIA ----------------------------------------------------------------
+\section*{A Ameaça Fantasma}
+\lettrine[lines=2, findent=3pt, nindent=0pt]{\textbf{U}}{ma} força sombria despertou. Criaturas etéreas, os "Phantoms", espalham o caos. Apenas uma heroína, com seu arsenal de energia mística, pode perfurar o véu da escuridão e restaurar a paz. Sua missão: sobreviver a uma tempestade de projéteis e aniquilar os líderes fantasmagóricos.
+
+% --- GAMEPLAY ----------------------------------------------------------------
+\section*{Como Jogar}
+
+\begin{wrapfigure}{r}{0.8\linewidth}
+    \centering
+    \includegraphics[width=0.9\linewidth]{hero_s0.png}
+\end{wrapfigure}
+
+\textbf{Sobreviva e Atire:} Pilote sua nave através de hordas de inimigos. Sua vida é limitada, mas seu poder não.
+
+\textbf{Colete Poder:} Destruir inimigos libera itens de poder. Apanhe-os para aumentar a potência e a área de cobertura do seu tiro.
+
+\textbf{Use a Bomba:} Em situações críticas, use a bomba para limpar a tela de projéteis e causar dano massivo.
+
+% --- CONTROLES ---------------------------------------------------------------
+\section*{Controles}
+
+\begin{infobox}
+    \begin{tabular}{ll}
+        \textbf{Ação} & \textbf{Teclas} \\
+        \hline
+        Movimento & Setas / WASD \\
+        Disparo & Z / K \\
+        Bomba & X / L \\
+        Foco & Shift \\
+        Pausa & ESC \\
+    \end{tabular}
+\end{infobox}
+
+\columnbreak
+
+% --- INIMIGOS E DICAS --------------------------------------------------------
+\section*{Inimigos e Dicas}
+
+\begin{wrapfigure}{l}{0.9\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{boss1_spreadsheet.png}
+\end{wrapfigure}
+
+Os Phantoms vêm em todas as formas e tamanhos, desde pequenas fadas até chefes colossais com padrões de ataque complexos.
+
+\begin{tcolorbox}[
+    colback=orange!20!darkblue,
+    colframe=orange,
+    boxrule=1pt,
+    sharp corners,
+    title=\bfseries Dica de Sobrevivência
+]
+    Use o modo \textbf{Foco (Shift)} para se mover lentamente e visualizar sua hitbox. É essencial para desviar de padrões de projéteis densos!
+\end{tcolorbox}
+
+\vspace{5pt}
+
+\begin{center}
+    \includegraphics[width=0.9\linewidth]{stage_1_bg1.png}
+\end{center}
+
+\vspace{5pt}
+
+\textbf{Estude os Padrões:} Cada inimigo tem um ritmo. Aprenda seus movimentos e antecipe seus ataques. A vitória está na observação.
+
+\end{multicols}
+
+\vfill
+
+% --- RODAPÉ ------------------------------------------------------------------
+\begin{tcolorbox][
+    colback=darkblue,
+    colframe=orange,
+    boxrule=1pt,
+    sharp corners,
+    halign=center
+]
+    \small \color{white} © 2025 Phantom Project Team. Todos os direitos reservados.
+\end{tcolorbox}
+
+\end{document}

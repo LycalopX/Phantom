@@ -85,7 +85,8 @@ public class ScriptFase5 extends ScriptDeFase {
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
         ondas.add(new OndaDeEspera(fase, 270)); // Espera ~5 segundos após a fada
         ondas.add(new OndaBoss(fase));
-        ondas.add(new OndaDeEspera(fase, 300)); // Espera 5 segundos após a fada
+        ondas.add(new OndaDeEspera(fase, 300));
+        ondas.add(new OndaTriggerCreditos()); // Trigger credits after boss
         return ondas;
     }
 
@@ -111,6 +112,24 @@ public class ScriptFase5 extends ScriptDeFase {
             boss = new Reisen(0, ConfigMapa.MUNDO_ALTURA * 0.05, lootTable, 30000, fase);
 
             inimigos.add(new InimigoSpawn(boss, 0));
+        }
+    }
+
+    private class OndaTriggerCreditos extends Onda {
+        private boolean triggered = false;
+
+        @Override
+        public void incrementarTempo(int tempo, Fase fase) {
+            if (!triggered) {
+                SoundManager.getInstance().stopAllMusic();
+                engine.carregarCreditos();
+                triggered = true;
+            }
+        }
+
+        @Override
+        public boolean getFinalizado() {
+            return triggered;
         }
     }
 }

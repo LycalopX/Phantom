@@ -7,6 +7,7 @@ import Auxiliar.Debug.DebugManager;
 import Auxiliar.LootTable;
 import Auxiliar.SoundManager;
 import Modelo.Fases.Fase;
+import Modelo.Fases.ScriptCreditos;
 import Modelo.Hero.Hero;
 import Modelo.Inimigos.*;
 import Modelo.Items.Item;
@@ -25,6 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import java.util.List; // Corrected import
 
 /**
  * @brief A classe principal do motor do jogo, responsável pelo loop principal,
@@ -72,7 +74,7 @@ public class Engine implements Runnable {
         this.hero = new Hero("hero/hero_s0.png", HERO_RESPAWN_X, HERO_RESPAWN_Y);
         this.faseAtual.adicionarPersonagem(hero);
 
-        for (Item item : faseAtual.getItens()) {
+        for (Item item : (List<Item>) faseAtual.getItens()) {
             item.setHero(hero);
         }
 
@@ -260,7 +262,7 @@ public class Engine implements Runnable {
     /**
      * @brief Reinicia o jogo para o estado inicial.
      */
-    private void reiniciarJogo() {
+    public void reiniciarJogo() {
         estadoAtual = GameState.JOGANDO;
         respawnTimer = 0;
 
@@ -463,6 +465,13 @@ public class Engine implements Runnable {
         for (Item item : this.faseAtual.getItens()) {
             item.setHero(this.hero);
         }
+        cenario.setFase(this.faseAtual);
+        this.controleDeJogo.setItemPool(this.faseAtual.getItemPool());
+    }
+
+    public void carregarCreditos() {
+        this.faseAtual = new Fase(new ScriptCreditos(this));
+        this.faseAtual.adicionarPersonagem(hero);
         cenario.setFase(this.faseAtual);
         this.controleDeJogo.setItemPool(this.faseAtual.getItemPool());
     }

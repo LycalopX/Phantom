@@ -8,6 +8,8 @@ import Modelo.Hero.Hero;
 import Modelo.Projeteis.BombaProjetil;
 import java.awt.event.KeyEvent;
 import java.util.Set;
+import java.util.List; // Added import
+import Modelo.Inimigos.Inimigo; // Added import
 
 /**
  * @brief Classe responsável por traduzir os inputs do teclado em ações para o
@@ -86,10 +88,10 @@ public class ControladorDoHeroi {
             proximoY = limiteBaixo;
 
         double xFinal = heroi.getX(), yFinal = heroi.getY();
-        if (cj.ehPosicaoValida(fase.getInimigos(), heroi, proximoX, heroi.getY())) {
+        if (cj.ehPosicaoValida((List<Inimigo>) fase.getInimigos(), heroi, proximoX, heroi.getY())) {
             xFinal = proximoX;
         }
-        if (cj.ehPosicaoValida(fase.getInimigos(), heroi, heroi.getX(), proximoY)) {
+        if (cj.ehPosicaoValida((List<Inimigo>) fase.getInimigos(), heroi, heroi.getX(), proximoY)) {
             yFinal = proximoY;
         }
         heroi.mover(xFinal, yFinal);

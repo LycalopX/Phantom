@@ -40,7 +40,6 @@ public class Reisen extends Boss {
         SoundManager.getInstance().playMusic("Cinderella Cage ~ Kagome-Kagome", true);
     }
 
-    private final boolean TESTE = true;
     private void setupEstados() {
         // Movimentos
         Estado irCentro1 = new IrParaOCentro(this, new Point2D.Double(0.3, 0.3));
@@ -69,12 +68,6 @@ public class Reisen extends Boss {
         Estado espera4 = new Esperar(this, 60);
         Estado espera5 = new Esperar(this, 60);
         Estado espera6 = new Esperar(this, 60);
-
-        // Teste
-        if(TESTE){
-            estado = chuvaDeOrbsNoTopo;
-            return;
-        }
 
         // Sequência de estados: Espiral dupla -> teleguiado -> chuva -> horário/anti-horário -> teleguiado -> chuva -> teleguiado duplo -> chuva -> orbs -> loop
         estado = irCentro1;
@@ -346,7 +339,7 @@ public class Reisen extends Boss {
         public ChuvaDeOrbsNoTopo(Boss boss) {
             super(boss);
 
-            repeticoes = 4;
+            repeticoes = 2;
             
             // Posições das três orbs no topo da tela
             double orbEsquerda = 0.2 * MUNDO_LARGURA;
@@ -362,6 +355,10 @@ public class Reisen extends Boss {
             
             // Orb da direita (horário: 20 a 160 graus)
             estados.add(new ChuvaDeUmaOrbHorario(boss, orbDireita, orbY, TipoProjetilInimigo.ESFERA_VERDE));
+            
+            // Arcos laterais para impedir que o jogador fique nas extremidades
+            estados.add(new ArcoLateralEsquerda(boss));
+            estados.add(new ArcoLateralDireita(boss));
         }
         
         private class ChuvaDeUmaOrbHorario extends MultiplosEstados {
@@ -439,6 +436,38 @@ public class Reisen extends Boss {
                     ataqueAntiHorario.padroes.add(ataqueAntiHorario.new PadraoLeque(anguloAntiHorario, 40, PROJETEIS_POR_ARCO));
                     estados.add(ataqueAntiHorario);
                 }
+            }
+        }
+        
+        private class ArcoLateralEsquerda extends AtaqueEmLequeNaPosicao {
+            public ArcoLateralEsquerda(Boss boss) {
+                super(boss);
+                
+                double posX = 0;  // Bem à esquerda
+                double posY = MUNDO_ALTURA * 0.2;    // Meio da tela verticalmente
+
+                posicaoAtaque = new Point2D.Double(posX, posY);
+                intervaloAtaque = INTERVALO_ENTRE_ATAQUES * 3;
+                velocidadeProjetil = VELOCIDADE_PROJETIL;
+                tipoProjetil = TipoProjetilInimigo.OVAL_AZUL_PISCINA_CLARO;
+                
+                padroes.add(new PadraoLeque(85, 10, 3, QUANTIDADE_ONDAS / 3));
+            }
+        }
+        
+        private class ArcoLateralDireita extends AtaqueEmLequeNaPosicao {
+            public ArcoLateralDireita(Boss boss) {
+                super(boss);
+                
+                double posX = MUNDO_LARGURA;  // Bem à direita
+                double posY = MUNDO_ALTURA * 0.2;    // Meio da tela verticalmente
+                
+                posicaoAtaque = new Point2D.Double(posX, posY);
+                intervaloAtaque = INTERVALO_ENTRE_ATAQUES * 3;
+                velocidadeProjetil = VELOCIDADE_PROJETIL;
+                tipoProjetil = TipoProjetilInimigo.OVAL_AZUL_PISCINA_CLARO;
+                
+                padroes.add(new PadraoLeque(95, 10, 3, QUANTIDADE_ONDAS / 3));
             }
         }
     }

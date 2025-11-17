@@ -266,7 +266,7 @@ public class ScriptFase4 extends ScriptDeFase {
 
     private class OndaBoss extends OndaDeBoss{
         public OndaBoss(Fase fase) {
-            super("Deaf to All but the Song");
+            super("Retribution for the Eternal Night ~ Imperishable Night");
             lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
             boss = new Reimu(0, ConfigMapa.MUNDO_ALTURA * 0.05, lootTable, 10000, fase);
 

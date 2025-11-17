@@ -55,7 +55,7 @@ public class GerenciadorDeArmasHeroi implements Serializable {
         if (cooldownTiroPrincipal <= 0) {
             Auxiliar.SoundManager.getInstance().playSfx("se_plst00", 1.0);
             double velocidadeProjetilEmGrid = 40.0 / CELL_SIDE;
-            double velocidadeFinal = FATOR_ESCALA_ALTURA * (velocidadeProjetilEmGrid * (1 + (Math.min(nivelTiro, 3) - 1) * 0.03));
+            double velocidadeFinal = FATOR_ESCALA_ALTURA * (velocidadeProjetilEmGrid * (1 + (Math.min(nivelTiro, 3) - 1) * 0.1));
 
             Projetil p1 = pool.getProjetilNormal();
             if (p1 != null) {
@@ -75,7 +75,7 @@ public class GerenciadorDeArmasHeroi implements Serializable {
                 }
             }
 
-            int cooldownFinal = (int) ((tempoDeRecarga) - (getNivelTiro(power) * 0.5));
+            int cooldownFinal = (int) ((tempoDeRecarga) - (getNivelTiro(power) * 0.2));
             cooldownTiroPrincipal = Math.max(cooldownFinal, 2);
         }
     }

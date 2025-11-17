@@ -60,7 +60,7 @@ public class ScriptFase5 extends ScriptDeFase {
             Logger.getLogger(ScriptFase5.class.getName()).log(Level.SEVERE, "Erro ao carregar recursos da Fase 5", e);
         }
 
-        SoundManager.getInstance().playMusic("Love-Colored Master Spark", false);
+        SoundManager.getInstance().playMusic("Cinderella Cage ~ Kagome-Kagome", false);
     }
 
     @Override
@@ -84,20 +84,8 @@ public class ScriptFase5 extends ScriptDeFase {
     // Onda
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
+        ondas.add(new OndaDeEspera(fase, 300)); // Espera 5 segundos após a fada
         ondas.add(new OndaBoss(fase));
-
-        // LootTable para a FadaComum4
-        LootTable lootFada4 = new LootTable();
-        lootFada4.addItem(new Auxiliar.Personagem.LootItem(ItemType.SCORE_POINT, 1, 1, 1.0, false, false));
-        lootFada4.addItem(new Auxiliar.Personagem.LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, false, false));
-
-        // Cria uma nova onda para a FadaComum4
-        Onda ondaFada4 = new Onda() {{
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum4(ConfigMapa.MUNDO_LARGURA / 2.0, -1.0, lootFada4, 50, fase, "", 1), 120)); // Spawn após 2 segundos
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum4(ConfigMapa.MUNDO_LARGURA / 2.0, -1.0, lootFada4, 50, fase, "", 1), 120)); // Spawn após 2 segundos
-            inimigos.add(new InimigoSpawn(new Modelo.Inimigos.FadaComum4(ConfigMapa.MUNDO_LARGURA / 2.0, -1.0, lootFada4, 50, fase, "", 1), 120)); // Spawn após 2 segundos
-        }};
-        ondas.add(ondaFada4);
         ondas.add(new OndaDeEspera(fase, 300)); // Espera 5 segundos após a fada
         return ondas;
     }
@@ -119,7 +107,7 @@ public class ScriptFase5 extends ScriptDeFase {
 
     private class OndaBoss extends OndaDeBoss{
         public OndaBoss(Fase fase) {
-            super("Deaf to All but the Song");
+            super(null);
             lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
             boss = new Reisen(0, ConfigMapa.MUNDO_ALTURA * 0.05, lootTable, 30000, fase);
 

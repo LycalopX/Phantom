@@ -225,9 +225,9 @@ public class ScriptFase3 extends ScriptDeFase {
 
     private class OndaBoss extends OndaDeBoss {
         public OndaBoss(Fase fase) {
-            super("Deaf to All but the Song");
+            super("Plain Asia");
             lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
-            boss = new Keine(0, ConfigMapa.MUNDO_ALTURA * 0.05, lootTable, 30000, fase);
+            boss = new Keine(0, ConfigMapa.MUNDO_ALTURA * 0.05, lootTable, 45000, fase);
 
             inimigos.add(new InimigoSpawn(boss, 0));
         }

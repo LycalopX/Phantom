@@ -37,10 +37,13 @@ public class Reisen extends Boss {
         this.hitboxRaio = (this.largura / 2.0) / Auxiliar.ConfigMapa.CELL_SIDE;
 
         setupEstados();
-        SoundManager.getInstance().playMusic("Cinderella Cage ~ Kagome-Kagome", true);
     }
 
     private void setupEstados() {
+
+        // Estado inicial: Ir para o centro superior
+        Estado irCentroInicio = new IrParaOCentro(this, new Point2D.Double(0.05,0.05));
+
         // Movimentos
         Estado irCentro1 = new IrParaOCentro(this, new Point2D.Double(0.3, 0.3));
         Estado irCentro2 = new IrParaOCentro(this, new Point2D.Double(0.3, 0.3));
@@ -70,7 +73,9 @@ public class Reisen extends Boss {
         Estado espera6 = new Esperar(this, 60);
 
         // Sequência de estados: Espiral dupla -> teleguiado -> chuva -> horário/anti-horário -> teleguiado -> chuva -> teleguiado duplo -> chuva -> orbs -> loop
-        estado = irCentro1;
+        estado = irCentroInicio;
+        irCentroInicio.setProximoEstado(ataqueEspiral);
+
         irCentro1.setProximoEstado(ataqueEspiral);
         
         ataqueEspiral.setProximoEstado(espera1);

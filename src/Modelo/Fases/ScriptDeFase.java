@@ -272,7 +272,9 @@ public abstract class ScriptDeFase implements Serializable {
 
         @Override
         public void tocarMusicaDeOnda(String musica) {
-            SoundManager.getInstance().playMusic(musica, true);
+            if (musica != null) {
+                SoundManager.getInstance().playMusic(musica, true);
+            }
         }
     }
 

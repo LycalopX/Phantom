@@ -37,7 +37,6 @@ public class Keine extends Boss {
         this.hitboxRaio = (this.largura / 2.0) / Auxiliar.ConfigMapa.CELL_SIDE;
 
         setupEstados();
-        SoundManager.getInstance().playMusic("Plain Asia", true);
     }
 
     private void setupEstados() {

@@ -140,7 +140,8 @@ public class Engine implements Runnable {
                 }
                 break;
             case PAUSADO:
-                // A lógica do jogo está parada. A entrada do menu é tratada em configurarTeclado().
+                // A lógica do jogo está parada. A entrada do menu é tratada em
+                // configurarTeclado().
                 break;
             case DEATHBOMB_WINDOW:
                 controladorHeroi.processarInput(teclasPressionadas, hero, faseAtual, controleDeJogo);
@@ -292,30 +293,35 @@ public class Engine implements Runnable {
                         if (e.getKeyCode() == ConfigTeclado.KEY_SELECT) {
                             // Lógica para sair do jogo (ainda não implementada)
                             System.exit(0);
+
                         } else if (e.getKeyCode() == ConfigTeclado.KEY_CANCEL) {
                             showQuitConfirmation = false;
-                            SoundManager.getInstance().playSfx("se_ok00", 1.5f);
+                            SoundManager.getInstance().playSfx("se_ok00", 3f);
                         }
                     } else {
                         if (e.getKeyCode() == ConfigTeclado.ARROW_UP || e.getKeyCode() == ConfigTeclado.KEY_UP) {
                             menuSelection = (menuSelection - 1 + 2) % 2;
-                            SoundManager.getInstance().playSfx("se_select00", 1.5f);
-                        } else if (e.getKeyCode() == ConfigTeclado.ARROW_DOWN || e.getKeyCode() == ConfigTeclado.KEY_DOWN) {
+                            SoundManager.getInstance().playSfx("se_select00", 3f);
+
+                        } else if (e.getKeyCode() == ConfigTeclado.ARROW_DOWN
+                                || e.getKeyCode() == ConfigTeclado.KEY_DOWN) {
                             menuSelection = (menuSelection + 1) % 2;
-                            SoundManager.getInstance().playSfx("se_select00", 1.5f);
+                            SoundManager.getInstance().playSfx("se_select00", 3f);
+
                         } else if (e.getKeyCode() == ConfigTeclado.KEY_SELECT) {
                             if (menuSelection == 0) { // Return to Game
                                 estadoAtual = GameState.JOGANDO;
                                 SoundManager.getInstance().resumeMusic();
-                                SoundManager.getInstance().playSfx("se_ok00", 1.5f);
+                                SoundManager.getInstance().playSfx("se_ok00", 3f);
+
                             } else { // Quit
                                 showQuitConfirmation = true;
-                                SoundManager.getInstance().playSfx("se_ok00", 1.5f);
+                                SoundManager.getInstance().playSfx("se_ok00", 3f);
                             }
                         } else if (e.getKeyCode() == ConfigTeclado.KEY_CANCEL) {
                             estadoAtual = GameState.JOGANDO;
                             SoundManager.getInstance().resumeMusic();
-                            SoundManager.getInstance().playSfx("se_ok00", 1.5f);
+                            SoundManager.getInstance().playSfx("se_ok00", 3f);
                         }
                     }
                     return;
@@ -326,15 +332,16 @@ public class Engine implements Runnable {
                         estadoAtual = GameState.PAUSADO;
                         menuSelection = 0;
                         showQuitConfirmation = false;
+                        
                         SoundManager.getInstance().pauseMusic();
-                        SoundManager.getInstance().playSfx("se_pause", 1.5f);
+                        SoundManager.getInstance().playSfx("se_pause", 6f);
                     }
                     return;
                 }
 
                 if (estadoAtual == GameState.GAME_OVER && e.getKeyCode() == ConfigTeclado.KEY_RESTART) {
                     reiniciarJogo();
-                    SoundManager.getInstance().playSfx("se_ok00", 1.5f);
+                    SoundManager.getInstance().playSfx("se_ok00", 3f);
                     return;
                 }
                 if (e.getKeyCode() == ConfigTeclado.KEY_SAVE) {

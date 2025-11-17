@@ -121,7 +121,7 @@ public class ScriptFase5 extends ScriptDeFase {
         public OndaBoss(Fase fase) {
             super("Deaf to All but the Song");
             lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
-            boss = new Reisen(0, ConfigMapa.MUNDO_ALTURA * 0.05, lootTable, 10000, fase);
+            boss = new Reisen(0, ConfigMapa.MUNDO_ALTURA * 0.05, lootTable, 30000, fase);
 
             inimigos.add(new InimigoSpawn(boss, 0));
         }

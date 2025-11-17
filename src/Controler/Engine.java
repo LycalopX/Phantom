@@ -402,6 +402,9 @@ public class Engine implements Runnable {
     public void carregarProximaFase() {
         this.faseAtual = gerenciadorDeFases.proximaFase(this);
         this.faseAtual.adicionarPersonagem(hero);
+        for (Item item : this.faseAtual.getItemPool().getTodosOsItens()) {
+            item.setHero(this.hero);
+        }
         cenario.setFase(this.faseAtual);
         this.controleDeJogo.setItemPool(this.faseAtual.getItemPool());
     }

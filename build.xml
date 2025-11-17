@@ -19,6 +19,34 @@
             </manifest>
         </jar>
     </target>
+    
+    <target name="release" depends="jar" description="Create distributable release package">
+        <echo message="Creating release package..."/>
+        
+        <!-- Clean release directory -->
+        <delete dir="release"/>
+        <mkdir dir="release"/>
+        
+        <!-- Copy JAR -->
+        <copy file="${dist.jar}" todir="release"/>
+        
+        <!-- Copy resources -->
+        <copy todir="release/imgs">
+            <fileset dir="src/imgs"/>
+        </copy>
+        <copy todir="release/sounds">
+            <fileset dir="src/sounds"/>
+        </copy>
+        <copy todir="release/recursos">
+            <fileset dir="src/recursos"/>
+        </copy>
+        <copy todir="release/lib">
+            <fileset dir="lib"/>
+        </copy>
+        
+        <echo message="Release package created in 'release' directory"/>
+        <echo message="To run: java -jar PrototipoProjetoPOO.jar"/>
+    </target>
     <!--
 
     There exist several targets which are by default empty and which can be 

@@ -183,7 +183,7 @@ public class Lorelei extends Boss {
             this.velocidadeProjetil = 0.15;
             this.tipoProjetil = TipoProjetilInimigo.ESFERA_AMARELA;
 
-            padroes.add(new PadraoLeque(90, 0, 10));
+            padroes.add(new PadraoLeque(0, 0, 10));
         }
     }
 

@@ -86,10 +86,10 @@ public class ControladorDoHeroi {
             proximoY = limiteBaixo;
 
         double xFinal = heroi.getX(), yFinal = heroi.getY();
-        if (cj.ehPosicaoValida(fase.getPersonagens(), heroi, proximoX, heroi.getY())) {
+        if (cj.ehPosicaoValida(fase.getInimigos(), heroi, proximoX, heroi.getY())) {
             xFinal = proximoX;
         }
-        if (cj.ehPosicaoValida(fase.getPersonagens(), heroi, heroi.getX(), proximoY)) {
+        if (cj.ehPosicaoValida(fase.getInimigos(), heroi, heroi.getX(), proximoY)) {
             yFinal = proximoY;
         }
         heroi.mover(xFinal, yFinal);

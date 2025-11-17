@@ -55,7 +55,8 @@ public class GerenciadorDeArmasHeroi implements Serializable {
         if (cooldownTiroPrincipal <= 0) {
             Auxiliar.SoundManager.getInstance().playSfx("se_plst00", 1.0);
             double velocidadeProjetilEmGrid = 40.0 / CELL_SIDE;
-            double velocidadeFinal = FATOR_ESCALA_ALTURA * (velocidadeProjetilEmGrid * (1 + (Math.min(nivelTiro, 3) - 1) * 0.1));
+            double velocidadeFinal = FATOR_ESCALA_ALTURA
+                    * (velocidadeProjetilEmGrid * (1 + (Math.min(nivelTiro, 3) - 1) * 0.1));
 
             Projetil p1 = pool.getProjetilNormal();
             if (p1 != null) {
@@ -65,7 +66,7 @@ public class GerenciadorDeArmasHeroi implements Serializable {
             if (nivelTiro >= 3) {
                 double offsetX = 0.5;
                 Projetil p2 = pool.getProjetilNormal();
-                
+
                 if (p2 != null) {
                     p2.reset(x - offsetX, y, velocidadeFinal, -100, TipoProjetil.JOGADOR, TipoProjetilHeroi.NORMAL);
                 }
@@ -103,13 +104,13 @@ public class GerenciadorDeArmasHeroi implements Serializable {
             ProjetilHoming pEsquerdo = pool.getProjetilHoming();
             if (pEsquerdo != null) {
                 pEsquerdo.resetHoming(x - offsetX, y, velocidadeFinal, anguloEsquerda, TipoProjetil.JOGADOR,
-                        TipoProjetilHeroi.HOMING);
+                        TipoProjetilHeroi.HOMING, fase.getInimigos());
             }
 
             ProjetilHoming pDireito = pool.getProjetilHoming();
             if (pDireito != null) {
                 pDireito.resetHoming(x + offsetX, y, velocidadeFinal, anguloDireita, TipoProjetil.JOGADOR,
-                        TipoProjetilHeroi.HOMING);
+                        TipoProjetilHeroi.HOMING, fase.getInimigos());
             }
         }
     }

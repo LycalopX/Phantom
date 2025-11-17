@@ -6,7 +6,7 @@ skinparam crossingCharacter '( )'
 skinparam classSeparatorColor DarkRed
 skinparam classSeparatorThickness 2
 
-title Diagrama Detalhado - Pacote 'Modelo.Projeteis'
+title Diagrama Detalhado - Pacote 'Modelo.Projeteis' (Atualizado)
 
 package "Modelo.Projeteis" {
     class Projetil extends Personagem {
@@ -16,12 +16,15 @@ package "Modelo.Projeteis" {
         # tipoDetalhado: ProjetilTipo
         --
         + Projetil(sNomeImagePNG: String)
+        - readObject(in: ObjectInputStream): void
         + reset(x: double, y: double, vel: double, angulo: double, tipo: TipoProjetil, tipoDetalhado: ProjetilTipo): void
         + atualizar(): void
         + autoDesenho(g: Graphics): void
         + getTipoHitbox(): HitboxType
         + getBounds(): Rectangle
         + estaForaDaTela(): boolean
+        + deactivate(): void
+        + activate(): void
         + getTipo(): TipoProjetil
     }
 
@@ -31,18 +34,30 @@ package "Modelo.Projeteis" {
         - personagens: List<Personagem>
         - taxaDeCurva: double
         - inertiaTimer: int
+        {static} - TEMPO_INERCIA: int
         --
         + ProjetilHoming(sNomeImagePNG: String, personagens: List<Personagem>)
         + resetHoming(x: double, y: double, vel: double, angulo: double, tipo: TipoProjetil, tipoDetalhado: ProjetilTipo): void
         + atualizar(): void
         - ajustarAnguloParaOAlvo(): void
         - encontrarAlvoMaisProximo(personagens: List<Personagem>): void
+        + isActive(): boolean
+    }
+
+    enum HomingState {
+        INERCIA
+        PERSEGUINDO
     }
 
     class ProjetilBombaHoming extends ProjetilHoming {
         - estadoAtual: EstadoBomba
-        - tempoDeVida, tempoDeExpansao: int
+        - tempoDeVida, tempoDeExpansao, animationTimer: int
         - positionHistory: List<Point2D.Double>
+        {static} - TRAIL_LENGTH: int
+        {static} - DURACAO_TOTAL_VIDA: int
+        {static} - DURACAO_EXPANSAO: int
+        {static} - AURA_COLOR: Color
+        {static} - TRAIL_BASE_COLOR: Color
         --
         + ProjetilBombaHoming(sNomeImagePNG: String, personagens: List<Personagem>)
         + resetBombaHoming(x: double, y: double, vel: double, angulo: double, tipo: TipoProjetil, tipoDetalhado: ProjetilTipo): void
@@ -50,11 +65,18 @@ package "Modelo.Projeteis" {
         + autoDesenho(g: Graphics): void
     }
 
+    enum EstadoBomba {
+        EXPANDINDO
+        PERSEGUINDO
+    }
+
     class BombaProjetil extends Personagem {
         - duracao: int
+        {static} - DURACAO_MAXIMA: int
         - raioMaximoGrid, raioAtualGrid: double
         - faseReferencia: Fase
         - heroReferencia: Hero
+        {static} - BOMB_COLOR: Color
         --
         + BombaProjetil(x: double, y: double, fase: Fase, hero: Hero)
         + atualizar(): void
@@ -69,6 +91,10 @@ package "Modelo.Projeteis" {
         - poolHoming: ArrayList<ProjetilHoming>
         - poolBombaHoming: ArrayList<ProjetilBombaHoming>
         - poolInimigos: ArrayList<Projetil>
+        - maxActiveNormais: int
+        - maxActiveHoming: int
+        - maxActiveBombaHoming: int
+        - maxActiveInimigos: int
         --
         + ProjetilPool(tamanhoNormais: int, tamanhoHoming: int, tamanhoBombaHoming: int, tamanhoInimigos: int, personagens: List<Personagem>)
         + getTodosOsProjeteis(): ArrayList<Projetil>
@@ -76,11 +102,31 @@ package "Modelo.Projeteis" {
         + getProjetilHoming(): ProjetilHoming
         + getProjetilBombaHoming(): ProjetilBombaHoming
         + getProjetilInimigo(): Projetil
-        ...
+        + updateHighWatermark(): void
+        + getMaxActiveNormais(): int
+        + getMaxActiveHoming(): int
+        + getMaxActiveBombaHoming(): int
+        + getMaxActiveInimigos(): int
     }
     
     enum TipoProjetilHeroi implements "Auxiliar.Projeteis.ProjetilTipo" {
         NORMAL, HOMING, BOMBA
+        --
+        - imagem: ImageIcon
+        - spriteWidth: int
+        - spriteHeight: int
+        - hitboxType: HitboxType
+        - hitboxWidth: int
+        - hitboxHeight: int
+        --
+        + TipoProjetilHeroi(sNomeImagePNG: String, spriteWidth: int, spriteHeight: int, hitboxType: HitboxType, hitboxWidth: int)
+        + getImagem(): ImageIcon
+        + getSpriteWidth(): int
+        + getSpriteHeight(): int
+        + getHitboxType(): HitboxType
+        + getHitboxWidth(): int
+        + getHitboxHeight(): int
+        - carregarImagem(nomeArquivo: String, largura: int, altura: int): ImageIcon
     }
 }
 
@@ -95,6 +141,9 @@ package "Dependências Externas" {
     class Point2D.Double
     class Rectangle
     class Graphics
+    class Graphics2D
+    class ObjectInputStream
+    class Color
 }
 
 ' --- Relacionamentos de Herança ---
@@ -114,9 +163,18 @@ Projetil ..> TipoProjetil
 Projetil ..> ProjetilTipo
 Projetil ..> HitboxType
 Projetil ..> Rectangle
+Projetil ..> ObjectInputStream
+Projetil ..> Graphics
+Projetil ..> Graphics2D
 ProjetilHoming ..> Inimigo
+ProjetilHoming ..> HomingState
 BombaProjetil ..> Fase
 BombaProjetil ..> Hero
+BombaProjetil ..> ProjetilPool
+BombaProjetil ..> Color
 ProjetilPool ..> Personagem
+TipoProjetilHeroi ..> HitboxType
+TipoProjetilHeroi ..> ImageIcon
+TipoProjetilHeroi ..> Graphics
 
 @enduml

@@ -72,7 +72,7 @@ public class Engine implements Runnable {
         this.hero = new Hero("hero/hero_s0.png", HERO_RESPAWN_X, HERO_RESPAWN_Y);
         this.faseAtual.adicionarPersonagem(hero);
 
-        for (Item item : faseAtual.getItemPool().getTodosOsItens()) {
+        for (Item item : faseAtual.getItens()) {
             item.setHero(hero);
         }
 
@@ -131,7 +131,7 @@ public class Engine implements Runnable {
                 controladorHeroi.processarInput(teclasPressionadas, hero, faseAtual, controleDeJogo);
                 faseAtual.atualizar(velocidadeScroll);
 
-                boolean foiAtingido = controleDeJogo.processaTudo(faseAtual.getPersonagens(), false);
+                boolean foiAtingido = controleDeJogo.processaTudo(faseAtual.getHero(), faseAtual.getInimigos(), faseAtual.getProjeteis(), faseAtual.getItens(), faseAtual.getBombas(), false);
 
                 if (foiAtingido) {
                     estadoAtual = GameState.DEATHBOMB_WINDOW;
@@ -179,7 +179,7 @@ public class Engine implements Runnable {
                 }
 
                 faseAtual.atualizar(velocidadeScroll);
-                controleDeJogo.processaTudo(faseAtual.getPersonagens(), removeProjectiles);
+                controleDeJogo.processaTudo(faseAtual.getHero(), faseAtual.getInimigos(), faseAtual.getProjeteis(), faseAtual.getItens(), faseAtual.getBombas(), removeProjectiles);
                 removeProjectiles = false;
 
                 if (respawnTimer <= 0) {
@@ -236,14 +236,12 @@ public class Engine implements Runnable {
             cenario.setFase(this.faseAtual);
             this.controleDeJogo.setItemPool(this.faseAtual.getItemPool());
 
-            this.hero = (Hero) this.faseAtual.getHero();
-            for (Item item : this.faseAtual.getItemPool().getTodosOsItens()) {
+            this.hero = this.faseAtual.getHero();
+            for (Item item : this.faseAtual.getItens()) {
                 item.setHero(this.hero);
             }
-            for (Personagem p : this.faseAtual.getPersonagens()) {
-                if (p instanceof Inimigo) {
-                    ((Inimigo) p).initialize(this.faseAtual);
-                }
+            for (Inimigo inimigo : this.faseAtual.getInimigos()) {
+                inimigo.initialize(this.faseAtual);
             }
             System.out.println(">>> JOGO CARREGADO!");
         } catch (Exception e) {
@@ -273,10 +271,8 @@ public class Engine implements Runnable {
         hero = new Hero("hero/hero_s0.png", HERO_RESPAWN_X, HERO_RESPAWN_Y);
 
         faseAtual.adicionarPersonagem(hero);
-        for (Personagem p : this.faseAtual.getPersonagens()) {
-            if (p instanceof Inimigo) {
-                ((Inimigo) p).initialize(this.faseAtual);
-            }
+        for (Inimigo inimigo : this.faseAtual.getInimigos()) {
+            inimigo.initialize(this.faseAtual);
         }
         cenario.setFase(faseAtual);
         this.controleDeJogo.setItemPool(this.faseAtual.getItemPool());
@@ -464,7 +460,7 @@ public class Engine implements Runnable {
     public void carregarProximaFase() {
         this.faseAtual = gerenciadorDeFases.proximaFase(this);
         this.faseAtual.adicionarPersonagem(hero);
-        for (Item item : this.faseAtual.getItemPool().getTodosOsItens()) {
+        for (Item item : this.faseAtual.getItens()) {
             item.setHero(this.hero);
         }
         cenario.setFase(this.faseAtual);

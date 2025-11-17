@@ -110,7 +110,8 @@ public class BombaProjetil extends Personagem {
                     velocidadeMissil,
                     anguloExpansao,
                     TipoProjetil.JOGADOR,
-                    TipoProjetilHeroi.BOMBA
+                    TipoProjetilHeroi.BOMBA,
+                    faseReferencia.getInimigos()
                 );
             }
         }

@@ -6,13 +6,19 @@ skinparam crossingCharacter '( )'
 skinparam classSeparatorColor DarkRed
 skinparam classSeparatorThickness 2
 
-title Diagrama Detalhado - Pacote 'Modelo.Hero'
+title Diagrama Detalhado - Pacote 'Modelo.Hero' (Atualizado)
 
 package "Modelo.Hero" {
     class Hero extends Personagem {
         {static} + HITBOX_RAIO: double
         {static} + HERO_VELOCITY: double
         {static} + DANO_BALA: int
+        {static} + DANO_BALA_TELEGUIADA: int
+        {static} + REQ_MISSIL_POWER: int
+        {static} + REQ_TIROS_POWER: int
+        {static} + SLOW_MOTION_FRAMES: int
+        - DURACAO_BOMBA_FRAMES: int
+        - duracaoInvencibilidadeRespawn: int
         - HP, bombas, power, score: int
         - invencibilidadeTimer, efeitoBombaTimer: int
         - grabHitboxRaio: double
@@ -29,14 +35,26 @@ package "Modelo.Hero" {
         + autoDesenho(g: Graphics): void
         + respawn(): void
         + usarBomba(fase: Fase): BombaProjetil
+        - readObject(in: ObjectInputStream): void
         + takeDamage(): boolean
         + processarMorte(): void
+        + toggleCheats(): void
         + isInvencivel(): boolean
+        + deactivate(): void
+        + activate(): void
         + getBombas(): int
         + getHP(): int
         + getPower(): int
-        + addPower(q: int): void
-        ...
+        + getScore(): int
+        + getGrabHitboxRaio(): double
+        + addPower(quantidade: int): void
+        + addBomb(quantidade: int): void
+        + addHP(quantidade: int): void
+        + addScore(quantidade: int): void
+        + getNivelDeMisseis(): int
+        + isBombing(): boolean
+        + getBounds(): Rectangle
+        + setFocoAtivo(isFocoAtivo: boolean): void
     }
 
     enum HeroState {
@@ -56,6 +74,13 @@ package "Modelo.Hero" {
         - frameCounter: int
         - hitboxFadeState: FadeState
         - hitboxAlpha: float
+        {static} - FADE_SPEED: float
+        {static} - MAX_FRAMES_STRAFING: int
+        {static} - DELAY_STRAFING: int
+        {static} - MAX_FRAMES_STRAFING_MAX: int
+        {static} - DELAY_STRAFING_MAX: int
+        {static} - MAX_FRAMES_IDLE: int
+        {static} - DELAY_IDLE: int
         - frameAtualStrafing, delayFrameStrafing: int
         - frameAtualStrafingMax, delayFrameStrafingMax: int
         - frameAtualIdle, delayFrameIdle: int
@@ -65,16 +90,28 @@ package "Modelo.Hero" {
         + getImagemAtual(estado: HeroState): ImageIcon
         - resetarAnimacaoStrafing(): void
         - resetarAnimacaoIdle(): void
+        - carregarImagem(nomeArquivo: String, largura: int, altura: int): ImageIcon
+        - carregarFramesDoSpriteSheet(nomeArquivo: String, numFrames: int, largura: int, altura: int): ImageIcon[]
         + iniciarDeStrafing(): void
         + iniciarFadeInHitbox(): void
         + iniciarFadeOutHitbox(): void
-        ...
+        + getHitboxAlpha(): float
+        + getImagemHitboxFoco(): ImageIcon
+        + getAnguloRotacaoHitbox(): double
+    }
+
+    enum FadeState {
+        FADE_IN
+        FADE_OUT
+        VISIBLE
+        HIDDEN
     }
 
     class GerenciadorDeArmasHeroi {
         - tempoDeRecarga: double
         - cooldownTiroPrincipal: int
         - cooldownMisseis: int
+        {static} - MISSILE_COOLDOWN_TIME: int
         --
         + atualizarTimers(): void
         + disparar(x: double, y: double, power: int, fase: Fase): void
@@ -90,6 +127,8 @@ package "Dependências Externas" {
     class ProjetilPool
     class Graphics
     class ImageIcon
+    class ObjectInputStream
+    class Rectangle
 }
 
 ' --- Relacionamentos de Herança ---
@@ -103,10 +142,13 @@ Hero *-- "1" GerenciadorDeArmasHeroi
 Hero ..> HeroState
 Hero ..> Fase
 Hero ..> BombaProjetil
+Hero ..> ObjectInputStream
+Hero ..> Rectangle
 GerenciadorDeArmasHeroi ..> Fase
 GerenciadorDeArmasHeroi ..> ProjetilPool
 GerenciadorDeAnimacaoHeroi ..> HeroState
 GerenciadorDeAnimacaoHeroi ..> ImageIcon
 GerenciadorDeAnimacaoHeroi ..> Graphics
+GerenciadorDeAnimacaoHeroi ..> FadeState
 
 @enduml

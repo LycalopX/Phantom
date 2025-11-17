@@ -2,7 +2,6 @@ package Modelo.Projeteis;
 
 import Auxiliar.Projeteis.ProjetilTipo;
 import Auxiliar.Projeteis.TipoProjetil;
-import Modelo.Personagem;
 import Modelo.Inimigos.Inimigo;
 import java.util.List;
 
@@ -20,7 +19,7 @@ public class ProjetilHoming extends Projetil {
     private HomingState estadoAtual = HomingState.INERCIA;
 
     private Inimigo alvo;
-    private List<Personagem> personagens;
+    private List<Inimigo> inimigosAlvo;
     private double taxaDeCurva = 0.1;
 
     private int TEMPO_INERCIA = 20;
@@ -29,9 +28,8 @@ public class ProjetilHoming extends Projetil {
     /**
      * @brief Construtor do projétil teleguiado.
      */
-    public ProjetilHoming(String sNomeImagePNG, List<Personagem> personagens) {
+    public ProjetilHoming(String sNomeImagePNG) {
         super(sNomeImagePNG);
-        this.personagens = personagens;
     }
 
     /**
@@ -39,7 +37,7 @@ public class ProjetilHoming extends Projetil {
      *        perseguição.
      */
     public void resetHoming(double x, double y, double velocidadeGrid, double anguloInicial, TipoProjetil tipo,
-            ProjetilTipo tipoDetalhado) {
+            ProjetilTipo tipoDetalhado, List<Inimigo> inimigos) {
         super.reset(
                 x,
                 y,
@@ -51,6 +49,7 @@ public class ProjetilHoming extends Projetil {
         this.estadoAtual = HomingState.INERCIA;
         this.alvo = null;
         this.inertiaTimer = TEMPO_INERCIA;
+        this.inimigosAlvo = inimigos;
     }
 
     /**
@@ -71,8 +70,8 @@ public class ProjetilHoming extends Projetil {
                 break;
 
             case PERSEGUINDO:
-                if (alvo == null || !personagens.contains(alvo)) {
-                    encontrarAlvoMaisProximo(personagens);
+                if (inimigosAlvo != null && (alvo == null || !alvo.isActive() || !inimigosAlvo.contains(alvo))) {
+                    encontrarAlvoMaisProximo(inimigosAlvo);
                 }
                 if (alvo != null) {
                     ajustarAnguloParaOAlvo();
@@ -106,16 +105,16 @@ public class ProjetilHoming extends Projetil {
     /**
      * @brief Encontra o inimigo mais próximo do projétil para definir como alvo.
      */
-    private void encontrarAlvoMaisProximo(List<Personagem> personagens) {
+    private void encontrarAlvoMaisProximo(List<Inimigo> inimigos) {
         double menorDistancia = Double.MAX_VALUE;
         Inimigo inimigoMaisProximo = null;
 
-        for (Personagem p : personagens) {
-            if (p instanceof Inimigo) {
-                double distancia = Math.sqrt(Math.pow(p.getX() - this.x, 2) + Math.pow(p.getY() - this.y, 2));
+        for (Inimigo i : inimigos) {
+            if (i.isActive()) {
+                double distancia = Math.sqrt(Math.pow(i.getX() - this.x, 2) + Math.pow(i.getY() - this.y, 2));
                 if (distancia < menorDistancia) {
                     menorDistancia = distancia;
-                    inimigoMaisProximo = (Inimigo) p;
+                    inimigoMaisProximo = i;
                 }
             }
         }

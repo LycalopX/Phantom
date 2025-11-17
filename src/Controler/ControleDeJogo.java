@@ -64,70 +64,68 @@ public class ControleDeJogo {
     /**
      * @brief Processa todas as interações e colisões para um frame do jogo.
      *        Utiliza uma Quadtree para otimizar a detecção de colisão.
-     * @param personagens       A lista de todos os personagens na fase.
-     * @param removeProjectiles Flag para remover todos os projéteis da tela.
      * @return true se o herói foi atingido, false caso contrário.
      */
-    public boolean processaTudo(List<Personagem> personagens, boolean removeProjectiles) {
-        if (personagens.isEmpty())
+    public boolean processaTudo(Hero hero, ArrayList<Inimigo> inimigos, ArrayList<Projetil> projeteis, ArrayList<Item> itens, ArrayList<BombaProjetil> bombas, boolean removeProjectiles) {
+        if (hero == null)
             return false;
 
-        Hero hero = null;
         BombaProjetil bombaAtiva = null;
+        if (!bombas.isEmpty()) {
+            bombaAtiva = bombas.get(0);
+        }
 
-        // Para saber se o boss foi bombeado
         boolean bombsOnField = false;
         Boss boss = null;
 
         projeteisInimigosEspeciais.clear();
         quadtree.clear();
 
-        for (Personagem p : personagens) {
-            if (p instanceof Hero) {
-                hero = (Hero) p;
-            }
+        quadtree.insert(hero);
 
-            if (p instanceof Item) {
-                if (p.getY() > ConfigMapa.MUNDO_ALTURA) {
-                    p.deactivate();
+        for (Inimigo i : inimigos) {
+            if (i.isActive()) {
+                quadtree.insert(i);
+                if (i instanceof Boss) {
+                    boss = (Boss) i;
                 }
             }
+        }
 
+        for (Projetil p : projeteis) {
             if (p.isActive()) {
                 quadtree.insert(p);
-
-                if (p instanceof BombaProjetil) {
-                    bombaAtiva = (BombaProjetil) p;
-                }
-
                 if (p instanceof ProjetilBombaHoming) {
                     bombsOnField = true;
                 }
-
-                if (p instanceof Boss) {
-                    boss = (Boss) p;
+                if (removeProjectiles) {
+                    p.deactivate();
+                    continue;
                 }
-
-                if (p instanceof Projetil) {
-                    if (removeProjectiles) {
-                        p.deactivate();
-                        continue;
-                    }
-                    Projetil proj = (Projetil) p;
-
-                    if (proj.getTipoHitbox() == HitboxType.RECTANGULAR) {
-                        projeteisInimigosEspeciais.add(proj);
-                    }
+                if (p.getTipoHitbox() == HitboxType.RECTANGULAR) {
+                    projeteisInimigosEspeciais.add(p);
                 }
+            }
+        }
+
+        for (Item i : itens) {
+            if (i.getY() > ConfigMapa.MUNDO_ALTURA) {
+                i.deactivate();
+            }
+            if (i.isActive()) {
+                quadtree.insert(i);
+            }
+        }
+
+        for (BombaProjetil b : bombas) {
+            if (b.isActive()) {
+                quadtree.insert(b);
             }
         }
 
         if (boss != null && !bombsOnField) {
             boss.setBombed(false);
         }
-
-        if (hero == null)
-            return false;
 
         novosObjetos.clear();
         boolean heroiFoiAtingido = false;
@@ -137,10 +135,8 @@ public class ControleDeJogo {
         }
 
         if (bombaAtiva != null) {
-
             int raioEmPixels = (int) (bombaAtiva.getRaioAtualGrid() * ConfigMapa.CELL_SIDE);
             int diametroEmPixels = raioEmPixels * 2;
-
             int bombaX = (int) (bombaAtiva.getX() * ConfigMapa.CELL_SIDE) - raioEmPixels;
             int bombaY = (int) (bombaAtiva.getY() * ConfigMapa.CELL_SIDE) - raioEmPixels;
             Rectangle areaDaBomba = new Rectangle(bombaX, bombaY, diametroEmPixels, diametroEmPixels);
@@ -150,25 +146,19 @@ public class ControleDeJogo {
 
             for (Personagem alvo : alvosProximos) {
                 if ((alvo instanceof Inimigo || alvo instanceof Projetil) && alvo.isActive()) {
-
                     double dx = bombaAtiva.getX() - alvo.getX();
                     double dy = bombaAtiva.getY() - alvo.getY();
                     double distanciaAoQuadrado = (dx * dx) + (dy * dy);
                     double raioBombaAoQuadrado = bombaAtiva.getHitboxRaio() * bombaAtiva.getHitboxRaio();
 
                     if (distanciaAoQuadrado < raioBombaAoQuadrado) {
-
                         if (alvo instanceof Projetil) {
                             alvo.deactivate();
-
                         } else if (alvo instanceof Inimigo) {
-
                             if (alvo instanceof Boss && !((Boss) alvo).isBombed()) {
                                 ((Boss) alvo).takeDamage(500);
                                 ((Boss) alvo).setBombed(true);
-
                             } else {
-
                                 ((Inimigo) alvo).takeDamage(9999);
                             }
                         }
@@ -177,7 +167,14 @@ public class ControleDeJogo {
             }
         }
 
-        for (Personagem p1 : personagens) {
+        ArrayList<Personagem> todosOsPersonagens = new ArrayList<>();
+        todosOsPersonagens.add(hero);
+        todosOsPersonagens.addAll(inimigos);
+        todosOsPersonagens.addAll(projeteis);
+        todosOsPersonagens.addAll(itens);
+        todosOsPersonagens.addAll(bombas);
+
+        for (Personagem p1 : todosOsPersonagens) {
             if (!p1.isActive())
                 continue;
 
@@ -207,13 +204,6 @@ public class ControleDeJogo {
             }
         }
 
-        personagens.removeIf(p -> {
-            if (p instanceof Projetil || p instanceof Item || p instanceof Hero) {
-                return false;
-            }
-            return !p.isActive();
-        });
-
         return heroiFoiAtingido;
     }
 
@@ -222,9 +212,9 @@ public class ControleDeJogo {
      *        checando por colisões com outros personagens não transponíveis.
      * @return true se a posição for válida, false caso contrário.
      */
-    public boolean ehPosicaoValida(List<Personagem> umaFase, Personagem personagem, double proximoX,
+    public boolean ehPosicaoValida(ArrayList<Inimigo> inimigos, Personagem personagem, double proximoX,
             double proximoY) {
-        for (Personagem p : umaFase) {
+        for (Personagem p : inimigos) {
             if (p == personagem || p.isTransponivel()) {
                 continue;
             }

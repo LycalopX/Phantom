@@ -24,7 +24,7 @@ public class ProjetilPool implements Serializable {
      * @brief Construtor da piscina de projéteis. Inicializa as piscinas para cada
      *        tipo de projétil.
      */
-    public ProjetilPool(int tamanhoNormais, int tamanhoHoming, int tamanhoBombaHoming, int tamanhoInimigos, List<Personagem> personagens) {
+    public ProjetilPool(int tamanhoNormais, int tamanhoHoming, int tamanhoBombaHoming, int tamanhoInimigos) {
         poolNormais = new ArrayList<>(tamanhoNormais);
         for (int i = 0; i < tamanhoNormais; i++) {
             poolNormais.add(new Projetil("projectiles/hero/projectile1_hero.png"));
@@ -32,12 +32,12 @@ public class ProjetilPool implements Serializable {
 
         poolHoming = new ArrayList<>(tamanhoHoming);
         for (int i = 0; i < tamanhoHoming; i++) {
-            poolHoming.add(new ProjetilHoming("projectiles/hero/projectile2_hero.png", personagens));
+            poolHoming.add(new ProjetilHoming("projectiles/hero/projectile2_hero.png"));
         }
 
         poolBombaHoming = new ArrayList<>(tamanhoBombaHoming);
         for (int i = 0; i < tamanhoBombaHoming; i++) {
-            poolBombaHoming.add(new ProjetilBombaHoming("projectiles/hero/talisman_bomb.png", personagens));
+            poolBombaHoming.add(new ProjetilBombaHoming("projectiles/hero/talisman_bomb.png"));
         }
 
         poolInimigos = new ArrayList<>(tamanhoInimigos);

@@ -6,6 +6,7 @@ import Modelo.Hero.Hero;
 import Modelo.Inimigos.Inimigo;
 import Modelo.Items.ItemPool;
 import Modelo.Personagem;
+import Modelo.Projeteis.BombaProjetil;
 import Modelo.Projeteis.Projetil;
 import Modelo.Projeteis.ProjetilBombaHoming;
 import Modelo.Projeteis.ProjetilPool;
@@ -13,6 +14,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+
+import Modelo.Items.Item;
 
 /**
  * @brief Representa um contêiner para uma fase do jogo, guardando todos os
@@ -22,7 +25,12 @@ import java.util.ArrayList;
  */
 public class Fase implements Serializable {
 
-    private ArrayList<Personagem> personagens;
+    private Hero hero;
+    private ArrayList<Inimigo> inimigos;
+    private ArrayList<Projetil> projeteis;
+    private ArrayList<Item> itens;
+    private ArrayList<BombaProjetil> bombas;
+
     private ScriptDeFase scriptDaFase;
     private ProjetilPool projetilPool;
     private ItemPool itemPool;
@@ -39,14 +47,15 @@ public class Fase implements Serializable {
      * @param script O script que define os eventos e spawns desta fase.
      */
     public Fase(ScriptDeFase script) {
-        this.personagens = new ArrayList<>();
-        this.projetilPool = new ProjetilPool(20, 25, 16, 1000, personagens);
+        this.inimigos = new ArrayList<>();
+        this.projetilPool = new ProjetilPool(20, 25, 16, 1000);
         this.itemPool = new ItemPool();
         this.elementosCenario = new ArrayList<>();
         this.scriptDaFase = script;
+        this.bombas = new ArrayList<>();
 
-        this.personagens.addAll(projetilPool.getTodosOsProjeteis());
-        this.personagens.addAll(itemPool.getTodosOsItens());
+        this.projeteis = new ArrayList<>(projetilPool.getTodosOsProjeteis());
+        this.itens = new ArrayList<>(itemPool.getTodosOsItens());
 
         if (this.scriptDaFase != null) {
             this.scriptDaFase.carregarRecursos(this);
@@ -84,17 +93,11 @@ public class Fase implements Serializable {
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
 
-        if (!(this.personagens instanceof ArrayList)) {
-            this.personagens = new ArrayList<>(this.personagens);
-        }
-
         if (this.scriptDaFase != null) {
             this.scriptDaFase.carregarRecursos(this);
             this.scriptDaFase.preencherCenarioInicial(this);
             this.scriptDaFase.relinkarRecursosDosElementos(this);
         }
-
-        // O código antigo de relink foi removido daqui
     }
 
     /**
@@ -114,17 +117,31 @@ public class Fase implements Serializable {
         }
         elementosCenario.removeIf(elemento -> elemento.estaForaDaTela(ALTURA_TELA));
 
-        for (Personagem p : personagens) {
+        hero.atualizar();
+
+        for (Inimigo i : inimigos) {
+            i.atualizar();
+        }
+
+        for (Projetil p : projeteis) {
             p.atualizar();
-            if (p instanceof Projetil && !(p instanceof ProjetilBombaHoming)) {
-                Projetil proj = (Projetil) p;
-                if (proj.isActive() && proj.estaForaDaTela()) {
-                    proj.deactivate();
+            if (!(p instanceof ProjetilBombaHoming)) {
+                if (p.isActive() && p.estaForaDaTela()) {
+                    p.deactivate();
                 }
             }
         }
 
-        personagens.removeIf(p -> (p instanceof Inimigo) && !p.isActive());
+        for (Item i : itens) {
+            i.atualizar();
+        }
+
+        for (BombaProjetil b : bombas) {
+            b.atualizar();
+        }
+
+        inimigos.removeIf(i -> !i.isActive());
+        bombas.removeIf(b -> !b.isActive());
     }
 
     public ScriptDeFase getScript() {
@@ -147,10 +164,36 @@ public class Fase implements Serializable {
 
     /**
      * @brief Retorna a lista de todos os personagens na fase.
+     * @deprecated This method is deprecated due to performance issues.
+     * Prefer using specific getters like getInimigos(), getProjeteis(), etc.
      */
+    @Deprecated
     public java.util.List<Personagem> getPersonagens() {
-        return this.personagens;
+        ArrayList<Personagem> todos = new ArrayList<>();
+        if (hero != null) todos.add(hero);
+        todos.addAll(inimigos);
+        todos.addAll(projeteis);
+        todos.addAll(itens);
+        todos.addAll(bombas);
+        return todos;
     }
+
+    public ArrayList<Inimigo> getInimigos() {
+        return inimigos;
+    }
+
+    public ArrayList<Projetil> getProjeteis() {
+        return projeteis;
+    }
+
+    public ArrayList<Item> getItens() {
+        return itens;
+    }
+
+    public ArrayList<BombaProjetil> getBombas() {
+        return bombas;
+    }
+
 
     /**
      * @brief Retorna a lista de elementos do cenário na fase.
@@ -163,7 +206,17 @@ public class Fase implements Serializable {
      * @brief Adiciona um novo personagem à lista da fase.
      */
     public void adicionarPersonagem(Personagem p) {
-        this.personagens.add(p);
+        if (p instanceof Hero) {
+            this.hero = (Hero) p;
+        } else if (p instanceof Inimigo) {
+            inimigos.add((Inimigo) p);
+        } else if (p instanceof BombaProjetil) {
+            bombas.add((BombaProjetil) p);
+        } else if (p instanceof Projetil) {
+            projeteis.add((Projetil) p);
+        } else if (p instanceof Item) {
+            itens.add((Item) p);
+        }
     }
 
     /**
@@ -176,12 +229,7 @@ public class Fase implements Serializable {
     /**
      * @brief Retorna uma referência ao objeto do herói na fase.
      */
-    public Personagem getHero() {
-        for (Personagem p : personagens) {
-            if (p instanceof Hero) {
-                return p;
-            }
-        }
-        return null;
+    public Hero getHero() {
+        return hero;
     }
 }

@@ -8,7 +8,7 @@ import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
-import Modelo.Personagem;
+import Modelo.Inimigos.Inimigo;
 import Auxiliar.Projeteis.ProjetilTipo;
 import Auxiliar.Projeteis.TipoProjetil;
 import static Auxiliar.ConfigMapa.*;
@@ -36,8 +36,8 @@ public class ProjetilBombaHoming extends ProjetilHoming {
     /**
      * @brief Construtor do projétil teleguiado da bomba.
      */
-    public ProjetilBombaHoming(String sNomeImagePNG, List<Personagem> personagens) {
-        super(sNomeImagePNG, personagens);
+    public ProjetilBombaHoming(String sNomeImagePNG) {
+        super(sNomeImagePNG);
     }
 
     /**
@@ -45,14 +45,15 @@ public class ProjetilBombaHoming extends ProjetilHoming {
      *        estado inicial para a fase de expansão.
      */
     public void resetBombaHoming(double x, double y, double velocidadeGrid, double anguloExpansao, TipoProjetil tipo,
-            ProjetilTipo tipoDetalhado) {
+            ProjetilTipo tipoDetalhado, List<Inimigo> inimigos) {
         super.resetHoming(
                 x,
                 y,
                 velocidadeGrid,
                 anguloExpansao,
                 tipo,
-                tipoDetalhado);
+                tipoDetalhado,
+                inimigos);
 
         this.estadoAtual = EstadoBomba.EXPANDINDO;
         this.tempoDeVida = DURACAO_TOTAL_VIDA;

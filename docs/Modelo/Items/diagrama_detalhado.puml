@@ -6,7 +6,7 @@ skinparam crossingCharacter '( )'
 skinparam classSeparatorColor DarkRed
 skinparam classSeparatorThickness 2
 
-title Diagrama Detalhado - Pacote 'Modelo.Items'
+title Diagrama Detalhado - Pacote 'Modelo.Items' (Atualizado)
 
 package "Modelo.Items" {
     class Item extends Personagem {
@@ -14,7 +14,11 @@ package "Modelo.Items" {
         - spriteRecortado: ImageIcon
         - hero: Hero
         - velX, velY: double
+        {static} - GRAVIDADE: double
+        {static} - MAX_FALL_SPEED: double
+        {static} - VELOCIDADE_ATRACAO: double
         - launchTimer: int
+        {static} - DURACAO_LANCAMENTO: int
         --
         + Item(tipo: ItemType)
         + init(x: double, y: double): void
@@ -23,6 +27,8 @@ package "Modelo.Items" {
         + atualizar(): void
         - recortarSprite(): void
         + autoDesenho(g: Graphics): void
+        + deactivate(): void
+        + activate(): void
         + getTipo(): ItemType
     }
 
@@ -52,8 +58,13 @@ package "Modelo.Items" {
         {static} - LARGURA, ALTURA: int
         --
         + getSpriteX(): int
+        + getSpriteY(): int
+        + getLargura(): int
+        + getAltura(): int
         + getScoreValue(): int
-        ...
+        + getPowerValue(): int
+        + getBombValue(): int
+        + getPoolSize(): int
     }
 }
 

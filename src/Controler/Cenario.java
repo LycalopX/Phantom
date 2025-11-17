@@ -178,51 +178,23 @@ public class Cenario extends JPanel {
         }
 
         if (engine.getEstadoAtual() == null || engine.getEstadoAtual() == Engine.GameState.JOGANDO
-                || engine.getEstadoAtual() == Engine.GameState.RESPAWNANDO || engine.getEstadoAtual() == Engine.GameState.DEATHBOMB_WINDOW) {
+                || engine.getEstadoAtual() == Engine.GameState.RESPAWNANDO
+                || engine.getEstadoAtual() == Engine.GameState.DEATHBOMB_WINDOW) {
 
-            Graphics2D g2d = (Graphics2D) g;
-
-            // 1. Desenha os elementos da camada de fundo
-            for (var elemento : faseAtual.getElementosCenario()) {
-                if (elemento.getDrawLayer() == Modelo.Cenario.DrawLayer.BACKGROUND) {
-                    elemento.desenhar(g2d, getWidth(), getHeight());
-                }
-            }
-
-            // 2. Aplica os gradientes de cor sobre o fundo
-            g2d.setColor(corFundoOverlay);
-            g2d.fillRect(0, 0, getWidth(), getHeight());
-            g2d.setPaint(gradienteFundo);
-            g2d.fillRect(0, 0, getWidth(), getHeight());
-
-            // 3. Desenha os elementos da camada de frente
-            for (var elemento : faseAtual.getElementosCenario()) {
-                if (elemento.getDrawLayer() == Modelo.Cenario.DrawLayer.FOREGROUND) {
-                    elemento.desenhar(g2d, getWidth(), getHeight());
-                }
-            }
+            desenharCenaDoJogo((Graphics2D) g);
 
             if (engine.getEstadoAtual() == Engine.GameState.DEATHBOMB_WINDOW) {
                 g.setColor(corDeathbombOverlay);
                 g.fillRect(0, 0, getWidth(), getHeight());
             }
 
-            // 4. Desenha os personagens com ordenação de camada
-            ArrayList<Personagem> personagensParaRenderizar = new ArrayList<>(faseAtual.getPersonagens());
-            personagensParaRenderizar.sort(Comparator.comparing(p -> p.getRenderLayer().ordinal()));
-
-            for (Personagem p : personagensParaRenderizar) {
-                if (p.isActive()) {
-                    p.autoDesenho(g);
-                }
-            }
-
             if (DebugManager.isActive()) {
-                desenharHUD(g2d);
+                desenharHUD((Graphics2D) g);
             }
         } else if (engine.getEstadoAtual() == Engine.GameState.PAUSADO) {
             desenharCenaDoJogo((Graphics2D) g);
-            menuPausa.desenhar((Graphics2D) g, engine.getMenuSelection(), engine.isShowQuitConfirmation(), getWidth(), getHeight());
+            menuPausa.desenhar((Graphics2D) g, engine.getMenuSelection(), engine.isShowQuitConfirmation(), getWidth(),
+                    getHeight());
         } else if (engine.getEstadoAtual() == Engine.GameState.GAME_OVER) {
             desenharTelaGameOver(g);
             SoundManager.getInstance().stopAllMusic();
@@ -251,11 +223,16 @@ public class Cenario extends JPanel {
         }
 
         // 4. Desenha os personagens com ordenação de camada
-        ArrayList<Personagem> personagensParaRenderizar = new ArrayList<>(faseAtual.getPersonagens());
+        ArrayList<Personagem> personagensParaRenderizar = new ArrayList<>();
+        personagensParaRenderizar.add(faseAtual.getHero());
+        personagensParaRenderizar.addAll(faseAtual.getInimigos());
+        personagensParaRenderizar.addAll(faseAtual.getProjeteis());
+        personagensParaRenderizar.addAll(faseAtual.getItens());
+
         personagensParaRenderizar.sort(Comparator.comparing(p -> p.getRenderLayer().ordinal()));
 
         for (Personagem p : personagensParaRenderizar) {
-            if (p.isActive()) {
+            if (p != null && p.isActive()) {
                 p.autoDesenho(g2d);
             }
         }

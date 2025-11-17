@@ -12,7 +12,7 @@ import Modelo.Projeteis.ProjetilPool;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.ArrayList;
 
 /**
  * @brief Representa um contêiner para uma fase do jogo, guardando todos os
@@ -22,11 +22,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class Fase implements Serializable {
 
-    private CopyOnWriteArrayList<Personagem> personagens;
+    private ArrayList<Personagem> personagens;
     private ScriptDeFase scriptDaFase;
     private ProjetilPool projetilPool;
     private ItemPool itemPool;
-    private CopyOnWriteArrayList<ElementoCenario> elementosCenario;
+    private ArrayList<ElementoCenario> elementosCenario;
 
     private static boolean isSpeedingUp = false;
     private static int speedupTimer = 0;
@@ -39,10 +39,10 @@ public class Fase implements Serializable {
      * @param script O script que define os eventos e spawns desta fase.
      */
     public Fase(ScriptDeFase script) {
-        this.personagens = new CopyOnWriteArrayList<>();
+        this.personagens = new ArrayList<>();
         this.projetilPool = new ProjetilPool(20, 25, 16, 1000, personagens);
         this.itemPool = new ItemPool();
-        this.elementosCenario = new CopyOnWriteArrayList<>();
+        this.elementosCenario = new ArrayList<>();
         this.scriptDaFase = script;
 
         this.personagens.addAll(projetilPool.getTodosOsProjeteis());
@@ -84,8 +84,8 @@ public class Fase implements Serializable {
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
 
-        if (!(this.personagens instanceof CopyOnWriteArrayList)) {
-            this.personagens = new CopyOnWriteArrayList<>(this.personagens);
+        if (!(this.personagens instanceof ArrayList)) {
+            this.personagens = new ArrayList<>(this.personagens);
         }
 
         if (this.scriptDaFase != null) {

@@ -304,7 +304,7 @@ public class Cenario extends JPanel {
      */
     private void carregarImagensGameOver() {
         try {
-            imagemGameOver = ImageIO.read(getClass().getClassLoader().getResource("imgs/gameover.png"));
+            imagemGameOver = ImageIO.read(getClass().getClassLoader().getResource("Assets/gameover.png"));
         } catch (Exception e) {
             System.out.println("Erro ao carregar imagem de Game Over: " + e.getMessage());
             e.printStackTrace();

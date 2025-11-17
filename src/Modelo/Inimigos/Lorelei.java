@@ -27,7 +27,7 @@ public class Lorelei extends Boss {
         int scaledHeight = (int) (62 * BODY_PROPORTION);
 
         this.animador = new GerenciadorDeAnimacaoInimigo(
-            "imgs/inimigos/boss2_spreadsheet.png",
+            "Assets/inimigos/boss2_spreadsheet.png",
             43, 62, 0, 4, 4,
             true, // resize = true
             scaledWidth,
@@ -86,7 +86,7 @@ public class Lorelei extends Boss {
         int scaledWidth = (int) (43 * BODY_PROPORTION);
         int scaledHeight = (int) (62 * BODY_PROPORTION);
         this.animador = new GerenciadorDeAnimacaoInimigo(
-            "imgs/inimigos/boss2_spreadsheet.png",
+            "Assets/inimigos/boss2_spreadsheet.png",
             43, 62, 0, 4, 4,
             true,
             scaledWidth,

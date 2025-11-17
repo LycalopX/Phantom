@@ -26,6 +26,8 @@ public final class ConfigTeclado {
     // Ações Player
     public static final int KEY_SHOOT = KeyEvent.VK_K;
     public static final int KEY_BOMB = KeyEvent.VK_L;
+    public static final int KEY_SHOOT2 = KeyEvent.VK_Z;
+    public static final int KEY_BOMB2 = KeyEvent.VK_X;
 
     // Ações do Jogo
     public static final int KEY_SAVE = KeyEvent.VK_P;

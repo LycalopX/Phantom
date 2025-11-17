@@ -358,15 +358,15 @@ public class Engine implements Runnable {
                 }
 
                 teclasPressionadas.add(e.getKeyCode());
-                if (teclasPressionadas.contains(KeyEvent.VK_F) && teclasPressionadas.contains(KeyEvent.VK_3)) {
+                if (teclasPressionadas.contains(KeyEvent.VK_G) && teclasPressionadas.contains(KeyEvent.VK_3)) {
                     DebugManager.toggle();
                 }
 
-                if (teclasPressionadas.contains(KeyEvent.VK_F) && teclasPressionadas.contains(KeyEvent.VK_4)) {
+                if (teclasPressionadas.contains(KeyEvent.VK_G) && teclasPressionadas.contains(KeyEvent.VK_4)) {
                     salvarInimigosParaTeste();
                 }
 
-                if (teclasPressionadas.contains(KeyEvent.VK_F) && teclasPressionadas.contains(KeyEvent.VK_5)) {
+                if (teclasPressionadas.contains(KeyEvent.VK_G) && teclasPressionadas.contains(KeyEvent.VK_5)) {
                     System.out.println("--- Pool High Watermarks ---");
                     System.out.println("Items: " + faseAtual.getItemPool().getMaxActiveItems());
                     System.out.println("Projeteis Normais: " + faseAtual.getProjetilPool().getMaxActiveNormais());

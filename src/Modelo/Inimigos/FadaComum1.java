@@ -23,7 +23,7 @@ public class FadaComum1 extends Inimigo {
         this.faseReferencia = fase;
         this.behaviorType = behaviorType;
         this.animador = new GerenciadorDeAnimacaoInimigo(
-                "imgs/inimigos/enemy1_spreadsheet" + skin + ".png",
+                "Assets/inimigos/enemy1_spreadsheet" + skin + ".png",
                 30, 30, 2, 4, 4,
                 true,
                 (int) (30.0 * BODY_PROPORTION),
@@ -66,7 +66,7 @@ public class FadaComum1 extends Inimigo {
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         this.animador = new GerenciadorDeAnimacaoInimigo(
-                "imgs/inimigos/enemy1_spreadsheet.png",
+                "Assets/inimigos/enemy1_spreadsheet.png",
                 30, 30, 2, 4, 4,
                 true,
                 (int) (30.0 * BODY_PROPORTION),

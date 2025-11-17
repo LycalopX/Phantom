@@ -48,9 +48,9 @@ public class ScriptFase2 extends ScriptDeFase {
     @Override
     public void carregarRecursos(Fase fase) {
         try {
-            this.imagemFundo = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage2/bg1.png"));
-            this.imagemTrilha = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage2/bg3.png"));
-            this.imagemArvoreNormal = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage2/bg2.png"));
+            this.imagemFundo = ImageIO.read(getClass().getClassLoader().getResource("Assets/stage2/bg1.png"));
+            this.imagemTrilha = ImageIO.read(getClass().getClassLoader().getResource("Assets/stage2/bg3.png"));
+            this.imagemArvoreNormal = ImageIO.read(getClass().getClassLoader().getResource("Assets/stage2/bg2.png"));
 
             fase.adicionarElementoCenario(
                     new FundoInfinito("fundo_principal", this.imagemFundo, 0.5, DrawLayer.BACKGROUND, 1.0f));

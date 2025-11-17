@@ -1,7 +1,6 @@
 package Modelo.Fases;
 
 import Auxiliar.ConfigMapa;
-import Auxiliar.LootTable;
 import Auxiliar.Personagem.LootItem;
 import Auxiliar.SoundManager;
 import Controler.Engine;
@@ -39,8 +38,8 @@ public class ScriptFase5 extends ScriptDeFase {
     @Override
     public void carregarRecursos(Fase fase) {
         try {
-            this.texturaParede = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage5/bg5_1.png"));
-            this.texturaChao = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage5/bg5_2.png"));
+            this.texturaParede = ImageIO.read(getClass().getClassLoader().getResource("Assets/stage5/bg5_1.png"));
+            this.texturaChao = ImageIO.read(getClass().getClassLoader().getResource("Assets/stage5/bg5_2.png"));
 
             // 1. O Chão
             ChaoPerspectiva chao = new ChaoPerspectiva(texturaChao, 0.03, larguraNoHorizonte, fatorPerspectivaChao);
@@ -66,8 +65,8 @@ public class ScriptFase5 extends ScriptDeFase {
     @Override
     public void relinkarRecursosDosElementos(Fase fase) {
         try {
-            this.texturaParede = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage5/bg5_1.png"));
-            this.texturaChao = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage5/bg5_2.png"));
+            this.texturaParede = ImageIO.read(getClass().getClassLoader().getResource("Assets/stage5/bg5_1.png"));
+            this.texturaChao = ImageIO.read(getClass().getClassLoader().getResource("Assets/stage5/bg5_2.png"));
         } catch (Exception e) {
             Logger.getLogger(ScriptFase5.class.getName()).log(Level.SEVERE, "Erro ao relinkar recursos da Fase 5", e);
         }
@@ -84,7 +83,7 @@ public class ScriptFase5 extends ScriptDeFase {
     // Onda
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
-        ondas.add(new OndaDeEspera(fase, 300)); // Espera 5 segundos após a fada
+        ondas.add(new OndaDeEspera(fase, 270)); // Espera ~5 segundos após a fada
         ondas.add(new OndaBoss(fase));
         ondas.add(new OndaDeEspera(fase, 300)); // Espera 5 segundos após a fada
         return ondas;

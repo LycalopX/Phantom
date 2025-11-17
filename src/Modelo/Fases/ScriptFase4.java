@@ -64,10 +64,10 @@ public class ScriptFase4 extends ScriptDeFase {
     @Override
     public void carregarRecursos(Fase fase) {
         try {
-            bg4_1 = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage4/bg4_1.png"));
-            bamboo_stalk = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage4/bamboo.png"));
-            leaves1 = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage4/leaves1.png"));
-            leaves2 = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage4/leaves2.png"));
+            bg4_1 = ImageIO.read(getClass().getClassLoader().getResource("Assets/stage4/bg4_1.png"));
+            bamboo_stalk = ImageIO.read(getClass().getClassLoader().getResource("Assets/stage4/bamboo.png"));
+            leaves1 = ImageIO.read(getClass().getClassLoader().getResource("Assets/stage4/leaves1.png"));
+            leaves2 = ImageIO.read(getClass().getClassLoader().getResource("Assets/stage4/leaves2.png"));
 
             flipped_bamboo_stalk = flipImageHorizontally(bamboo_stalk);
             flipped_leaves1 = flipImageHorizontally(leaves1);

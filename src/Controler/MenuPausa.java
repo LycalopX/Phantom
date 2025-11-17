@@ -1,6 +1,5 @@
 package Controler;
 
-import Auxiliar.ConfigMapa;
 import Modelo.Personagem;
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -21,17 +20,17 @@ public class MenuPausa {
 
     private void carregarImagens() {
         try {
-            imagemResume = ImageIO.read(getClass().getClassLoader().getResource("imgs/pause.png"));
+            imagemResume = ImageIO.read(getClass().getClassLoader().getResource("Assets/pause.png"));
             
             // Load return and quit from the same image
             BufferedImage returnQuitImage = ImageIO
-                    .read(getClass().getClassLoader().getResource("imgs/return_quit.png"));
+                    .read(getClass().getClassLoader().getResource("Assets/return_quit.png"));
             imagemReturn = returnQuitImage.getSubimage(0, 0, returnQuitImage.getWidth(),
                     returnQuitImage.getHeight() / 2);
             imagemQuit = returnQuitImage.getSubimage(0, returnQuitImage.getHeight() / 2, returnQuitImage.getWidth(),
                     returnQuitImage.getHeight() / 2);
             
-            imagemReally = ImageIO.read(getClass().getClassLoader().getResource("imgs/really_question.png"));
+            imagemReally = ImageIO.read(getClass().getClassLoader().getResource("Assets/really_question.png"));
         } catch (Exception e) {
             System.out.println("Erro ao carregar imagens do menu de pausa: " + e.getMessage());
             e.printStackTrace();

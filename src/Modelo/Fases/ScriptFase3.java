@@ -48,8 +48,8 @@ public class ScriptFase3 extends ScriptDeFase {
     @Override
     public void carregarRecursos(Fase fase) {
         try {
-            this.bg3_1 = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage3/bg3_1.png"));
-            this.bg3_3 = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage3/bg3_3.png"));
+            this.bg3_1 = ImageIO.read(getClass().getClassLoader().getResource("Assets/stage3/bg3_1.png"));
+            this.bg3_3 = ImageIO.read(getClass().getClassLoader().getResource("Assets/stage3/bg3_3.png"));
             createBlackPixel();
 
             fase.adicionarElementoCenario(
@@ -67,8 +67,8 @@ public class ScriptFase3 extends ScriptDeFase {
     @Override
     public void relinkarRecursosDosElementos(Fase fase) {
         try {
-            this.bg3_1 = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage3/bg3_1.png"));
-            this.bg3_3 = ImageIO.read(getClass().getClassLoader().getResource("imgs/stage3/bg3_3.png"));
+            this.bg3_1 = ImageIO.read(getClass().getClassLoader().getResource("Assets/stage3/bg3_1.png"));
+            this.bg3_3 = ImageIO.read(getClass().getClassLoader().getResource("Assets/stage3/bg3_3.png"));
             createBlackPixel();
         } catch (Exception e) {
             Logger.getLogger(ScriptFase3.class.getName()).log(Level.SEVERE, "Erro ao relinkar recursos da Fase 3", e);

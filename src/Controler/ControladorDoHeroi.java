@@ -98,12 +98,12 @@ public class ControladorDoHeroi {
         boolean isMovingRight = teclas.contains(ConfigTeclado.KEY_RIGHT);
         heroi.atualizarAnimacao(isMovingLeft, isMovingRight);
 
-        if (teclas.contains(ConfigTeclado.KEY_SHOOT)) {
+        if (teclas.contains(ConfigTeclado.KEY_SHOOT) || teclas.contains(ConfigTeclado.KEY_SHOOT2)) {
             GerenciadorDeArmasHeroi armas = heroi.getSistemaDeArmas();
             armas.disparar(heroi.getX(), heroi.getY(), heroi.getPower(), fase);
         }
 
-        if (teclas.contains(ConfigTeclado.KEY_BOMB) && heroi.getBombas() > 0 && !heroi.isInvencivel()) {
+        if ((teclas.contains(ConfigTeclado.KEY_BOMB) || teclas.contains(ConfigTeclado.KEY_BOMB2)) && heroi.getBombas() > 0 && !heroi.isInvencivel()) {
             if (estadoAtual == Engine.GameState.JOGANDO || estadoAtual == Engine.GameState.DEATHBOMB_WINDOW) {
                 BombaProjetil bomba = heroi.usarBomba(fase);
                 if (bomba != null) {

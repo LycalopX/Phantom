@@ -6,7 +6,7 @@ skinparam crossingCharacter '( )'
 skinparam classSeparatorColor DarkRed
 skinparam classSeparatorThickness 2
 
-title Diagrama Detalhado - Pacote 'Modelo.Cenario'
+title Diagrama Detalhado - Pacote 'Modelo.Cenario' (Atualizado)
 
 package "Modelo.Cenario" {
     interface ElementoCenario {
@@ -51,6 +51,9 @@ package "Modelo.Cenario" {
         + FundoOscilante(id: String, imagem: BufferedImage, vel: double, camada: DrawLayer, initialOp: float, minOp: float, maxOp: float, oscSpeed: float)
         + mover(velocidadeBase: double): void
         + desenhar(g2d: Graphics2D, larguraTela: int, alturaTela: int): void
+        + setSpeedMultiplier(multiplier: double): void
+        + estaForaDaTela(alturaTela: int): boolean
+        + getDrawLayer(): DrawLayer
     }
 
     class ChaoPerspectiva implements ElementoCenario {
@@ -63,7 +66,11 @@ package "Modelo.Cenario" {
         --
         + ChaoPerspectiva(textura: BufferedImage, vel: double, larguraHorizonte: float, fatorLarguraBase: float)
         + relinkImage(textura: BufferedImage): void
-        ...
+        + setSpeedMultiplier(multiplier: double): void
+        + getDrawLayer(): DrawLayer
+        + mover(velocidadeAtualDoFundo: double): void
+        + desenhar(g2d: Graphics2D, larguraTela: int, alturaTela: int): void
+        + estaForaDaTela(alturaTela: int): boolean
     }
 
     class ParedeVertical implements ElementoCenario {
@@ -78,7 +85,13 @@ package "Modelo.Cenario" {
         --
         + ParedeVertical(textura: BufferedImage, isEsq: boolean, vel: double, alturaFuga: float, fatorBorda: float, transX: int, transY: int)
         + relinkImage(textura: BufferedImage): void
-        ...
+        + setTranslacaoX(translacaoX: int): void
+        + setTranslacaoY(translacaoY: int): void
+        + setSpeedMultiplier(multiplier: double): void
+        + getDrawLayer(): DrawLayer
+        + mover(velocidadeAtualDoFundo: double): void
+        + desenhar(g2d: Graphics2D, larguraTela: int, alturaTela: int): void
+        + estaForaDaTela(alturaTela: int): boolean
     }
 }
 

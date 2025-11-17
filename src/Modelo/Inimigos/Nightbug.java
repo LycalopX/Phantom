@@ -23,7 +23,7 @@ public class Nightbug extends Boss {
         int scaledHeight = (int) (60 * BODY_PROPORTION);
 
         this.animador = new GerenciadorDeAnimacaoInimigo(
-                "imgs/inimigos/boss1_spreadsheet.png",
+                "Assets/inimigos/boss1_spreadsheet.png",
                 35, 60, 13, 4, 4,
                 true, // resize = true
                 scaledWidth,
@@ -62,7 +62,7 @@ public class Nightbug extends Boss {
         int scaledWidth = (int) (35 * BODY_PROPORTION);
         int scaledHeight = (int) (60 * BODY_PROPORTION);
         this.animador = new GerenciadorDeAnimacaoInimigo(
-                "imgs/inimigos/boss1_spreadsheet.png",
+                "Assets/inimigos/boss1_spreadsheet.png",
                 35, 60, 13, 4, 4,
                 true,
                 scaledWidth,

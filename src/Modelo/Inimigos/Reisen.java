@@ -3,7 +3,6 @@ package Modelo.Inimigos;
 import static Auxiliar.ConfigMapa.*;
 import Auxiliar.LootTable;
 import Auxiliar.Projeteis.TipoProjetilInimigo;
-import Auxiliar.SoundManager;
 import Modelo.Fases.Fase;
 import Modelo.Inimigos.GerenciadorDeAnimacaoInimigo.AnimationState;
 import java.awt.Graphics;
@@ -25,7 +24,7 @@ public class Reisen extends Boss {
 
         // 41x82
         this.animador = new GerenciadorDeAnimacaoInimigo(
-                "imgs/inimigos/boss5_spreadsheet.png",
+                "Assets/inimigos/boss5_spreadsheet.png",
                 41, 82, 0, 4, 4,
                 true, // resize = true
                 scaledWidth,
@@ -114,7 +113,7 @@ public class Reisen extends Boss {
         int scaledWidth = (int) (41 * BODY_PROPORTION);
         int scaledHeight = (int) (82 * BODY_PROPORTION);
         this.animador = new GerenciadorDeAnimacaoInimigo(
-                "imgs/inimigos/boss5_spreadsheet.png",
+                "Assets/inimigos/boss5_spreadsheet.png",
                 41, 82, 0, 4, 4,
                 true,
                 scaledWidth,

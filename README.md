@@ -15,20 +15,20 @@ A detailed documentation of the project's architecture, packages, and classes ca
 Here are some examples of the game's assets:
 
 **Hero:**
-![Hero](src/imgs/hero/hero_standing_still.png)
-![Hero Strafing](src/imgs/hero/hero_s3.png)
+![Hero](src/Assets/hero/hero_standing_still.png)
+![Hero Strafing](src/Assets/hero/hero_s3.png)
 
 **Enemies:**
-![Enemy](src/imgs/inimigo.png)
+![Enemy](src/Assets/inimigo.png)
 
 **Items:**
-![Items](src/imgs/items.png)
+![Items](src/Assets/items.png)
 
 **Projectiles:**
-![Hero Projectile 1](src/imgs/projectiles/hero/projectile1_hero.png)
-![Hero Projectile 2](src/imgs/projectiles/hero/projectile2_hero.png)
-![Bomb Talisman](src/imgs/projectiles/hero/talisman_bomb.png)
-![Enemy Projectiles](src/imgs/projectiles/inimigos/esferas.png)
+![Hero Projectile 1](src/Assets/projectiles/hero/projectile1_hero.png)
+![Hero Projectile 2](src/Assets/projectiles/hero/projectile2_hero.png)
+![Bomb Talisman](src/Assets/projectiles/hero/talisman_bomb.png)
+![Enemy Projectiles](src/Assets/projectiles/inimigos/esferas.png)
 
 ## Features
 

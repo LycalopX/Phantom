@@ -1,11 +1,12 @@
 @startuml
+!theme materia
 skinparam classAttributeIconSize 0
 skinparam linetype ortho
 skinparam crossingCharacter '( )'
 skinparam classSeparatorColor DarkRed
 skinparam classSeparatorThickness 2
 
-title Diagrama Detalhado - Pacote 'Controler'
+title Diagrama Detalhado - Pacote 'Controler' (Atualizado)
 
 package "Pacote Controler" {
     class Engine implements Runnable {
@@ -24,6 +25,8 @@ package "Pacote Controler" {
         - velocidadeScroll: double
         - deathbombTimer: int
         - removeProjectiles: boolean
+        - menuSelection: int
+        - showQuitConfirmation: boolean
         --
         + Engine()
         + run(): void
@@ -38,23 +41,31 @@ package "Pacote Controler" {
         - salvarPersonagemParaTeste(p: Personagem, nomeArquivo: String): void
         + carregarProximaFase(): void
         + getEstadoAtual(): GameState
+        + getMenuSelection(): int
+        + isShowQuitConfirmation(): boolean
     }
 
     class ControleDeJogo {
         - quadtree: Quadtree
         - itemPool: ItemPool
         - projeteisInimigosEspeciais: ArrayList<Projetil>
-        - novosObjetos: ArrayList<Personagem>
-        - alvosProximos: ArrayList<Personagem>
         - vizinhosPotenciais: ArrayList<Personagem>
+        - inimigosAtivos: ArrayList<Inimigo>
+        - projeteisHeroi: ArrayList<Projetil>
+        - projeteisInimigos: ArrayList<Projetil>
+        - itemsAtivos: ArrayList<Item>
+        - bombasHeroiAtivas: ArrayList<ProjetilBombaHoming>
         --
         + ControleDeJogo(itemPool: ItemPool)
+        + setItemPool(itemPool: ItemPool): void
         + desenhaTudo(e: List<Personagem>, g: Graphics): void
         + processaTudo(personagens: List<Personagem>, removeProjectiles: boolean): boolean
+        - checkCircularCollision(p1: Personagem, p2: Personagem): boolean
+        - checkGrabCollision(h: Hero, i: Item): boolean
+        - handleBigBomb(bombaAtiva: BombaProjetil): void
         + ehPosicaoValida(umaFase: List<Personagem>, personagem: Personagem, proximoX: double, proximoY: double): boolean
         - aplicarEfeitoDoItem(heroi: Hero, item: Item): void
         - checarColisaoRetangular(hero: Hero, projeteisRetangulares: ArrayList<Projetil>): boolean
-        - handleCollision(p1: Personagem, p2: Personagem, hero: Hero): boolean
         - colisaoHeroiInimigo(h: Hero, i: Inimigo): boolean
         - colisaoHeroiProjetilInimigo(h: Hero, p: Projetil): boolean
         - colisaoProjetilHeroiInimigo(p: Projetil, i: Inimigo, hero: Hero): void
@@ -81,20 +92,19 @@ package "Pacote Controler" {
     class Cenario extends JPanel {
         - faseAtual: Fase
         - contadorFPS: ContadorFPS
-        - estadoDoJogo: GameState
+        - engine: Engine
         - imagemGameOver: BufferedImage
+        - menuPausa: MenuPausa
         - corFundoOverlay: Color
-        - corDeathbombOverlay: Color
-        - fonteHUD: Font
         - gradienteFundo: LinearGradientPaint
         --
-        + Cenario()
+        + Cenario(engine: Engine)
         - setupDropTarget(): void
         - processarArquivoSolto(file: File, dropPoint: Point): void
         + setFase(fase: Fase): void
         + paintComponent(g: Graphics): void
+        - desenharCenaDoJogo(g2d: Graphics2D): void
         - desenharHUD(g2d: Graphics2D): void
-        + setEstadoDoJogo(estado: GameState): void
         - desenharTelaGameOver(g: Graphics): void
         - carregarImagensGameOver(): void
         + atualizarContadorFPS(): void
@@ -102,6 +112,17 @@ package "Pacote Controler" {
 
     class Tela extends JFrame {
         + Tela()
+    }
+    
+    class MenuPausa {
+        - imagemResume: BufferedImage
+        - imagemReturn: BufferedImage
+        - imagemQuit: BufferedImage
+        - imagemReally: BufferedImage
+        --
+        + MenuPausa()
+        - carregarImagens(): void
+        + desenhar(g2d: Graphics2D, menuSelection: int, showQuitConfirmation: boolean, screenWidth: int, screenHeight: int): void
     }
 }
 
@@ -112,6 +133,8 @@ package "Dependências Externas" {
     class Item
     class Inimigo
     class Projetil
+    class ProjetilBombaHoming
+    class BombaProjetil
     class Quadtree
     class ItemPool
     class ContadorFPS
@@ -130,6 +153,7 @@ Engine o-- "1" Fase
 Engine o-- "1" Hero
 
 Tela *-- "1" Cenario
+Cenario *-- "1" MenuPausa
 
 ControladorDoHeroi ..> Engine
 ControladorDoHeroi ..> Hero
@@ -146,7 +170,7 @@ ControleDeJogo ..> Projetil
 
 Cenario ..> Fase
 Cenario ..> ContadorFPS
-Cenario ..> GameState
+Cenario ..> Engine
 
 GerenciadorDeFases ..> Fase
 GerenciadorDeFases ..> Engine

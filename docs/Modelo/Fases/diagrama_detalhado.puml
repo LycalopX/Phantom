@@ -6,21 +6,23 @@ skinparam crossingCharacter '( )'
 skinparam classSeparatorColor DarkRed
 skinparam classSeparatorThickness 2
 
-title Diagrama Detalhado - Pacote 'Modelo.Fases'
+title Diagrama Detalhado - Pacote 'Modelo.Fases' (Atualizado)
 
 package "Modelo.Fases" {
     class Fase {
-        - personagens: CopyOnWriteArrayList<Personagem>
+        - personagens: ArrayList<Personagem>
         - scriptDaFase: ScriptDeFase
         - projetilPool: ProjetilPool
         - itemPool: ItemPool
-        - elementosCenario: CopyOnWriteArrayList<ElementoCenario>
+        - elementosCenario: ArrayList<ElementoCenario>
         {static} - isSpeedingUp: boolean
         {static} - speedupTimer, speedupDuration: int
         {static} - speedupAmplitude, globalSpeedMultiplier: double
         --
         + Fase(script: ScriptDeFase)
         {static} + triggerGlobalSpeedup(duration: int, amplitude: double): void
+        - updateGlobalSpeedup(): void
+        - readObject(in: ObjectInputStream): void
         + atualizar(velocidadeScroll: double): void
         + getScript(): ScriptDeFase
         + getProjetilPool(): ProjetilPool
@@ -40,6 +42,7 @@ package "Modelo.Fases" {
         - faseIniciada, faseFinalizada: boolean
         --
         + ScriptDeFase(engine: Engine)
+        + setEngine(engine: Engine): void
         {abstract} + carregarRecursos(fase: Fase): void
         {abstract} + relinkarRecursosDosElementos(fase: Fase): void
         {abstract} # inicializarOndas(fase: Fase): ArrayList<Onda>
@@ -51,7 +54,11 @@ package "Modelo.Fases" {
         + getBackgroundGradient(): LinearGradientPaint
     }
 
-    class "ScriptDeFase.Onda" as Onda {
+    interface ITocarMusica {
+        {abstract} + tocarMusicaDeOnda(musica: String): void
+    }
+
+    abstract class "ScriptDeFase.Onda" as Onda {
         # inimigos: ArrayList<InimigoSpawn>
         # tempoDeEspera: int
         # indiceInimigoAtual: int
@@ -66,22 +73,34 @@ package "Modelo.Fases" {
     
     class "ScriptDeFase.Onda.InimigoSpawn" as InimigoSpawn {
         # personagem: Personagem
-        # tempoAposInicioSpawn: int
+        # tempoAposAcaoPrevia: int
         --
-        + InimigoSpawn(personagem: Personagem, tempo: int)
+        + InimigoSpawn(personagem: Personagem, tempoAposAcaoPrevia: int)
         + spawn(fase: Fase): void
     }
 
     class "ScriptDeFase.OndaDeEspera" as OndaDeEspera extends Onda {
-        + OndaDeEspera(fase: Fase, tempo: int)
+        + OndaDeEspera(fase: Fase, tempoDeEsperaInicial: int)
     }
 
-    abstract class "ScriptDeFase.OndaDeBoss" as OndaDeBoss extends Onda {
+    abstract class "ScriptDeFase.OndaDeBoss" as OndaDeBoss extends OndaComMusica {
         # boss: Boss
         # lootTable: LootTable
         --
-        + OndaDeBoss()
+        + OndaDeBoss(musica: String)
         + getFinalizado(): boolean
+    }
+
+    class "ScriptDeFase.OndaComMusica" as OndaComMusica extends Onda implements ITocarMusica {
+        - musica: String
+        --
+        + OndaComMusica(musica: String)
+        + incrementarTempo(tempo: int, fase: Fase): void
+        + tocarMusicaDeOnda(musica: String): void
+    }
+
+    class "ScriptDeFase.OndaDeSpeedup" as OndaDeSpeedup extends Onda {
+        + OndaDeSpeedup(duration: int, amplitude: double)
     }
 
     class ScriptFase1 extends ScriptDeFase
@@ -101,6 +120,7 @@ package "Dependências Externas" {
     class LootTable
     class Color
     class LinearGradientPaint
+    class ObjectInputStream
 }
 
 ' --- Relacionamentos de Herança ---
@@ -111,7 +131,9 @@ ScriptFase4 --|> ScriptDeFase
 ScriptFase5 --|> ScriptDeFase
 
 OndaDeEspera --|> Onda
-OndaDeBoss --|> Onda
+OndaDeBoss --|> OndaComMusica
+OndaComMusica ..|> ITocarMusica
+OndaDeSpeedup --|> Onda
 
 ' --- Relacionamentos de Composição e Agregação ---
 Fase o-- "1" ScriptDeFase
@@ -131,5 +153,6 @@ Onda ..> Fase
 InimigoSpawn ..> Personagem
 OndaDeBoss ..> Boss
 OndaDeBoss ..> LootTable
+Fase ..> ObjectInputStream
 
 @enduml

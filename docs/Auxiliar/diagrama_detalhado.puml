@@ -6,7 +6,7 @@ skinparam crossingCharacter '( )'
 skinparam classSeparatorColor DarkRed
 skinparam classSeparatorThickness 2
 
-title Diagrama Detalhado - Pacote 'Auxiliar'
+title Diagrama Detalhado - Pacote 'Auxiliar' (Atualizado)
 
 package "Auxiliar" {
     class ConfigJogo <<Utility>> {
@@ -29,14 +29,23 @@ package "Auxiliar" {
 
     class ConfigTeclado <<Utility>> {
         {static} + KEY_UP: int
+        {static} + ARROW_UP: int
         {static} + KEY_DOWN: int
+        {static} + ARROW_DOWN: int
         {static} + KEY_LEFT: int
+        {static} + ARROW_LEFT: int
         {static} + KEY_RIGHT: int
+        {static} + ARROW_RIGHT: int
         {static} + KEY_SHOOT: int
         {static} + KEY_BOMB: int
+        {static} + KEY_SHOOT2: int
+        {static} + KEY_BOMB2: int
         {static} + KEY_SAVE: int
         {static} + KEY_LOAD: int
         {static} + KEY_RESTART: int
+        {static} + KEY_PAUSE: int
+        {static} + KEY_SELECT: int
+        {static} + KEY_CANCEL: int
     }
 
     class LootTable {
@@ -46,12 +55,14 @@ package "Auxiliar" {
         + LootTable()
         + addItem(item: LootItem): void
         + gerarDrops(): ArrayList<LootItem>
+        + getItems(): ArrayList<LootItem>
     }
 
     class SoundManager <<Singleton>> {
         {static} - instance: SoundManager
         - sfxMap: Map<String, Sound>
         - musicMap: Map<String, Music>
+        - currentMusic: Music
         - GLOBAL_VOLUME: float
         - globalSfxVolume: float
         - globalMusicVolume: float
@@ -65,6 +76,8 @@ package "Auxiliar" {
         - loadSounds(): void
         + playSfx(name: String, volume: double): void
         + playMusic(name: String, loop: boolean): void
+        + pauseMusic(): void
+        + resumeMusic(): void
         + stopAllMusic(): void
         + setSfxVolume(volume: float): void
         + setMusicVolume(volume: float): void
@@ -135,10 +148,14 @@ package "Auxiliar.Projeteis" {
     }
     enum TipoProjetilInimigo {
         ESFERA_PRETA
-        ESFERA_VERMELHA
-        ESFERA_GRANDE_AMARELA
         ...
     }
+    note right of TipoProjetilInimigo
+        Enum complexo com lógica de 
+        inicialização estática para carregar 
+        sprites de um arquivo JSON.
+    end note
+
     interface ProjetilTipo {
         {abstract} + getImagem(): ImageIcon
         {abstract} + getSpriteWidth(): int
@@ -160,6 +177,10 @@ package "Auxiliar.Projeteis" {
             + getDefinicaoProjetil(id: String): DefinicaoProjetil
             + getSpritesheetPath(id: String): String
         }
+        note right of CarregadorDeDefinicoes
+            Utiliza a biblioteca org.json
+            para processar o arquivo de definições.
+        end note
 
         class DefinicaoProjetil {
             - id: String
@@ -183,7 +204,7 @@ package "Auxiliar.Projeteis" {
     }
 }
 
-package "Auxiliar.Cenario" {
+package "Auxiliar.Cenario1" {
     class ArvoreParallax implements ElementoCenario {
         - blocos: List<BlocoDeFolha>
         - blocoTopo: BlocoDeFolha
@@ -208,21 +229,11 @@ package "Auxiliar.Cenario" {
         - opacidadeMaxima, opacidadeMinima: float
         --
         + BlocoDeFolha(x: double, y: double, w: int, h: int, vel: double, img: BufferedImage, opMax: float, opMin: float)
+        + BlocoDeFolha(x: double, y: double, w: int, h: int, vel: double, img: BufferedImage, opMax: float, opMin: float, angle: double)
         + moverComAjuste(fator: double): void
         + desenhar(g2d: Graphics2D, w: int, h: int): void
         + setImagem(imagem: BufferedImage): void
         + getY(): double
-    }
-
-    class BambuParallax implements ElementoCenario {
-        - blocos: List<BlocoDeFolha>
-        - blocoTopo: BlocoDeFolha
-        - isFlipped: boolean
-        --
-        + BambuParallax(x: int, y: int, w: int, vel: double, stalk: BufferedImage, l1: BufferedImage, l2: BufferedImage, angle: double, flipped: boolean)
-        + isFlipped(): boolean
-        + relinkImages(stalk: BufferedImage, l1: BufferedImage, l2: BufferedImage): void
-        ...
     }
 }
 
@@ -236,8 +247,8 @@ package "Dependências Externas" {
 "Auxiliar" -[hidden]down-> "Auxiliar.Debug"
 "Auxiliar.Debug" -[hidden]down-> "Auxiliar.Personagem"
 "Auxiliar.Personagem" -[hidden]down-> "Auxiliar.Projeteis"
-"Auxiliar.Projeteis" -[hidden]down-> "Auxiliar.Cenario"
-"Auxiliar.Cenario" -[hidden]down-> "Dependências Externas"
+"Auxiliar.Projeteis" -[hidden]down-> "Auxiliar.Cenario1"
+"Auxiliar.Cenario1" -[hidden]down-> "Dependências Externas"
 
 ' --- Relacionamentos ---
 LootTable o-- "many" LootItem
@@ -245,13 +256,11 @@ Quadtree o-- "many" Personagem
 CarregadorDeDefinicoes *-- "many" DefinicaoProjetil
 DefinicaoProjetil *-- "1" HitboxDef
 ArvoreParallax o-- "many" BlocoDeFolha
-BambuParallax o-- "many" BlocoDeFolha
 
 TipoProjetilInimigo ..|> ProjetilTipo
 ProjetilTipo ..> HitboxType
 LootItem ..> ItemType
 
 ArvoreParallax ..|> ElementoCenario
-BambuParallax ..|> ElementoCenario
 
 @enduml

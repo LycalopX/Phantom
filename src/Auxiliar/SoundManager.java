@@ -33,24 +33,12 @@ public class SoundManager {
     private static final String[] MUSIC_FILES = {
             "Cinderella Cage ~ Kagome-Kagome.mp3",
             "Deaf to All but the Song.mp3",
-            "Eastern Youkai Beauty.mp3",
-            "Eternal Dream ~ Mystical Maple.mp3",
-            "Eternal Night Vignette ~ Eastern Night.mp3",
-            "Evening Primrose.mp3",
-            "Extend Ash ~ Person of Hourai.mp3",
-            "Flight of the Bamboo Cutter ~ Lunatic Princess.mp3",
-            "Gensokyo Millennium ~ History of the Moon.mp3",
             "Illusionary Night ~ Ghostly Eyes.mp3",
-            "Love-Colored Master Spark.mp3",
-            "Lunatic Eyes ~ Invisible Full Moon.mp3",
             "Maiden's Capriccio ~ Dream Battle.mp3",
             "Nostalgic Blood of the East ~ Old World.mp3",
             "Plain Asia.mp3",
-            "Reach for the Moon, Immortal Smoke.mp3",
             "Retribution for the Eternal Night ~ Imperishable Night.mp3",
             "Song of the Night Sparrow ~ Night Bird.mp3",
-            "Voyage 1969.mp3",
-            "Voyage 1970.mp3",
             "Wriggling Autumn Moon ~ Mooned Insect.mp3"
     };
 
@@ -85,7 +73,7 @@ public class SoundManager {
         // Load SFX
         for (String sfxFileName : SFX_FILES) {
             String soundName = sfxFileName.substring(0, sfxFileName.lastIndexOf('.'));
-            URL resourceUrl = SoundManager.class.getResource("/sounds/" + sfxFileName);
+            URL resourceUrl = SoundManager.class.getResource("/OST/SFX/" + sfxFileName);
             if (resourceUrl == null) {
                 System.err.println("SFX file not found: " + sfxFileName);
                 continue;
@@ -102,7 +90,7 @@ public class SoundManager {
 
             // NO MORE "if (.mp3)" CHECK
             URL resourceUrl = SoundManager.class
-                    .getResource("/sounds/Touhou Eiyashou - Imperishable Night/" + musicFileName);
+                    .getResource("/OST/Music/" + musicFileName);
 
             if (resourceUrl == null) {
                 //System.err.println("Music file not found: " + musicFileName);

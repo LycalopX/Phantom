@@ -28,7 +28,7 @@ public class Reimu extends Boss {
 
         // 57x74
         this.animador = new GerenciadorDeAnimacaoInimigo(
-                "imgs/inimigos/boss4_spreadsheet.png",
+                "Assets/inimigos/boss4_spreadsheet.png",
                 57, 74, 0, 4, 4,
                 true, // resize = true
                 scaledWidth,
@@ -69,7 +69,7 @@ public class Reimu extends Boss {
         int scaledWidth = (int) (57 * BODY_PROPORTION);
         int scaledHeight = (int) (74 * BODY_PROPORTION);
         this.animador = new GerenciadorDeAnimacaoInimigo(
-                "imgs/inimigos/boss4_spreadsheet.png",
+                "Assets/inimigos/boss4_spreadsheet.png",
                 57, 74, 0, 4, 4,
                 true,
                 scaledWidth,

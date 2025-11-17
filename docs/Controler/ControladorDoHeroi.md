@@ -7,7 +7,7 @@ Esta classe atua como um tradutor entre o input bruto do teclado e as ações es
 - **Movimento**: Calcula o vetor de movimento (`dx`, `dy`) com base nas teclas de direção. Normaliza o vetor para movimento diagonal e aplica uma redução de velocidade se a tecla de foco (Shift) estiver pressionada.
 - **Limites da Tela**: Garante que o herói não possa se mover para fora dos limites da área de jogo.
 - **Animação**: Informa ao `Hero` se ele está se movendo para a esquerda ou direita para que ele possa atualizar sua animação de "strafing".
-- **Ações**: Verifica as teclas de tiro e bomba e, se pressionadas, aciona os sistemas de armas e bombas do herói.
+- **Ações**: Verifica as teclas de tiro (Z ou K) e bomba (X ou L) e, se pressionadas, aciona os sistemas de armas e bombas do herói.
 - **Cheats**: Inclui a lógica para cheats, como pular de fase.
 
 ## Métodos Públicos

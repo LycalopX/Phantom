@@ -18,7 +18,7 @@ import javax.swing.ImageIcon;
  */
 public abstract class Personagem implements Serializable {
 
-    public static final String PATH = "imgs/";
+    public static final String PATH = "Assets/";
     public static final double BODY_PROPORTION = ((double) ALTURA_TELA) / 375;
 
     protected transient ImageIcon iImage;

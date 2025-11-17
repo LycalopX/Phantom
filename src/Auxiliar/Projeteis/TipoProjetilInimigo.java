@@ -184,9 +184,9 @@ public enum TipoProjetilInimigo implements ProjetilTipo {
 
     // Enum auxiliar para mapear os nomes do JSON para os paths
     private enum SpriteSheetSource {
-        ESFERAS_8x8("imgs/projectiles/inimigos/esferas.png"),
-        ESFERAS_GRANDES_12x12("imgs/projectiles/inimigos/esferas_grandes.png"),
-        FORMAS_DIFERENTES("imgs/projectiles/inimigos/sprites_com_formas_diferentes.png");
+        ESFERAS_8x8("Assets/projectiles/inimigos/esferas.png"),
+        ESFERAS_GRANDES_12x12("Assets/projectiles/inimigos/esferas_grandes.png"),
+        FORMAS_DIFERENTES("Assets/projectiles/inimigos/sprites_com_formas_diferentes.png");
 
         final String path;
         SpriteSheetSource(String path) { this.path = path; }

@@ -23,7 +23,7 @@ public enum TipoProjetilHeroi implements ProjetilTipo {
     TipoProjetilHeroi(String sNomeImagePNG, int spriteWidth, int spriteHeight, HitboxType hitboxType, int hitboxWidth) {
         this.spriteWidth = spriteWidth;
         this.spriteHeight = spriteHeight;
-        this.imagem = carregarImagem("imgs/" + sNomeImagePNG, spriteWidth, spriteHeight);
+        this.imagem = carregarImagem("Assets/" + sNomeImagePNG, spriteWidth, spriteHeight);
         this.hitboxType = hitboxType;
         this.hitboxWidth = hitboxWidth;
         this.hitboxHeight = hitboxWidth; // For circular, height is same as width

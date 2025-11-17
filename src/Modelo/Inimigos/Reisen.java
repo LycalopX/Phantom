@@ -448,10 +448,10 @@ public class Reisen extends Boss {
 
                 posicaoAtaque = new Point2D.Double(posX, posY);
                 intervaloAtaque = INTERVALO_ENTRE_ATAQUES * 3;
-                velocidadeProjetil = VELOCIDADE_PROJETIL;
+                velocidadeProjetil = VELOCIDADE_PROJETIL * 2;
                 tipoProjetil = TipoProjetilInimigo.OVAL_AZUL_PISCINA_CLARO;
                 
-                padroes.add(new PadraoLeque(85, 10, 3, QUANTIDADE_ONDAS / 3));
+                padroes.add(new PadraoLeque(85, 10, 5, (int)(((double)QUANTIDADE_ONDAS) / 1.5)));
             }
         }
         
@@ -464,10 +464,10 @@ public class Reisen extends Boss {
                 
                 posicaoAtaque = new Point2D.Double(posX, posY);
                 intervaloAtaque = INTERVALO_ENTRE_ATAQUES * 3;
-                velocidadeProjetil = VELOCIDADE_PROJETIL;
+                velocidadeProjetil = VELOCIDADE_PROJETIL * 2;
                 tipoProjetil = TipoProjetilInimigo.OVAL_AZUL_PISCINA_CLARO;
                 
-                padroes.add(new PadraoLeque(95, 10, 3, QUANTIDADE_ONDAS / 3));
+                padroes.add(new PadraoLeque(95, 10, 5, (int)(((double)QUANTIDADE_ONDAS) / 1.5)));
             }
         }
     }

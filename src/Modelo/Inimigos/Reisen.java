@@ -40,10 +40,13 @@ public class Reisen extends Boss {
         SoundManager.getInstance().playMusic("Cinderella Cage ~ Kagome-Kagome", true);
     }
 
+    private final boolean TESTE = true;
     private void setupEstados() {
         // Movimentos
         Estado irCentro1 = new IrParaOCentro(this, new Point2D.Double(0.3, 0.3));
         Estado irCentro2 = new IrParaOCentro(this, new Point2D.Double(0.3, 0.3));
+        Estado irCentro3 = new IrParaOCentro(this, new Point2D.Double(0.3, 0.3));
+        Estado irCentro4 = new IrParaOCentro(this, new Point2D.Double(0.3, 0.3));
         Estado irEsquerda1 = new IrParaEsquerda(this, new Point2D.Double(0.4, 0.3));
         Estado irDireita1 = new IrParaDireita(this, new Point2D.Double(0.4, 0.3));
         Estado irEsquerda2 = new IrParaEsquerda(this, new Point2D.Double(0.4, 0.3));
@@ -56,14 +59,24 @@ public class Reisen extends Boss {
         Estado ataqueEspiralMovel = new AtaqueEspiralMovel(this);
         Estado ondaTeleguiada2 = new OndaTeleguiada(this);
         Estado chuvaVertical2 = new ChuvaVertical(this);
+        Estado chuvaVertical3 = new ChuvaVertical(this);
+        Estado chuvaDeOrbsNoTopo = new ChuvaDeOrbsNoTopo(this);
 
         // Esperas
         Estado espera1 = new Esperar(this, 60);
         Estado espera2 = new Esperar(this, 60);
         Estado espera3 = new Esperar(this, 60);
         Estado espera4 = new Esperar(this, 60);
+        Estado espera5 = new Esperar(this, 60);
+        Estado espera6 = new Esperar(this, 60);
 
-        // Sequência de estados: Espiral dupla -> teleguiado -> chuva -> horário/anti-horário -> teleguiado -> chuva -> loop
+        // Teste
+        if(TESTE){
+            estado = chuvaDeOrbsNoTopo;
+            return;
+        }
+
+        // Sequência de estados: Espiral dupla -> teleguiado -> chuva -> horário/anti-horário -> teleguiado -> chuva -> teleguiado duplo -> chuva -> orbs -> loop
         estado = irCentro1;
         irCentro1.setProximoEstado(ataqueEspiral);
         
@@ -87,7 +100,15 @@ public class Reisen extends Boss {
         irDireita2.setProximoEstado(chuvaVertical2);
         chuvaVertical2.setProximoEstado(espera4);
         
-        espera4.setProximoEstado(irCentro1);
+        espera4.setProximoEstado(irCentro3);
+        irCentro3.setProximoEstado(chuvaVertical3);
+        chuvaVertical3.setProximoEstado(espera5);
+        
+        espera5.setProximoEstado(irCentro4);
+        irCentro4.setProximoEstado(chuvaDeOrbsNoTopo);
+        chuvaDeOrbsNoTopo.setProximoEstado(espera6);
+        
+        espera6.setProximoEstado(irCentro1);
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -189,7 +210,7 @@ public class Reisen extends Boss {
                 } else {
                     estados.add(new EspiralRotacional(boss, 6, 0.2, TipoProjetilInimigo.ESFERA_VERDE, -45, 8, 8));
                 }
-                estados.add(new EspiralRotacional(boss, 10, 0.35, TipoProjetilInimigo.OVAL_ROSA, 0, 1, 8));
+                estados.add(new EspiralRotacional(boss, 6, 0.1, TipoProjetilInimigo.OVAL_ROSA, 0, 1, 8));
             }
         }
     }
@@ -283,7 +304,7 @@ public class Reisen extends Boss {
                 for (int i = 0; i < quantidadeAtaques; i++) {
                     AtaqueEmLequeNaPosicao ataque = new AtaqueEmLequeNaPosicao(boss);
                     ataque.posicaoAtaque = new Point2D.Double(espacamentoX * (i + 1), 0);
-                    ataque.intervaloAtaque = 18 + i * INTERVALO_ENTRE_ATAQUES;
+                    ataque.intervaloAtaque = i * INTERVALO_ENTRE_ATAQUES;
                     ataque.velocidadeProjetil = VELOCIDADE_PROJETIL;
                     ataque.tipoProjetil = TipoProjetilInimigo.OVAL_AZUL_PISCINA_CLARO;
                     ataque.padroes.add(ataque.new PadraoLeque(90, 30, 5));
@@ -302,7 +323,7 @@ public class Reisen extends Boss {
                 for (int i = 0; i < quantidadeAtaques; i++) {
                     AtaqueEmLequeNaPosicao ataque = new AtaqueEmLequeNaPosicao(boss);
                     ataque.posicaoAtaque = new Point2D.Double(MUNDO_LARGURA - espacamentoX * (i + 1), 0);
-                    ataque.intervaloAtaque = 18 + i * INTERVALO_ENTRE_ATAQUES;
+                    ataque.intervaloAtaque = i * INTERVALO_ENTRE_ATAQUES;
                     ataque.velocidadeProjetil = VELOCIDADE_PROJETIL;
                     ataque.tipoProjetil = TipoProjetilInimigo.OVAL_AZUL_PISCINA_CLARO;
                     ataque.padroes.add(ataque.new PadraoLeque(90, 30, 5));
@@ -311,4 +332,116 @@ public class Reisen extends Boss {
             }
         }
     }
+    
+    // Ataque 4: Três orbs no topo que disparam chuva de balas
+    private class ChuvaDeOrbsNoTopo extends MultiplosEstados {
+
+        private final double VELOCIDADE_PROJETIL = 0.05;
+        private final int INTERVALO_ENTRE_ATAQUES = 20;
+        private final int QUANTIDADE_ONDAS = 20;
+        private final int ANGULO_INICIAL = 20;
+        private final int ANGULO_FINAL = 160;
+        private final int PROJETEIS_POR_ARCO = 3;
+
+        public ChuvaDeOrbsNoTopo(Boss boss) {
+            super(boss);
+
+            repeticoes = 4;
+            
+            // Posições das três orbs no topo da tela
+            double orbEsquerda = 0.2 * MUNDO_LARGURA;
+            double orbCentro = 0.5 * MUNDO_LARGURA;
+            double orbDireita = 0.8 * MUNDO_LARGURA;
+            double orbY = 0;
+
+            // Orb da esquerda (anti-horário: 160 a 20 graus)
+            estados.add(new ChuvaDeUmaOrbAntiHorario(boss, orbEsquerda, orbY, TipoProjetilInimigo.ESFERA_ROXA));
+            
+            // Orb do centro (padrão nas duas direções)
+            estados.add(new ChuvaDeUmaOrbDuasDirecoes(boss, orbCentro, orbY, TipoProjetilInimigo.ESFERA_AMARELA));
+            
+            // Orb da direita (horário: 20 a 160 graus)
+            estados.add(new ChuvaDeUmaOrbHorario(boss, orbDireita, orbY, TipoProjetilInimigo.ESFERA_VERDE));
+        }
+        
+        private class ChuvaDeUmaOrbHorario extends MultiplosEstados {
+            public ChuvaDeUmaOrbHorario(Boss boss, double posX, double posY, TipoProjetilInimigo tipoProjetil) {
+                super(boss);
+                
+                // Calcular incremento de ângulo para rotação horária (20 a 160)
+                double incrementoAngulo = (ANGULO_FINAL - ANGULO_INICIAL) / (double)(QUANTIDADE_ONDAS - 1);
+                
+                // Cada orb dispara múltiplas ondas de projéteis em padrão rotativo
+                for (int i = 0; i < QUANTIDADE_ONDAS; i++) {
+                    AtaqueEmLequeNaPosicao ataque = new AtaqueEmLequeNaPosicao(boss);
+                    ataque.posicaoAtaque = new Point2D.Double(posX, posY);
+                    ataque.intervaloAtaque = i * INTERVALO_ENTRE_ATAQUES;
+                    ataque.velocidadeProjetil = VELOCIDADE_PROJETIL;
+                    ataque.tipoProjetil = tipoProjetil;
+                    
+                    // Ângulo rotativo de 20 a 160 graus
+                    int anguloAtual = (int)(ANGULO_INICIAL + i * incrementoAngulo);
+                    ataque.padroes.add(ataque.new PadraoLeque(anguloAtual, 40, PROJETEIS_POR_ARCO));
+                    estados.add(ataque);
+                }
+            }
+        }
+        
+        private class ChuvaDeUmaOrbAntiHorario extends MultiplosEstados {
+            public ChuvaDeUmaOrbAntiHorario(Boss boss, double posX, double posY, TipoProjetilInimigo tipoProjetil) {
+                super(boss);
+                
+                // Calcular incremento de ângulo para rotação anti-horária (160 a 20)
+                double incrementoAngulo = (ANGULO_FINAL - ANGULO_INICIAL) / (double)(QUANTIDADE_ONDAS - 1);
+                
+                // Cada orb dispara múltiplas ondas de projéteis em padrão rotativo
+                for (int i = 0; i < QUANTIDADE_ONDAS; i++) {
+                    AtaqueEmLequeNaPosicao ataque = new AtaqueEmLequeNaPosicao(boss);
+                    ataque.posicaoAtaque = new Point2D.Double(posX, posY);
+                    ataque.intervaloAtaque = i * INTERVALO_ENTRE_ATAQUES;
+                    ataque.velocidadeProjetil = VELOCIDADE_PROJETIL;
+                    ataque.tipoProjetil = tipoProjetil;
+                    
+                    // Ângulo rotativo de 160 a 20 graus (anti-horário)
+                    int anguloAtual = (int)(ANGULO_FINAL - i * incrementoAngulo);
+                    ataque.padroes.add(ataque.new PadraoLeque(anguloAtual, 40, PROJETEIS_POR_ARCO));
+                    estados.add(ataque);
+                }
+            }
+        }
+        
+        private class ChuvaDeUmaOrbDuasDirecoes extends MultiplosEstados {
+            public ChuvaDeUmaOrbDuasDirecoes(Boss boss, double posX, double posY, TipoProjetilInimigo tipoProjetil) {
+                super(boss);
+                
+                // Calcular incremento de ângulo para rotação
+                double incrementoAngulo = (ANGULO_FINAL - ANGULO_INICIAL) / (double)(QUANTIDADE_ONDAS - 1);
+                
+                // Padrão nas duas direções (horário e anti-horário simultaneamente)
+                for (int i = 0; i < QUANTIDADE_ONDAS; i++) {
+                    // Disparo horário (20 a 160)
+                    AtaqueEmLequeNaPosicao ataqueHorario = new AtaqueEmLequeNaPosicao(boss);
+                    ataqueHorario.posicaoAtaque = new Point2D.Double(posX, posY);
+                    ataqueHorario.intervaloAtaque = i * INTERVALO_ENTRE_ATAQUES;
+                    ataqueHorario.velocidadeProjetil = VELOCIDADE_PROJETIL;
+                    ataqueHorario.tipoProjetil = tipoProjetil;
+                    int anguloHorario = (int)(ANGULO_INICIAL + i * incrementoAngulo);
+                    ataqueHorario.padroes.add(ataqueHorario.new PadraoLeque(anguloHorario, 40, PROJETEIS_POR_ARCO));
+                    estados.add(ataqueHorario);
+                    
+                    // Disparo anti-horário (160 a 20)
+                    AtaqueEmLequeNaPosicao ataqueAntiHorario = new AtaqueEmLequeNaPosicao(boss);
+                    ataqueAntiHorario.posicaoAtaque = new Point2D.Double(posX, posY);
+                    ataqueAntiHorario.intervaloAtaque = i * INTERVALO_ENTRE_ATAQUES;
+                    ataqueAntiHorario.velocidadeProjetil = VELOCIDADE_PROJETIL;
+                    ataqueAntiHorario.tipoProjetil = tipoProjetil;
+                    int anguloAntiHorario = (int)(ANGULO_FINAL - i * incrementoAngulo);
+                    ataqueAntiHorario.padroes.add(ataqueAntiHorario.new PadraoLeque(anguloAntiHorario, 40, PROJETEIS_POR_ARCO));
+                    estados.add(ataqueAntiHorario);
+                }
+            }
+        }
+    }
+    
+    
 }

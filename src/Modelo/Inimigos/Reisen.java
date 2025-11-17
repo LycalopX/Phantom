@@ -189,6 +189,7 @@ public class Reisen extends Boss {
                 } else {
                     estados.add(new EspiralRotacional(boss, 6, 0.2, TipoProjetilInimigo.ESFERA_VERDE, -45, 8, 8));
                 }
+                estados.add(new EspiralRotacional(boss, 10, 0.35, TipoProjetilInimigo.OVAL_ROSA, 0, 1, 8));
             }
         }
     }
@@ -261,32 +262,52 @@ public class Reisen extends Boss {
     // Ataque 3: Chuva vertical de projéteis em leque
     private class ChuvaVertical extends MultiplosEstados {
 
+        private final double VELOCIDADE_PROJETIL = 0.15;
+        private final int INTERVALO_ENTRE_ATAQUES = 15;
+
         public ChuvaVertical(Boss boss) {
             super(boss);
 
-            int quantidadeAtaques = 5;
-            double espacamentoX = MUNDO_LARGURA / (quantidadeAtaques + 1);
-
-            for (int i = 0; i < quantidadeAtaques; i++) {
-                AtaqueEmLequeNaPosicao ataque = new AtaqueEmLequeNaPosicao(boss);
-                ataque.posicaoAtaque = new Point2D.Double(espacamentoX * (i + 1), 2.0);
-                ataque.intervaloAtaque = 18 + i * 8;
-                ataque.velocidadeProjetil = 0.22;
-                ataque.tipoProjetil = TipoProjetilInimigo.OVAL_AZUL_PISCINA_CLARO;
-                ataque.padroes.add(ataque.new PadraoLeque(90, 30, 5));
-
-                estados.add(ataque);
+            repeticoes = 3;
+            estados.add(new ChuvaEsquerda(boss));
+            estados.add(new ChuvaDireita(boss));
+        }
+        
+        private class ChuvaEsquerda extends MultiplosEstados {
+            public ChuvaEsquerda(Boss boss) {
+                super(boss);
+                
+                int quantidadeAtaques = 5;
+                double espacamentoX = MUNDO_LARGURA / (quantidadeAtaques + 1);
+                
+                for (int i = 0; i < quantidadeAtaques; i++) {
+                    AtaqueEmLequeNaPosicao ataque = new AtaqueEmLequeNaPosicao(boss);
+                    ataque.posicaoAtaque = new Point2D.Double(espacamentoX * (i + 1), 0);
+                    ataque.intervaloAtaque = 18 + i * INTERVALO_ENTRE_ATAQUES;
+                    ataque.velocidadeProjetil = VELOCIDADE_PROJETIL;
+                    ataque.tipoProjetil = TipoProjetilInimigo.OVAL_AZUL_PISCINA_CLARO;
+                    ataque.padroes.add(ataque.new PadraoLeque(90, 30, 5));
+                    estados.add(ataque);
+                }
             }
-
-            for (int i = 0; i < quantidadeAtaques; i++) {
-                AtaqueEmLequeNaPosicao ataque = new AtaqueEmLequeNaPosicao(boss);
-                ataque.posicaoAtaque = new Point2D.Double(espacamentoX * (i + 1), 2.0);
-                ataque.intervaloAtaque = 18 - i * 8;
-                ataque.velocidadeProjetil = 0.22;
-                ataque.tipoProjetil = TipoProjetilInimigo.OVAL_AZUL_PISCINA_CLARO;
-                ataque.padroes.add(ataque.new PadraoLeque(90, 30, 5));
-
-                estados.add(ataque);
+        }
+        
+        private class ChuvaDireita extends MultiplosEstados {
+            public ChuvaDireita(Boss boss) {
+                super(boss);
+                
+                int quantidadeAtaques = 5;
+                double espacamentoX = MUNDO_LARGURA / (quantidadeAtaques + 1);
+                
+                for (int i = 0; i < quantidadeAtaques; i++) {
+                    AtaqueEmLequeNaPosicao ataque = new AtaqueEmLequeNaPosicao(boss);
+                    ataque.posicaoAtaque = new Point2D.Double(MUNDO_LARGURA - espacamentoX * (i + 1), 0);
+                    ataque.intervaloAtaque = 18 + i * INTERVALO_ENTRE_ATAQUES;
+                    ataque.velocidadeProjetil = VELOCIDADE_PROJETIL;
+                    ataque.tipoProjetil = TipoProjetilInimigo.OVAL_AZUL_PISCINA_CLARO;
+                    ataque.padroes.add(ataque.new PadraoLeque(90, 30, 5));
+                    estados.add(ataque);
+                }
             }
         }
     }

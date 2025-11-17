@@ -2,8 +2,8 @@ package Modelo.Inimigos;
 
 import static Auxiliar.ConfigMapa.*;
 import Auxiliar.LootTable;
-import Auxiliar.SoundManager;
 import Auxiliar.Projeteis.TipoProjetilInimigo;
+import Auxiliar.SoundManager;
 import Modelo.Fases.Fase;
 import Modelo.Inimigos.GerenciadorDeAnimacaoInimigo.AnimationState;
 import java.awt.Graphics;
@@ -41,23 +41,53 @@ public class Reisen extends Boss {
     }
 
     private void setupEstados() {
-        Estado irCentro = new IrParaOCentro(this, new Point2D.Double(0.2, 0.2));
-        Estado irEsquerda = new IrParaEsquerda(this, new Point2D.Double(0.5, 0.2));
-        Estado irDireita = new IrParaDireita(this, new Point2D.Double(0.5, 0.2));
+        // Movimentos
+        Estado irCentro1 = new IrParaOCentro(this, new Point2D.Double(0.3, 0.3));
+        Estado irCentro2 = new IrParaOCentro(this, new Point2D.Double(0.3, 0.3));
+        Estado irEsquerda1 = new IrParaEsquerda(this, new Point2D.Double(0.4, 0.3));
+        Estado irDireita1 = new IrParaDireita(this, new Point2D.Double(0.4, 0.3));
+        Estado irEsquerda2 = new IrParaEsquerda(this, new Point2D.Double(0.4, 0.3));
+        Estado irDireita2 = new IrParaDireita(this, new Point2D.Double(0.4, 0.3));
 
-        Estado ataqueParaBaixo = new AtaqueParaBaixo(this);
-        Estado ataqueParaDireita = new AtaqueParaDireita(this);
-        Estado ataqueParaEsquerda = new AtaqueParaEsquerda(this);
+        // Ataques
+        Estado ataqueEspiral = new AtaqueEspiral(this);
+        Estado ondaTeleguiada1 = new OndaTeleguiada(this);
+        Estado chuvaVertical1 = new ChuvaVertical(this);
+        Estado ataqueEspiralMovel = new AtaqueEspiralMovel(this);
+        Estado ondaTeleguiada2 = new OndaTeleguiada(this);
+        Estado chuvaVertical2 = new ChuvaVertical(this);
 
-        estado = irCentro;
-        irCentro.setProximoEstado(ataqueParaBaixo);
+        // Esperas
+        Estado espera1 = new Esperar(this, 60);
+        Estado espera2 = new Esperar(this, 60);
+        Estado espera3 = new Esperar(this, 60);
+        Estado espera4 = new Esperar(this, 60);
 
-        ataqueParaBaixo.setProximoEstado(irEsquerda);
-        irEsquerda.setProximoEstado(ataqueParaDireita);
-
-        ataqueParaDireita.setProximoEstado(irDireita);
-        irDireita.setProximoEstado(ataqueParaEsquerda);
-        ataqueParaEsquerda.setProximoEstado(irCentro);
+        // Sequência de estados: Espiral dupla -> teleguiado -> chuva -> horário/anti-horário -> teleguiado -> chuva -> loop
+        estado = irCentro1;
+        irCentro1.setProximoEstado(ataqueEspiral);
+        
+        ataqueEspiral.setProximoEstado(espera1);
+        espera1.setProximoEstado(irEsquerda1);
+        
+        irEsquerda1.setProximoEstado(ondaTeleguiada1);
+        ondaTeleguiada1.setProximoEstado(irDireita1);
+        
+        irDireita1.setProximoEstado(chuvaVertical1);
+        chuvaVertical1.setProximoEstado(espera2);
+        
+        espera2.setProximoEstado(irCentro2);
+        irCentro2.setProximoEstado(ataqueEspiralMovel);
+        ataqueEspiralMovel.setProximoEstado(espera3);
+        
+        espera3.setProximoEstado(irEsquerda2);
+        irEsquerda2.setProximoEstado(ondaTeleguiada2);
+        ondaTeleguiada2.setProximoEstado(irDireita2);
+        
+        irDireita2.setProximoEstado(chuvaVertical2);
+        chuvaVertical2.setProximoEstado(espera4);
+        
+        espera4.setProximoEstado(irCentro1);
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -105,6 +135,7 @@ public class Reisen extends Boss {
 
     // Movimento
     private class IrParaOCentro extends IrPara {
+
         public IrParaOCentro(Boss boss, Point2D.Double velocidade) {
             super(boss,
                     new Point2D.Double(0.5 * (MUNDO_LARGURA - 2) + 2, 0.2 * MUNDO_ALTURA),
@@ -114,6 +145,7 @@ public class Reisen extends Boss {
     }
 
     private class IrParaEsquerda extends IrPara {
+
         public IrParaEsquerda(Boss boss, Point2D.Double velocidade) {
             super(boss,
                     new Point2D.Double(0.1 * (MUNDO_LARGURA - 2) + 2, 0.1 * MUNDO_ALTURA),
@@ -123,6 +155,7 @@ public class Reisen extends Boss {
     }
 
     private class IrParaDireita extends IrPara {
+
         public IrParaDireita(Boss boss, Point2D.Double velocidade) {
             super(boss,
                     new Point2D.Double(0.9 * (MUNDO_LARGURA - 2) + 2, 0.1 * MUNDO_ALTURA),
@@ -131,43 +164,130 @@ public class Reisen extends Boss {
         }
     }
 
-    // Ataque
-    private class AtaqueParaBaixo extends AtaqueEmLeque {
-        public AtaqueParaBaixo(Boss boss) {
+    // Ataques
+    // Ataque 1: Espiral dupla rotativa
+    private class AtaqueEspiral extends MultiplosEstados {
+
+        public AtaqueEspiral(Boss boss) {
             super(boss);
 
-            this.intervaloAtaque = 60;
-            this.velocidadeProjetil = 0.15;
-            this.tipoProjetil = TipoProjetilInimigo.OVAL_AZUL_PISCINA_CLARO;
+            estados.add(new EspiralRotacional(boss, 8, 0.18, TipoProjetilInimigo.ESFERA_ROXA, 24, 15, 12));
+            estados.add(new EspiralRotacional(boss, 8, 0.18, TipoProjetilInimigo.ESFERA_AMARELA, -24, 15, 13));
+        }
+    }
+    
+    // Espiral que alterna direção
+    private class AtaqueEspiralMovel extends MultiplosEstados {
 
-            padroes.add(new PadraoLeque(90, 140, 10));
-            padroes.add(new PadraoLeque(90, 80, 10));
+        public AtaqueEspiralMovel(Boss boss) {
+            super(boss);
+
+            repeticoes = 3;
+            for (int i = 0; i < 6; i++) {
+                if (i % 2 == 0) {
+                    estados.add(new EspiralRotacional(boss, 6, 0.2, TipoProjetilInimigo.ESFERA_ROXA, 45, 8, 8));
+                } else {
+                    estados.add(new EspiralRotacional(boss, 6, 0.2, TipoProjetilInimigo.ESFERA_VERDE, -45, 8, 8));
+                }
+            }
         }
     }
 
-    private class AtaqueParaDireita extends AtaqueEmLeque {
-        public AtaqueParaDireita(Boss boss) {
+    private class EspiralRotacional extends AtaqueEmLeque {
+        public EspiralRotacional(Boss boss, int intervaloAtaque, double velocidade, TipoProjetilInimigo tipoProjetil, int velocidadeRotacao, int ataques, int tiros) {
             super(boss);
+            this.intervaloAtaque = intervaloAtaque;
+            this.velocidadeProjetil = velocidade;
+            this.tipoProjetil = tipoProjetil;
 
-            this.intervaloAtaque = 60;
-            this.velocidadeProjetil = 0.15;
-            this.tipoProjetil = TipoProjetilInimigo.ESFERA_AZUL;
-
-            padroes.add(new PadraoLeque(50, 140, 10));
-            padroes.add(new PadraoLeque(50, 80, 10));
+            for (int i = 0; i < ataques; i++) {
+                padroes.add(new PadraoLeque(i * velocidadeRotacao, 360, tiros));
+            }
         }
     }
 
-    private class AtaqueParaEsquerda extends AtaqueEmLeque {
-        public AtaqueParaEsquerda(Boss boss) {
+    // Ataque 2: Onda teleguiada das laterais
+    private class OndaTeleguiada extends MultiplosEstados {
+
+        private final int ANGLE_RANDOMNESS = 20;
+        private final int INTERVALO_ATAQUE = 30;
+        private final double VELOCIDADE_PROJETIL = 0.2;
+        private final int QUANTIDADE_ATAQUES = 3;
+
+        public OndaTeleguiada(Boss boss) {
             super(boss);
 
-            this.intervaloAtaque = 60;
-            this.velocidadeProjetil = 0.15;
-            this.tipoProjetil = TipoProjetilInimigo.ESFERA_AZUL;
+            estados.add(new AtaqueEsquerdaTeleguiado(boss));
+            estados.add(new AtaqueDireitaTeleguiado(boss));
+        }
 
-            padroes.add(new PadraoLeque(130, 140, 10));
-            padroes.add(new PadraoLeque(130, 80, 10));
+        private class AtaqueEsquerdaTeleguiado extends AtaqueEmUmaLinhaNoJogador {
+
+            public AtaqueEsquerdaTeleguiado(Boss boss) {
+                super(boss,
+                        new Point2D.Double(0, 0),
+                        new Point2D.Double(0, MUNDO_ALTURA)
+                );
+                this.intervaloAtaque = INTERVALO_ATAQUE;
+                this.velocidadeProjetil = VELOCIDADE_PROJETIL;
+                this.tipoProjetil = TipoProjetilInimigo.ESFERA_GRANDE_VERMELHA_OCA;
+
+                for(int i = 0; i < QUANTIDADE_ATAQUES; i++){
+                    int angleOffset = (int)(Math.random() * (2 * ANGLE_RANDOMNESS)) - ANGLE_RANDOMNESS;
+                    this.padroes.add(new PadraoAtaque(angleOffset, 8));
+                }
+            }
+        }
+
+        private class AtaqueDireitaTeleguiado extends AtaqueEmUmaLinhaNoJogador {
+
+            public AtaqueDireitaTeleguiado(Boss boss) {
+                super(boss,
+                        new Point2D.Double(MUNDO_LARGURA, 0),
+                        new Point2D.Double(MUNDO_LARGURA, MUNDO_ALTURA)
+                );
+                this.intervaloAtaque = INTERVALO_ATAQUE;
+                this.velocidadeProjetil = VELOCIDADE_PROJETIL;
+                this.tipoProjetil = TipoProjetilInimigo.ESFERA_GRANDE_AMARELA_OCA;
+
+                for(int i = 0; i < QUANTIDADE_ATAQUES; i++){
+                    int angleOffset = (int)(Math.random() * (2 * ANGLE_RANDOMNESS)) - ANGLE_RANDOMNESS;
+                    this.padroes.add(new PadraoAtaque(angleOffset, 8));
+                }
+            }
+        }
+    }
+
+    // Ataque 3: Chuva vertical de projéteis em leque
+    private class ChuvaVertical extends MultiplosEstados {
+
+        public ChuvaVertical(Boss boss) {
+            super(boss);
+
+            int quantidadeAtaques = 5;
+            double espacamentoX = MUNDO_LARGURA / (quantidadeAtaques + 1);
+
+            for (int i = 0; i < quantidadeAtaques; i++) {
+                AtaqueEmLequeNaPosicao ataque = new AtaqueEmLequeNaPosicao(boss);
+                ataque.posicaoAtaque = new Point2D.Double(espacamentoX * (i + 1), 2.0);
+                ataque.intervaloAtaque = 18 + i * 8;
+                ataque.velocidadeProjetil = 0.22;
+                ataque.tipoProjetil = TipoProjetilInimigo.OVAL_AZUL_PISCINA_CLARO;
+                ataque.padroes.add(ataque.new PadraoLeque(90, 30, 5));
+
+                estados.add(ataque);
+            }
+
+            for (int i = 0; i < quantidadeAtaques; i++) {
+                AtaqueEmLequeNaPosicao ataque = new AtaqueEmLequeNaPosicao(boss);
+                ataque.posicaoAtaque = new Point2D.Double(espacamentoX * (i + 1), 2.0);
+                ataque.intervaloAtaque = 18 - i * 8;
+                ataque.velocidadeProjetil = 0.22;
+                ataque.tipoProjetil = TipoProjetilInimigo.OVAL_AZUL_PISCINA_CLARO;
+                ataque.padroes.add(ataque.new PadraoLeque(90, 30, 5));
+
+                estados.add(ataque);
+            }
         }
     }
 }

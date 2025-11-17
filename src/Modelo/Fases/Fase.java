@@ -1,17 +1,17 @@
 package Modelo.Fases;
 
-import Modelo.Personagem;
+import static Auxiliar.ConfigMapa.*;
+import Modelo.Cenario.ElementoCenario;
 import Modelo.Hero.Hero;
+import Modelo.Inimigos.Inimigo;
 import Modelo.Items.ItemPool;
+import Modelo.Personagem;
 import Modelo.Projeteis.Projetil;
 import Modelo.Projeteis.ProjetilBombaHoming;
 import Modelo.Projeteis.ProjetilPool;
-import Modelo.Inimigos.Inimigo;
-import Modelo.Cenario.ElementoCenario;
-import static Auxiliar.ConfigMapa.*;
-import java.io.Serializable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -40,7 +40,7 @@ public class Fase implements Serializable {
      */
     public Fase(ScriptDeFase script) {
         this.personagens = new CopyOnWriteArrayList<>();
-        this.projetilPool = new ProjetilPool(20, 25, 16, 500, personagens);
+        this.projetilPool = new ProjetilPool(20, 25, 16, 1000, personagens);
         this.itemPool = new ItemPool();
         this.elementosCenario = new CopyOnWriteArrayList<>();
         this.scriptDaFase = script;

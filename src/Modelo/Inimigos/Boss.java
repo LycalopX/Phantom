@@ -263,6 +263,7 @@ public abstract class Boss extends Inimigo {
         @Override
         public void reset() {
             super.reset();
+            contadorRepeticoes = 0;
             for (Estado estado : estados) {
                 estado.reset();
             }

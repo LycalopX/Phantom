@@ -1,19 +1,20 @@
 package Modelo.Fases;
 
-import java.util.ArrayList;
-
-import Auxiliar.SoundManager;
 import Auxiliar.ConfigMapa;
 import Auxiliar.LootTable;
-import Modelo.Items.ItemType;
+import Auxiliar.Personagem.LootItem;
+import Auxiliar.SoundManager;
 import Controler.Engine;
 import Modelo.Cenario.ChaoPerspectiva;
 import Modelo.Cenario.ElementoCenario;
 import Modelo.Cenario.ParedeVertical;
+import Modelo.Inimigos.Reisen;
+import Modelo.Items.ItemType;
 import java.awt.Color;
 import java.awt.LinearGradientPaint;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -83,6 +84,8 @@ public class ScriptFase5 extends ScriptDeFase {
     // Onda
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
+        ondas.add(new OndaBoss(fase));
+
         // LootTable para a FadaComum4
         LootTable lootFada4 = new LootTable();
         lootFada4.addItem(new Auxiliar.Personagem.LootItem(ItemType.SCORE_POINT, 1, 1, 1.0, false, false));
@@ -112,5 +115,15 @@ public class ScriptFase5 extends ScriptDeFase {
         float[] fractions = { 0.0f, 1.0f };
         Color[] colors = { new Color(0, 0, 0, 0), new Color(0, 0, 0, 0) };
         return new LinearGradientPaint(start, end, fractions, colors);
+    }
+
+    private class OndaBoss extends OndaDeBoss{
+        public OndaBoss(Fase fase) {
+            super("Deaf to All but the Song");
+            lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
+            boss = new Reisen(0, ConfigMapa.MUNDO_ALTURA * 0.05, lootTable, 10000, fase);
+
+            inimigos.add(new InimigoSpawn(boss, 0));
+        }
     }
 }

@@ -229,6 +229,10 @@ public class Engine implements Runnable {
                 ObjectInputStream ois = new ObjectInputStream(fis)) {
 
             this.faseAtual = (Fase) ois.readObject();
+            if (this.faseAtual.getScript() != null) {
+                this.faseAtual.getScript().setEngine(this);
+            }
+            
             cenario.setFase(this.faseAtual);
             this.controleDeJogo.setItemPool(this.faseAtual.getItemPool());
 

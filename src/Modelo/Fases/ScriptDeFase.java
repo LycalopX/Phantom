@@ -35,6 +35,10 @@ public abstract class ScriptDeFase implements Serializable {
         this.ondaAtualIndex = 0;
     }
 
+    public void setEngine(Engine engine) {
+        this.engine = engine;
+    }
+
     /**
      * @brief Retorna a cor de sobreposição do fundo para esta fase.
      * @return Um objeto Color.

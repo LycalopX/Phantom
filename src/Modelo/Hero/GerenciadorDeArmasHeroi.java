@@ -8,6 +8,8 @@ import Modelo.Projeteis.Projetil;
 import Modelo.Projeteis.ProjetilHoming;
 import Modelo.Projeteis.ProjetilPool;
 import Modelo.Projeteis.TipoProjetilHeroi;
+import java.util.List; // Added import
+import Modelo.Inimigos.Inimigo; // Added import
 
 /**
  * @brief Gerencia os sistemas de armas do herói, controlando a lógica de tiro,
@@ -104,13 +106,13 @@ public class GerenciadorDeArmasHeroi implements Serializable {
             ProjetilHoming pEsquerdo = pool.getProjetilHoming();
             if (pEsquerdo != null) {
                 pEsquerdo.resetHoming(x - offsetX, y, velocidadeFinal, anguloEsquerda, TipoProjetil.JOGADOR,
-                        TipoProjetilHeroi.HOMING, fase.getInimigos());
+                        TipoProjetilHeroi.HOMING, (List<Inimigo>) fase.getInimigos());
             }
 
             ProjetilHoming pDireito = pool.getProjetilHoming();
             if (pDireito != null) {
                 pDireito.resetHoming(x + offsetX, y, velocidadeFinal, anguloDireita, TipoProjetil.JOGADOR,
-                        TipoProjetilHeroi.HOMING, fase.getInimigos());
+                        TipoProjetilHeroi.HOMING, (List<Inimigo>) fase.getInimigos());
             }
         }
     }

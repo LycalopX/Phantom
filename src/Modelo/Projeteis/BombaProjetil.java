@@ -9,6 +9,8 @@ import Modelo.Fases.Fase;
 import Modelo.Hero.Hero;
 import Modelo.Personagem;
 import Modelo.RenderLayer;
+import java.util.List; // Added import
+import Modelo.Inimigos.Inimigo; // Added import
 
 /**
  * @brief Representa o efeito da bomba do herói, que cria uma área de dano em expansão
@@ -111,7 +113,7 @@ public class BombaProjetil extends Personagem {
                     anguloExpansao,
                     TipoProjetil.JOGADOR,
                     TipoProjetilHeroi.BOMBA,
-                    faseReferencia.getInimigos()
+                    (List<Inimigo>) faseReferencia.getInimigos()
                 );
             }
         }

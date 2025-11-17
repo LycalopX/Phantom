@@ -237,6 +237,7 @@ public class Cenario extends JPanel {
         personagensParaRenderizar.addAll((List<Personagem>) (List<?>) faseAtual.getInimigos());
         personagensParaRenderizar.addAll((List<Personagem>) (List<?>) faseAtual.getProjeteis());
         personagensParaRenderizar.addAll((List<Personagem>) (List<?>) faseAtual.getItens());
+        personagensParaRenderizar.addAll((List<Personagem>) (List<?>) faseAtual.getBombas());
 
         personagensParaRenderizar.sort(Comparator.comparing(p -> p.getRenderLayer().ordinal()));
 

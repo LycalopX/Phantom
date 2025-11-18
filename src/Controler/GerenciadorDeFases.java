@@ -9,7 +9,10 @@ import Modelo.Fases.ScriptFase4;
 import Modelo.Fases.ScriptFase5;
 
 /**
- * @brief Gerencia a progressão das fases do jogo.
+ * @brief Gerencia a progressão e o carregamento das fases do jogo.
+ * 
+ * Esta classe controla qual fase está ativa, carrega o `ScriptDeFase`
+ * correspondente e gerencia a transição para a próxima fase.
  */
 public class GerenciadorDeFases {
     private int nivelAtual = 1;
@@ -17,7 +20,8 @@ public class GerenciadorDeFases {
 
     /**
      * @brief Carrega e retorna a fase correspondente ao nível atual.
-     * @return Um objeto Fase pronto para ser jogado.
+     * @param engine A referência da engine principal do jogo.
+     * @return Um objeto `Fase` pronto para ser executado.
      */
     public Fase carregarFase(Engine engine) {
         ScriptDeFase script;
@@ -39,15 +43,18 @@ public class GerenciadorDeFases {
                 script = new ScriptFase5(engine);
                 break;
             default:
-                script = new ScriptFase1(engine);
+                script = new ScriptFase1(engine); // Padrão para a primeira fase
         }
 
         return new Fase(script);
     }
 
     /**
-     * @brief Avança para a próxima fase e a carrega. Se chegar ao final, reinicia
-     *        do começo.
+     * @brief Avança para a próxima fase e a carrega.
+     * 
+     * Se a fase atual for a última, o ciclo recomeça da primeira.
+     * 
+     * @param engine A referência da engine principal do jogo.
      * @return A nova fase carregada.
      */
     public Fase proximaFase(Engine engine) {
@@ -62,6 +69,7 @@ public class GerenciadorDeFases {
     /**
      * @brief Pula para um número de fase específico.
      * @param numeroDaFase O nível para o qual pular.
+     * @param engine A referência da engine principal do jogo.
      * @return A nova fase carregada.
      */
     public Fase irParaFase(int numeroDaFase, Engine engine) {

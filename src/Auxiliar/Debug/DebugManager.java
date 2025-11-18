@@ -1,18 +1,21 @@
 package Auxiliar.Debug;
 
 /**
- * @brief Gerencia o estado do modo de depuração (debug) do jogo.
+ * @brief Gerenciador estático para o modo de depuração (debug) do jogo.
+ *
+ * Esta classe utilitária fornece uma maneira centralizada de verificar e
+ * alternar o estado do modo de depuração, que pode ser usado para exibir
+ * informações como hitboxes, FPS, etc.
  */
 public class DebugManager {
-    private static boolean active = false;
+    private static boolean debugAtivo = false;
 
     /**
-     * @brief Alterna o estado do modo de depuração (ativo/inativo) e imprime o novo
-     *        estado no console.
+     * @brief Alterna o estado do modo de depuração (ativado/desativado).
      */
     public static void toggle() {
-        active = !active;
-        System.out.println("Modo de Desenvolvedor: " + (active ? "ATIVADO" : "DESATIVADO"));
+        debugAtivo = !debugAtivo;
+        System.out.println("Modo de depuracao " + (debugAtivo ? "ativado" : "desativado") + ".");
     }
 
     /**
@@ -20,6 +23,6 @@ public class DebugManager {
      * @return true se o modo de depuração estiver ativo, false caso contrário.
      */
     public static boolean isActive() {
-        return active;
+        return debugAtivo;
     }
 }

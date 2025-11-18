@@ -6,8 +6,11 @@ import javax.imageio.ImageIO;
 import java.awt.Graphics;
 
 /**
- * @brief Gerencia as animações para os inimigos, carregando e alternando os
- *        sprites.
+ * @brief Gerencia as animações para os inimigos.
+ * 
+ * Esta classe é responsável por carregar sequências de sprites a partir de um
+ * spritesheet, gerenciar a transição entre os frames e fornecer a imagem
+ * correta com base no estado de animação do inimigo (IDLE ou STRAFING).
  */
 public class GerenciadorDeAnimacaoInimigo {
 
@@ -30,7 +33,7 @@ public class GerenciadorDeAnimacaoInimigo {
     public GerenciadorDeAnimacaoInimigo(String spritesheetPath, int spriteWidth, int spriteHeight, int gap,
             int idleFrames, int movingFrames, boolean resize, int newWidth, int newHeight,
             boolean holdLastStrafingFrame) {
-        this.maxFrames = idleFrames; // Assuming idle and moving have the same number of frames
+        this.maxFrames = idleFrames; 
         this.iImagesIdle = carregarFramesDoSpriteSheet(spritesheetPath, 0, idleFrames, spriteWidth, spriteHeight, gap,
                 resize, newWidth, newHeight);
         this.iImagesStrafing = carregarFramesDoSpriteSheet(spritesheetPath, idleFrames, movingFrames, spriteWidth,
@@ -39,13 +42,14 @@ public class GerenciadorDeAnimacaoInimigo {
     }
 
     /**
-     * @brief Atualiza o frame atual da animação com base em um delay.
+     * @brief Atualiza o frame atual da animação com base no estado e em um delay.
+     * @param state O estado de animação atual (IDLE ou STRAFING).
      */
     public void atualizar(AnimationState state) {
         if (state != currentState) {
-            frameAtual = 0; // Reinicia a animação
-            delayFrame = 0; // Reinicia o delay
-            currentState = state; // Atualiza o estado interno
+            frameAtual = 0; 
+            delayFrame = 0; 
+            currentState = state; 
         }
 
         delayFrame++;
@@ -67,8 +71,7 @@ public class GerenciadorDeAnimacaoInimigo {
     }
 
     /**
-     * @brief Retorna a imagem do frame atual com base no estado de animação (parado
-     *        ou movendo).
+     * @brief Retorna a imagem do frame atual com base no estado de animação.
      */
     public ImageIcon getImagemAtual(AnimationState state) {
         if (state == AnimationState.STRAFING) {
@@ -78,14 +81,25 @@ public class GerenciadorDeAnimacaoInimigo {
         }
     }
 
-    // 35x60 - boss 1
-    // 13 de distancia
+    
+    
+    
 
-    // 43x61 - boss 2
-    // 4 de distancia
-
+    
+    
+    
     /**
-     * @brief Carrega e recorta frames de uma imagem de spritesheet.
+     * @brief Carrega e recorta uma sequência de frames a partir de um spritesheet.
+     * @param nomeArquivo O caminho para o arquivo do spritesheet.
+     * @param startFrame O índice do primeiro frame a ser recortado.
+     * @param numFrames O número de frames a serem recortados.
+     * @param spriteWidth A largura de um único sprite.
+     * @param spriteHeight A altura de um único sprite.
+     * @param gap O espaço (em pixels) entre cada sprite no arquivo.
+     * @param resize Se os frames devem ser redimensionados.
+     * @param newWidth A nova largura se `resize` for true.
+     * @param newHeight A nova altura se `resize` for true.
+     * @return Um array de `ImageIcon` contendo os frames da animação.
      */
     private ImageIcon[] carregarFramesDoSpriteSheet(String nomeArquivo, int startFrame, int numFrames, int spriteWidth,
             int spriteHeight, int gap, boolean resize, int newWidth, int newHeight) {

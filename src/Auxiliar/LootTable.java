@@ -7,8 +7,10 @@ import java.util.Random;
 import Auxiliar.Personagem.LootItem;
 
 /**
- * @brief Representa uma tabela de loot que pode ser associada a um inimigo,
- *        contendo os possíveis itens que podem ser dropados.
+ * @brief Gerencia os itens que podem ser dropados por um inimigo.
+ * 
+ * Uma `LootTable` é associada a um inimigo e contém uma lista de `LootItem`,
+ * cada um com sua própria probabilidade de drop e quantidade.
  */
 public class LootTable implements Serializable {
 
@@ -30,9 +32,14 @@ public class LootTable implements Serializable {
     }
 
     /**
-     * @brief Processa a tabela de loot, rolando a probabilidade para cada item
-     *        e gerando uma lista de itens que foram efetivamente dropados.
-     * @return Uma lista de `LootItem` contendo os drops gerados.
+     * @brief Processa a tabela de loot e gera os drops.
+     * 
+     * Para cada item possível na tabela, um número aleatório é gerado para
+     * determinar se o item será dropado, com base em sua probabilidade.
+     * Se o drop ocorrer, uma quantidade aleatória do item (dentro do mínimo
+     * e máximo definidos) é adicionada à lista de drops gerados.
+     * 
+     * @return Uma lista de `LootItem` contendo os drops que foram gerados.
      */
     public ArrayList<LootItem> gerarDrops() {
         ArrayList<LootItem> dropsGerados = new ArrayList<>();

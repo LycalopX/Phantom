@@ -5,6 +5,12 @@ import java.awt.image.BufferedImage;
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 
+/**
+ * @brief Estende `FundoInfinito` para adicionar um efeito de oscilação na opacidade.
+ * 
+ * Cria um efeito de "pulsar" ou "piscar" para uma camada de fundo,
+ * variando sua transparência ao longo do tempo usando uma função seno.
+ */
 public class FundoOscilante extends FundoInfinito {
 
     private final float minOpacity;
@@ -22,20 +28,27 @@ public class FundoOscilante extends FundoInfinito {
     @Override
     public void mover(double velocidadeBase) {
         super.mover(velocidadeBase);
-        time++;
+        time++; // Incrementa o tempo para a função de oscilação
     }
 
+    /**
+     * @brief Desenha o fundo com a opacidade oscilante.
+     * 
+     * A opacidade atual é calculada a cada frame usando uma função seno,
+     * que mapeia o tempo para um valor entre `minOpacity` and `maxOpacity`.
+     */
     @Override
     public void desenhar(Graphics2D g2d, int larguraTela, int alturaTela) {
         if (imagem == null) return;
 
+        // Calcula a opacidade atual baseada na função seno.
         float currentOpacity = (float) (minOpacity + (maxOpacity - minOpacity) * (0.5 * (1 + Math.sin(time / oscillationSpeed))));
 
         Composite originalComposite = g2d.getComposite();
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, currentOpacity));
 
+        // Reutiliza a lógica de desenho de FundoInfinito.
         int yPos = (int) (this.y % alturaTela);
-
         g2d.drawImage(this.imagem, 0, yPos, larguraTela, alturaTela, null);
         g2d.drawImage(this.imagem, 0, yPos - alturaTela, larguraTela, alturaTela, null);
 

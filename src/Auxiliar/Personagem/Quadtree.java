@@ -6,9 +6,12 @@ import Auxiliar.ConfigMapa;
 import java.awt.Rectangle;
 
 /**
- * @brief Implementa uma estrutura de dados Quadtree para otimizar a detecção de
- *        colisão
- *        espacial, dividindo o espaço de jogo em quadrantes recursivamente.
+ * @brief Implementa uma estrutura de dados Quadtree para otimizar a detecção de colisão.
+ * 
+ * A Quadtree particiona o espaço de jogo em quadrantes recursivamente. Em vez de
+ * verificar a colisão de um objeto contra todos os outros, a verificação é
+ * limitada aos objetos no mesmo quadrante, melhorando drasticamente o desempenho
+ * em cenas com muitos objetos.
  */
 public class Quadtree {
 
@@ -33,14 +36,14 @@ public class Quadtree {
     }
 
     /**
-     * @brief Limpa a Quadtree recursivamente, removendo todos os objetos e nós
-     *        filhos.
+     * @brief Limpa a Quadtree recursivamente, removendo todos os objetos e nós filhos.
      */
     public void clear() {
         objects.clear();
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
                 nodes[i].clear();
+                nodes[i] = null; // Garante que os nós filhos sejam removidos para a próxima inserção.
             }
         }
     }
@@ -54,18 +57,15 @@ public class Quadtree {
         int x = (int) bounds.getX();
         int y = (int) bounds.getY();
 
-        nodes[0] = new Quadtree(level + 1, new Rectangle(x + subWidth, y, subWidth, subHeight));
-        nodes[1] = new Quadtree(level + 1, new Rectangle(x, y, subWidth, subHeight));
-        nodes[2] = new Quadtree(level + 1, new Rectangle(x, y + subHeight, subWidth, subHeight));
-        nodes[3] = new Quadtree(level + 1, new Rectangle(x + subWidth, y + subHeight, subWidth, subHeight));
+        nodes[0] = new Quadtree(level + 1, new Rectangle(x + subWidth, y, subWidth, subHeight)); // Nordeste
+        nodes[1] = new Quadtree(level + 1, new Rectangle(x, y, subWidth, subHeight));             // Noroeste
+        nodes[2] = new Quadtree(level + 1, new Rectangle(x, y + subHeight, subWidth, subHeight)); // Sudoeste
+        nodes[3] = new Quadtree(level + 1, new Rectangle(x + subWidth, y + subHeight, subWidth, subHeight)); // Sudeste
     }
 
     /**
-     * @brief Determina em qual quadrante (sub-nó) um determinado personagem se
-     *        encaixa.
-     * @param p O personagem a ser analisado.
-     * @return O índice do nó (0-3) ou -1 se o personagem não couber completamente
-     *         em nenhum filho.
+     * @brief Determina em qual quadrante um personagem se encaixa.
+     * @return O índice do nó (0-3) ou -1 se o personagem se sobrepuser a múltiplos quadrantes.
      */
     private int getIndex(Personagem p) {
         int pLargura = p.getLargura();
@@ -95,9 +95,11 @@ public class Quadtree {
     }
 
     /**
-     * @brief Insere um personagem na Quadtree. Se o nó exceder a capacidade,
-     *        ele se subdivide e distribui seus objetos entre os filhos.
-     * @param p O personagem a ser inserido.
+     * @brief Insere um personagem na Quadtree.
+     * 
+     * Se o nó já tiver nós filhos, o personagem é inserido no filho apropriado.
+     * Caso contrário, é adicionado à lista de objetos deste nó. Se a capacidade
+     * do nó for excedida, ele se subdivide e redistribui seus objetos.
      */
     public void insert(Personagem p) {
         if (nodes[0] != null) {
@@ -127,12 +129,10 @@ public class Quadtree {
     }
 
     /**
-     * @brief Retorna uma lista de personagens que podem colidir com um personagem
-     *        específico.
-     * @param returnObjects A lista onde os personagens próximos serão adicionados.
-     * @param p             O personagem para o qual a verificação de colisão será
-     *                      feita.
-     * @return A lista `returnObjects` preenchida com os candidatos à colisão.
+     * @brief Retorna uma lista de personagens que podem colidir com um dado personagem.
+     * @param returnObjects A lista onde os candidatos à colisão serão adicionados.
+     * @param p O personagem de referência.
+     * @return A lista `returnObjects` preenchida com os candidatos.
      */
     public ArrayList<Personagem> retrieve(ArrayList<Personagem> returnObjects, Personagem p) {
         if (nodes[0] != null) {
@@ -152,12 +152,10 @@ public class Quadtree {
     }
 
     /**
-     * @brief Retorna todos os objetos que podem colidir com um dado retângulo
-     *        (área).
-     *        Útil para buscas em área, como explosões.
-     * @param returnObjects A lista onde os personagens próximos serão adicionados.
-     * @param pBounds       O retângulo que define a área de busca.
-     * @return A lista `returnObjects` preenchida com os candidatos à colisão.
+     * @brief Retorna todos os objetos que podem colidir com uma dada área retangular.
+     * @param returnObjects A lista onde os candidatos à colisão serão adicionados.
+     * @param pBounds O retângulo que define a área de busca.
+     * @return A lista `returnObjects` preenchida com os candidatos.
      */
     public ArrayList<Personagem> retrieve(ArrayList<Personagem> returnObjects, Rectangle pBounds) {
         if (nodes[0] != null) {

@@ -3,8 +3,11 @@ package Auxiliar.Projeteis.Definicoes;
 import Auxiliar.Projeteis.HitboxType;
 
 /**
- * @brief Contêiner de dados imutável que armazena todas as informações de definição
- *        de um tipo de projétil, carregadas a partir do JSON.
+ * @brief Contêiner de dados imutável para a definição de um tipo de projétil.
+ * 
+ * Esta classe armazena todas as informações de um projétil que são carregadas
+ * a partir do arquivo JSON, como seu ID, spritesheet, coordenadas e
+ * dimensões do sprite, e a definição de sua hitbox.
  */
 public class DefinicaoProjetil {
 
@@ -29,17 +32,11 @@ public class DefinicaoProjetil {
             this.h = h;
         }
 
-        /**
-         * @brief Retorna o tipo da hitbox (CIRCULAR ou RECTANGULAR).
-         */
+        
         public HitboxType getType() { return type; }
-        /**
-         * @brief Retorna a largura da hitbox.
-         */
+        
         public int getW() { return w; }
-        /**
-         * @brief Retorna a altura da hitbox.
-         */
+        
         public int getH() { return h; }
     }
 
@@ -56,32 +53,18 @@ public class DefinicaoProjetil {
         this.hitbox = hitbox;
     }
 
-    /**
-     * @brief Retorna o ID único do projétil.
-     */
+    
     public String getId() { return id; }
-    /**
-     * @brief Retorna o ID do spritesheet usado pelo projétil.
-     */
+    
     public String getSpritesheet() { return spritesheet; }
-    /**
-     * @brief Retorna a coordenada X do sprite no spritesheet.
-     */
+    
     public int getX() { return x; }
-    /**
-     * @brief Retorna a coordenada Y do sprite no spritesheet.
-     */
+    
     public int getY() { return y; }
-    /**
-     * @brief Retorna a largura do sprite.
-     */
+    
     public int getW() { return w; }
-    /**
-     * @brief Retorna a altura do sprite.
-     */
+    
     public int getH() { return h; }
-    /**
-     * @brief Retorna a definição da hitbox do projétil.
-     */
+    
     public HitboxDef getHitbox() { return hitbox; }
 }

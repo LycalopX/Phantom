@@ -3,14 +3,20 @@ package Controler;
 import javax.swing.JFrame;
 
 /**
- * @brief Representa a janela principal (JFrame) do jogo, que serve como
- *        contêiner para os outros componentes da interface gráfica.
+ * @brief Representa a janela principal do jogo.
+ * 
+ * Esta classe estende `JFrame` e serve como o contêiner de nível superior
+ * para todos os outros componentes da interface gráfica, como o painel
+ * do cenário (`Cenario`).
  */
 public class Tela extends JFrame {
 
     /**
-     * @brief Construtor da Tela. Configura o título, a operação de fechamento
-     *        e a redimensionalização da janela.
+     * @brief Construtor da Tela.
+     * 
+     * Configura as propriedades básicas da janela, como o título,
+     * a operação padrão de fechamento (encerrar a aplicação) e
+     * impede que a janela seja redimensionada pelo usuário.
      */
     public Tela() {
         this.setTitle("Phantom Project (POO)");

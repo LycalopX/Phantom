@@ -8,8 +8,11 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 /**
- * @brief Gerencia as animações do herói, incluindo a transição entre estados (parado, movendo),
- *        o carregamento de sprites e a visualização da hitbox de foco.
+ * @brief Gerencia as animações e os sprites do herói.
+ * 
+ * Esta classe controla a transição entre diferentes estados de animação
+ * (parado, movendo), carrega os sprites correspondentes de arquivos e
+ * spritesheets, e gerencia os efeitos visuais da hitbox de foco.
  */
 public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
     private ImageIcon[] iImagesStrafingEsquerda;
@@ -37,7 +40,7 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
     private int frameAtualIdle = 0, delayFrameIdle = 0;
 
     /**
-     * @brief Construtor do gerenciador de animação. Carrega todos os sprites necessários para as animações do herói.
+     * @brief Construtor que carrega todos os sprites para as animações do herói.
      */
     public GerenciadorDeAnimacaoHeroi(int largura, int altura) {
         imagemHitboxFoco = carregarImagem("hero/sprite_hitbox.png", 64, 61);
@@ -50,10 +53,13 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
     }
 
     /**
-     * @brief Atualiza o estado da animação com base no estado atual do herói (parado, movendo, etc.).
-     *        Também gerencia a animação de rotação e fade da hitbox de foco.
+     * @brief Atualiza o estado da animação com base no estado atual do herói.
+     * 
+     * Gerencia a progressão dos frames para cada tipo de animação (idle, strafing)
+     * e controla a animação de rotação e fade da hitbox de foco.
+     * 
      * @param estado O estado atual do herói.
-     * @return true se uma animação de transição (como de-strafing) terminou, false caso contrário.
+     * @return true se uma animação de transição (como de-strafing) terminou.
      */
     public boolean atualizar(HeroState estado) {
         frameCounter++;
@@ -62,6 +68,7 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
             frameCounter = 0;
         }
 
+        // Máquina de estados para o fade da hitbox.
         switch (hitboxFadeState) {
             case FADE_IN:
                 hitboxAlpha += FADE_SPEED;
@@ -84,6 +91,7 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
 
         boolean animacaoTerminou = false;
 
+        // Máquina de estados para a animação do sprite do herói.
         switch (estado) {
             case IDLE:
                 resetarAnimacaoStrafing();
@@ -129,7 +137,7 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
     }
 
     /**
-     * @brief Retorna o ImageIcon do frame atual da animação com base no estado do herói.
+     * @brief Retorna o ImageIcon do frame de animação atual com base no estado do herói.
      */
     public ImageIcon getImagemAtual(HeroState estado) {
         switch (estado) {
@@ -150,9 +158,7 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
         }
     }
 
-    /**
-     * @brief Reseta os contadores da animação de strafing.
-     */
+    
     private void resetarAnimacaoStrafing() {
         frameAtualStrafing = 0;
         delayFrameStrafing = 0;
@@ -160,16 +166,14 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
         delayFrameStrafingMax = 0;
     }
 
-    /**
-     * @brief Reseta os contadores da animação de idle (parado).
-     */
+    
     private void resetarAnimacaoIdle() {
         frameAtualIdle = 0;
         delayFrameIdle = 0;
     }
 
     /**
-     * @brief Carrega uma imagem individual do sistema de arquivos.
+     * @brief Carrega uma imagem individual e a redimensiona.
      */
     private ImageIcon carregarImagem(String nomeArquivo, int largura, int altura) {
         try {
@@ -192,7 +196,7 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
     }
 
     /**
-     * @brief Carrega uma sequência de frames de uma única imagem (spritesheet).
+     * @brief Carrega e recorta uma sequência de frames de um único spritesheet.
      */
     private ImageIcon[] carregarFramesDoSpriteSheet(String nomeArquivo, int numFrames, int largura, int altura) {
         try {
@@ -247,23 +251,17 @@ public class GerenciadorDeAnimacaoHeroi implements java.io.Serializable {
         hitboxFadeState = FadeState.FADE_OUT;
     }
 
-    /**
-     * @brief Retorna o valor alpha (transparência) atual da hitbox de foco.
-     */
+    
     public float getHitboxAlpha() {
         return hitboxAlpha;
     }
 
-    /**
-     * @brief Retorna a imagem da hitbox de foco.
-     */
+    
     public ImageIcon getImagemHitboxFoco() {
         return this.imagemHitboxFoco;
     }
 
-    /**
-     * @brief Retorna o ângulo de rotação atual da hitbox de foco.
-     */
+    
     public double getAnguloRotacaoHitbox() {
         return this.anguloRotacaoHitbox;
     }

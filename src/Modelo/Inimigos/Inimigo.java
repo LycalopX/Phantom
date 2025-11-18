@@ -11,6 +11,9 @@ import java.io.Serializable;
 
 /**
  * @brief Classe abstrata base para todos os inimigos do jogo.
+ * 
+ * Fornece funcionalidades comuns a todos os inimigos, como vida, tabela de loot,
+ * e um sistema de máquina de estados para definir comportamentos complexos.
  */
 public abstract class Inimigo extends Personagem {
 
@@ -21,7 +24,7 @@ public abstract class Inimigo extends Personagem {
     protected double initialX;
 
     /**
-     * @brief Construtor automático que calcula o tamanho do inimigo com base na imagem.
+     * @brief Construtor que calcula o tamanho do inimigo com base na imagem.
      */
     public Inimigo(String sNomeImagePNG, double x, double y, LootTable lootTable, double vida) {
         super(sNomeImagePNG, x, y);
@@ -32,7 +35,7 @@ public abstract class Inimigo extends Personagem {
     }
 
     /**
-     * @brief Construtor manual que permite definir um tamanho específico para o inimigo.
+     * @brief Construtor que permite definir um tamanho específico para o inimigo.
      */
     public Inimigo(String sNomeImagePNG, double x, double y, int tamanho, LootTable lootTable, double vida) {
         super(sNomeImagePNG, x, y, tamanho, tamanho);
@@ -47,9 +50,7 @@ public abstract class Inimigo extends Personagem {
         return RenderLayer.ENEMY_LAYER;
     }
 
-    /**
-     * @brief Atualiza a lógica de movimento padrão do inimigo.
-     */
+    
     @Override
     public void atualizar() {
         this.y += 0.02;
@@ -68,9 +69,7 @@ public abstract class Inimigo extends Personagem {
 
     public abstract boolean isStrafing();
 
-    /**
-     * @brief Desenha o sprite do inimigo na tela.
-     */
+    
     @Override
     public void autoDesenho(Graphics g) {
         int telaX = (int) Math.round(x * CELL_SIDE) - (this.largura / 2);
@@ -79,9 +78,7 @@ public abstract class Inimigo extends Personagem {
         super.autoDesenho(g);
     }
 
-    /**
-     * @brief Retorna a vida atual do inimigo.
-     */
+    
     public double getVida() {
         return this.vida;
     }
@@ -101,7 +98,7 @@ public abstract class Inimigo extends Personagem {
 
     /**
      * @brief Retorna o ângulo em graus do inimigo em direção ao herói.
-     * @return O ângulo em graus (0 = direita, 90 = baixo, 180 = esquerda, 270 = cima).
+     * @return O ângulo em graus (0 = direita, 90 = baixo, etc.).
      */
     public double getAnguloEmDirecaoAoHeroi() {
         return getAnguloEmDirecaoAoHeroi(this.x, this.y);
@@ -109,7 +106,7 @@ public abstract class Inimigo extends Personagem {
 
     public double getAnguloEmDirecaoAoHeroi(double x, double y) {
         if (faseReferencia == null || faseReferencia.getHero() == null) {
-            return 0; // Ou um valor padrão, se o herói não estiver disponível
+            return 0; 
         }
         Personagem hero = faseReferencia.getHero();
         double dx = hero.getX() - x;
@@ -117,15 +114,21 @@ public abstract class Inimigo extends Personagem {
         return Math.toDegrees(Math.atan2(dy, dx));
     }
 
-    // --- Sistema de Estados ---
+    
 
+    /**
+     * @brief Processa o estado atual do inimigo, avançando para o próximo se o atual estiver completo.
+     * @param estado O estado atual.
+     * @param tempo O tempo decorrido desde o último frame.
+     * @return O novo estado atual (pode ser o mesmo ou o próximo).
+     */
     protected Estado processarEstado(Estado estado, int tempo) {
         if (estado != null) {
             estado.incrementarTempo(faseReferencia, tempo);
             if (estado.getEstadoCompleto()) {
                 estado = estado.getProximoEstado();
                 if (estado == null) {
-                    estado = new EsperarIndefinidamente(this); // Para evitar eventual null pointer
+                    estado = new EsperarIndefinidamente(this); 
                 }
                 estado.reset();
             }
@@ -133,6 +136,9 @@ public abstract class Inimigo extends Personagem {
         return estado;
     }
 
+    /**
+     * @brief Classe base abstrata para todos os estados de comportamento de um inimigo.
+     */
     protected abstract class Estado implements Serializable {
         protected Inimigo inimigo;
         private Estado proximoEstado;
@@ -164,6 +170,9 @@ public abstract class Inimigo extends Personagem {
         }
     }
 
+    /**
+     * @brief Um estado que faz o inimigo esperar por uma duração específica.
+     */
     protected class Esperar extends Estado {
         protected int duracao;
         public Esperar(Inimigo inimigo, int duracao) {
@@ -181,6 +190,9 @@ public abstract class Inimigo extends Personagem {
         }
     }
 
+    /**
+     * @brief Um estado que faz o inimigo esperar indefinidamente.
+     */
     protected class EsperarIndefinidamente extends Estado {
         public EsperarIndefinidamente(Inimigo inimigo) {
             super(inimigo);
@@ -192,6 +204,9 @@ public abstract class Inimigo extends Personagem {
         }
     }
 
+    /**
+     * @brief Um estado que move o inimigo para uma posição alvo.
+     */
     protected class IrPara extends Estado {
         public static class Movimento implements Serializable {
             private final Point2D.Double velocidade;
@@ -217,7 +232,7 @@ public abstract class Inimigo extends Personagem {
                 return movimento.x == 0 && movimento.y == 0;
             }
 
-            // Set
+            
             public void setAlvo(Point2D.Double novoAlvo) {
                 this.alvo = novoAlvo;
             }
@@ -234,7 +249,7 @@ public abstract class Inimigo extends Personagem {
                 this.alvo.y = alvoY;
             }
 
-            // Get
+            
             public Point2D.Double getAlvo() {
                 return this.alvo;
             }

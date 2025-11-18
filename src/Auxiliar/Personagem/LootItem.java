@@ -5,8 +5,11 @@ import java.io.Serializable;
 import Modelo.Items.ItemType;
 
 /**
- * @brief Representa um item dentro de uma LootTable, definindo o tipo de item,
- *        a quantidade que pode ser dropada e a probabilidade de drop.
+ * @brief Define uma entrada na tabela de loot (`LootTable`).
+ * 
+ * Cada `LootItem` representa um tipo de item que pode ser dropado,
+ * especificando a quantidade, a probabilidade de drop e outros
+ * comportamentos, como ser atraído pelo herói.
  */
 public class LootItem implements Serializable {
 
@@ -20,6 +23,13 @@ public class LootItem implements Serializable {
 
     /**
      * @brief Construtor do LootItem.
+     * 
+     * @param item O tipo de item a ser dropado (de `ItemType`).
+     * @param quantidadeMin A quantidade mínima que pode ser dropada.
+     * @param quantidadeMax A quantidade máxima que pode ser dropada.
+     * @param probabilidade A chance de drop, de 0.0 (0%) a 1.0 (100%).
+     * @param thrown Se o item deve ser "jogado" (não utilizado atualmente).
+     * @param attractToHero Se o item deve ser atraído automaticamente pelo herói.
      */
     public LootItem(ItemType item, int quantidadeMin, int quantidadeMax, double probabilidade, boolean thrown,
             boolean attractToHero) {
@@ -31,37 +41,27 @@ public class LootItem implements Serializable {
         this.attractToHero = attractToHero;
     }
 
-    /**
-     * @brief Retorna a probabilidade de drop do item.
-     */
+    
     public double getProbabilidade() {
         return probabilidade;
     }
 
-    /**
-     * @brief Retorna a quantidade mínima do item que pode ser dropada.
-     */
+    
     public int getQuantidadeMin() {
         return quantidadeMin;
     }
 
-    /**
-     * @brief Retorna a quantidade máxima do item que pode ser dropada.
-     */
+    
     public int getQuantidadeMax() {
         return quantidadeMax;
     }
 
-    /**
-     * @brief Verifica se o item deve ser atraído para o herói.
-     */
+    
     public boolean isAttractToHero() {
         return attractToHero;
     }
 
-    /**
-     * @brief Retorna o tipo do item.
-     */
+    
     public ItemType getTipo() {
         return item;
     }

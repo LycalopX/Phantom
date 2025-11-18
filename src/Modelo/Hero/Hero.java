@@ -18,6 +18,9 @@ import java.awt.Color;
 
 /**
  * @brief Representa o personagem principal do jogo, controlado pelo jogador.
+ * 
+ * Gerencia o estado do herói (HP, bombas, poder), a lógica de movimento,
+ * dano, e interage com seus gerenciadores de animação e armas.
  */
 public class Hero extends Personagem {
 
@@ -70,8 +73,7 @@ public class Hero extends Personagem {
     }
 
     /**
-     * @brief Atualiza o estado interno do Herói que não depende de input, como
-     *        timers de invencibilidade e bomba.
+     * @brief Atualiza o estado interno do Herói, como timers de invencibilidade e bomba.
      */
     @Override
     public void atualizar() {
@@ -85,8 +87,7 @@ public class Hero extends Personagem {
     }
 
     /**
-     * @brief Atualiza a máquina de estados da animação do herói com base no input
-     *        de movimento.
+     * @brief Atualiza a máquina de estados da animação com base no input de movimento.
      */
     public void atualizarAnimacao(boolean isMovingLeft, boolean isMovingRight) {
         switch (estado) {
@@ -131,9 +132,7 @@ public class Hero extends Personagem {
         }
     }
 
-    /**
-     * @brief Retorna o sistema de armas do herói.
-     */
+    
     public GerenciadorDeArmasHeroi getSistemaDeArmas() {
         return this.sistemaDeArmas;
     }
@@ -147,7 +146,7 @@ public class Hero extends Personagem {
     }
 
     /**
-     * @brief Desenha o herói e seus elementos visuais (hitbox, etc.) na tela.
+     * @brief Desenha o herói e seus elementos visuais (hitbox de foco, etc.).
      */
     @Override
     public void autoDesenho(Graphics g) {
@@ -161,6 +160,7 @@ public class Hero extends Personagem {
         AffineTransform transformOriginal = g2d.getTransform();
         ImageIcon imagemParaDesenhar = animador.getImagemAtual(estado);
 
+        // Desenha o sprite do herói, invertendo-o horizontalmente se movendo para a direita.
         if (imagemParaDesenhar != null) {
             if (estado == HeroState.STRAFING_RIGHT || estado == HeroState.DE_STRAFING_RIGHT) {
                 g2d.translate(telaX + largura, telaY);
@@ -173,6 +173,7 @@ public class Hero extends Personagem {
         g2d.setTransform(transformOriginal);
         super.autoDesenho(g);
 
+        // Desenha a hitbox de foco com efeitos de rotação e fade.
         float hitboxAlpha = animador.getHitboxAlpha();
         if (hitboxAlpha > 0) {
             ImageIcon hitboxSprite = animador.getImagemHitboxFoco();
@@ -197,6 +198,7 @@ public class Hero extends Personagem {
             }
         }
 
+        // Desenha a hitbox de coleta de itens para debug.
         if (DebugManager.isActive()) {
             g2d.setColor(new Color(22, 100, 7, 100));
             int centroX = (int) (this.x * CELL_SIDE);
@@ -208,7 +210,7 @@ public class Hero extends Personagem {
     }
 
     /**
-     * @brief Reinicia o estado do herói após a morte.
+     * @brief Reinicia o estado do herói após a morte (respawn).
      */
     public void respawn() {
         this.bombas = 3;
@@ -219,9 +221,8 @@ public class Hero extends Personagem {
     }
 
     /**
-     * @brief Utiliza uma bomba, se disponível, criando o projétil da bomba e
-     *        ativando a invencibilidade.
-     * @return O objeto BombaProjetil criado, ou null se não houver bombas.
+     * @brief Utiliza uma bomba, se disponível.
+     * @return O objeto `BombaProjetil` criado, ou `null` se não houver bombas.
      */
     public BombaProjetil usarBomba(Fase fase) {
         if (bombas > 0 && !isBombing()) {
@@ -234,7 +235,7 @@ public class Hero extends Personagem {
     }
 
     /**
-     * @brief Método para desserialização, recarrega os componentes transientes.
+     * @brief Método customizado para desserialização. Recarrega os componentes `transient`.
      */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
@@ -246,8 +247,7 @@ public class Hero extends Personagem {
 
     /**
      * @brief Processa o dano recebido pelo herói.
-     * @return true se o dano foi efetivamente recebido (não estava invencível),
-     *         false caso contrário.
+     * @return `true` se o dano foi efetivamente recebido, `false` se estava invencível.
      */
     public boolean takeDamage() {
         if (isInvencivel()) {
@@ -281,51 +281,37 @@ public class Hero extends Personagem {
         System.out.println("Cheats ativados: HP, Bombas e Power máximos.");
     }
 
-    /**
-     * @brief Verifica se o herói está invencível.
-     */
+    
     public boolean isInvencivel() {
         return this.invencibilidadeTimer > 0 || isBombing();
     }
 
-    /**
-     * @brief Desativa o herói.
-     */
+    
     public void deactivate() {
         super.deactivate();
     }
 
-    /**
-     * @brief Ativa o herói.
-     */
+    
     public void activate() {
         super.activate();
     }
 
-    /**
-     * @brief Retorna o número de bombas.
-     */
+    
     public int getBombas() {
         return this.bombas;
     }
 
-    /**
-     * @brief Retorna os pontos de vida (HP).
-     */
+    
     public int getHP() {
         return this.HP;
     }
 
-    /**
-     * @brief Retorna o nível de poder.
-     */
+    
     public int getPower() {
         return this.power;
     }
 
-    /**
-     * @brief Retorna a pontuação.
-     */
+    
     public int getScore() {
         return this.score;
     }
@@ -334,51 +320,38 @@ public class Hero extends Personagem {
         return this.grabHitboxRaio;
     }
 
-    /**
-     * @brief Adiciona poder ao herói.
-     */
+    
     public void addPower(int quantidade) {
         this.power += quantidade;
     }
 
-    /**
-     * @brief Adiciona bombas ao herói.
-     */
+    
     public void addBomb(int quantidade) {
         this.bombas += quantidade;
     }
 
-    /**
-     * @brief Adiciona vida (HP) ao herói.
-     */
+
+
     public void addHP(int quantidade) {
         this.HP += quantidade;
     }
 
-    /**
-     * @brief Adiciona pontuação ao herói.
-     */
+    
     public void addScore(int quantidade) {
         this.score += quantidade;
     }
 
-    /**
-     * @brief Retorna o nível dos mísseis.
-     */
+    
     public int getNivelDeMisseis() {
         return this.sistemaDeArmas.getNivelTiro(this.power);
     }
 
-    /**
-     * @brief Verifica se o herói está usando uma bomba.
-     */
+    
     public boolean isBombing() {
         return this.efeitoBombaTimer > 0;
     }
 
-    /**
-     * @brief Retorna os limites retangulares da hitbox do herói.
-     */
+    
     public java.awt.Rectangle getBounds() {
         int centroX = (int) (this.x * CELL_SIDE);
         int centroY = (int) (this.y * CELL_SIDE);
@@ -390,7 +363,7 @@ public class Hero extends Personagem {
     }
 
     /**
-     * @brief Ativa ou desativa o modo de foco do herói.
+     * @brief Ativa ou desativa o modo de foco, controlando a visualização da hitbox.
      */
     public void setFocoAtivo(boolean isFocoAtivo) {
         if (this.isFocoAtivo != isFocoAtivo) {

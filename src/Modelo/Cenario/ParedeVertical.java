@@ -3,6 +3,14 @@ package Modelo.Cenario;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+/**
+ * @brief Elemento de cenário que renderiza uma parede vertical com efeito de perspectiva 3D.
+ * 
+ * Semelhante ao `ChaoPerspectiva`, este efeito é simulado desenhando a textura
+ * da parede coluna por coluna (scanline vertical), esticando cada coluna
+ * verticalmente para criar a ilusão de paredes que se afastam em direção
+ * a um ponto de fuga.
+ */
 public class ParedeVertical implements ElementoCenario {
 
     private transient BufferedImage textura;
@@ -68,6 +76,7 @@ public class ParedeVertical implements ElementoCenario {
         int endX = isParedeEsquerda ? pontoDeFugaX : larguraTela;
 
         for (int x = startX; x < endX; x++) {
+            // Fator de perspectiva (p): 0.0 no ponto de fuga, 1.0 na borda da tela.
             float p;
             if (isParedeEsquerda) {
                 p = (float) (pontoDeFugaX - x) / (float) pontoDeFugaX;
@@ -75,14 +84,17 @@ public class ParedeVertical implements ElementoCenario {
                 p = (float) (x - pontoDeFugaX) / (float) (larguraTela - pontoDeFugaX);
             }
 
+            // A altura da fatia vertical é interpolada para formar o trapézio.
             float alturaDaFatia = alturaNoPontoDeFuga + p * (alturaMaximaNaBorda - alturaNoPontoDeFuga);
 
             if (alturaDaFatia <= limiteAlturaParaDesenhar) {
                 continue;
             }
 
+            // Profundidade (z) é o inverso de p.
             float z = 1.0f / (p + 0.0001f);
 
+            // Coordenada X da textura para amostrar, baseada na profundidade e rolagem.
             final float TEXTURE_SCALE = 80.0f;
             int xTextura = (int) ((scrollX + z) * TEXTURE_SCALE) % textura.getWidth();
             if (xTextura < 0)
@@ -91,6 +103,7 @@ public class ParedeVertical implements ElementoCenario {
             int yCima = (int) (horizonteY - alturaDaFatia / 2) + translacaoY;
             int yBaixo = (int) (horizonteY + alturaDaFatia / 2) + translacaoY;
 
+            // Desenha uma única coluna da textura, esticada para a altura calculada.
             g2d.drawImage(textura,
                     x + translacaoX, yCima, x + 1 + translacaoX, yBaixo,
                     xTextura, 0, xTextura + 1, textura.getHeight(),
@@ -101,6 +114,6 @@ public class ParedeVertical implements ElementoCenario {
 
     @Override
     public boolean estaForaDaTela(int alturaTela) {
-        return false;
+        return false; // As paredes estão sempre visíveis.
     }
 }

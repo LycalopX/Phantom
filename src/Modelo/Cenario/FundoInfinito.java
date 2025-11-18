@@ -6,8 +6,9 @@ import java.awt.Composite;
 import java.awt.AlphaComposite;
 
 /**
- * @brief Um elemento de cenário que se desenha com rolagem infinita na vertical.
- *        Ideal para camadas de background.
+ * @brief Elemento de cenário que cria um fundo com rolagem vertical infinita.
+ * 
+ * Ideal para camadas de background que precisam se repetir continuamente.
  */
 public class FundoInfinito implements ElementoCenario {
 
@@ -23,7 +24,7 @@ public class FundoInfinito implements ElementoCenario {
      * @brief Construtor do FundoInfinito.
      * @param id Um identificador único para este elemento.
      * @param imagem A imagem a ser desenhada.
-     * @param velocidadeRelativa O multiplicador de velocidade (1.0 para velocidade normal).
+     * @param velocidadeRelativa Multiplicador de velocidade para efeito de parallax.
      * @param camada A camada de renderização (BACKGROUND ou FOREGROUND).
      * @param opacidade A opacidade do elemento (0.0f a 1.0f).
      */
@@ -48,24 +49,17 @@ public class FundoInfinito implements ElementoCenario {
         this.imagem = imagem;
     }
 
-    /**
-     * @brief Retorna o identificador único deste elemento.
-     */
+    
     public String getId() {
         return this.id;
     }
 
-    /**
-     * @brief Retorna a velocidade de rolagem relativa deste fundo.
-     */
+    
     public double getVelocidadeRelativa() {
         return this.velocidadeRelativa;
     }
 
-    /**
-     * @brief Retorna a camada de desenho para este elemento.
-     * @return A camada de desenho definida no construtor.
-     */
+    
     @Override
     public DrawLayer getDrawLayer() {
         return this.camada;
@@ -81,6 +75,11 @@ public class FundoInfinito implements ElementoCenario {
 
     /**
      * @brief Desenha a imagem de fundo, repetindo-a para criar a ilusão de infinito.
+     * 
+     * O efeito de rolagem infinita é alcançado desenhando a imagem duas vezes.
+     * A posição Y é calculada com o operador de módulo (`%`) para que, quando
+     * uma imagem saia completamente da tela, ela seja reposicionada acima,
+     * criando um loop contínuo.
      */
     @Override
     public void desenhar(Graphics2D g2d, int larguraTela, int alturaTela) {

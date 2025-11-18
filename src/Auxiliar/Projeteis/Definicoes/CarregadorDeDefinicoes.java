@@ -11,6 +11,9 @@ import java.util.Map;
 /**
  * @brief Classe Singleton responsável por carregar e fornecer as definições de projéteis
  *        a partir de um arquivo JSON.
+ * 
+ * Este carregador lê o arquivo `definicoes_projeteis.json` na inicialização,
+ * parseia os dados e os armazena em mapas para acesso rápido durante o jogo.
  */
 public class CarregadorDeDefinicoes {
 
@@ -20,7 +23,7 @@ public class CarregadorDeDefinicoes {
     private final Map<String, DefinicaoProjetil> projeteis;
 
     /**
-     * @brief Construtor privado que inicializa os mapas e chama o método de carregamento.
+     * @brief Construtor privado (padrão Singleton) que inicializa os mapas e dispara o carregamento.
      */
     private CarregadorDeDefinicoes() {
         spritesheets = new HashMap<>();
@@ -29,7 +32,7 @@ public class CarregadorDeDefinicoes {
     }
 
     /**
-     * @brief Retorna a instância única (Singleton) do carregador de definições.
+     * @brief Retorna a instância única (Singleton) do carregador.
      * @return A instância de CarregadorDeDefinicoes.
      */
     public static CarregadorDeDefinicoes getInstance() {
@@ -40,8 +43,10 @@ public class CarregadorDeDefinicoes {
     }
 
     /**
-     * @brief Carrega as definições de spritesheets e projéteis do arquivo JSON
-     *        'definicoes_projeteis.json' e as armazena nos mapas internos.
+     * @brief Carrega as definições do arquivo JSON 'definicoes_projeteis.json'.
+     * 
+     * O método lê o arquivo, parseia o objeto JSON raiz, e popula os mapas
+     * `spritesheets` e `projeteis` com as informações lidas.
      */
     private void carregar() {
         try {
@@ -53,11 +58,13 @@ public class CarregadorDeDefinicoes {
             JSONTokener tokener = new JSONTokener(is);
             JSONObject root = new JSONObject(tokener);
 
+            // Carrega as definições dos spritesheets
             JSONObject spritesheetsJson = root.getJSONObject("spritesheets");
             for (String key : spritesheetsJson.keySet()) {
                 spritesheets.put(key, spritesheetsJson.getString(key));
             }
 
+            // Carrega as definições de cada projétil
             JSONArray projeteisJson = root.getJSONArray("projeteis");
             for (int i = 0; i < projeteisJson.length(); i++) {
                 JSONObject projJson = projeteisJson.getJSONObject(i);
@@ -88,7 +95,7 @@ public class CarregadorDeDefinicoes {
 
     /**
      * @brief Obtém a definição completa de um projétil com base em seu ID.
-     * @param id O identificador único do projétil.
+     * @param id O identificador único do projétil (deve corresponder ao nome no enum `TipoProjetilInimigo`).
      * @return O objeto DefinicaoProjetil correspondente.
      */
     public DefinicaoProjetil getDefinicaoProjetil(String id) {
@@ -101,7 +108,7 @@ public class CarregadorDeDefinicoes {
 
     /**
      * @brief Obtém o caminho do arquivo de imagem para um spritesheet com base em seu ID.
-     * @param id O identificador único do spritesheet.
+     * @param id O identificador único do spritesheet (definido no JSON).
      * @return O caminho para o arquivo de imagem do spritesheet.
      */
     public String getSpritesheetPath(String id) {

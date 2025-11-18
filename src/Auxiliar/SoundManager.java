@@ -47,7 +47,8 @@ public class SoundManager {
             "Plain Asia.mp3",
             "Retribution for the Eternal Night ~ Imperishable Night.mp3",
             "Song of the Night Sparrow ~ Night Bird.mp3",
-            "Wriggling Autumn Moon ~ Mooned Insect.mp3"
+            "Wriggling Autumn Moon ~ Mooned Insect.mp3",
+            "Credits.mp3"
     };
 
     private SoundManager() {

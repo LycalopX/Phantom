@@ -11,6 +11,12 @@
     <description>Builds, tests, and runs the project PrototipoProjetoPOO.</description>
     <import file="nbproject/build-impl.xml"/>
 
+    <target name="-post-compile">
+        <copy todir="${build.classes.dir}">
+            <fileset dir="src" excludes="**/*.java"/>
+        </copy>
+    </target>
+
     <target name="-post-jar">
         <jar destfile="${dist.jar}" update="true">
             <manifest>

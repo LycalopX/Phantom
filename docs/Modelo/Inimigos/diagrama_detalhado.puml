@@ -6,389 +6,271 @@ skinparam crossingCharacter '( )'
 skinparam classSeparatorColor DarkRed
 skinparam classSeparatorThickness 2
 
-title Diagrama Detalhado - Pacote 'Modelo.Inimigos' (Atualizado)
+' --- CONFIGURAÇÕES GERAIS ---
+skinparam wrapWidth 350
+skinparam nodesep 40
+skinparam ranksep 40
 
-package "Modelo.Inimigos" {
+title Modelo.Inimigos (Layout Estritamente Vertical)
 
-    package "Hierarquia Principal" {
-        abstract class Inimigo {
-            + lootTable: LootTable
-            + vida: double
-            # faseReferencia: Fase
-            # initialX: double
+' =================================================
+' BLOCO 1 (TOPO): ENTIDADES DO JOGO
+' =================================================
+package "Entidades do Jogo" {
+    abstract class Inimigo {
+        + lootTable: LootTable
+        + vida: double
+        # faseReferencia: Fase
+        # initialX: double
+        --
+        + Inimigo(sNomeImagePNG: String, x: double, y: double, lootTable: LootTable, vida: double)
+        + initialize(fase: Fase): void
+        + setInitialX(initialX: double): void
+        {abstract} + isStrafing(): boolean
+        + takeDamage(damage: double): void
+        + getAnguloEmDirecaoAoHeroi(): double
+        # processarEstado(estado: Estado, tempo: int): Estado
+    }
+
+    abstract class Boss extends Inimigo {
+        - isBombed: boolean
+        --
+        + Boss(sNomeImagePNG: String, x: double, y: double, lootTable: LootTable, vida: double)
+        + setBombed(bombed: boolean): void
+        + isBombed(): boolean
+    }
+
+    class GerenciadorDeAnimacaoInimigo {
+        + AnimationState: enum
+        - iImagesIdle: ImageIcon[]
+        - iImagesStrafing: ImageIcon[]
+        --
+        + GerenciadorDeAnimacaoInimigo(...)
+        + atualizar(state: AnimationState): void
+        + getImagemAtual(state: AnimationState): ImageIcon
+    }
+
+    ' --- GRADE DE FADAS (2x2) ---
+    package "Fadas" {
+        class FadaComum1 extends Inimigo {
+            - animador: GerenciadorDeAnimacaoInimigo
             --
-            + Inimigo(sNomeImagePNG: String, x: double, y: double, lootTable: LootTable, vida: double)
-            + Inimigo(sNomeImagePNG: String, x: double, y: double, tamanho: int, lootTable: LootTable, vida: double)
-            + initialize(fase: Fase): void
-            + setInitialX(initialX: double): void
-            {abstract} + isStrafing(): boolean
-            + takeDamage(damage: double): void
-            + getAnguloEmDirecaoAoHeroi(): double
-            + getAnguloEmDirecaoAoHeroi(x: double, y: double): double
-            # processarEstado(estado: Estado, tempo: int): Estado
+            + FadaComum1(...)
+            + atualizar(): void
+            - atirar(): void
         }
-
-        abstract class Boss extends Inimigo {
-            - isBombed: boolean
+        
+        class FadaComum2 extends Inimigo {
+            - animador: GerenciadorDeAnimacaoInimigo
             --
-            + Boss(sNomeImagePNG: String, x: double, y: double, lootTable: LootTable, vida: double)
-            + setBombed(bombed: boolean): void
-            + isBombed(): boolean
+            + FadaComum2(...)
+            + atualizar(): void
+            - atirarEmCirculo(...): void
+        }
+        
+        class FadaComum3 extends Inimigo {
+            - animador: GerenciadorDeAnimacaoInimigo
+            --
+            + FadaComum3(...)
+            + atualizar(): void
+        }
+        
+        class FadaComum4 extends Inimigo {
+            - animador: GerenciadorDeAnimacaoInimigo
+            --
+            + FadaComum4(...)
+            + atualizar(): void
         }
     }
 
-    package "Estados de IA" {
-        abstract class "Inimigo.Estado" as Estado {
-            # inimigo: Inimigo
-            - proximoEstado: Estado
-            # contadorTempo: int
-            # estadoCompleto: boolean
+    ' --- GRADE DE BOSSES (2x3) ---
+    package "Chefes" {
+        class Nightbug extends Boss {
+            - animador: GerenciadorDeAnimacaoInimigo
+            - estado: Estado
             --
-            + Estado(inimigo: Inimigo)
-            {abstract} + incrementarTempo(fase: Fase, tempo: int): void
-            + reset(): void
-            + setProximoEstado(proximoEstado: Estado): void
-            + getProximoEstado(): Estado
-            + getEstadoCompleto(): boolean
+            + Nightbug(...)
+            + atualizar(): void
         }
+        
+        class Lorelei extends Boss {
+            - animador: GerenciadorDeAnimacaoInimigo
+            - estadoDeAtaque: Estado
+            --
+            + Lorelei(...)
+            + atualizar(): void
+        }
+        
+        class Keine extends Boss {
+            - animador: GerenciadorDeAnimacaoInimigo
+            - estado: Estado
+            --
+            + Keine(...)
+            + atualizar(): void
+        }
+        
+        class Reimu extends Boss {
+            - animador: GerenciadorDeAnimacaoInimigo
+            - estadoMovimento: Estado
+            - estadoAtaque: Estado
+            --
+            + Reimu(...)
+            + atualizar(): void
+        }
+        
+        class Reisen extends Boss {
+            - animador: GerenciadorDeAnimacaoInimigo
+            - estado: Estado
+            --
+            + Reisen(...)
+            + atualizar(): void
+        }
+    }
+}
 
-        class "Inimigo.Esperar" as Esperar extends Estado {
-            - duracao: int
-            --
-            + Esperar(inimigo: Inimigo, duracao: int)
-        }
-        class "Inimigo.EsperarIndefinidamente" as EsperarIndefinidamente extends Estado {
-            + EsperarIndefinidamente(inimigo: Inimigo)
-        }
+' =================================================
+' BLOCO 2 (BASE): LÓGICA E ESTADOS
+' =================================================
+package "Lógica de IA (Estados)" {
+    abstract class "Estado" as Estado {
+        # inimigo: Inimigo
+        - proximoEstado: Estado
+        # contadorTempo: int
+        # estadoCompleto: boolean
+        --
+        + Estado(inimigo: Inimigo)
+        {abstract} + incrementarTempo(fase: Fase, tempo: int): void
+        + reset(): void
+        + setProximoEstado(proximoEstado: Estado): void
+        + getProximoEstado(): Estado
+        + getEstadoCompleto(): boolean
+    }
 
-        class "Inimigo.IrPara" as IrPara extends Estado {
-            - movimento: Movimento
-            --
-            + IrPara(inimigo: Inimigo, alvoX: double, alvoY: double, velocidade: double)
-            + IrPara(inimigo: Inimigo, alvoX: double, alvoY: double, velX: double, velY: double)
-            + IrPara(inimigo: Inimigo, alvo: Point2D.Double, velocidade: Point2D.Double)
-            + setMovimento(movimento: Movimento): void
-            + getMovimento(): Movimento
-        }
-        class "Inimigo.IrPara.Movimento" as Movimento {
-            - velocidade: Point2D.Double
-            - alvo: Point2D.Double
-            --
-            + Movimento(velocidadeX: double, velocidadeY: double, alvoX: double, alvoY: double)
-            + Movimento(velocidade: Point2D.Double, alvo: Point2D.Double)
-            + proximoMovimento(posicaoX: double, posicaoY: double): Point2D.Double
-            {static} + isZero(movimento: Point2D.Double): boolean
-            + setAlvo(novoAlvo: Point2D.Double): void
-            + setAlvo(alvoX: double, alvoY: double): void
-            + setAlvoX(alvoX: double): void
-            + setAlvoY(alvoY: double): void
-            + getAlvo(): Point2D.Double
-            + getAlvoX(): double
-            + getAlvoY(): double
-            + getVelocidade(): Point2D.Double
-        }
+    class "Esperar" as Esperar extends Estado {
+        - duracao: int
+        --
+        + Esperar(inimigo: Inimigo, duracao: int)
+    }
 
-        abstract class "Boss.Ataque" as Ataque extends Estado {
-            # intervaloAtaque: int
-            # velocidadeProjetil: double
-            # padroes: ArrayList<PadraoAtaque>
-            # padraoAtual: int
-            # repeticoes: int
-            # tipoProjetil: TipoProjetilInimigo
-            --
-            + Ataque(boss: Boss)
-            + reset(): void
-            {abstract} # atirar(padrao: PadraoAtaque): void
-        }
-        class "Boss.Ataque.PadraoAtaque" as PadraoAtaque {
-            - rotacao: int
-            - quantidadeAtaques: int
-            - repeticoes: int
-            --
-            + PadraoAtaque(rotacao: int, quantidadeAtaques: int, repeticoes: int)
-            + PadraoAtaque(rotacao: int, quantidadeAtaques: int)
-            + getRotacao(): int
-            + getQuantidadeAtaques(): int
-        }
+    class "IrPara" as IrPara extends Estado {
+        - movimento: Movimento
+        --
+        + IrPara(inimigo: Inimigo, alvoX: double, alvoY: double, velocidade: double)
+        + IrPara(inimigo: Inimigo, alvoX: double, alvoY: double, velX: double, velY: double)
+        + setMovimento(movimento: Movimento): void
+        + getMovimento(): Movimento
+    }
+    
+    class "Movimento" as Movimento {
+        - velocidade: Point2D.Double
+        - alvo: Point2D.Double
+        --
+        + Movimento(velocidade: Point2D.Double, alvo: Point2D.Double)
+        + proximoMovimento(posicaoX: double, posicaoY: double): Point2D.Double
+        {static} + isZero(movimento: Point2D.Double): boolean
+        + setAlvo(novoAlvo: Point2D.Double): void
+        + getAlvo(): Point2D.Double
+    }
 
-        abstract class "Boss.AtaqueEmColuna" as AtaqueEmColuna extends Ataque {
+    abstract class "Ataque" as Ataque extends Estado {
+        # intervaloAtaque: int
+        # velocidadeProjetil: double
+        # padroes: ArrayList<PadraoAtaque>
+        --
+        + Ataque(boss: Boss)
+        + reset(): void
+        {abstract} # atirar(padrao: PadraoAtaque): void
+    }
+    
+    class "PadraoAtaque" as PadraoAtaque {
+        - rotacao: int
+        - quantidadeAtaques: int
+        - repeticoes: int
+        --
+        + PadraoAtaque(rot: int, qtd: int, rep: int)
+        + getRotacao(): int
+    }
+
+    class "MultiplosEstados" as MultiplosEstados extends Estado {
+        # estados: ArrayList<Estado>
+        # repeticoes: int
+        --
+        + MultiplosEstados(boss: Boss)
+        + reset(): void
+    }
+    
+    ' Agrupando ataques específicos
+    package "Tipos de Ataque" {
+        abstract class "AtaqueEmColuna" as AtaqueEmColuna extends Ataque {
             + AtaqueEmColuna(boss: Boss)
-            # atirarEmLinha(posicaoInicial: Point2D.Double, posicaoFinal: Point2D.Double, quantidade: int, rotacao: double): void
+            # atirarEmLinha(...): void
         }
-        class "Boss.AtaqueEmColuna.Coluna" as Coluna {
-            # posicaoInicial: Point2D.Double
-            # posicaoFinal: Point2D.Double
-            --
-            + Coluna(posicaoInicial: Point2D.Double, posicaoFinal: Point2D.Double)
-            + Coluna()
-            + getPosicaoInicial(): Point2D.Double
-            + getPosicaoFinal(): Point2D.Double
-        }
-
-        abstract class "Boss.AtaqueEmUmaLinha" as AtaqueEmUmaLinha extends AtaqueEmColuna {
+        
+        class "AtaqueEmUmaLinha" as AtaqueEmUmaLinha extends AtaqueEmColuna {
             # coluna: Coluna
             --
-            + AtaqueEmUmaLinha(boss: Boss, posicaoInicial: Point2D.Double, posicaoFinal: Point2D.Double)
+            + AtaqueEmUmaLinha(boss: Boss, pIni: Point2D, pFim: Point2D)
+        }
+        
+        class "AtaqueEmUmaLinhaNoJogador" as AtaqueEmUmaLinhaNoJogador extends AtaqueEmUmaLinha {
+            + AtaqueEmUmaLinhaNoJogador(boss: Boss)
         }
 
-        class "Boss.AtaqueEmUmaLinhaNoJogador" as AtaqueEmUmaLinhaNoJogador extends AtaqueEmUmaLinha {
-            + AtaqueEmUmaLinhaNoJogador(boss: Boss, posicaoInicial: Point2D.Double, posicaoFinal: Point2D.Double)
-            # atirarEmLinhaNoJogador(posicaoInicial: Point2D.Double, posicaoFinal: Point2D.Double, quantidade: int, offset: double): void
-        }
-
-        abstract class "Boss.MultiplosEstados" as MultiplosEstados extends Estado {
-            # estados: ArrayList<Estado>
-            # repeticoes: int
-            # contadorRepeticoes: int
-            --
-            + MultiplosEstados(boss: Boss)
-            + MultiplosEstados(boss: Boss, repeticoes: int)
-            + reset(): void
-        }
-
-        abstract class "Boss.AtaqueEmLeque" as AtaqueEmLeque extends Ataque {
+        abstract class "AtaqueEmLeque" as AtaqueEmLeque extends Ataque {
             + AtaqueEmLeque(boss: Boss)
-            # atirarEmLeque(posicaoX: double, posicaoY: double, anguloInicial: double, quantidadeTiros: int, amplitude: double): void
+            # atirarEmLeque(...): void
         }
-        class "Boss.AtaqueEmLeque.PadraoLeque" as PadraoLeque extends PadraoAtaque {
-            - amplitude: int
-            --
-            + PadraoLeque(rotacao: int, amplitude: int, quantidadeAtaques: int)
-            + PadraoLeque(rotacao: int, amplitude: int, quantidadeAtaques: int, repeticoes: int)
-            + getAmplitude(): int
-        }
-
-        class "Boss.AtaqueEmLequeNoJogador" as AtaqueEmLequeNoJogador extends AtaqueEmLeque {
+        
+        class "AtaqueEmLequeNoJogador" as AtaqueEmLequeNoJogador extends AtaqueEmLeque {
             + AtaqueEmLequeNoJogador(boss: Boss)
         }
-
-        class "Boss.AtaqueEmLequeNaPosicao" as AtaqueEmLequeNaPosicao extends AtaqueEmLeque {
+        
+        class "AtaqueEmLequeNaPosicao" as AtaqueEmLequeNaPosicao extends AtaqueEmLeque {
             # posicaoAtaque: Point2D.Double
             --
             + AtaqueEmLequeNaPosicao(boss: Boss)
         }
     }
-
-    package "Inimigos Concretos" {
-        class FadaComum1 extends Inimigo {
-            - animador: GerenciadorDeAnimacaoInimigo
-            - behaviorType: int
-            - estadoAtual: Estado
-            --
-            + FadaComum1(x: double, y: double, lootTable: LootTable, vida: double, fase: Fase, skin: String, behaviorType: int)
-            - readObject(in: ObjectInputStream): void
-            + initialize(fase: Fase): void
-            + isStrafing(): boolean
-            + atualizar(): void
-            - atirar(): void
-            + autoDesenho(g: Graphics): void
-        }
-        note right of FadaComum1: Define estados de IA internos como \nMovimentoSinusoidalEntrando e AtirandoMirado.
-        class FadaComum2 extends Inimigo {
-            - estadoAtual: Estado
-            - animador: GerenciadorDeAnimacaoInimigo
-            --
-            + FadaComum2(x: double, y: double, lootTable: LootTable, vida: double, fase: Fase, skin: String, behaviorType: int)
-            + atualizar(): void
-            + isStrafing(): boolean
-            + autoDesenho(g: Graphics): void
-            - readObject(in: ObjectInputStream): void
-            - atirarEmCirculo(fase: Fase, centerX: double, centerY: double, numProjeteis: int, velocidade: double): void
-        }
-        note right of FadaComum2: Define estados de IA internos como \nMovimentoAtirando e MovimentoParabolicoAtirando.
-        class FadaComum3 extends Inimigo {
-            - estadoAtual: Estado
-            - animador: GerenciadorDeAnimacaoInimigo
-            --
-            + FadaComum3(x: double, y: double, targetX: double, lootTable: LootTable, vida: double, fase: Fase, skin: String, behaviorType: int)
-            + atualizar(): void
-            + isStrafing(): boolean
-            + autoDesenho(g: Graphics): void
-            - readObject(in: ObjectInputStream): void
-        }
-        note right of FadaComum3: Define estados de IA internos como \nAtaqueEmLequeMirado.
-        class FadaComum4 extends Inimigo {
-            - estadoAtual: Estado
-            - animador: GerenciadorDeAnimacaoInimigo
-            --
-            + FadaComum4(x: double, y: double, lootTable: LootTable, vida: double, fase: Fase, skin: String, behaviorType: int)
-            + atualizar(): void
-            + isStrafing(): boolean
-            + autoDesenho(g: Graphics): void
-            - readObject(in: ObjectInputStream): void
-        }
-        note right of FadaComum4: Define estados de IA internos como \nAtaqueEspiral.
-        class Nightbug extends Boss {
-            - animador: GerenciadorDeAnimacaoInimigo
-            - estado: Estado
-            --
-            + Nightbug(x: double, y: double, lootTable: LootTable, vida: double, fase: Fase)
-            - setupEstados(): void
-            - readObject(in: ObjectInputStream): void
-            + initialize(fase: Fase): void
-            + isStrafing(): boolean
-            + atualizar(): void
-            + autoDesenho(g: Graphics): void
-        }
-        note right of Nightbug: Define estados de IA internos como \nIrParaOCentro, IrParaEsquerda, IrParaDireita, \nAtaqueParaBaixo, AtaqueParaDireita, AtaqueParaEsquerda.
-        class Lorelei extends Boss {
-            - animador: GerenciadorDeAnimacaoInimigo
-            - estadoDeMovimento: Estado
-            - estadoDeAtaque: Estado
-            - estadoDeAtaqueLateralDireita: Estado
-            - estadoDeAtaqueLateralEsquerda: Estado
-            - atacarParaBaixo: boolean
-            --
-            + Lorelei(x: double, y: double, lootTable: LootTable, vida: double, fase: Fase)
-            - setupEstados(): void
-            - readObject(in: ObjectInputStream): void
-            + initialize(fase: Fase): void
-            + isStrafing(): boolean
-            + atualizar(): void
-            + autoDesenho(g: Graphics): void
-        }
-        note right of Lorelei: Define estados de IA internos como \nMudarPodeAtacarParaBaixo, IrParaOCentro, \nIrParaEsquerda, IrParaDireita, AtaqueParaBaixo, \nAtaqueDoLadoDireito, AtaqueDoLadoEsquerdo.
-        class Keine extends Boss {
-            - animador: GerenciadorDeAnimacaoInimigo
-            - estado: Estado
-            --
-            + Keine(x: double, y: double, lootTable: LootTable, vida: double, fase: Fase)
-            - setupEstados(): void
-            - readObject(in: ObjectInputStream): void
-            + initialize(fase: Fase): void
-            + isStrafing(): boolean
-            + atualizar(): void
-            + autoDesenho(g: Graphics): void
-        }
-        note right of Keine: Define estados de IA internos como \nIrParaOCentro, AtaqueCeu, AtaqueHorizontal, AtaqueEmV.
-        class Reimu extends Boss {
-            - animador: GerenciadorDeAnimacaoInimigo
-            - estadoMovimento: Estado
-            - estadoTeia: Estado
-            - estadoAtaque: Estado
-            - podeAtacar: boolean
-            --
-            + Reimu(x: double, y: double, lootTable: LootTable, vida: double, fase: Fase)
-            - setupEstados(): void
-            - readObject(in: ObjectInputStream): void
-            + initialize(fase: Fase): void
-            + isStrafing(): boolean
-            + atualizar(): void
-            + autoDesenho(g: Graphics): void
-        }
-        note right of Reimu: Define estados de IA internos como \nMudarPodeAtacar, IrParaOCentro, AtaqueTeliguiadoDosLados, TeiaDeTiros.
-        class Reisen extends Boss {
-            - animador: GerenciadorDeAnimacaoInimigo
-            - estado: Estado
-            --
-            + Reisen(x: double, y: double, lootTable: LootTable, vida: double, fase: Fase)
-            - setupEstados(): void
-            - readObject(in: ObjectInputStream): void
-            + initialize(fase: Fase): void
-            + isStrafing(): boolean
-            + atualizar(): void
-            + autoDesenho(g: Graphics): void
-        }
-        note right of Reisen: Define estados de IA internos como \nIrParaOCentro, IrParaEsquerda, IrParaDireita, \nAtaqueEspiral, OndaTeleguiada, ChuvaVertical, ChuvaDeOrbsNoTopo.
-    }
-    
-    class GerenciadorDeAnimacaoInimigo {
-        + AnimationState: enum
-        - iImagesIdle: ImageIcon[]
-        - iImagesStrafing: ImageIcon[]
-        - maxFrames: int
-        {static} - DELAY: int
-        - frameAtual: int
-        - delayFrame: int
-        - holdLastStrafingFrame: boolean
-        - currentState: AnimationState
-        --
-        + GerenciadorDeAnimacaoInimigo(spritesheetPath: String, spriteWidth: int, spriteHeight: int, gap: int, idleFrames: int, movingFrames: int, resize: boolean, newWidth: int, newHeight: int, holdLastStrafingFrame: boolean)
-        + atualizar(state: AnimationState): void
-        + resetFrame(): void
-        + getImagemAtual(state: AnimationState): ImageIcon
-        - carregarFramesDoSpriteSheet(nomeArquivo: String, startFrame: int, numFrames: int, spriteWidth: int, spriteHeight: int, gap: int, resize: boolean, newWidth: int, newHeight: int): ImageIcon[]
-    }
-
-    enum AnimationState {
-        IDLE
-        STRAFING
-    }
 }
 
-package "Dependências Externas" {
-    class Personagem
-    class Fase
-    class LootTable
-    class TipoProjetilInimigo
-    class Graphics
-    class ImageIcon
-    class ObjectInputStream
-    class Point2D
-}
+' =================================================
+' LAYOUT FORÇADO (A CORREÇÃO)
+' =================================================
 
-' --- Controle de Layout ---
-"Hierarquia Principal" -[hidden]down-> "Estados de IA"
-"Estados de IA" -[hidden]down-> "Inimigos Concretos"
-"Inimigos Concretos" -[hidden]down-> GerenciadorDeAnimacaoInimigo
+' 1. Organiza as Entidades (Interno)
+Inimigo -[hidden]down-> Boss
+Inimigo -[hidden]right-> GerenciadorDeAnimacaoInimigo
+Boss -[hidden]down-> "Fadas"
+"Fadas" -[hidden]down-> "Chefes"
 
-' --- Relacionamentos de Herança ---
-Inimigo --|> Personagem
-Boss --|> Inimigo
+' 2. Organiza Grades de Entidades
+FadaComum1 -[hidden]right-> FadaComum2
+FadaComum1 -[hidden]down-> FadaComum3
+FadaComum3 -[hidden]right-> FadaComum4
 
-Esperar --|> Estado
-EsperarIndefinidamente --|> Estado
-IrPara --|> Estado
-Ataque --|> Estado
-AtaqueEmColuna --|> Ataque
-AtaqueEmUmaLinha --|> AtaqueEmColuna
-AtaqueEmUmaLinhaNoJogador --|> AtaqueEmUmaLinha
-MultiplosEstados --|> Estado
-AtaqueEmLeque --|> Ataque
-AtaqueEmLequeNoJogador --|> AtaqueEmLeque
-AtaqueEmLequeNaPosicao --|> AtaqueEmLeque
+Nightbug -[hidden]right-> Lorelei
+Nightbug -[hidden]down-> Keine
+Keine -[hidden]right-> Reimu
+Keine -[hidden]down-> Reisen
 
-PadraoLeque --|> PadraoAtaque
+' 3. A GRANDE QUEBRA: Conecta o FUNDO das Entidades ao TOPO da IA
+' Isso impede que a IA flutue para o lado.
+FadaComum4 -[hidden]down-> Estado
+Reisen -[hidden]down-> Estado
 
-FadaComum1 --|> Inimigo
-FadaComum2 --|> Inimigo
-FadaComum3 --|> Inimigo
-FadaComum4 --|> Inimigo
-Nightbug --|> Boss
-Lorelei --|> Boss
-Keine --|> Boss
-Reimu --|> Boss
-Reisen --|> Boss
+' 4. Organiza a IA (Interno) em grade para economizar altura
+Estado -[hidden]down-> Esperar
+Esperar -[hidden]right-> IrPara
+IrPara -[hidden]right-> Movimento
+Movimento -[hidden]right-> Ataque
+Ataque -[hidden]down-> MultiplosEstados
+Ataque -[hidden]right-> "Tipos de Ataque"
+MultiplosEstados -[hidden]right-> "Tipos de Ataque"
 
-' --- Relacionamentos de Composição e Agregação ---
-Inimigo +-- Estado
+' 5. Relacionamentos Reais
 Inimigo +-- GerenciadorDeAnimacaoInimigo
 IrPara +-- Movimento
-Boss +-- Ataque
 Ataque +-- PadraoAtaque
-AtaqueEmColuna +-- Coluna
-MultiplosEstados +-- Estado
-AtaqueEmLeque +-- PadraoLeque
-
-' --- Dependências ---
-Inimigo ..> Fase
-Inimigo ..> LootTable
-Inimigo ..> ObjectInputStream
-Inimigo ..> Point2D
-Boss ..> TipoProjetilInimigo
-Estado ..> Fase
-Estado ..> ObjectInputStream
-IrPara ..> Point2D
-Ataque ..> TipoProjetilInimigo
-Ataque ..> Fase
-AtaqueEmColuna ..> Point2D
-AtaqueEmUmaLinhaNoJogador ..> Point2D
-MultiplosEstados ..> Fase
-AtaqueEmLeque ..> Fase
-AtaqueEmLeque ..> Point2D
-GerenciadorDeAnimacaoInimigo ..> AnimationState
-GerenciadorDeAnimacaoInimigo ..> ImageIcon
-GerenciadorDeAnimacaoInimigo ..> Graphics
-GerenciadorDeAnimacaoInimigo ..> ObjectInputStream
+Inimigo +-- Estado
 
 @enduml

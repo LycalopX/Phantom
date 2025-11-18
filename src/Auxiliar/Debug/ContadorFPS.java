@@ -1,5 +1,9 @@
 package Auxiliar.Debug;
 
+/**
+ * @brief Uma classe utilitária para medir e exibir os quadros por segundo
+ *        (FPS).
+ */
 public class ContadorFPS {
 
     private long ultimoTempo;
@@ -7,8 +11,9 @@ public class ContadorFPS {
     private int fpsExibido;
 
     /**
-     * @brief Construtor do contador de FPS. Inicializa as variáveis de controle de
-     *        tempo e frames.
+     * @brief Construtor do contador de FPS.
+     * 
+     *        Inicializa as variáveis de controle de tempo e contagem de quadros.
      */
     public ContadorFPS() {
         ultimoTempo = System.nanoTime();
@@ -17,14 +22,19 @@ public class ContadorFPS {
     }
 
     /**
-     * @brief Atualiza o contador de frames a cada chamada. Se um segundo passou,
-     *        atualiza o valor de FPS a ser exibido e reseta a contagem.
+     * @brief Atualiza o contador de quadros.
+     * 
+     *        Este método deve ser chamado a cada quadro (frame) do jogo. Ele
+     *        incrementa
+     *        a contagem de quadros e, se um segundo tiver passado desde a última
+     *        atualização, o valor de `fpsExibido` é atualizado com a contagem de
+     *        quadros acumulada.
      */
     public void atualizar() {
         frames++;
         long tempoAtual = System.nanoTime();
 
-        if (tempoAtual - ultimoTempo >= 1000000000) {
+        if (tempoAtual - ultimoTempo >= 1000000000) { // 1 bilhão de nanossegundos = 1 segundo
             fpsExibido = frames;
             frames = 0;
             ultimoTempo = tempoAtual;

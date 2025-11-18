@@ -11,6 +11,14 @@ import java.awt.Graphics;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+/**
+ * @brief Implementação de um tipo de inimigo "Fada" que atira enquanto se move.
+ * 
+ *        Possui dois comportamentos distintos: um de movimento em linha reta e
+ *        outro
+ *        em arcos parabólicos, ambos disparando projéteis em intervalos
+ *        regulares.
+ */
 public class FadaComum2 extends Inimigo {
 
     private Estado estadoAtual;
@@ -31,8 +39,9 @@ public class FadaComum2 extends Inimigo {
         this.altura = (int) (32.0 * BODY_PROPORTION);
         this.hitboxRaio = (this.largura / 2.0) / CELL_SIDE;
 
+        // O `behaviorType` seleciona qual sequência de estados o inimigo seguirá.
         switch (behaviorType) {
-            case 2:
+            case 2: // Comportamento de movimento em arco
                 double arcHeight = 3.0;
                 Estado entrada2 = new IrPara(this, x, 6, 0.1);
 
@@ -56,7 +65,7 @@ public class FadaComum2 extends Inimigo {
                 this.estadoAtual = entrada2;
                 break;
             case 1:
-            default:
+            default: // Comportamento de movimento em linha reta
                 Estado entrada = new IrPara(this, x, 6, 0.1);
 
                 Estado ataqueMovendo1 = new MovimentoAtirando(this, MUNDO_LARGURA - 5, 8, 0.1, 30);
@@ -98,6 +107,9 @@ public class FadaComum2 extends Inimigo {
         super.autoDesenho(g);
     }
 
+    /**
+     * @brief Restaura o animador após a desserialização.
+     */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         this.animador = new GerenciadorDeAnimacaoInimigo(
@@ -121,6 +133,10 @@ public class FadaComum2 extends Inimigo {
         }
     }
 
+    /**
+     * @brief Estado que combina o movimento em linha reta (`IrPara`) com disparos
+     *        periódicos.
+     */
     private class MovimentoAtirando extends IrPara {
         private int intervaloAtaque;
         private int proximoAtaque;
@@ -150,6 +166,10 @@ public class FadaComum2 extends Inimigo {
         }
     }
 
+    /**
+     * @brief Estado que move o inimigo em uma trajetória parabólica enquanto
+     *        dispara.
+     */
     private class MovimentoParabolicoAtirando extends Estado {
         private double startX, startY;
         private double targetX, targetY;
@@ -193,9 +213,11 @@ public class FadaComum2 extends Inimigo {
                 estadoCompleto = true;
             }
 
+            // Interpolação linear para a base do movimento
             double newX = startX + (targetX - startX) * progress;
             double linearY = startY + (targetY - startY) * progress;
 
+            // Adiciona um offset parabólico para criar o arco
             double parabolicOffset = 4 * arcHeight * (progress - progress * progress);
             double newY = linearY + parabolicOffset;
 

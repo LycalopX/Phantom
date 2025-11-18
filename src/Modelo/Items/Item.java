@@ -10,7 +10,13 @@ import java.awt.image.RasterFormatException;
 import static Auxiliar.ConfigMapa.*;
 
 /**
- * @brief Representa um item coletável no jogo, com física própria e comportamento de atração.
+ * @brief Representa um item coletável no jogo.
+ * 
+ *        Possui uma física própria, incluindo um movimento de queda com
+ *        gravidade,
+ *        um impulso inicial opcional, e um comportamento de atração em direção
+ *        ao
+ *        herói sob certas condições.
  */
 public class Item extends Personagem {
 
@@ -31,7 +37,8 @@ public class Item extends Personagem {
      * @brief Construtor do item.
      */
     public Item(ItemType tipo) {
-        super("items.png", 0, 0, (int) (tipo.getLargura() * BODY_PROPORTION), (int) (tipo.getAltura() * BODY_PROPORTION));
+        super("items.png", 0, 0, (int) (tipo.getLargura() * BODY_PROPORTION),
+                (int) (tipo.getAltura() * BODY_PROPORTION));
         this.tipo = tipo;
         this.bTransponivel = true;
         this.bMortal = false;
@@ -44,6 +51,9 @@ public class Item extends Personagem {
         return RenderLayer.PLAYER_LAYER;
     }
 
+    /**
+     * @brief Inicializa ou reseta o item para uma nova posição.
+     */
     public void init(double x, double y) {
         this.x = x;
         this.y = y;
@@ -68,11 +78,19 @@ public class Item extends Personagem {
     }
 
     /**
-     * @brief Atualiza a posição do item, aplicando gravidade, atração pelo herói ou movimento de lançamento.
+     * @brief Atualiza a posição do item.
+     * 
+     *        A lógica de movimento muda dependendo do estado:
+     *        1. Atração: Se o herói está na parte superior da tela ou usando uma
+     *        bomba, o item se move em sua direção.
+     *        2. Lançamento: Se o item foi lançado, ele se move com seu impulso
+     *        inicial por um curto período.
+     *        3. Queda: Caso contrário, o item cai com gravidade.
      */
     @Override
     public void atualizar() {
-        if (!this.isActive) return;
+        if (!this.isActive)
+            return;
 
         boolean deveAtrair = hero != null && (hero.isBombing() || hero.getY() < (ALTURA_TELA / CELL_SIDE) * 0.15);
 
@@ -104,17 +122,20 @@ public class Item extends Personagem {
     }
 
     /**
-     * @brief Recorta o sprite correto para o tipo de item a partir do spritesheet.
+     * @brief Recorta o sprite correto para o tipo de item a partir do spritesheet
+     *        principal.
      */
     private void recortarSprite() {
         if (this.iImage != null) {
-            BufferedImage sheet = new BufferedImage(iImage.getIconWidth(), iImage.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
+            BufferedImage sheet = new BufferedImage(iImage.getIconWidth(), iImage.getIconHeight(),
+                    BufferedImage.TYPE_INT_ARGB);
             Graphics g = sheet.createGraphics();
             iImage.paintIcon(null, g, 0, 0);
             g.dispose();
 
             try {
-                BufferedImage subImagem = sheet.getSubimage(tipo.getSpriteX(), tipo.getSpriteY(), tipo.getLargura(), tipo.getAltura());
+                BufferedImage subImagem = sheet.getSubimage(tipo.getSpriteX(), tipo.getSpriteY(), tipo.getLargura(),
+                        tipo.getAltura());
                 this.spriteRecortado = new ImageIcon(subImagem);
             } catch (RasterFormatException e) {
                 System.err.println("ERRO ao recortar sprite para o item: " + tipo.name());
@@ -130,7 +151,8 @@ public class Item extends Personagem {
      */
     @Override
     public void autoDesenho(Graphics g) {
-        if (!this.isActive) return;
+        if (!this.isActive)
+            return;
 
         if (spriteRecortado == null)
             recortarSprite();
@@ -144,23 +166,14 @@ public class Item extends Personagem {
         super.autoDesenho(g);
     }
 
-    /**
-     * @brief Desativa o item.
-     */
     public void deactivate() {
         super.deactivate();
     }
-    
-    /**
-     * @brief Ativa o item.
-     */
+
     public void activate() {
         super.activate();
     }
 
-    /**
-     * @brief Retorna o tipo do item.
-     */
     public ItemType getTipo() {
         return this.tipo;
     }

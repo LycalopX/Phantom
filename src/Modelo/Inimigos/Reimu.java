@@ -11,6 +11,14 @@ import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+/**
+ * @brief Implementação do chefe Reimu.
+ * 
+ *        Este chefe utiliza múltiplas máquinas de estado que rodam em paralelo
+ *        para movimento e diferentes tipos de ataque, criando padrões de
+ *        projéteis
+ *        densos e complexos.
+ */
 public class Reimu extends Boss {
 
     private transient GerenciadorDeAnimacaoInimigo animador;
@@ -26,15 +34,13 @@ public class Reimu extends Boss {
         int scaledWidth = (int) (57 * BODY_PROPORTION);
         int scaledHeight = (int) (74 * BODY_PROPORTION);
 
-        // 57x74
         this.animador = new GerenciadorDeAnimacaoInimigo(
                 "Assets/inimigos/boss4_spreadsheet.png",
                 57, 74, 0, 4, 4,
-                true, // resize = true
+                true,
                 scaledWidth,
                 scaledHeight,
-                true // holdLastStrafingFrame
-        );
+                true);
         this.largura = scaledWidth;
         this.altura = scaledHeight;
         this.hitboxRaio = (this.largura / 2.0) / Auxiliar.ConfigMapa.CELL_SIDE;
@@ -44,19 +50,20 @@ public class Reimu extends Boss {
         SoundManager.getInstance().playMusic("Maiden's Capriccio ~ Dream Battle", true);
     }
 
+    /**
+     * @brief Configura as máquinas de estado paralelas para movimento e ataques.
+     */
     private void setupEstados() {
-        // Movimento
+
         Estado mudarPodeAtacar = new MudarPodeAtacar(this, true);
         Estado irCentro = new IrParaOCentro(this, new Point2D.Double(0.3, 0.3));
         estadoMovimento = irCentro;
         irCentro.setProximoEstado(mudarPodeAtacar);
 
-        // Teia
         Estado teia = new TeiaDeTiros(this, 1);
         this.estadoTeia = teia;
         estadoTeia.setProximoEstado(teia);
 
-        // Ataque
         Estado ataqueTeliguiado = new AtaqueTeliguiadoDosLados(this);
         Estado espera = new Esperar(this, 180);
         estadoAtaque = ataqueTeliguiado;
@@ -64,6 +71,9 @@ public class Reimu extends Boss {
         espera.setProximoEstado(ataqueTeliguiado);
     }
 
+    /**
+     * @brief Restaura o animador e as máquinas de estado após a desserialização.
+     */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         int scaledWidth = (int) (57 * BODY_PROPORTION);
@@ -74,10 +84,8 @@ public class Reimu extends Boss {
                 true,
                 scaledWidth,
                 scaledHeight,
-                true // holdLastStrafingFrame
-        );
+                true);
 
-        // Estado
         setupEstados();
     }
 
@@ -95,6 +103,13 @@ public class Reimu extends Boss {
         }
     }
 
+    /**
+     * @brief Atualiza todas as máquinas de estado do chefe a cada frame.
+     * 
+     *        O estado de movimento é sempre processado, enquanto os estados de
+     *        ataque
+     *        só são processados após a flag `podeAtacar` ser ativada.
+     */
     @Override
     public void atualizar() {
         estadoMovimento = processarEstado(estadoMovimento, 1);
@@ -111,7 +126,9 @@ public class Reimu extends Boss {
         super.autoDesenho(g);
     }
 
-    // Condicao
+    /**
+     * @brief Estado simples que ativa a flag `podeAtacar` do chefe.
+     */
     private final class MudarPodeAtacar extends Estado {
 
         protected final boolean podeAtacar;
@@ -130,7 +147,6 @@ public class Reimu extends Boss {
         }
     }
 
-    // Movimento
     private final double ALTURA = ConfigMapa.MUNDO_ALTURA * 0.2;
 
     private class IrParaOCentro extends IrPara {
@@ -138,8 +154,7 @@ public class Reimu extends Boss {
         public IrParaOCentro(Boss boss, Point2D.Double velocidade) {
             super(boss,
                     new Point2D.Double(0.5 * (ConfigMapa.MUNDO_LARGURA - 2) + 2, ALTURA),
-                    velocidade
-            );
+                    velocidade);
         }
 
         @Override
@@ -148,18 +163,20 @@ public class Reimu extends Boss {
         }
     }
 
-    // Ataque
+    /**
+     * @brief Ataque composto que dispara projéteis teleguiados das duas laterais da
+     *        tela.
+     */
     private class AtaqueTeliguiadoDosLados extends MultiplosEstados {
 
         private final int QUANTIDADE_ATAQUES = 5;
         private final TipoProjetilInimigo TIPO_PROJETIL = TipoProjetilInimigo.ESFERA_GRANDE_AMARELA_OCA;
-        
+
         private class AtaqueEsquerda extends AtaqueEmUmaLinhaNoJogador {
             public AtaqueEsquerda(Boss boss, int quantidadeAtaques, int intervaloAtaque) {
                 super(boss,
                         new Point2D.Double(0.0, 0.0),
-                        new Point2D.Double(0.0, ConfigMapa.MUNDO_ALTURA)
-                );
+                        new Point2D.Double(0.0, ConfigMapa.MUNDO_ALTURA));
                 this.velocidadeProjetil = 0.3;
                 this.tipoProjetil = TIPO_PROJETIL;
                 this.padroes.add(new PadraoAtaque(0, quantidadeAtaques));
@@ -171,8 +188,7 @@ public class Reimu extends Boss {
             public AtaqueDireita(Boss boss, int quantidadeAtaques, int intervaloAtaque) {
                 super(boss,
                         new Point2D.Double(ConfigMapa.MUNDO_LARGURA, 0.0),
-                        new Point2D.Double(ConfigMapa.MUNDO_LARGURA, ConfigMapa.MUNDO_ALTURA)
-                );
+                        new Point2D.Double(ConfigMapa.MUNDO_LARGURA, ConfigMapa.MUNDO_ALTURA));
                 this.velocidadeProjetil = 0.3;
                 this.tipoProjetil = TIPO_PROJETIL;
                 this.padroes.add(new PadraoAtaque(0, quantidadeAtaques));
@@ -183,16 +199,15 @@ public class Reimu extends Boss {
         public AtaqueTeliguiadoDosLados(Boss boss) {
             super(boss);
 
-            // Linhas de ataque
             estados.add(new AtaqueEsquerda(boss, QUANTIDADE_ATAQUES, 10));
             estados.add(new AtaqueDireita(boss, QUANTIDADE_ATAQUES, 10));
         }
     }
 
-    // 5 teligados de cada lado
-    // Bean em X
-
-    // Teia
+    /**
+     * @brief Ataque em leque que mira no jogador, disparando projéteis de forma
+     *        contínua.
+     */
     private class AtaqueLateralTeia extends AtaqueEmLequeNoJogador {
 
         private final double VELOCIDADE_PROJETIL = 0.5;
@@ -209,6 +224,10 @@ public class Reimu extends Boss {
         }
     }
 
+    /**
+     * @brief Ataque em leque que dispara um grande número de projéteis a partir do
+     *        chefe.
+     */
     private class AtaqueMeioTeia extends AtaqueEmLequeNoJogador {
 
         private final double VELOCIDADE_PROJETIL = 0.15;
@@ -224,6 +243,11 @@ public class Reimu extends Boss {
         }
     }
 
+    /**
+     * @brief Ataque composto que combina um ataque em leque a partir do chefe com
+     *        um ataque contínuo que também mira no jogador, criando uma "teia" de
+     *        projéteis.
+     */
     private class TeiaDeTiros extends MultiplosEstados {
         public TeiaDeTiros(Boss boss, int repeticoes) {
             super(boss, repeticoes);

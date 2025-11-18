@@ -8,6 +8,17 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 
+/**
+ * @brief Define os tipos de projéteis específicos do herói.
+ * 
+ *        Este enum implementa a interface `ProjetilTipo`, agindo como uma
+ *        "fábrica"
+ *        para as definições de cada tipo de projétil. Cada constante (NORMAL,
+ *        HOMING, BOMBA)
+ *        encapsula todas as propriedades necessárias para criar e configurar um
+ *        projétil,
+ *        como sua imagem, dimensões e tipo de hitbox.
+ */
 public enum TipoProjetilHeroi implements ProjetilTipo {
     NORMAL("projectiles/hero/projectile1_hero.png", 96, 24, HitboxType.CIRCULAR, 19),
     HOMING("projectiles/hero/projectile2_hero.png", 20, 20, HitboxType.CIRCULAR, 19),
@@ -20,13 +31,21 @@ public enum TipoProjetilHeroi implements ProjetilTipo {
     private final int hitboxWidth;
     private final int hitboxHeight;
 
+    /**
+     * @brief Construtor para cada tipo de projétil.
+     * @param sNomeImagePNG Caminho para o arquivo de imagem do sprite.
+     * @param spriteWidth   Largura do sprite.
+     * @param spriteHeight  Altura do sprite.
+     * @param hitboxType    O tipo de hitbox (CIRCULAR ou RECTANGULAR).
+     * @param hitboxWidth   A largura (ou raio, para circular) da hitbox.
+     */
     TipoProjetilHeroi(String sNomeImagePNG, int spriteWidth, int spriteHeight, HitboxType hitboxType, int hitboxWidth) {
         this.spriteWidth = spriteWidth;
         this.spriteHeight = spriteHeight;
         this.imagem = carregarImagem("Assets/" + sNomeImagePNG, spriteWidth, spriteHeight);
         this.hitboxType = hitboxType;
         this.hitboxWidth = hitboxWidth;
-        this.hitboxHeight = hitboxWidth; // For circular, height is same as width
+        this.hitboxHeight = hitboxWidth;
     }
 
     @Override
@@ -59,6 +78,9 @@ public enum TipoProjetilHeroi implements ProjetilTipo {
         return hitboxHeight;
     }
 
+    /**
+     * @brief Carrega e redimensiona a imagem do projétil.
+     */
     private ImageIcon carregarImagem(String nomeArquivo, int largura, int altura) {
         try {
             java.net.URL imgURL = getClass().getClassLoader().getResource(nomeArquivo);
@@ -70,7 +92,7 @@ public enum TipoProjetilHeroi implements ProjetilTipo {
             Image img = imagemIcon.getImage();
             BufferedImage bi = new BufferedImage(largura, altura, BufferedImage.TYPE_INT_ARGB);
             Graphics g = bi.createGraphics();
-            
+
             g.drawImage(img, 0, 0, largura, altura, null);
             g.dispose();
             return new ImageIcon(bi);

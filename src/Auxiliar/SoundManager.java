@@ -7,6 +7,14 @@ import kuusisto.tinysound.Music;
 import kuusisto.tinysound.Sound;
 import kuusisto.tinysound.TinySound;
 
+/**
+ * @brief Gerenciador de áudio centralizado para o jogo.
+ * 
+ *        Implementado como um Singleton, esta classe é responsável por
+ *        carregar,
+ *        controlar e reproduzir todos os efeitos sonoros (SFX) e músicas,
+ *        utilizando a biblioteca TinySound.
+ */
 public class SoundManager {
 
     private static SoundManager instance;
@@ -16,8 +24,8 @@ public class SoundManager {
 
     private float GLOBAL_VOLUME = 0.3f;
 
-    private float globalSfxVolume = (0.05f * GLOBAL_VOLUME); // Drastically reduced for testing
-    private float globalMusicVolume = (0.5f * GLOBAL_VOLUME); // Default music volume
+    private float globalSfxVolume = (0.05f * GLOBAL_VOLUME);
+    private float globalMusicVolume = (0.5f * GLOBAL_VOLUME);
 
     private static final String[] SFX_FILES = {
             "se_bonus.wav", "se_bonus2.wav", "se_border.wav", "se_cancel00.wav", "se_cardget.wav",
@@ -47,6 +55,13 @@ public class SoundManager {
         this.musicMap = new ConcurrentHashMap<>();
     }
 
+    /**
+     * @brief Inicializa o sistema de som e o SoundManager.
+     * 
+     *        Este método deve ser chamado uma única vez no início do jogo.
+     *        Ele inicializa a biblioteca TinySound e pré-carrega todos os
+     *        arquivos de áudio.
+     */
     public static void init() {
         if (instance == null) {
             TinySound.init();
@@ -56,12 +71,19 @@ public class SoundManager {
         }
     }
 
+    /**
+     * @brief Encerra o sistema de som.
+     */
     public static void shutdown() {
         if (instance != null) {
             TinySound.shutdown();
         }
     }
 
+    /**
+     * @brief Retorna a instância única do SoundManager (padrão Singleton).
+     * @return A instância do SoundManager.
+     */
     public static SoundManager getInstance() {
         if (instance == null) {
             throw new IllegalStateException("SoundManager has not been initialized. Call SoundManager.init() first.");
@@ -69,8 +91,11 @@ public class SoundManager {
         return instance;
     }
 
+    /**
+     * @brief Carrega todos os arquivos de SFX e música em mapas para acesso rápido.
+     */
     private void loadSounds() {
-        // Load SFX
+
         for (String sfxFileName : SFX_FILES) {
             String soundName = sfxFileName.substring(0, sfxFileName.lastIndexOf('.'));
             URL resourceUrl = SoundManager.class.getResource("/OST/SFX/" + sfxFileName);
@@ -84,30 +109,32 @@ public class SoundManager {
             }
         }
 
-        // Load Music
         for (String musicFileName : MUSIC_FILES) {
             String musicName = musicFileName.substring(0, musicFileName.lastIndexOf('.'));
 
-            // NO MORE "if (.mp3)" CHECK
             URL resourceUrl = SoundManager.class
                     .getResource("/OST/Music/" + musicFileName);
 
             if (resourceUrl == null) {
-                //System.err.println("Music file not found: " + musicFileName);
+
                 continue;
             }
 
-            // This line will NOW work for .mp3 files thanks to the MP3SPI plugin
             Music music = TinySound.loadMusic(resourceUrl);
 
             if (music != null) {
-                musicMap.put(musicName, music); // <-- SUCCESS! All music is in the main map.
+                musicMap.put(musicName, music);
             } else {
                 System.err.println("Failed to load music object for: " + musicFileName);
             }
         }
     }
 
+    /**
+     * @brief Reproduz um efeito sonoro (SFX).
+     * @param name   O nome do SFX (sem a extensão do arquivo).
+     * @param volume O multiplicador de volume para este som específico.
+     */
     public void playSfx(String name, double volume) {
         Sound sound = sfxMap.get(name);
         if (sound != null) {
@@ -117,6 +144,11 @@ public class SoundManager {
         }
     }
 
+    /**
+     * @brief Para todas as músicas e reproduz uma nova.
+     * @param name O nome da música (sem a extensão do arquivo).
+     * @param loop Se a música deve ser reproduzida em loop.
+     */
     public void playMusic(String name, boolean loop) {
         stopAllMusic();
 
@@ -163,7 +195,6 @@ public class SoundManager {
             volume = 1.0f;
         this.globalMusicVolume = volume;
 
-        // Adjust the volume of currently playing music
         for (Music music : musicMap.values()) {
             if (music.playing()) {
                 music.setVolume(volume);

@@ -8,6 +8,12 @@ import Modelo.Projeteis.Projetil;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
+/**
+ * @brief Classe abstrata base para todos os chefes do jogo.
+ * 
+ *        Fornece uma estrutura para a criação de múltiplos estados de ataque
+ *        e comportamentos complexos, estendendo a funcionalidade de `Inimigo`.
+ */
 public abstract class Boss extends Inimigo {
 
     boolean isBombed = false;
@@ -24,8 +30,17 @@ public abstract class Boss extends Inimigo {
         return this.isBombed;
     }
 
+    /**
+     * @brief Classe base abstrata para um estado de ataque de um chefe.
+     * 
+     *        Define a estrutura para um padrão de ataque, incluindo a temporização,
+     *        repetições e a lógica de disparo.
+     */
     protected abstract class Ataque extends Estado {
-        // Classes
+
+        /**
+         * @brief Define os parâmetros de um padrão de ataque específico.
+         */
         protected class PadraoAtaque {
             private final int rotacao;
             private final int quantidadeAtaques;
@@ -50,7 +65,6 @@ public abstract class Boss extends Inimigo {
             }
         }
 
-        // Variaveis
         protected int intervaloAtaque;
         protected double velocidadeProjetil;
         protected final ArrayList<PadraoAtaque> padroes;
@@ -75,6 +89,12 @@ public abstract class Boss extends Inimigo {
             this.repeticoes = 0;
         }
 
+        /**
+         * @brief Avança a lógica do ataque com base no tempo.
+         * 
+         *        A cada `intervaloAtaque` frames, dispara o padrão de ataque atual.
+         *        Avança para o próximo padrão após completar as repetições.
+         */
         @Override
         public void incrementarTempo(Fase fase, int tempo) {
             if (estadoCompleto) {
@@ -91,28 +111,26 @@ public abstract class Boss extends Inimigo {
                 return;
             }
 
-            if(repeticoes >= padroes.get(padraoAtual).repeticoes){
+            if (repeticoes >= padroes.get(padraoAtual).repeticoes) {
                 repeticoes = 0;
                 padraoAtual++;
-            }
-            else{
+            } else {
                 repeticoes++;
                 atirar(padroes.get(padraoAtual));
             }
-            
+
             contadorTempo -= intervaloAtaque;
         }
 
-        /**
-         * @brief Executa o padrão de ataque específico.
-         * @param padrao O padrão de ataque a ser executado.
-         */
         protected abstract void atirar(PadraoAtaque padrao);
     }
 
+    /**
+     * @brief Subclasse de `Ataque` para ataques que ocorrem em colunas ou linhas.
+     */
     protected abstract class AtaqueEmColuna extends Ataque {
-        // Classes
-        protected class Coluna{
+
+        protected class Coluna {
             protected final Point2D.Double posicaoInicial;
             protected final Point2D.Double posicaoFinal;
 
@@ -126,7 +144,6 @@ public abstract class Boss extends Inimigo {
                 this.posicaoFinal = new Point2D.Double(0, 0);
             }
 
-            // Get
             public Point2D.Double getPosicaoInicial() {
                 return this.posicaoInicial;
             }
@@ -141,23 +158,23 @@ public abstract class Boss extends Inimigo {
         }
 
         /**
-         * Atira projéteis em linha distribuídos uniformemente entre duas posições.
+         * @brief Atira projéteis em linha, distribuídos uniformemente entre dois
+         *        pontos.
          * 
-         * @param posicaoInicial Posição inicial da linha (Point2D.Double)
-         * @param posicaoFinal Posição final da linha (Point2D.Double)
-         * @param quantidade Número de projéteis a serem disparados na linha
-         * @param rotacao Ângulo de disparo em graus (0 = direita, 90 = baixo, 180 = esquerda, 270 = cima)
+         * @param posicaoInicial Posição inicial da linha.
+         * @param posicaoFinal   Posição final da linha.
+         * @param quantidade     Número de projéteis a serem disparados.
+         * @param rotacao        Ângulo de disparo em graus.
          */
-        protected void atirarEmLinha(Point2D.Double posicaoInicial, Point2D.Double posicaoFinal, int quantidade, double rotacao) {
+        protected void atirarEmLinha(Point2D.Double posicaoInicial, Point2D.Double posicaoFinal, int quantidade,
+                double rotacao) {
             if (faseReferencia == null) {
                 return;
             }
 
-            // Calcular o espaçamento entre cada projétil
             double espacamentoX = (quantidade > 1) ? (posicaoFinal.x - posicaoInicial.x) / (quantidade - 1) : 0;
             double espacamentoY = (quantidade > 1) ? (posicaoFinal.y - posicaoInicial.y) / (quantidade - 1) : 0;
 
-            // Criar projéteis distribuídos uniformemente na linha
             for (int i = 0; i < quantidade; i++) {
                 double posX = posicaoInicial.x + (espacamentoX * i);
                 double posY = posicaoInicial.y + (espacamentoY * i);
@@ -170,6 +187,10 @@ public abstract class Boss extends Inimigo {
         }
     }
 
+    /**
+     * @brief Especialização de `AtaqueEmColuna` para disparar de uma única linha
+     *        pré-definida.
+     */
     protected abstract class AtaqueEmUmaLinha extends AtaqueEmColuna {
 
         protected final Coluna coluna;
@@ -181,10 +202,14 @@ public abstract class Boss extends Inimigo {
 
         @Override
         protected void atirar(PadraoAtaque padrao) {
-            atirarEmLinha(coluna.getPosicaoInicial(), coluna.getPosicaoFinal(), padrao.getQuantidadeAtaques(), padrao.getRotacao());
+            atirarEmLinha(coluna.getPosicaoInicial(), coluna.getPosicaoFinal(), padrao.getQuantidadeAtaques(),
+                    padrao.getRotacao());
         }
     }
 
+    /**
+     * @brief Variação de `AtaqueEmUmaLinha` que mira na direção do jogador.
+     */
     protected class AtaqueEmUmaLinhaNoJogador extends AtaqueEmUmaLinha {
 
         public AtaqueEmUmaLinhaNoJogador(Boss boss, Point2D.Double posicaoInicial, Point2D.Double posicaoFinal) {
@@ -193,33 +218,42 @@ public abstract class Boss extends Inimigo {
 
         @Override
         protected void atirar(PadraoAtaque padrao) {
-            atirarEmLinhaNoJogador(coluna.getPosicaoInicial(), coluna.getPosicaoFinal(), padrao.getQuantidadeAtaques(), padrao.getRotacao());
+            atirarEmLinhaNoJogador(coluna.getPosicaoInicial(), coluna.getPosicaoFinal(), padrao.getQuantidadeAtaques(),
+                    padrao.getRotacao());
         }
 
-        protected void atirarEmLinhaNoJogador(Point2D.Double posicaoInicial, Point2D.Double posicaoFinal, int quantidade, double offset) {
+        /**
+         * @brief Atira projéteis em linha, com cada projétil mirando no jogador com um
+         *        offset.
+         */
+        protected void atirarEmLinhaNoJogador(Point2D.Double posicaoInicial, Point2D.Double posicaoFinal,
+                int quantidade, double offset) {
             if (faseReferencia == null) {
                 return;
             }
 
-            // Calcular o espaçamento entre cada projétil
             double espacamentoX = (quantidade > 1) ? (posicaoFinal.x - posicaoInicial.x) / (quantidade - 1) : 0;
             double espacamentoY = (quantidade > 1) ? (posicaoFinal.y - posicaoInicial.y) / (quantidade - 1) : 0;
 
-            // Criar projéteis distribuídos uniformemente na linha
             for (int i = 0; i < quantidade; i++) {
                 double posX = posicaoInicial.x + (espacamentoX * i);
                 double posY = posicaoInicial.y + (espacamentoY * i);
 
                 Projetil p = faseReferencia.getProjetilPool().getProjetilInimigo();
                 if (p != null) {
-                    p.reset(posX, posY, velocidadeProjetil, getAnguloEmDirecaoAoHeroi(posX, posY) + offset, TipoProjetil.INIMIGO, tipoProjetil);
+                    p.reset(posX, posY, velocidadeProjetil, getAnguloEmDirecaoAoHeroi(posX, posY) + offset,
+                            TipoProjetil.INIMIGO, tipoProjetil);
                 }
             }
         }
     }
 
+    /**
+     * @brief Contêiner que executa múltiplos estados de ataque em sequência ou
+     *        paralelo.
+     */
     protected abstract class MultiplosEstados extends Estado {
-        
+
         protected final ArrayList<Estado> estados;
         protected int repeticoes;
         protected int contadorRepeticoes = 0;
@@ -235,6 +269,13 @@ public abstract class Boss extends Inimigo {
             this.repeticoes = repeticoes;
         }
 
+        /**
+         * @brief Incrementa o tempo para todos os estados contidos.
+         * 
+         *        O estado geral é considerado completo apenas quando todos os
+         *        sub-estados
+         *        terminam e o número de repetições é atingido.
+         */
         @Override
         public void incrementarTempo(Fase fase, int tempo) {
             if (estadoCompleto) {
@@ -270,8 +311,11 @@ public abstract class Boss extends Inimigo {
         }
     }
 
+    /**
+     * @brief Subclasse de `Ataque` para ataques em forma de leque.
+     */
     protected abstract class AtaqueEmLeque extends Ataque {
-        // Classes
+
         public class PadraoLeque extends PadraoAtaque {
 
             private final int amplitude;
@@ -286,7 +330,6 @@ public abstract class Boss extends Inimigo {
                 this.amplitude = amplitude;
             }
 
-            // Get
             public int getAmplitude() {
                 return this.amplitude;
             }
@@ -299,21 +342,22 @@ public abstract class Boss extends Inimigo {
         @Override
         protected void atirar(PadraoAtaque padrao) {
             if (padrao instanceof PadraoLeque leque) {
-                atirarEmLeque(inimigo.getX(), inimigo.getY(), leque.getRotacao(), leque.getQuantidadeAtaques(), leque.getAmplitude());
+                atirarEmLeque(inimigo.getX(), inimigo.getY(), leque.getRotacao(), leque.getQuantidadeAtaques(),
+                        leque.getAmplitude());
             }
         }
 
         /**
-         * Atira projéteis em leque
+         * @brief Atira projéteis em um padrão de leque.
          *
-         * @param posicaoX Posição X 
-         * @param posicaoY Posição Y 
-         * @param anguloInicial Ângulo inicial em graus (0 = direita, 90 =
-         * baixo, 180 = esquerda, 270 = cima)
-         * @param quantidadeTiros Número de projéteis no leque
-         * @param amplitude Amplitude total do leque em graus
+         * @param posicaoX        Posição X de origem.
+         * @param posicaoY        Posição Y de origem.
+         * @param anguloInicial   Ângulo central do leque em graus.
+         * @param quantidadeTiros Número de projéteis no leque.
+         * @param amplitude       Amplitude total do leque em graus.
          */
-        protected void atirarEmLeque(double posicaoX, double posicaoY, double anguloInicial, int quantidadeTiros, double amplitude) {
+        protected void atirarEmLeque(double posicaoX, double posicaoY, double anguloInicial, int quantidadeTiros,
+                double amplitude) {
             if (faseReferencia == null) {
                 return;
             }
@@ -331,7 +375,10 @@ public abstract class Boss extends Inimigo {
         }
     }
 
-    protected class AtaqueEmLequeNoJogador extends AtaqueEmLeque {        
+    /**
+     * @brief Variação de `AtaqueEmLeque` que mira no jogador.
+     */
+    protected class AtaqueEmLequeNoJogador extends AtaqueEmLeque {
         public AtaqueEmLequeNoJogador(Boss boss) {
             super(boss);
         }
@@ -339,11 +386,15 @@ public abstract class Boss extends Inimigo {
         @Override
         protected void atirar(PadraoAtaque padrao) {
             if (padrao instanceof PadraoLeque leque) {
-                atirarEmLeque(inimigo.getX(), inimigo.getY(), getAnguloEmDirecaoAoHeroi() + padrao.getRotacao(), leque.getQuantidadeAtaques(), leque.getAmplitude());
+                atirarEmLeque(inimigo.getX(), inimigo.getY(), getAnguloEmDirecaoAoHeroi() + padrao.getRotacao(),
+                        leque.getQuantidadeAtaques(), leque.getAmplitude());
             }
         }
     }
 
+    /**
+     * @brief Variação de `AtaqueEmLeque` que dispara de uma posição fixa.
+     */
     protected class AtaqueEmLequeNaPosicao extends AtaqueEmLeque {
         protected Point2D.Double posicaoAtaque;
 
@@ -355,8 +406,9 @@ public abstract class Boss extends Inimigo {
         @Override
         protected void atirar(PadraoAtaque padrao) {
             if (padrao instanceof PadraoLeque leque) {
-                atirarEmLeque(posicaoAtaque.x, posicaoAtaque.y, leque.getRotacao(), leque.getQuantidadeAtaques(), leque.getAmplitude());
+                atirarEmLeque(posicaoAtaque.x, posicaoAtaque.y, leque.getRotacao(), leque.getQuantidadeAtaques(),
+                        leque.getAmplitude());
             }
         }
-    }    
+    }
 }

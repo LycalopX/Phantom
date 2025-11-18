@@ -22,22 +22,27 @@ import java.util.List;
 import Modelo.Inimigos.Boss;
 
 /**
- * @brief Orquestra a lógica principal do jogo, incluindo detecção de colisão,
- *        interações entre personagens e gerenciamento de estado dos objetos da
- *        fase.
+ * @brief Orquestra a lógica de interações e colisões do jogo.
+ * 
+ *        Utiliza uma Quadtree para otimizar a detecção de colisão e gerencia
+ *        as interações entre todos os personagens da fase.
  */
 public class ControleDeJogo {
     private Quadtree quadtree;
     private ItemPool itemPool;
 
+    // Listas pré-alocadas para evitar a criação de novos objetos a cada frame,
+    // otimizando o desempenho e reduzindo a carga no Garbage Collector.
     private final ArrayList<Projetil> projeteisInimigosEspeciais;
     private final ArrayList<Personagem> novosObjetos;
     private final ArrayList<Personagem> alvosProximos;
     private final ArrayList<Personagem> vizinhosPotenciais;
 
     /**
-     * @brief Construtor do ControleDeJogo. Inicializa a Quadtree e as listas de
-     *        apoio.
+     * @brief Construtor do ControleDeJogo.
+     * 
+     *        Inicializa a Quadtree, que abrange toda a área do jogo, e as listas
+     *        de apoio usadas para otimizar o processamento de colisões.
      */
     public ControleDeJogo(ItemPool itemPool) {
         this.quadtree = new Quadtree(0, new Rectangle(0, 0, ConfigMapa.LARGURA_TELA, ConfigMapa.ALTURA_TELA));
@@ -53,7 +58,8 @@ public class ControleDeJogo {
     }
 
     /**
-     * @brief Desenha todos os personagens de uma lista na tela.
+     * @brief Desenha todos os personagens de uma lista na tela. (Atualmente não
+     *        utilizado)
      */
     public void desenhaTudo(List<Personagem> e, Graphics g) {
         for (Personagem personagem : e) {
@@ -63,10 +69,18 @@ public class ControleDeJogo {
 
     /**
      * @brief Processa todas as interações e colisões para um frame do jogo.
-     *        Utiliza uma Quadtree para otimizar a detecção de colisão.
+     * 
+     *        Este é um método central que:
+     *        1. Insere todos os personagens ativos em uma Quadtree.
+     *        2. Verifica colisões da bomba e de projéteis retangulares.
+     *        3. Itera sobre os personagens, usando a Quadtree para encontrar
+     *        vizinhos
+     *        próximos e testar colisões apenas contra eles.
+     * 
      * @return true se o herói foi atingido, false caso contrário.
      */
-    public boolean processaTudo(Hero hero, List<Inimigo> inimigos, List<Projetil> projeteis, List<Item> itens, List<BombaProjetil> bombas, boolean removeProjectiles) {
+    public boolean processaTudo(Hero hero, List<Inimigo> inimigos, List<Projetil> projeteis, List<Item> itens,
+            List<BombaProjetil> bombas, boolean removeProjectiles) {
         if (hero == null)
             return false;
 
@@ -81,6 +95,8 @@ public class ControleDeJogo {
         projeteisInimigosEspeciais.clear();
         quadtree.clear();
 
+        // Insere todos os personagens ativos na Quadtree para otimizar a
+        // detecção de colisões.
         quadtree.insert(hero);
 
         for (Inimigo i : inimigos) {
@@ -102,6 +118,7 @@ public class ControleDeJogo {
                     p.deactivate();
                     continue;
                 }
+                // Projéteis com hitbox retangular (como lasers) são tratados separadamente.
                 if (p.getTipoHitbox() == HitboxType.RECTANGULAR) {
                     projeteisInimigosEspeciais.add(p);
                 }
@@ -130,10 +147,13 @@ public class ControleDeJogo {
         novosObjetos.clear();
         boolean heroiFoiAtingido = false;
 
+        // Checagem de colisão especial para projéteis retangulares.
         if (checarColisaoRetangular(hero, projeteisInimigosEspeciais)) {
             heroiFoiAtingido = true;
         }
 
+        // Lógica de dano da bomba: verifica quais personagens estão dentro do raio
+        // de efeito da bomba ativa.
         if (bombaAtiva != null) {
             int raioEmPixels = (int) (bombaAtiva.getRaioAtualGrid() * ConfigMapa.CELL_SIDE);
             int diametroEmPixels = raioEmPixels * 2;
@@ -167,6 +187,7 @@ public class ControleDeJogo {
             }
         }
 
+        // Agrupa todos os personagens para a verificação principal de colisão.
         ArrayList<Personagem> todosOsPersonagens = new ArrayList<>();
         todosOsPersonagens.add(hero);
         todosOsPersonagens.addAll(inimigos);
@@ -174,6 +195,8 @@ public class ControleDeJogo {
         todosOsPersonagens.addAll(itens);
         todosOsPersonagens.addAll(bombas);
 
+        // Itera sobre cada personagem e verifica colisões apenas com seus vizinhos
+        // potenciais, obtidos da Quadtree.
         for (Personagem p1 : todosOsPersonagens) {
             if (!p1.isActive())
                 continue;
@@ -182,6 +205,8 @@ public class ControleDeJogo {
             quadtree.retrieve(vizinhosPotenciais, p1);
 
             for (Personagem p2 : vizinhosPotenciais) {
+                // A condição p1.hashCode() >= p2.hashCode() evita a verificação duplicada
+                // de pares (p1, p2) e (p2, p1).
                 if (p1.hashCode() >= p2.hashCode() || !p2.isActive())
                     continue;
 
@@ -189,6 +214,7 @@ public class ControleDeJogo {
                 double dx = p1.getX() - p2.getX();
                 double dy = p1.getY() - p2.getY();
 
+                // Itens têm um raio de atração maior para facilitar a coleta.
                 if ((p1 instanceof Hero && p2 instanceof Item) || (p1 instanceof Item && p2 instanceof Hero)) {
                     Item i = (p1 instanceof Item) ? (Item) p1 : (Item) p2;
                     somaRaios = hero.getGrabHitboxRaio() + i.getHitboxRaio();
@@ -208,8 +234,11 @@ public class ControleDeJogo {
     }
 
     /**
-     * @brief Verifica se uma nova posição para um personagem é válida,
-     *        checando por colisões com outros personagens não transponíveis.
+     * @brief Verifica se uma nova posição para um personagem é válida.
+     * 
+     *        Checa por colisões com outros personagens não transponíveis para
+     *        impedir que o herói se sobreponha a eles.
+     * 
      * @return true se a posição for válida, false caso contrário.
      */
     public boolean ehPosicaoValida(List<Inimigo> inimigos, Personagem personagem, double proximoX,
@@ -264,8 +293,7 @@ public class ControleDeJogo {
     }
 
     /**
-     * @brief Verifica a colisão entre o herói e uma lista de projéteis com hitbox
-     *        retangular.
+     * @brief Verifica a colisão entre o herói e projéteis com hitbox retangular.
      * @return true se houver colisão, false caso contrário.
      */
     private boolean checarColisaoRetangular(Hero hero, ArrayList<Projetil> projeteisRetangulares) {
@@ -295,11 +323,14 @@ public class ControleDeJogo {
     /**
      * @brief Gerencia a lógica de interação para um par de personagens que
      *        colidiram.
+     * 
+     *        Determina o tipo de cada personagem e chama o método de tratamento de
+     *        colisão apropriado (ex: Herói vs Inimigo, Projétil vs Inimigo).
+     * 
      * @return true se a colisão resultou em dano ao herói, false caso contrário.
      */
     private boolean handleCollision(Personagem p1, Personagem p2, Hero hero) {
 
-        // Boss pode ser bombardeado apenas uma vez por bomba
         if (p1 instanceof ProjetilBombaHoming && p2 instanceof Boss) {
             if (((Boss) p2).isBombed()) {
                 return false;
@@ -382,8 +413,10 @@ public class ControleDeJogo {
     }
 
     /**
-     * @brief Lida com a colisão entre um projétil do herói e um inimigo,
-     *        aplicando dano e gerando loot se o inimigo for destruído.
+     * @brief Lida com a colisão entre um projétil do herói e um inimigo.
+     * 
+     *        Aplica dano ao inimigo e, se o inimigo for destruído, gera os itens
+     *        de sua tabela de loot.
      */
     private void colisaoProjetilHeroiInimigo(Projetil p, Inimigo i, Hero hero) {
 

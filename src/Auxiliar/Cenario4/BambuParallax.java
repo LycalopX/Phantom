@@ -9,6 +9,17 @@ import java.util.List;
 import Auxiliar.Cenario1.BlocoDeFolha;
 import Modelo.Personagem;
 
+/**
+ * @brief Representa um bambu com efeito de parallax, construído a partir de
+ *        `BlocoDeFolha`.
+ * 
+ *        Este elemento de cenário reutiliza a lógica de `BlocoDeFolha` para
+ *        compor
+ *        um bambu a partir de três imagens distintas (caule e dois tipos de
+ *        folhas),
+ *        cada uma com sua própria velocidade para criar um efeito de
+ *        profundidade.
+ */
 public class BambuParallax implements ElementoCenario {
 
     private List<BlocoDeFolha> blocos = new ArrayList<>();
@@ -17,38 +28,34 @@ public class BambuParallax implements ElementoCenario {
     private double currentSpeedMultiplier = 1.0;
     private final boolean isFlipped;
 
-    public BambuParallax(int x, int y, int larguraBase, double velocidadeBase, BufferedImage stalk, BufferedImage leaves1, BufferedImage leaves2, double rotationAngle, boolean isFlipped) {
+    public BambuParallax(int x, int y, int larguraBase, double velocidadeBase, BufferedImage stalk,
+            BufferedImage leaves1, BufferedImage leaves2, double rotationAngle, boolean isFlipped) {
         this.velocidadeBaseOriginal = velocidadeBase;
         this.isFlipped = isFlipped;
 
-        // Calcula a altura do caule com base na proporção da imagem
-        int heightBambu = (int)(stalk.getHeight() * Personagem.BODY_PROPORTION);
-        int widthBambu = (int)(stalk.getWidth() * Personagem.BODY_PROPORTION);
+        int heightBambu = (int) (stalk.getHeight() * Personagem.BODY_PROPORTION);
+        int widthBambu = (int) (stalk.getWidth() * Personagem.BODY_PROPORTION);
 
-        int heightFolha1 = (int)(leaves1.getHeight() * Personagem.BODY_PROPORTION);
-        int widthFolha1 = (int)(leaves1.getWidth() * Personagem.BODY_PROPORTION);
+        int heightFolha1 = (int) (leaves1.getHeight() * Personagem.BODY_PROPORTION);
+        int widthFolha1 = (int) (leaves1.getWidth() * Personagem.BODY_PROPORTION);
 
-        int heightFolha2 = (int)(leaves2.getHeight() * Personagem.BODY_PROPORTION);
-        int widthFolha2 = (int)(leaves2.getWidth() * Personagem.BODY_PROPORTION);
-        
-        // Camada de base (caule) - usa altura calculada
-        blocos.add(new BlocoDeFolha(x, y, (int)widthBambu, (int)heightBambu, velocidadeBase, stalk, 1f, 0.9f, rotationAngle));
+        int heightFolha2 = (int) (leaves2.getHeight() * Personagem.BODY_PROPORTION);
+        int widthFolha2 = (int) (leaves2.getWidth() * Personagem.BODY_PROPORTION);
 
-        // Camada do meio (folhas);
+        blocos.add(new BlocoDeFolha(x, y, (int) widthBambu, (int) heightBambu, velocidadeBase, stalk, 1f, 0.9f,
+                rotationAngle));
+
         double velocidadeMedia = velocidadeBase * 1.01;
-
         int xMedio = x - widthFolha1 / 2;
-        int yMedio = y + (int) (heightBambu * 0.2); // Posição relativa à altura do caule
+        int yMedio = y + (int) (heightBambu * 0.2);
+        blocos.add(new BlocoDeFolha(xMedio, yMedio, widthFolha1, heightFolha1, velocidadeMedia, leaves1, 1f, 0.9f,
+                rotationAngle));
 
-        blocos.add(new BlocoDeFolha(xMedio, yMedio, widthFolha1, heightFolha1, velocidadeMedia, leaves1, 1f, 0.9f, rotationAngle));
-
-        // Camada do topo (folhas)
         double velocidadePequena = velocidadeBase * 1.02;
-
         int xPequeno = x - widthFolha2 / 2;
-        int yPequeno = y - (int) (heightBambu * 0.3); // Posição relativa à altura do caule
-
-        this.blocoTopo = new BlocoDeFolha(xPequeno, yPequeno, widthFolha2, heightFolha2, velocidadePequena, leaves2, 1f, 0.9f, rotationAngle);
+        int yPequeno = y - (int) (heightBambu * 0.3);
+        this.blocoTopo = new BlocoDeFolha(xPequeno, yPequeno, widthFolha2, heightFolha2, velocidadePequena, leaves2, 1f,
+                0.9f, rotationAngle);
         blocos.add(this.blocoTopo);
     }
 
@@ -56,6 +63,10 @@ public class BambuParallax implements ElementoCenario {
         return isFlipped;
     }
 
+    /**
+     * @brief Restaura as referências de imagem para cada bloco após a
+     *        desserialização.
+     */
     public void relinkImages(BufferedImage stalk, BufferedImage leaves1, BufferedImage leaves2) {
         if (blocos.size() >= 3) {
             blocos.get(0).setImagem(stalk);
@@ -70,7 +81,7 @@ public class BambuParallax implements ElementoCenario {
     }
 
     public void setImagem(BufferedImage imagem) {
-        // Este método pode não ser mais necessário ou pode ser adaptado
+
     }
 
     @Override

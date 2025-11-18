@@ -24,7 +24,11 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 /**
- * @brief Script de eventos e spawns para a Fase 3 (placeholder).
+ * @brief Script de eventos e spawns para a Fase 3.
+ * 
+ *        Define a sequência de ondas de inimigos, o cenário com múltiplas
+ *        camadas
+ *        de fundo e a batalha contra o chefe da fase.
  */
 public class ScriptFase3 extends ScriptDeFase {
 
@@ -33,18 +37,26 @@ public class ScriptFase3 extends ScriptDeFase {
     private transient BufferedImage blackPixel;
 
     /**
-     * @brief Construtor do script da Fase 2.
+     * @brief Construtor do script da Fase 3.
      */
     public ScriptFase3(Engine engine) {
         super(engine);
         SoundManager.getInstance().playMusic("Nostalgic Blood of the East ~ Old World", true);
     }
 
+    /**
+     * @brief Cria uma imagem de 1x1 pixel preta para ser usada como camada de
+     *        escurecimento.
+     */
     private void createBlackPixel() {
         this.blackPixel = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         this.blackPixel.setRGB(0, 0, new Color(0, 0, 0).getRGB());
     }
 
+    /**
+     * @brief Carrega os recursos visuais da fase, incluindo múltiplas camadas de
+     *        fundo.
+     */
     @Override
     public void carregarRecursos(Fase fase) {
         try {
@@ -52,6 +64,9 @@ public class ScriptFase3 extends ScriptDeFase {
             this.bg3_3 = ImageIO.read(getClass().getClassLoader().getResource("Assets/stage3/bg3_3.png"));
             createBlackPixel();
 
+            // Adiciona as camadas de cenário: um fundo principal, uma camada de
+            // escurecimento
+            // e uma camada oscilante para criar um efeito de profundidade e movimento.
             fase.adicionarElementoCenario(
                     new FundoInfinito("bg3_1", this.bg3_1, 1.0, Modelo.Cenario.DrawLayer.FOREGROUND, 1.0f));
             fase.adicionarElementoCenario(
@@ -64,6 +79,9 @@ public class ScriptFase3 extends ScriptDeFase {
         }
     }
 
+    /**
+     * @brief Restaura as referências de imagens após a desserialização.
+     */
     @Override
     public void relinkarRecursosDosElementos(Fase fase) {
         try {
@@ -94,22 +112,24 @@ public class ScriptFase3 extends ScriptDeFase {
 
     @Override
     public Color getBackgroundOverlayColor() {
-        return new Color(255, 255, 255, 20); // Branco com baixa opacidade
+        return new Color(255, 255, 255, 20);
     }
 
     @Override
 
     public LinearGradientPaint getBackgroundGradient() {
         Point2D start = new Point2D.Float(0, 0);
-        Point2D end = new Point2D.Float(0, ConfigMapa.ALTURA_TELA * 0.15f); // Apenas 15% da tela
+        Point2D end = new Point2D.Float(0, ConfigMapa.ALTURA_TELA * 0.15f);
 
         float[] fractions = { 0.0f, 1.0f };
-        Color[] colors = { new Color(255, 255, 255, 20), new Color(255, 255, 255, 0) }; // Reduzir intensidade
+        Color[] colors = { new Color(255, 255, 255, 20), new Color(255, 255, 255, 0) };
         return new LinearGradientPaint(start, end, fractions, colors);
 
     }
 
-    // Onda
+    /**
+     * @brief Define a sequência de ondas de inimigos para esta fase.
+     */
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
         ondas.add(new OndaDeEspera(fase, 240));
@@ -136,7 +156,7 @@ public class ScriptFase3 extends ScriptDeFase {
 
     private class Onda1 extends Onda {
         public Onda1(Fase fase) {
-            
+
             LootTable lootTable = new LootTable();
             lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.5, false, false));
             lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, false, false));
@@ -158,7 +178,6 @@ public class ScriptFase3 extends ScriptDeFase {
             lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.5, false, false));
             lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, false, false));
 
-
             for (int i = 0; i < 5; i++) {
                 xInicial = (4 + ((MUNDO_LARGURA - 8) * random.nextDouble()));
                 inimigos.add(
@@ -177,15 +196,12 @@ public class ScriptFase3 extends ScriptDeFase {
     private class Onda3 extends Onda {
         public Onda3(Fase fase) {
 
-            // Adiciona inimigos à onda
             double xInicial;
             LootTable lootTable = new LootTable();
 
-            // Loot table
             lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.4, true, false));
             lootTable.addItem(new LootItem(ItemType.BOMB, 1, 1, 0.02, true, false));
 
-            // Inimigos
             for (int i = 0; i < 5; i++) {
                 xInicial = (4 + ((MUNDO_LARGURA - 8) * random.nextDouble()));
                 inimigos.add(
@@ -205,19 +221,17 @@ public class ScriptFase3 extends ScriptDeFase {
     private class Onda4 extends Onda {
         public Onda4(Fase fase) {
 
-            // Adiciona inimigos à onda
             double xInicial;
 
-            // Loot table
             LootTable lootTable = new LootTable();
             lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.5, false, false));
             lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, false, false));
 
-            // Inimigos
             for (int i = 0; i < 3; i++) {
                 xInicial = ((MUNDO_LARGURA) * (i + 2) / 6);
                 inimigos.add(
-                        new InimigoSpawn(new FadaComum3(xInicial, -1.0, xInicial, lootTable, 600, fase, "_hat", 1), 300));
+                        new InimigoSpawn(new FadaComum3(xInicial, -1.0, xInicial, lootTable, 600, fase, "_hat", 1),
+                                300));
             }
 
         }

@@ -6,8 +6,13 @@ import Modelo.Inimigos.Inimigo;
 import java.util.List;
 
 /**
- * @brief Projétil que, após um período inicial de inércia, persegue o inimigo
- *        mais próximo.
+ * @brief Projétil que persegue o inimigo mais próximo após um período inicial.
+ * 
+ *        Este projétil começa em um estado de inércia, movendo-se em linha
+ *        reta,
+ *        e depois transita para um estado de perseguição, ajustando sua
+ *        trajetória
+ *        para interceptar um alvo.
  */
 public class ProjetilHoming extends Projetil {
 
@@ -33,8 +38,10 @@ public class ProjetilHoming extends Projetil {
     }
 
     /**
-     * @brief Configura o míssil para um novo disparo, reiniciando seu estado de
-     *        perseguição.
+     * @brief Configura o míssil para um novo disparo.
+     * 
+     *        Reinicia seu estado para `INERCIA` e define a lista de alvos
+     *        potenciais.
      */
     public void resetHoming(double x, double y, double velocidadeGrid, double anguloInicial, TipoProjetil tipo,
             ProjetilTipo tipoDetalhado, List<Inimigo> inimigos) {
@@ -53,8 +60,10 @@ public class ProjetilHoming extends Projetil {
     }
 
     /**
-     * @brief Atualiza a lógica do míssil, que transita de um estado de inércia para
-     *        perseguição.
+     * @brief Atualiza a lógica do míssil a cada frame.
+     * 
+     *        Gerencia a transição do estado de inércia para o de perseguição e,
+     *        neste último, busca e ajusta a rota em direção ao alvo.
      */
     @Override
     public void atualizar() {
@@ -70,9 +79,11 @@ public class ProjetilHoming extends Projetil {
                 break;
 
             case PERSEGUINDO:
+                // Se não houver um alvo válido, encontra um novo.
                 if (inimigosAlvo != null && (alvo == null || !alvo.isActive() || !inimigosAlvo.contains(alvo))) {
                     encontrarAlvoMaisProximo(inimigosAlvo);
                 }
+                // Se um alvo foi encontrado, ajusta o ângulo em sua direção.
                 if (alvo != null) {
                     ajustarAnguloParaOAlvo();
                 }
@@ -83,13 +94,19 @@ public class ProjetilHoming extends Projetil {
     }
 
     /**
-     * @brief Ajusta suavemente o ângulo do projétil para que ele se vire em direção
-     *        ao alvo.
+     * @brief Ajusta suavemente o ângulo do projétil em direção ao alvo.
+     * 
+     *        Em vez de virar instantaneamente, o projétil interpola seu ângulo
+     *        atual
+     *        em direção ao ângulo do alvo a uma `taxaDeCurva`, criando um movimento
+     *        de perseguição mais natural.
      */
     private void ajustarAnguloParaOAlvo() {
         double anguloParaOAlvo = Math.atan2(alvo.getY() - this.y, alvo.getX() - this.x);
         double diferencaAngulo = anguloParaOAlvo - this.anguloRad;
 
+        // Normaliza a diferença de ângulo para o intervalo [-PI, PI]
+        // para garantir que o projétil sempre tome o caminho mais curto.
         while (diferencaAngulo > Math.PI)
             diferencaAngulo -= 2 * Math.PI;
         while (diferencaAngulo < -Math.PI)
@@ -103,7 +120,10 @@ public class ProjetilHoming extends Projetil {
     }
 
     /**
-     * @brief Encontra o inimigo mais próximo do projétil para definir como alvo.
+     * @brief Encontra o inimigo ativo mais próximo do projétil.
+     * 
+     *        Itera sobre a lista de inimigos fornecida e define o mais próximo
+     *        como o novo alvo.
      */
     private void encontrarAlvoMaisProximo(List<Inimigo> inimigos) {
         double menorDistancia = Double.MAX_VALUE;

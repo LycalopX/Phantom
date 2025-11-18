@@ -10,6 +10,13 @@ import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+/**
+ * @brief Implementação do chefe Nightbug.
+ * 
+ *        Este chefe segue uma máquina de estados sequencial, alternando entre
+ *        se mover para posições específicas e executar padrões de ataque
+ *        a partir dessas posições.
+ */
 public class Nightbug extends Boss {
 
     private transient GerenciadorDeAnimacaoInimigo animador;
@@ -25,11 +32,10 @@ public class Nightbug extends Boss {
         this.animador = new GerenciadorDeAnimacaoInimigo(
                 "Assets/inimigos/boss1_spreadsheet.png",
                 35, 60, 13, 4, 4,
-                true, // resize = true
+                true,
                 scaledWidth,
                 scaledHeight,
-                true // holdLastStrafingFrame
-        );
+                true);
         this.largura = scaledWidth;
         this.altura = scaledHeight;
         this.hitboxRaio = (this.largura / 2.0) / Auxiliar.ConfigMapa.CELL_SIDE;
@@ -37,6 +43,12 @@ public class Nightbug extends Boss {
         setupEstados();
     }
 
+    /**
+     * @brief Configura a máquina de estados sequencial do chefe.
+     * 
+     *        Define a sequência de movimentos e ataques, encadeando cada estado
+     *        ao próximo para criar um ciclo de comportamento.
+     */
     private void setupEstados() {
         Estado irCentro = new IrParaOCentro(this, new Point2D.Double(0.2, 0.2));
         Estado irEsquerda = new IrParaEsquerda(this, new Point2D.Double(0.5, 0.2));
@@ -57,6 +69,9 @@ public class Nightbug extends Boss {
         ataqueParaEsquerda.setProximoEstado(irCentro);
     }
 
+    /**
+     * @brief Restaura o animador e a máquina de estados após a desserialização.
+     */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         int scaledWidth = (int) (35 * BODY_PROPORTION);
@@ -67,10 +82,8 @@ public class Nightbug extends Boss {
                 true,
                 scaledWidth,
                 scaledHeight,
-                true // holdLastStrafingFrame
-        );
+                true);
 
-        // Estado
         setupEstados();
     }
 
@@ -100,13 +113,11 @@ public class Nightbug extends Boss {
         super.autoDesenho(g);
     }
 
-    // Movimento
     private class IrParaOCentro extends IrPara {
         public IrParaOCentro(Boss boss, Point2D.Double velocidade) {
             super(boss,
                     new Point2D.Double(0.5 * (MUNDO_LARGURA - 2) + 2, 0.2 * MUNDO_ALTURA),
-                    velocidade
-            );
+                    velocidade);
         }
     }
 
@@ -114,8 +125,7 @@ public class Nightbug extends Boss {
         public IrParaEsquerda(Boss boss, Point2D.Double velocidade) {
             super(boss,
                     new Point2D.Double(0.1 * (MUNDO_LARGURA - 2) + 2, 0.1 * MUNDO_ALTURA),
-                    velocidade
-            );
+                    velocidade);
         }
     }
 
@@ -123,12 +133,13 @@ public class Nightbug extends Boss {
         public IrParaDireita(Boss boss, Point2D.Double velocidade) {
             super(boss,
                     new Point2D.Double(0.9 * (MUNDO_LARGURA - 2) + 2, 0.1 * MUNDO_ALTURA),
-                    velocidade
-            );
+                    velocidade);
         }
     }
 
-    // Ataque
+    /**
+     * @brief Define o padrão de ataque executado quando o chefe está no centro.
+     */
     private class AtaqueParaBaixo extends AtaqueEmLeque {
         public AtaqueParaBaixo(Boss boss) {
             super(boss);
@@ -142,6 +153,9 @@ public class Nightbug extends Boss {
         }
     }
 
+    /**
+     * @brief Define o padrão de ataque executado quando o chefe está na direita.
+     */
     private class AtaqueParaDireita extends AtaqueEmLeque {
         public AtaqueParaDireita(Boss boss) {
             super(boss);
@@ -155,6 +169,9 @@ public class Nightbug extends Boss {
         }
     }
 
+    /**
+     * @brief Define o padrão de ataque executado quando o chefe está na esquerda.
+     */
     private class AtaqueParaEsquerda extends AtaqueEmLeque {
         public AtaqueParaEsquerda(Boss boss) {
             super(boss);

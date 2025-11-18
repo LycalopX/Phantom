@@ -12,6 +12,14 @@ import java.awt.Graphics;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+/**
+ * @brief Implementação de um tipo de inimigo "Fada" com um padrão de ataque
+ *        duplo.
+ * 
+ *        Este inimigo se move para uma posição, dispara dois ataques em leque
+ *        com
+ *        uma pausa entre eles, e depois sai da tela.
+ */
 public class FadaComum3 extends Inimigo {
 
     private Estado estadoAtual;
@@ -33,24 +41,26 @@ public class FadaComum3 extends Inimigo {
         this.altura = (int) (32.0 * BODY_PROPORTION);
         this.hitboxRaio = (this.largura / 2.0) / CELL_SIDE;
 
-        // Define a sequência de estados para o padrão "Pressão Dupla"
         Estado entrada, ataqueLento, pausaAposAtaqueLento, ataqueRapido;
 
+        // O `behaviorType` permite duas variações de intensidade do mesmo padrão de
+        // ataque.
         if (behaviorType != 1) {
             ataqueLento = new AtaqueEmLequeMirado(this, 11, 135, 0.315, TipoProjetilInimigo.ESFERA_GRANDE_AMARELA);
-            pausaAposAtaqueLento = new Esperar(this, 30); // Meio segundo de pausa
-            ataqueRapido = new AtaqueEmLequeMirado(this, 17, 180, 0.45, TipoProjetilInimigo.ESFERA_AMARELA); // 8
+            pausaAposAtaqueLento = new Esperar(this, 30);
+            ataqueRapido = new AtaqueEmLequeMirado(this, 17, 180, 0.45, TipoProjetilInimigo.ESFERA_AMARELA);
             entrada = new IrPara(this, targetX, 5, 0.03);
         } else {
             ataqueLento = new AtaqueEmLequeMirado(this, 5, 45, 0.105, TipoProjetilInimigo.ESFERA_GRANDE_AMARELA);
-            pausaAposAtaqueLento = new Esperar(this, 30); // Meio segundo de pausa
-            ataqueRapido = new AtaqueEmLequeMirado(this, 8, 60, 0.15, TipoProjetilInimigo.ESFERA_AMARELA); // 8
+            pausaAposAtaqueLento = new Esperar(this, 30);
+            ataqueRapido = new AtaqueEmLequeMirado(this, 8, 60, 0.15, TipoProjetilInimigo.ESFERA_AMARELA);
             entrada = new IrPara(this, targetX, 5, 0.1);
         }
 
-        Estado pausaAntesSaida = new Esperar(this, 120); // 2 segundos de pausa antes de sair
+        Estado pausaAntesSaida = new Esperar(this, 120);
         Estado saida = new IrPara(this, targetX, -2, 0.15);
 
+        // Encadeamento dos estados para formar a sequência de comportamento.
         entrada.setProximoEstado(ataqueLento);
         ataqueLento.setProximoEstado(pausaAposAtaqueLento);
         pausaAposAtaqueLento.setProximoEstado(ataqueRapido);
@@ -78,6 +88,9 @@ public class FadaComum3 extends Inimigo {
         super.autoDesenho(g);
     }
 
+    /**
+     * @brief Restaura o animador após a desserialização.
+     */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         this.animador = new GerenciadorDeAnimacaoInimigo(
@@ -89,8 +102,9 @@ public class FadaComum3 extends Inimigo {
                 false);
     }
 
-    // --- Novos Estados de Ataque ---
-
+    /**
+     * @brief Estado de ataque que dispara um leque de projéteis para baixo.
+     */
     private class AtaqueEmLequeMirado extends Estado {
         private int quantidadeTiros;
         private double amplitudeLeque;
@@ -106,6 +120,9 @@ public class FadaComum3 extends Inimigo {
             this.tipoProjetil = tipo;
         }
 
+        /**
+         * @brief Executa o ataque uma única vez e se marca como completo.
+         */
         @Override
         public void incrementarTempo(Fase fase, int tempo) {
             if (estadoCompleto)

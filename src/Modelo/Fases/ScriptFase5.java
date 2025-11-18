@@ -18,39 +18,49 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
+/**
+ * @brief Script de eventos e spawns para a Fase 5, o estágio final.
+ * 
+ *        Define a aparência do cenário, a trilha sonora e as ondas de inimigos,
+ *        culminando na batalha contra o chefe final e a transição para os
+ *        créditos.
+ */
 public class ScriptFase5 extends ScriptDeFase {
 
     private transient BufferedImage texturaChao;
     private transient BufferedImage texturaParede;
 
-    // Parâmetros de perspectiva compartilhados
-    private final float larguraNoHorizonte = 40; // Largura do corredor no ponto de fuga
-    private final float fatorPerspectivaChao = 2f; // Controla a "abertura" da perspectiva
-    private final float fatorPerspectivaParede = 0.9f; // Controla a "abertura" da perspectiva
-    private final int translacaoParedeX = 0; // Offset horizontal para as paredes
-    private final int translacaoParedeY = (int) (-ConfigMapa.ALTURA_TELA * 0.08); // Offset vertical para as paredes
+    private final float larguraNoHorizonte = 40;
+    private final float fatorPerspectivaChao = 2f;
+    private final float fatorPerspectivaParede = 0.9f;
+    private final int translacaoParedeX = 0;
+    private final int translacaoParedeY = (int) (-ConfigMapa.ALTURA_TELA * 0.08);
 
     public ScriptFase5(Engine engine) {
         super(engine);
-        // Auxiliar.SoundManager.getInstance().playMusic("NomeDaMusica", true);
+
     }
 
+    /**
+     * @brief Carrega os recursos visuais e de áudio para a fase.
+     * 
+     *        Inicializa os elementos de cenário com efeito de perspectiva, como o
+     *        chão
+     *        e as paredes, e define a música da fase.
+     */
     @Override
     public void carregarRecursos(Fase fase) {
         try {
             this.texturaParede = ImageIO.read(getClass().getClassLoader().getResource("Assets/stage5/bg5_1.png"));
             this.texturaChao = ImageIO.read(getClass().getClassLoader().getResource("Assets/stage5/bg5_2.png"));
 
-            // 1. O Chão
             ChaoPerspectiva chao = new ChaoPerspectiva(texturaChao, 0.03, larguraNoHorizonte, fatorPerspectivaChao);
             fase.adicionarElementoCenario(chao);
 
-            // 2. Parede Esquerda
             ParedeVertical paredeEsq = new ParedeVertical(texturaParede, true, 0.015, larguraNoHorizonte,
                     fatorPerspectivaParede, translacaoParedeX, translacaoParedeY);
             fase.adicionarElementoCenario(paredeEsq);
 
-            // 3. Parede Direita
             ParedeVertical paredeDir = new ParedeVertical(texturaParede, false, 0.015, larguraNoHorizonte,
                     fatorPerspectivaParede, translacaoParedeX, translacaoParedeY);
             fase.adicionarElementoCenario(paredeDir);
@@ -62,6 +72,9 @@ public class ScriptFase5 extends ScriptDeFase {
         SoundManager.getInstance().playMusic("Cinderella Cage ~ Kagome-Kagome", false);
     }
 
+    /**
+     * @brief Restaura as referências de imagem após a desserialização.
+     */
     @Override
     public void relinkarRecursosDosElementos(Fase fase) {
         try {
@@ -80,24 +93,29 @@ public class ScriptFase5 extends ScriptDeFase {
         }
     }
 
-    // Onda
+    /**
+     * @brief Define a sequência de ondas de inimigos para esta fase.
+     * 
+     *        A fase consiste em uma espera inicial, a batalha contra o chefe,
+     *        e um gatilho para iniciar os créditos após a vitória.
+     */
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
-        ondas.add(new OndaDeEspera(fase, 270)); // Espera ~5 segundos após a fada
+        ondas.add(new OndaDeEspera(fase, 270));
         ondas.add(new OndaBoss(fase));
         ondas.add(new OndaDeEspera(fase, 300));
-        ondas.add(new OndaTriggerCreditos()); // Trigger credits after boss
+        ondas.add(new OndaTriggerCreditos());
         return ondas;
     }
 
     @Override
     public Color getBackgroundOverlayColor() {
-        return new Color(0, 0, 0, 0); // Sem overlay, o fundo preto serve como o "vazio"
+        return new Color(0, 0, 0, 0);
     }
 
     @Override
     public LinearGradientPaint getBackgroundGradient() {
-        // Sem gradiente para manter o fundo preto puro
+
         Point2D start = new Point2D.Float(0, 0);
         Point2D end = new Point2D.Float(0, 1);
         float[] fractions = { 0.0f, 1.0f };
@@ -105,7 +123,10 @@ public class ScriptFase5 extends ScriptDeFase {
         return new LinearGradientPaint(start, end, fractions, colors);
     }
 
-    private class OndaBoss extends OndaDeBoss{
+    /**
+     * @brief Define a onda do chefe final da fase.
+     */
+    private class OndaBoss extends OndaDeBoss {
         public OndaBoss(Fase fase) {
             super(null);
             lootTable.addItem(new LootItem(ItemType.ONE_UP, 1, 1, 1, false, true));
@@ -115,6 +136,13 @@ public class ScriptFase5 extends ScriptDeFase {
         }
     }
 
+    /**
+     * @brief Onda especial que serve como gatilho para iniciar a tela de créditos.
+     * 
+     *        Assim que ativada, para a música da fase e chama o método
+     *        `carregarCreditos`
+     *        da engine.
+     */
     private class OndaTriggerCreditos extends Onda {
         private boolean triggered = false;
 

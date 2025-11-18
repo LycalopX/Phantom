@@ -12,8 +12,17 @@ import java.net.URL;
 import java.util.EnumMap;
 import java.util.Map;
 
+/**
+ * @brief Define todos os tipos de projéteis de inimigos disponíveis no jogo.
+ * 
+ *        Este enum implementa a interface `ProjetilTipo` e funciona como um
+ *        catálogo
+ *        central para todos os projéteis inimigos. As propriedades de cada tipo
+ *        (imagem, hitbox, etc.) são carregadas dinamicamente de um arquivo JSON
+ *        através do método estático `iniciar()`.
+ */
 public enum TipoProjetilInimigo implements ProjetilTipo {
-    // Esferas 8x8
+
     ESFERA_PRETA,
     ESFERA_VERMELHA,
     ESFERA_SALMAO,
@@ -31,7 +40,6 @@ public enum TipoProjetilInimigo implements ProjetilTipo {
     ESFERA_LARANJA,
     ESFERA_CINZA,
 
-    // Esferas Grandes 12x12
     ESFERA_GRANDE_PRETA,
     ESFERA_GRANDE_VERMELHA,
     ESFERA_GRANDE_AZUL,
@@ -43,7 +51,6 @@ public enum TipoProjetilInimigo implements ProjetilTipo {
     ESFERA_GRANDE_VERDE_OCA,
     ESFERA_GRANDE_AMARELA_OCA,
 
-    // Formas Diferentes
     BEAM_PRETO,
     BEAM_VERMELHO_ESCURO,
     BEAM_VERMELHO_LILAS,
@@ -143,11 +150,18 @@ public enum TipoProjetilInimigo implements ProjetilTipo {
     private DefinicaoProjetil definicao;
     private ImageIcon imagem;
 
+    /**
+     * @brief Inicializa todos os tipos de projéteis.
+     * 
+     *        Este método deve ser chamado uma vez no início do jogo. Ele carrega as
+     *        definições de projéteis do arquivo JSON, carrega os spritesheets
+     *        correspondentes e, em seguida, associa cada constante do enum com sua
+     *        definição e imagem de sprite recortada.
+     */
     public static void iniciar() {
         CarregadorDeDefinicoes carregador = CarregadorDeDefinicoes.getInstance();
         Map<SpriteSheetSource, BufferedImage> spritesheetsCarregados = new EnumMap<>(SpriteSheetSource.class);
 
-        // Carrega todas as imagens de spritesheet uma vez
         for (SpriteSheetSource source : SpriteSheetSource.values()) {
             try {
                 URL imgURL = TipoProjetilInimigo.class.getClassLoader().getResource(source.path);
@@ -161,7 +175,6 @@ public enum TipoProjetilInimigo implements ProjetilTipo {
             }
         }
 
-        // Associa cada enum com sua definição e sprite
         for (TipoProjetilInimigo tipo : values()) {
             DefinicaoProjetil def = carregador.getDefinicaoProjetil(tipo.name());
             tipo.definicao = def;
@@ -176,36 +189,63 @@ public enum TipoProjetilInimigo implements ProjetilTipo {
                     tipo.imagem = criarImagemPlaceholder(def.getW(), def.getH());
                 }
             } catch (IllegalArgumentException e) {
-                 System.err.println("Spritesheet ID '" + def.getSpritesheet() + "' do JSON não existe no enum SpriteSheetSource.");
-                 tipo.imagem = criarImagemPlaceholder(def.getW(), def.getH());
+                System.err.println(
+                        "Spritesheet ID '" + def.getSpritesheet() + "' do JSON não existe no enum SpriteSheetSource.");
+                tipo.imagem = criarImagemPlaceholder(def.getW(), def.getH());
             }
         }
     }
 
-    // Enum auxiliar para mapear os nomes do JSON para os paths
+    /**
+     * @brief Enum auxiliar para mapear os identificadores de spritesheet do JSON
+     *        para os caminhos de arquivo.
+     */
     private enum SpriteSheetSource {
         ESFERAS_8x8("Assets/projectiles/inimigos/esferas.png"),
         ESFERAS_GRANDES_12x12("Assets/projectiles/inimigos/esferas_grandes.png"),
         FORMAS_DIFERENTES("Assets/projectiles/inimigos/sprites_com_formas_diferentes.png");
 
         final String path;
-        SpriteSheetSource(String path) { this.path = path; }
+
+        SpriteSheetSource(String path) {
+            this.path = path;
+        }
     }
 
-    // Getters da interface agora usam o objeto de definição
     @Override
-    public ImageIcon getImagem() { return imagem; }
-    @Override
-    public int getSpriteWidth() { return definicao.getW(); }
-    @Override
-    public int getSpriteHeight() { return definicao.getH(); }
-    @Override
-    public HitboxType getHitboxType() { return definicao.getHitbox().getType(); }
-    @Override
-    public int getHitboxWidth() { return definicao.getHitbox().getW(); }
-    @Override
-    public int getHitboxHeight() { return definicao.getHitbox().getH(); }
+    public ImageIcon getImagem() {
+        return imagem;
+    }
 
+    @Override
+    public int getSpriteWidth() {
+        return definicao.getW();
+    }
+
+    @Override
+    public int getSpriteHeight() {
+        return definicao.getH();
+    }
+
+    @Override
+    public HitboxType getHitboxType() {
+        return definicao.getHitbox().getType();
+    }
+
+    @Override
+    public int getHitboxWidth() {
+        return definicao.getHitbox().getW();
+    }
+
+    @Override
+    public int getHitboxHeight() {
+        return definicao.getHitbox().getH();
+    }
+
+    /**
+     * @brief Cria uma imagem de placeholder magenta para casos em que o sprite não
+     *        pode ser carregado.
+     */
     private static ImageIcon criarImagemPlaceholder(int largura, int altura) {
         BufferedImage placeholder = new BufferedImage(largura, altura, BufferedImage.TYPE_INT_ARGB);
         Graphics g = placeholder.createGraphics();

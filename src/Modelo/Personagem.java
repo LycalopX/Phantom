@@ -12,9 +12,11 @@ import java.io.Serializable;
 import javax.swing.ImageIcon;
 
 /**
- * @brief Classe abstrata base para todos os personagens do jogo (herói,
- *        inimigos, itens, etc.).
- *        Define propriedades e comportamentos comuns.
+ * @brief Classe abstrata base para todos os objetos interativos do jogo.
+ * 
+ *        Define propriedades e comportamentos comuns a herói, inimigos,
+ *        projéteis,
+ *        itens, etc., como posição, imagem, estado de atividade e hitbox.
  */
 public abstract class Personagem implements Serializable {
 
@@ -40,8 +42,7 @@ public abstract class Personagem implements Serializable {
     protected LootTable lootTable;
 
     /**
-     * @brief Construtor principal (manual) que define todas as propriedades do
-     *        personagem.
+     * @brief Construtor principal que define todas as propriedades do personagem.
      */
     protected Personagem(String sNomeImagePNG, double x, double y, int largura, int altura, double hitboxRaio) {
         this.x = x;
@@ -56,16 +57,14 @@ public abstract class Personagem implements Serializable {
     }
 
     /**
-     * @brief Construtor secundário (manual) que calcula o raio da hitbox
-     *        automaticamente.
+     * @brief Construtor secundário que calcula o raio da hitbox automaticamente.
      */
     protected Personagem(String sNomeImagePNG, double x, double y, int largura, int altura) {
         this(sNomeImagePNG, x, y, largura, altura, (largura / 2.0) / CELL_SIDE);
     }
 
     /**
-     * @brief Construtor automático que calcula largura, altura e hitbox com base na
-     *        imagem e proporções globais.
+     * @brief Construtor que calcula largura, altura e hitbox com base na imagem.
      */
     protected Personagem(String sNomeImagePNG, double x, double y) {
         this.x = x;
@@ -80,7 +79,7 @@ public abstract class Personagem implements Serializable {
     }
 
     /**
-     * @brief Carrega a imagem do sprite do personagem a partir do nome do arquivo.
+     * @brief Carrega a imagem do sprite a partir do nome do arquivo.
      */
     private void carregarImagem() {
         try {
@@ -99,17 +98,18 @@ public abstract class Personagem implements Serializable {
 
     /**
      * @brief Método abstrato para atualizar o estado do personagem a cada frame.
+     *        Deve ser implementado pelas subclasses.
      */
     public abstract void atualizar();
 
     /**
-     * @brief Retorna a camada de renderização do personagem para ordenação (Z-order).
+     * @brief Retorna a camada de renderização para ordenação (Z-order).
      * @return O RenderLayer do personagem.
      */
     public abstract RenderLayer getRenderLayer();
 
     /**
-     * @brief Desenha a hitbox de debug do personagem, se o modo de debug estiver
+     * @brief Desenha a hitbox de debug do personagem se o modo de debug estiver
      *        ativo.
      */
     public void autoDesenho(Graphics g) {
@@ -124,7 +124,11 @@ public abstract class Personagem implements Serializable {
     }
 
     /**
-     * @brief Método para desserialização, recarrega a imagem transient.
+     * @brief Método customizado para desserialização.
+     * 
+     *        Garante que a imagem do sprite (`iImage`), que é `transient`, seja
+     *        recarregada a partir do `nomeSprite` quando o objeto é lido de um
+     *        arquivo.
      */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
@@ -148,85 +152,49 @@ public abstract class Personagem implements Serializable {
         return hitboxRaio;
     }
 
-    /**
-     * @brief Verifica se o personagem pode ser atravessado por outros.
-     */
     public boolean isTransponivel() {
         return bTransponivel;
     }
 
-    /**
-     * @brief Define se o personagem pode ser atravessado.
-     */
     public void setbTransponivel(boolean bTransponivel) {
         this.bTransponivel = bTransponivel;
     }
 
-    /**
-     * @brief Verifica se o personagem pode causar dano ou ser destruído.
-     */
     public boolean isMortal() {
         return bMortal;
     }
 
-    /**
-     * @brief Retorna a tabela de loot do personagem.
-     */
     public LootTable getLootTable() {
         return this.lootTable;
     }
 
-    /**
-     * @brief Retorna a vida atual do personagem.
-     */
     public double getVida() {
         return this.vida;
     }
 
-    /**
-     * @brief Define a vida do personagem.
-     */
     public void setVida(double vida) {
         this.vida = vida;
     }
 
-    /**
-     * @brief Define a animação de morte do personagem.
-     */
     public void animacaoMorte() {
     }
 
-    /**
-     * @brief Retorna a altura do personagem em pixels.
-     */
     public int getAltura() {
         return this.altura;
     }
 
-    /**
-     * @brief Retorna a largura do personagem em pixels.
-     */
     public int getLargura() {
         return this.largura;
     }
 
-    /**
-     * @brief Verifica se o personagem está ativo no jogo.
-     */
     public boolean isActive() {
         return this.isActive;
     }
 
-    /**
-     * @brief Ativa o personagem no jogo.
-     */
     public void activate() {
         this.isActive = true;
     }
 
-    /**
-     * @brief Desativa o personagem, marcando-o para remoção.
-     */
     public void deactivate() {
         this.isActive = false;
     }

@@ -26,9 +26,11 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * @brief Painel principal do jogo, responsável por desenhar todos os elementos
- *        visuais
- *        da fase, HUD e telas de estado (como Game Over).
+ * @brief Painel principal do jogo, responsável por toda a renderização.
+ * 
+ *        Esta classe desenha os elementos visuais da fase, a interface (HUD),
+ *        e as telas de estado, como Game Over e Pause. Também gerencia a
+ *        funcionalidade de arrastar e soltar (drag-and-drop) para debug.
  */
 public class Cenario extends JPanel {
     private Fase faseAtual;
@@ -37,16 +39,16 @@ public class Cenario extends JPanel {
     private BufferedImage imagemGameOver;
     private MenuPausa menuPausa;
 
-    // Otimização: Pré-alocar objetos de desenho para evitar criação em loop
     private Color corFundoOverlay;
     private final Color corDeathbombOverlay = new Color(255, 0, 0, 30);
     private final Font fonteHUD = new Font("Arial", Font.BOLD, 20);
     private LinearGradientPaint gradienteFundo;
 
     /**
-     * @brief Construtor do Cenario. Configura as dimensões, foco, cor de fundo,
-     *        contador de FPS e a funcionalidade de arrastar e soltar
-     *        (drag-and-drop).
+     * @brief Construtor do Cenario.
+     * 
+     *        Configura as dimensões do painel, o contador de FPS e a funcionalidade
+     *        de arrastar e soltar (drag-and-drop) para debug.
      */
     public Cenario(Engine engine) {
         this.engine = engine;
@@ -59,8 +61,11 @@ public class Cenario extends JPanel {
     }
 
     /**
-     * @brief Configura a área de drop para a funcionalidade de arrastar e soltar,
-     *        permitindo adicionar inimigos ao jogo dinamicamente no modo de debug.
+     * @brief Configura a área para a funcionalidade de arrastar e soltar.
+     * 
+     *        Permite adicionar inimigos ao jogo dinamicamente arrastando arquivos
+     *        .zip
+     *        para a janela, apenas quando o modo de debug está ativo.
      */
     private void setupDropTarget() {
         new DropTarget(this, new DropTargetListener() {
@@ -116,8 +121,10 @@ public class Cenario extends JPanel {
     }
 
     /**
-     * @brief Processa um arquivo .zip solto na tela, desserializando um personagem
-     *        e o adicionando na fase na posição do mouse.
+     * @brief Processa um arquivo .zip solto na tela.
+     * 
+     *        Desserializa um objeto `Personagem` do arquivo e o adiciona na fase
+     *        na posição do cursor do mouse.
      */
     private void processarArquivoSolto(File file, Point dropPoint) {
         if (file == null || !file.getName().toLowerCase().endsWith(".zip")) {
@@ -156,7 +163,7 @@ public class Cenario extends JPanel {
     }
 
     /**
-     * @brief Define a fase atual a ser desenhada pelo cenário.
+     * @brief Define a fase atual a ser desenhada e extrai seus elementos visuais.
      */
     public void setFase(Fase fase) {
         this.faseAtual = fase;
@@ -167,8 +174,10 @@ public class Cenario extends JPanel {
     }
 
     /**
-     * @brief Método principal de desenho do Swing. Renderiza o estado atual do
-     *        jogo.
+     * @brief Método principal de desenho do Swing, chamado pelo RepaintManager.
+     * 
+     *        Orquestra a renderização do jogo com base no estado atual (jogando,
+     *        pausado, game over, etc.).
      */
     @Override
     public void paintComponent(Graphics g) {
@@ -178,6 +187,7 @@ public class Cenario extends JPanel {
             return;
         }
 
+        // Lógica de renderização especial para a tela de créditos.
         if (faseAtual.getScript() instanceof ScriptCreditos) {
             ((ScriptCreditos) faseAtual.getScript()).render((Graphics2D) g);
             if (faseAtual.getHero() != null && faseAtual.getHero().isActive()) {
@@ -186,12 +196,14 @@ public class Cenario extends JPanel {
             return;
         }
 
+        // Renderiza a cena principal do jogo se não estiver em Game Over ou Pausado.
         if (engine.getEstadoAtual() == null || engine.getEstadoAtual() == Engine.GameState.JOGANDO
                 || engine.getEstadoAtual() == Engine.GameState.RESPAWNANDO
                 || engine.getEstadoAtual() == Engine.GameState.DEATHBOMB_WINDOW) {
 
             desenharCenaDoJogo((Graphics2D) g);
 
+            // Adiciona um overlay vermelho durante a janela de "deathbomb".
             if (engine.getEstadoAtual() == Engine.GameState.DEATHBOMB_WINDOW) {
                 g.setColor(corDeathbombOverlay);
                 g.fillRect(0, 0, getWidth(), getHeight());
@@ -201,7 +213,7 @@ public class Cenario extends JPanel {
                 desenharHUD((Graphics2D) g);
             }
         } else if (engine.getEstadoAtual() == Engine.GameState.PAUSADO) {
-            desenharCenaDoJogo((Graphics2D) g);
+            desenharCenaDoJogo((Graphics2D) g); // Desenha o fundo do jogo
             menuPausa.desenhar((Graphics2D) g, engine.getMenuSelection(), engine.isShowQuitConfirmation(), getWidth(),
                     getHeight());
         } else if (engine.getEstadoAtual() == Engine.GameState.GAME_OVER) {
@@ -210,28 +222,33 @@ public class Cenario extends JPanel {
         }
     }
 
+    /**
+     * @brief Desenha todos os elementos da cena do jogo.
+     * 
+     *        A ordem de renderização é crucial: fundo, overlays, primeiro plano e,
+     *        por fim, os personagens ordenados por sua camada de renderização.
+     */
     private void desenharCenaDoJogo(Graphics2D g2d) {
-        // 1. Desenha os elementos da camada de fundo
+
         for (var elemento : faseAtual.getElementosCenario()) {
             if (elemento.getDrawLayer() == Modelo.Cenario.DrawLayer.BACKGROUND) {
                 elemento.desenhar(g2d, getWidth(), getHeight());
             }
         }
 
-        // 2. Aplica os gradientes de cor sobre o fundo
         g2d.setColor(corFundoOverlay);
         g2d.fillRect(0, 0, getWidth(), getHeight());
         g2d.setPaint(gradienteFundo);
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
-        // 3. Desenha os elementos da camada de frente
         for (var elemento : faseAtual.getElementosCenario()) {
             if (elemento.getDrawLayer() == Modelo.Cenario.DrawLayer.FOREGROUND) {
                 elemento.desenhar(g2d, getWidth(), getHeight());
             }
         }
 
-        // 4. Desenha os personagens com ordenação de camada
+        // Agrupa todos os personagens (herói, inimigos, projéteis, etc.) em uma
+        // única lista para renderização.
         ArrayList<Personagem> personagensParaRenderizar = new ArrayList<>();
         personagensParaRenderizar.add(faseAtual.getHero());
         personagensParaRenderizar.addAll((List<Personagem>) (List<?>) faseAtual.getInimigos());
@@ -239,6 +256,8 @@ public class Cenario extends JPanel {
         personagensParaRenderizar.addAll((List<Personagem>) (List<?>) faseAtual.getItens());
         personagensParaRenderizar.addAll((List<Personagem>) (List<?>) faseAtual.getBombas());
 
+        // Ordena a lista com base na camada de renderização de cada personagem,
+        // garantindo que os elementos certos apareçam na frente dos outros.
         personagensParaRenderizar.sort(Comparator.comparing(p -> p.getRenderLayer().ordinal()));
 
         for (Personagem p : personagensParaRenderizar) {
@@ -249,8 +268,7 @@ public class Cenario extends JPanel {
     }
 
     /**
-     * @brief Desenha o Heads-Up Display (HUD) com informações de debug, como FPS e
-     *        status do herói.
+     * @brief Desenha o Heads-Up Display (HUD) com informações de debug.
      */
     private void desenharHUD(Graphics2D g2d) {
         g2d.setColor(Color.WHITE);
@@ -287,7 +305,7 @@ public class Cenario extends JPanel {
     }
 
     /**
-     * @brief Carrega a imagem da tela de Game Over.
+     * @brief Carrega a imagem da tela de Game Over do sistema de arquivos.
      */
     private void carregarImagensGameOver() {
         try {

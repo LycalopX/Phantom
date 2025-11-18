@@ -17,6 +17,9 @@ import javax.imageio.ImageIO;
 
 /**
  * @brief Script de eventos e spawns para a Fase 1 do jogo.
+ * 
+ *        Define a sequência de ondas de inimigos, o cenário com árvores geradas
+ *        proceduralmente e a batalha contra o primeiro chefe.
  */
 public class ScriptFase1 extends ScriptDeFase {
 
@@ -47,9 +50,7 @@ public class ScriptFase1 extends ScriptDeFase {
     }
 
     /**
-     * @brief Carrega os recursos visuais específicos da fase (imagens de fundo,
-     *        etc).
-     * @param fase A instância da fase para a qual os recursos serão carregados.
+     * @brief Carrega os recursos visuais específicos da fase.
      */
     @Override
     public void carregarRecursos(Fase fase) {
@@ -66,9 +67,7 @@ public class ScriptFase1 extends ScriptDeFase {
     }
 
     /**
-     * @brief Restaura as referências de imagens transientes nos elementos de
-     *        cenário após a desserialização.
-     * @param fase A instância da fase cujos elementos precisam ser religados.
+     * @brief Restaura as referências de imagens após a desserialização.
      */
     @Override
     public void relinkarRecursosDosElementos(Fase fase) {
@@ -87,9 +86,10 @@ public class ScriptFase1 extends ScriptDeFase {
     }
 
     /**
-     * @brief Atualiza a lógica de spawn de elementos de cenário (como árvores).
-     * @param fase             A instância da fase que este script está controlando.
-     * @param velocidadeScroll A velocidade de rolagem atual do cenário.
+     * @brief Atualiza a lógica de spawn procedural das árvores.
+     * 
+     *        A cada certa distância rolada, um novo conjunto de árvores é gerado
+     *        em um padrão diagonal que se move de um lado para o outro da tela.
      */
     @Override
     public void atualizarCenario(Fase fase, double velocidadeScroll) {
@@ -126,8 +126,7 @@ public class ScriptFase1 extends ScriptDeFase {
     }
 
     /**
-     * @brief Preenche o cenário com elementos iniciais (como árvores).
-     * @param fase A instância da fase que este script está controlando.
+     * @brief Preenche o cenário com árvores iniciais para evitar um início vazio.
      */
     @Override
     public void preencherCenarioInicial(Fase fase) {
@@ -158,7 +157,9 @@ public class ScriptFase1 extends ScriptDeFase {
         }
     }
 
-    // Onda
+    /**
+     * @brief Define a sequência de ondas de inimigos para esta fase.
+     */
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
         ondas.add(new OndaDeEspera(fase, 200));
@@ -177,49 +178,54 @@ public class ScriptFase1 extends ScriptDeFase {
         return ondas;
     }
 
+    /**
+     * @brief Define a primeira onda de inimigos.
+     */
     private class Onda1 extends Onda {
         public Onda1(Fase fase) {
             super();
 
-            // Adiciona inimigos à onda
             double xInicial;
             LootTable lootTable = new LootTable();
 
-            // Loot table
             lootTable.addItem(new LootItem(ItemType.MINI_POWER_UP, 1, 1, 0.5, true, false));
             lootTable.addItem(new LootItem(ItemType.SCORE_POINT, 1, 1, 0.5, false, false));
             lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.02, true, false));
 
-            // Inimigos
             for (int i = 0; i < 10; i++) {
                 xInicial = (4 + ((MUNDO_LARGURA - 8) * random.nextDouble()));
                 inimigos.add(
-                        new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial, -1.0, lootTable, 80, fase, "", 1), 40));
+                        new InimigoSpawn(new Modelo.Inimigos.FadaComum1(xInicial, -1.0, lootTable, 80, fase, "", 1),
+                                40));
             }
         }
     }
 
+    /**
+     * @brief Define a segunda onda de inimigos.
+     */
     public class Onda2 extends Onda {
         public Onda2(Fase fase) {
             super();
 
-            // Adiciona inimigos à onda
             double xInicial;
             LootTable lootTable = new LootTable();
 
-            // Loot table
             lootTable.addItem(new LootItem(ItemType.POWER_UP, 1, 1, 0.5, true, false));
             lootTable.addItem(new LootItem(ItemType.BOMB, 1, 1, 0.1, true, false));
 
-            // Inimigos
             for (int i = 0; i < 3; i++) {
                 xInicial = ((MUNDO_LARGURA) * (i + 2) / 6);
                 inimigos.add(
-                        new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, lootTable, 600, fase, "", 1), 0));
+                        new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, lootTable, 600, fase, "", 1),
+                                0));
             }
         }
     }
 
+    /**
+     * @brief Define a onda do chefe da fase.
+     */
     private class OndaBoss extends OndaDeBoss {
         public OndaBoss(Fase fase) {
             super("Wriggling Autumn Moon ~ Mooned Insect");
@@ -230,13 +236,13 @@ public class ScriptFase1 extends ScriptDeFase {
 
             LootTable emptyLoot = new LootTable();
             double xInicial = (2 + ((MUNDO_LARGURA - 3) * random.nextDouble()));
-                        new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, emptyLoot, 600, fase, "", 1), 600);
+            new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, emptyLoot, 600, fase, "", 1), 600);
 
             xInicial = (2 + ((MUNDO_LARGURA - 3) * random.nextDouble()));
-                        new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, emptyLoot, 600, fase, "", 1), 0);
+            new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, emptyLoot, 600, fase, "", 1), 0);
 
             xInicial = (2 + ((MUNDO_LARGURA - 3) * random.nextDouble()));
-                        new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, emptyLoot, 600, fase, "", 1), 0);
+            new InimigoSpawn(new Modelo.Inimigos.FadaComum2(xInicial, -1.0, emptyLoot, 600, fase, "", 1), 0);
         }
     }
 }

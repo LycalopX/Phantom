@@ -10,6 +10,13 @@ import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+/**
+ * @brief Implementação do chefe Lorelei.
+ * 
+ *        Este chefe utiliza múltiplas máquinas de estado que rodam em paralelo:
+ *        uma para movimento e outras para diferentes tipos de ataque, criando
+ *        comportamentos complexos e variados.
+ */
 public class Lorelei extends Boss {
 
     private transient GerenciadorDeAnimacaoInimigo animador;
@@ -22,32 +29,38 @@ public class Lorelei extends Boss {
     public Lorelei(double x, double y, LootTable lootTable, double vida, Fase fase) {
         super("", x, y, lootTable, vida);
         this.faseReferencia = fase;
-        
+
         int scaledWidth = (int) (43 * BODY_PROPORTION);
         int scaledHeight = (int) (62 * BODY_PROPORTION);
 
         this.animador = new GerenciadorDeAnimacaoInimigo(
-            "Assets/inimigos/boss2_spreadsheet.png",
-            43, 62, 0, 4, 4,
-            true, // resize = true
-            scaledWidth,
-            scaledHeight,
-            false // holdLastStrafingFrame
-        );
+                "Assets/inimigos/boss2_spreadsheet.png",
+                43, 62, 0, 4, 4,
+                true,
+                scaledWidth,
+                scaledHeight,
+                false);
         this.largura = scaledWidth;
         this.altura = scaledHeight;
         this.hitboxRaio = (this.largura / 2.0) / Auxiliar.ConfigMapa.CELL_SIDE;
         this.atacarParaBaixo = false;
-        
+
         setupEstados();
     }
 
-    private void setupEstados(){
-        // Pode atacar
+    /**
+     * @brief Configura as máquinas de estado para movimento e ataques.
+     * 
+     *        Define as sequências de estados que controlam o movimento do chefe
+     *        (ir para o centro, esquerda, direita) e os ataques (para baixo,
+     *        laterais),
+     *        encadeando-os para criar o padrão de comportamento do chefe.
+     */
+    private void setupEstados() {
+
         Estado podeAtacar = new MudarPodeAtacarParaBaixo(this, true);
         Estado naoPodeAtacar = new MudarPodeAtacarParaBaixo(this, false);
 
-        // Movimento
         Estado irCentro = new IrParaOCentro(this, new Point2D.Double(0.4, 0.4));
         Estado irEsquerda = new IrParaEsquerda(this, new Point2D.Double(0.2, 0.2));
         Estado irDireita = new IrParaDireita(this, new Point2D.Double(0.2, 0.2));
@@ -67,12 +80,10 @@ public class Lorelei extends Boss {
         espera.setProximoEstado(podeAtacar2);
         podeAtacar2.setProximoEstado(irEsquerda);
 
-        // Ataque para baixo
         Estado ataqueParaBaixo = new AtaqueParaBaixo(this);
         estadoDeAtaque = ataqueParaBaixo;
         ataqueParaBaixo.setProximoEstado(ataqueParaBaixo);
 
-        // Ataque lateral
         Estado ataqueLateralDireita = new AtaqueDoLadoDireito(this);
         Estado ataqueLateralEsquerda = new AtaqueDoLadoEsquerdo(this);
         estadoDeAtaqueLateralDireita = ataqueLateralDireita;
@@ -81,18 +92,20 @@ public class Lorelei extends Boss {
         ataqueLateralEsquerda.setProximoEstado(ataqueLateralEsquerda);
     }
 
+    /**
+     * @brief Restaura o animador e as máquinas de estado após a desserialização.
+     */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         int scaledWidth = (int) (43 * BODY_PROPORTION);
         int scaledHeight = (int) (62 * BODY_PROPORTION);
         this.animador = new GerenciadorDeAnimacaoInimigo(
-            "Assets/inimigos/boss2_spreadsheet.png",
-            43, 62, 0, 4, 4,
-            true,
-            scaledWidth,
-            scaledHeight,
-            true // holdLastStrafingFrame
-        );
+                "Assets/inimigos/boss2_spreadsheet.png",
+                43, 62, 0, 4, 4,
+                true,
+                scaledWidth,
+                scaledHeight,
+                true);
         setupEstados();
     }
 
@@ -110,10 +123,13 @@ public class Lorelei extends Boss {
         }
     }
 
+    /**
+     * @brief Atualiza todas as máquinas de estado do chefe a cada frame.
+     */
     @Override
     public void atualizar() {
         estadoDeMovimento = processarEstado(estadoDeMovimento, 1);
-        if(atacarParaBaixo) {
+        if (atacarParaBaixo) {
             estadoDeAtaque = processarEstado(estadoDeAtaque, 1);
         }
         estadoDeAtaqueLateralDireita = processarEstado(estadoDeAtaqueLateralDireita, 1);
@@ -127,7 +143,10 @@ public class Lorelei extends Boss {
         super.autoDesenho(g);
     }
 
-    // Condicao
+    /**
+     * @brief Estado que simplesmente muda uma flag para habilitar ou desabilitar o
+     *        ataque para baixo.
+     */
     private final class MudarPodeAtacarParaBaixo extends Estado {
         protected final boolean atacarParaBaixo;
 
@@ -137,22 +156,21 @@ public class Lorelei extends Boss {
         }
 
         @Override
-        public void incrementarTempo(Fase fase, int tempo){
-            if(inimigo instanceof Lorelei lorelei) {
+        public void incrementarTempo(Fase fase, int tempo) {
+            if (inimigo instanceof Lorelei lorelei) {
                 lorelei.atacarParaBaixo = this.atacarParaBaixo;
                 estadoCompleto = true;
             }
         }
     }
 
-    // Movimento
-    private final double ALTURA = ConfigMapa.MUNDO_ALTURA * 0.25; 
+    private final double ALTURA = ConfigMapa.MUNDO_ALTURA * 0.25;
+
     private class IrParaOCentro extends IrPara {
         public IrParaOCentro(Boss boss, Point2D.Double velocidade) {
             super(boss,
                     new Point2D.Double(0.5 * (ConfigMapa.MUNDO_LARGURA - 2) + 2, ALTURA),
-                    velocidade
-            );
+                    velocidade);
         }
     }
 
@@ -160,8 +178,7 @@ public class Lorelei extends Boss {
         public IrParaEsquerda(Boss boss, Point2D.Double velocidade) {
             super(boss,
                     new Point2D.Double(0 * (ConfigMapa.MUNDO_LARGURA - 2) + 2, ALTURA),
-                    velocidade
-            );
+                    velocidade);
         }
     }
 
@@ -169,12 +186,13 @@ public class Lorelei extends Boss {
         public IrParaDireita(Boss boss, Point2D.Double velocidade) {
             super(boss,
                     new Point2D.Double(1 * (ConfigMapa.MUNDO_LARGURA - 2) + 2, ALTURA),
-                    velocidade
-            );
+                    velocidade);
         }
     }
 
-    // Ataque
+    /**
+     * @brief Define o ataque em leque que mira no jogador.
+     */
     private class AtaqueParaBaixo extends AtaqueEmLequeNoJogador {
         public AtaqueParaBaixo(Boss boss) {
             super(boss);
@@ -187,6 +205,9 @@ public class Lorelei extends Boss {
         }
     }
 
+    /**
+     * @brief Define o ataque em leque que se origina da lateral direita da tela.
+     */
     private class AtaqueDoLadoDireito extends AtaqueEmLequeNaPosicao {
         public AtaqueDoLadoDireito(Boss boss) {
             super(boss);
@@ -202,6 +223,9 @@ public class Lorelei extends Boss {
         }
     }
 
+    /**
+     * @brief Define o ataque em leque que se origina da lateral esquerda da tela.
+     */
     private class AtaqueDoLadoEsquerdo extends AtaqueEmLequeNaPosicao {
         public AtaqueDoLadoEsquerdo(Boss boss) {
             super(boss);

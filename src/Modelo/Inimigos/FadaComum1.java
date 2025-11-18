@@ -11,6 +11,13 @@ import java.awt.Graphics;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+/**
+ * @brief Implementação de um tipo de inimigo "Fada" com múltiplos
+ *        comportamentos.
+ * 
+ *        Este inimigo pode seguir duas lógicas de movimento e ataque distintas,
+ *        selecionadas pelo `behaviorType` no construtor.
+ */
 public class FadaComum1 extends Inimigo {
 
     private transient GerenciadorDeAnimacaoInimigo animador;
@@ -34,13 +41,15 @@ public class FadaComum1 extends Inimigo {
         this.altura = (int) (30.0 * BODY_PROPORTION);
         this.hitboxRaio = (this.largura / 2.0) / CELL_SIDE;
 
+        // O `behaviorType` seleciona qual sequência de estados o inimigo seguirá.
         switch (behaviorType) {
             case 2:
-                // Novo Comportamento
+                // Comportamento 2: Move-se para uma posição, atira, move-se para outra, atira
+                // novamente e sai.
                 Estado entrada2 = new IrPara(this, this.x, 8, 0.1);
-                Estado atirando1_2 = new AtirandoMirado(this, 30, 150); // First shooting phase
+                Estado atirando1_2 = new AtirandoMirado(this, 30, 150);
                 Estado mover = new IrPara(this, MUNDO_LARGURA - this.x, 8, 0.3);
-                Estado atirando2_2 = new AtirandoMirado(this, 30, 150); // Second shooting phase
+                Estado atirando2_2 = new AtirandoMirado(this, 30, 150);
                 Estado saida2 = new IrPara(this, MUNDO_LARGURA - this.x, -2, 0.05);
 
                 entrada2.setProximoEstado(atirando1_2);
@@ -51,7 +60,7 @@ public class FadaComum1 extends Inimigo {
                 break;
             case 1:
             default:
-                // Comportamento Original
+                // Comportamento 1: Entra com movimento senoidal, para e atira, depois sai.
                 Estado entrada1 = new MovimentoSinusoidalEntrando(this, 8, 4, 0.5);
                 Estado atirando1 = new AtirandoMirado(this, 60, 300);
                 Estado saida1 = new IrPara(this, this.initialX, -2, 0.05);
@@ -63,6 +72,9 @@ public class FadaComum1 extends Inimigo {
         }
     }
 
+    /**
+     * @brief Restaura o animador após a desserialização.
+     */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         this.animador = new GerenciadorDeAnimacaoInimigo(
@@ -123,8 +135,10 @@ public class FadaComum1 extends Inimigo {
         super.autoDesenho(g);
     }
 
-    // --- Estados Personalizados ---
-
+    /**
+     * @brief Estado que move o inimigo para uma posição Y com um movimento
+     *        senoidal.
+     */
     private class MovimentoSinusoidalEntrando extends Estado {
         private double targetY;
         private double amplitude;
@@ -150,6 +164,10 @@ public class FadaComum1 extends Inimigo {
         }
     }
 
+    /**
+     * @brief Estado em que o inimigo permanece parado e atira no jogador em
+     *        intervalos regulares.
+     */
     private class AtirandoMirado extends Estado {
         private int shootTimer;
         private int shootInterval;

@@ -14,16 +14,18 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * @brief Classe abstrata que define o contrato para scripts de fase. Cada fase
- * do jogo terá uma implementação concreta desta classe para controlar os
- * eventos e o spawning de inimigos e cenário.
+ * @brief Classe abstrata que define o contrato para os scripts de cada fase.
+ * 
+ *        Cada fase do jogo deve ter uma implementação concreta desta classe
+ *        para
+ *        controlar os eventos, o spawning de inimigos e a aparência do cenário.
+ *        A lógica é organizada em "Ondas" que são executadas sequencialmente.
  */
 public abstract class ScriptDeFase implements Serializable {
 
     protected Random random = new Random();
     protected transient Engine engine;
 
-    // Onda
     protected ArrayList<Onda> ondas;
     protected int ondaAtualIndex;
     private boolean faseIniciada = false;
@@ -64,22 +66,28 @@ public abstract class ScriptDeFase implements Serializable {
     /**
      * @brief Carrega os recursos visuais específicos da fase (imagens de fundo,
      *        etc).
-     * @param fase A instância da fase para a qual os recursos serão carregados.
      */
     public abstract void carregarRecursos(Fase fase);
 
     /**
-     * @brief Restaura as referências de imagens transientes nos elementos de
-     * cenário após a desserialização.
-     * @param fase A instância da fase cujos elementos precisam ser religados.
+     * @brief Restaura as referências de imagens transientes após a desserialização.
      */
     public abstract void relinkarRecursosDosElementos(Fase fase);
 
+    /**
+     * @brief Define a lista e a ordem das ondas de inimigos para a fase.
+     * @return Uma lista de objetos `Onda`.
+     */
     protected abstract ArrayList<Onda> inicializarOndas(Fase fase);
 
     /**
-     * @brief Chama as ondas da fase definidas em inicializarOndas.
-     * @param fase A instância da fase que este script está controlando.
+     * @brief Gerencia a execução sequencial das ondas de inimigos.
+     * 
+     *        A cada frame, incrementa o tempo da onda atual. Quando uma onda
+     *        termina,
+     *        avança para a próxima. Ao final de todas as ondas, sinaliza para a
+     *        engine
+     *        carregar a próxima fase.
      */
     public void atualizarInimigos(Fase fase) {
         if (faseFinalizada) {
@@ -109,41 +117,39 @@ public abstract class ScriptDeFase implements Serializable {
     }
 
     /**
-     * @brief Atualiza a lógica de spawn de elementos de cenário (como árvores).
-     * Subclasses podem sobrepor isso. Por padrão, não faz nada.
-     * @param fase A instância da fase que este script está controlando.
-     * @param velocidadeScroll A velocidade de rolagem atual do cenário.
+     * @brief Atualiza a lógica de spawn de elementos de cenário.
+     *        Pode ser sobrescrito por subclasses para criar cenários dinâmicos.
      */
     public void atualizarCenario(Fase fase, double velocidadeScroll) {
     }
 
     /**
-     * @brief Preenche o cenário com elementos iniciais (como árvores).
-     * Subclasses podem sobrepor isso. Por padrão, não faz nada.
-     * @param fase A instância da fase que este script está controlando.
+     * @brief Preenche o cenário com elementos iniciais.
+     *        Pode ser sobrescrito por subclasses.
      */
     public void preencherCenarioInicial(Fase fase) {
     }
 
     /**
-     * @brief Método principal chamado pela Fase, que orquestra os spawns. Este
-     * método final não pode ser sobreposto.
-     * @param fase A instância da fase que este script está controlando.
-     * @param velocidadeScroll A velocidade de rolagem atual do cenário.
+     * @brief Método principal chamado pela Fase, que orquestra as atualizações.
      */
     public final void atualizar(Fase fase, double velocidadeScroll) {
         atualizarInimigos(fase);
         atualizarCenario(fase, velocidadeScroll);
     }
 
-    // Onda
     protected interface ITocarMusica {
         void tocarMusicaDeOnda(String musica);
     }
 
+    /**
+     * @brief Classe base para uma onda de eventos ou inimigos.
+     * 
+     *        Uma onda contém uma lista de `InimigoSpawn` que são acionados
+     *        sequencialmente com base em um temporizador.
+     */
     protected abstract class Onda implements Serializable {
 
-        // Classes
         protected class InimigoSpawn implements Serializable {
 
             protected Personagem personagem;
@@ -165,7 +171,6 @@ public abstract class ScriptDeFase implements Serializable {
             }
         }
 
-        // Variaveis
         protected ArrayList<InimigoSpawn> inimigos;
 
         protected int tempoDeEspera;
@@ -179,11 +184,6 @@ public abstract class ScriptDeFase implements Serializable {
             this.inimigos = new ArrayList<>();
         }
 
-        /**
-         * @brief Spawna o próximo inimigo na fase, se houver.
-         * @param fase A instância da fase onde o inimigo será spawnado.
-         * @return O inimigo spawnado ou null se não houver mais inimigos.
-         */
         private InimigoSpawn proximoInimigo(Fase fase) {
             if (indiceInimigoAtual < inimigos.size()) {
                 InimigoSpawn inimigo = inimigos.get(indiceInimigoAtual);
@@ -196,10 +196,7 @@ public abstract class ScriptDeFase implements Serializable {
         }
 
         /**
-         * @brief Incrementa o tempo de espera e spawna inimigos conforme o
-         * tempo progride.
-         * @param tempo O tempo a ser incrementado.
-         * @param fase A instância da fase onde os inimigos serão spawnados.
+         * @brief Avança a lógica da onda, spawnando inimigos conforme o tempo.
          */
         public void incrementarTempo(int tempo, Fase fase) {
             if (todosSpawnados) {
@@ -220,22 +217,20 @@ public abstract class ScriptDeFase implements Serializable {
             tempoDeEspera = inimigo.tempoAposAcaoPrevia;
         }
 
-        /**
-         * @brief Reinicia a onda para permitir que ela seja executada
-         * novamente.
-         */
         public void reiniciar() {
             tempoDeEspera = 0;
             indiceInimigoAtual = 0;
             todosSpawnados = false;
         }
 
-        // Getters
         public boolean getFinalizado() {
             return todosSpawnados;
         }
     }
 
+    /**
+     * @brief Uma onda especial que serve apenas para criar uma pausa no script.
+     */
     protected class OndaDeEspera extends Onda {
 
         public OndaDeEspera(Fase fase, int tempoDeEsperaInicial) {
@@ -244,9 +239,16 @@ public abstract class ScriptDeFase implements Serializable {
         }
     }
 
-    protected abstract class OndaDeBoss extends OndaComMusica{
+    /**
+     * @brief Uma onda especial para batalhas de chefe.
+     * 
+     *        A onda só é considerada finalizada quando todos os inimigos da lista
+     *        foram spawnados E o chefe (`boss`) foi derrotado.
+     */
+    protected abstract class OndaDeBoss extends OndaComMusica {
         protected Boss boss;
         protected LootTable lootTable;
+
         public OndaDeBoss(String musica) {
             super(musica);
             this.lootTable = new LootTable();
@@ -258,6 +260,9 @@ public abstract class ScriptDeFase implements Serializable {
         }
     }
 
+    /**
+     * @brief Uma onda que toca uma música específica ao ser iniciada.
+     */
     protected class OndaComMusica extends Onda implements ITocarMusica {
         private final String musica;
 
@@ -282,6 +287,9 @@ public abstract class ScriptDeFase implements Serializable {
         }
     }
 
+    /**
+     * @brief Uma onda especial que aciona um efeito de aceleração global no jogo.
+     */
     protected class OndaDeSpeedup extends Onda {
         public OndaDeSpeedup(int duration, double amplitude) {
             super();

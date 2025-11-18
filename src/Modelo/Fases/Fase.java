@@ -20,10 +20,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import Modelo.Items.Item;
 
 /**
- * @brief Representa um contêiner para uma fase do jogo, guardando todos os
- *        personagens,
- *        elementos de cenário e o estado de rolagem. Delega a lógica de eventos
- *        e spawns para um ScriptDeFase.
+ * @brief Contêiner para todos os elementos de uma fase do jogo.
+ * 
+ *        Esta classe armazena todos os personagens, elementos de cenário e o
+ *        estado
+ *        da fase. A lógica de eventos e spawns é delegada a um `ScriptDeFase`.
+ *        As coleções usam `CopyOnWriteArrayList` para evitar
+ *        `ConcurrentModificationException`
+ *        durante a iteração e modificação.
  */
 public class Fase implements Serializable {
 
@@ -65,6 +69,11 @@ public class Fase implements Serializable {
         }
     }
 
+    /**
+     * @brief Ativa um efeito de aceleração global temporário.
+     * @param duration  Duração do efeito em frames.
+     * @param amplitude A intensidade máxima da aceleração.
+     */
     public static void triggerGlobalSpeedup(int duration, double amplitude) {
         if (!isSpeedingUp) {
             isSpeedingUp = true;
@@ -74,11 +83,15 @@ public class Fase implements Serializable {
         }
     }
 
+    /**
+     * @brief Atualiza o multiplicador de velocidade global com base em uma curva
+     *        senoidal.
+     */
     private static void updateGlobalSpeedup() {
         if (isSpeedingUp) {
             speedupTimer++;
             if (speedupTimer <= speedupDuration) {
-                // sin(x) from 0 to PI
+
                 double sinValue = Math.sin(Math.PI * speedupTimer / speedupDuration);
                 globalSpeedMultiplier = 1.0 + speedupAmplitude * sinValue;
             } else {
@@ -89,8 +102,10 @@ public class Fase implements Serializable {
     }
 
     /**
-     * @brief Método para desserialização, recarrega as imagens e restaura
-     *        referências.
+     * @brief Método customizado para desserialização.
+     * 
+     *        Garante que recursos não serializáveis, como imagens e referências
+     *        de script, sejam recarregados e reinicializados corretamente.
      */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
@@ -103,8 +118,10 @@ public class Fase implements Serializable {
     }
 
     /**
-     * @brief Atualiza o estado da fase a cada frame, incluindo rolagem do cenário,
-     *        execução do script de fase e atualização de todos os personagens.
+     * @brief Atualiza o estado da fase a cada frame.
+     * 
+     *        Executa o script da fase, atualiza a posição de todos os personagens
+     *        e elementos de cenário, e remove os objetos inativos.
      */
     public void atualizar(double velocidadeScroll) {
         updateGlobalSpeedup();
@@ -142,6 +159,7 @@ public class Fase implements Serializable {
             b.atualizar();
         }
 
+        // Remove personagens inativos das listas para otimizar o processamento.
         inimigos.removeIf(i -> !i.isActive());
         bombas.removeIf(b -> !b.isActive());
     }
@@ -150,29 +168,26 @@ public class Fase implements Serializable {
         return this.scriptDaFase;
     }
 
-    /**
-     * @brief Retorna a piscina de projéteis da fase.
-     */
     public ProjetilPool getProjetilPool() {
         return this.projetilPool;
     }
 
-    /**
-     * @brief Retorna a piscina de itens da fase.
-     */
     public ItemPool getItemPool() {
         return this.itemPool;
     }
 
     /**
-     * @brief Retorna a lista de todos os personagens na fase.
-     * @deprecated This method is deprecated due to performance issues.
-     * Prefer using specific getters like getInimigos(), getProjeteis(), etc.
+     * @brief Retorna uma lista combinada de todos os personagens na fase.
+     * @deprecated Este método é ineficiente por criar uma nova lista a cada
+     *             chamada.
+     *             Prefira usar os getters específicos: getInimigos(),
+     *             getProjeteis(), etc.
      */
     @Deprecated
     public java.util.List<Personagem> getPersonagens() {
         ArrayList<Personagem> todos = new ArrayList<>();
-        if (hero != null) todos.add(hero);
+        if (hero != null)
+            todos.add(hero);
         todos.addAll(inimigos);
         todos.addAll(projeteis);
         todos.addAll(itens);
@@ -196,16 +211,12 @@ public class Fase implements Serializable {
         return bombas;
     }
 
-
-    /**
-     * @brief Retorna a lista de elementos do cenário na fase.
-     */
     public java.util.List<ElementoCenario> getElementosCenario() {
         return this.elementosCenario;
     }
 
     /**
-     * @brief Adiciona um novo personagem à lista da fase.
+     * @brief Adiciona um novo personagem à lista apropriada da fase.
      */
     public void adicionarPersonagem(Personagem p) {
         if (p instanceof Hero) {
@@ -228,9 +239,6 @@ public class Fase implements Serializable {
         this.elementosCenario.add(elemento);
     }
 
-    /**
-     * @brief Retorna uma referência ao objeto do herói na fase.
-     */
     public Hero getHero() {
         return hero;
     }

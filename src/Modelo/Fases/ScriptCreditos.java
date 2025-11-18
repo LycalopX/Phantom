@@ -1,6 +1,10 @@
 package Modelo.Fases;
 
 import Controler.Engine;
+
+import static Auxiliar.ConfigMapa.ALTURA_TELA;
+import static Auxiliar.ConfigMapa.LARGURA_TELA;
+
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -11,6 +15,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
+/**
+ * @brief Script que controla a cena de créditos do jogo.
+ * 
+ *        Gerencia uma sequência de animações, incluindo fade-in, rolagem de
+ *        texto
+ *        e fade-out, utilizando uma máquina de estados interna simples.
+ */
 public class ScriptCreditos extends ScriptDeFase {
 
     private transient BufferedImage creditsBackground;
@@ -18,6 +29,7 @@ public class ScriptCreditos extends ScriptDeFase {
     private transient BufferedImage creditsText2;
     private transient BufferedImage finalImage;
 
+    // Variáveis da máquina de estados que controla a animação
     private float alpha = 0.0f;
     private boolean fadingIn = true;
     private boolean scrolling = false;
@@ -33,6 +45,9 @@ public class ScriptCreditos extends ScriptDeFase {
         super(engine);
     }
 
+    /**
+     * @brief Carrega as imagens necessárias para a cena de créditos.
+     */
     @Override
     public void carregarRecursos(Fase fase) {
         try {
@@ -41,24 +56,31 @@ public class ScriptCreditos extends ScriptDeFase {
             creditsText2 = ImageIO.read(getClass().getClassLoader().getResource("Assets/credits_text2.png"));
             finalImage = ImageIO.read(getClass().getClassLoader().getResource("Assets/credits1.png"));
         } catch (IOException e) {
-            Logger.getLogger(ScriptCreditos.class.getName()).log(Level.SEVERE, "Erro ao carregar imagens de creditos", e);
+            Logger.getLogger(ScriptCreditos.class.getName()).log(Level.SEVERE, "Erro ao carregar imagens de creditos",
+                    e);
         }
         timer = System.currentTimeMillis();
-        scrollY1 = 600; // Start off-screen
+        scrollY1 = ALTURA_TELA; // Posição inicial do texto, fora da tela
         scrollY2 = scrollY1 + creditsText1.getHeight();
     }
 
     @Override
     public void relinkarRecursosDosElementos(Fase fase) {
-        // Nothing to relink
+
     }
 
     @Override
     protected ArrayList<Onda> inicializarOndas(Fase fase) {
-        // No waves in credits
+        // A cena de créditos não possui ondas de inimigos.
         return new ArrayList<>();
     }
 
+    /**
+     * @brief Atualiza a lógica da animação dos créditos.
+     * 
+     *        Este método funciona como o "coração" da cena, avançando a máquina de
+     *        estados da animação (fade-in -> scroll -> fade-out -> fade-in final).
+     */
     @Override
     public void atualizarInimigos(Fase fase) {
         long elapsed = System.currentTimeMillis() - timer;
@@ -95,21 +117,38 @@ public class ScriptCreditos extends ScriptDeFase {
         }
 
         if (finished) {
-            // Transition back to the main menu or restart
-            engine.reiniciarJogo();
+            // Após um tempo, encerra o jogo.
+            ondas.add(new OndaDeEspera(fase, 1000));
+            ondas.add(new OndaFinalizarJogo(fase));
         }
     }
 
+    /**
+     * @brief Uma onda especial que serve apenas para criar uma pausa no script.
+     */
+    protected class OndaFinalizarJogo extends Onda {
+
+        public OndaFinalizarJogo(Fase fase) {
+            super();
+            System.exit(0);
+        }
+    }
+
+    /**
+     * @brief Renderiza a cena de créditos com base no estado atual da animação.
+     * @param g O contexto gráfico para desenhar.
+     */
     public void render(Graphics2D g) {
-        // Clear screen
+
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, 800, 600);
 
+        // Controla a transparência (alpha) e o que é desenhado em cada etapa.
         if (fadingIn || scrolling) {
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
             g.drawImage(creditsBackground, 0, 0, null);
-            g.drawImage(creditsText1, (800 - creditsText1.getWidth()) / 2, (int) scrollY1, null);
-            g.drawImage(creditsText2, (800 - creditsText2.getWidth()) / 2, (int) scrollY2, null);
+            g.drawImage(creditsText1, (LARGURA_TELA - creditsText1.getWidth()) / 2, (int) scrollY1, null);
+            g.drawImage(creditsText2, (LARGURA_TELA - creditsText2.getWidth()) / 2, (int) scrollY2, null);
         } else if (fadingOut) {
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f - alpha));
             g.drawImage(creditsBackground, 0, 0, null);

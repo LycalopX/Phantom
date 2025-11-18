@@ -1,8 +1,16 @@
-// Crie este novo arquivo: Modelo/ItemType.java
 package Modelo.Items;
 
+/**
+ * @brief Define os diferentes tipos de itens coletáveis no jogo.
+ * 
+ *        Este enum funciona como uma "fábrica" de definições para cada tipo de
+ *        item.
+ *        Cada constante encapsula as propriedades do item, como sua posição no
+ *        spritesheet, valor de pontuação, valor de poder, e o tamanho da sua
+ *        piscina de objetos (pool).
+ */
 public enum ItemType {
-    // (spriteX, spriteY, scoreValue, powerValue, bombValue, poolSize)
+
     MINI_POWER_UP(0, 0, 10, 1, 0, 160),
     SCORE_POINT(16, 0, 50, 0, 0, 20),
     POWER_UP(32, 0, 100, 5, 0, 5),
@@ -11,9 +19,6 @@ public enum ItemType {
     ONE_UP(80, 0, 0, 0, 0, 2),
     BOMB_SCORE(96, 0, 20, 0, 1, 50);
 
-    // Adicione outros itens aqui no futuro
-
-    // Propriedades que cada tipo de item possui
     private final int spriteX;
     private final int spriteY;
     private final int scoreValue;
@@ -21,11 +26,18 @@ public enum ItemType {
     private final int bombValue;
     private final int poolSize;
 
-    // Dimensões do sprite são as mesmas para todos
     private static final int LARGURA = 16;
     private static final int ALTURA = 16;
 
-    // Construtor do enum (sempre privado)
+    /**
+     * @brief Construtor para cada tipo de item.
+     * @param spriteX    A coordenada X do sprite no spritesheet.
+     * @param spriteY    A coordenada Y do sprite no spritesheet.
+     * @param scoreValue O valor de pontuação que o item concede.
+     * @param powerValue O valor de poder que o item concede.
+     * @param bombValue  O número de bombas que o item concede.
+     * @param poolSize   O tamanho da piscina de objetos para este tipo de item.
+     */
     ItemType(int spriteX, int spriteY, int scoreValue, int powerValue, int bombValue, int poolSize) {
         this.spriteX = spriteX;
         this.spriteY = spriteY;
@@ -35,7 +47,6 @@ public enum ItemType {
         this.poolSize = poolSize;
     }
 
-    // Getters para que o resto do jogo possa ler essas propriedades
     public int getSpriteX() {
         return spriteX;
     }

@@ -16,6 +16,10 @@ import java.io.ObjectInputStream;
 
 /**
  * @brief Classe base para todos os projéteis do jogo.
+ * 
+ *        Define o comportamento fundamental de um projétil, como movimento,
+ *        renderização e gerenciamento de estado (ativo/inativo) para uso em
+ *        piscinas de objetos (Object Pooling).
  */
 public class Projetil extends Personagem {
 
@@ -34,6 +38,12 @@ public class Projetil extends Personagem {
         deactivate();
     }
 
+    /**
+     * @brief Método customizado para desserialização.
+     * 
+     *        Garante que a imagem do sprite, que é `transient`, seja recarregada
+     *        a partir da definição em `tipoDetalhado`.
+     */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         if (this.tipoDetalhado != null) {
@@ -53,6 +63,15 @@ public class Projetil extends Personagem {
     /**
      * @brief Reinicia o estado de um projétil da pool de objetos para um novo
      *        disparo.
+     * 
+     *        Este método é central para o padrão de Object Pooling, permitindo que
+     *        um
+     *        projétil inativo seja reconfigurado e reutilizado sem a necessidade de
+     *        criar um novo objeto.
+     * 
+     * @param tipoDetalhado A definição do tipo de projétil (e.g., de
+     *                      `TipoProjetilHeroi`),
+     *                      que contém informações sobre imagem, hitbox, etc.
      */
     public void reset(double x, double y, double velocidadeGrid, double angulo, TipoProjetil tipo,
             ProjetilTipo tipoDetalhado) {
@@ -80,9 +99,9 @@ public class Projetil extends Personagem {
             this.altura = (int) ((double) tipoDetalhado.getSpriteHeight() * BODY_PROPORTION * FATOR_ESCALA_ALTURA);
 
             if (tipoDetalhado.getHitboxType() == HitboxType.CIRCULAR) {
-                // Correção: Usa a média de w e h da hitbox do JSON e aplica a escala correta, sem BODY_PROPORTION.
+
                 double raioMedio = (tipoDetalhado.getHitboxWidth() + tipoDetalhado.getHitboxHeight()) / 2.0;
-                this.hitboxRaio = (raioMedio  * BODY_PROPORTION) / 2.0 / CELL_SIDE;
+                this.hitboxRaio = (raioMedio * BODY_PROPORTION) / 2.0 / CELL_SIDE;
             } else {
                 this.hitboxRaio = 0;
             }
@@ -123,7 +142,7 @@ public class Projetil extends Personagem {
         }
 
         g2d.translate(telaX, telaY);
-        if(this.tipo == TipoProjetil.INIMIGO) {
+        if (this.tipo == TipoProjetil.INIMIGO) {
             g2d.rotate(this.anguloRad + Math.toRadians(90));
         } else {
             g2d.rotate(this.anguloRad);
@@ -135,9 +154,6 @@ public class Projetil extends Personagem {
         super.autoDesenho(g);
     }
 
-    /**
-     * @brief Retorna o tipo da hitbox do projétil.
-     */
     public HitboxType getTipoHitbox() {
         if (tipoDetalhado != null) {
             return tipoDetalhado.getHitboxType();
@@ -145,9 +161,6 @@ public class Projetil extends Personagem {
         return HitboxType.CIRCULAR;
     }
 
-    /**
-     * @brief Retorna os limites retangulares da hitbox do projétil.
-     */
     public java.awt.Rectangle getBounds() {
         int centroX = (int) (this.x * CELL_SIDE);
         int centroY = (int) (this.y * CELL_SIDE);
@@ -165,9 +178,6 @@ public class Projetil extends Personagem {
         }
     }
 
-    /**
-     * @brief Verifica se o projétil está fora dos limites da tela.
-     */
     public boolean estaForaDaTela() {
         if (!isActive())
             return false;
@@ -177,23 +187,14 @@ public class Projetil extends Personagem {
         return (x < 0 || x > limiteX || y < -1 || y > limiteY);
     }
 
-    /**
-     * @brief Desativa o projétil.
-     */
     public void deactivate() {
         super.deactivate();
     }
 
-    /**
-     * @brief Ativa o projétil.
-     */
     public void activate() {
         super.activate();
     }
 
-    /**
-     * @brief Retorna o tipo do projétil (JOGADOR ou INIMIGO).
-     */
     public TipoProjetil getTipo() {
         return this.tipo;
     }

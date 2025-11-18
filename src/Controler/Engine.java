@@ -26,12 +26,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import java.util.List; // Corrected import
+import java.util.List;
 
 /**
- * @brief A classe principal do motor do jogo, responsável pelo loop principal,
- *        gerenciamento de estado e coordenação entre os componentes do modelo,
- *        visão e controle.
+ * @brief Classe principal do motor do jogo.
+ * 
+ *        Responsável pelo loop principal (game loop), gerenciamento da máquina
+ *        de
+ *        estados (jogando, pausado, etc.) e pela coordenação entre os
+ *        componentes
+ *        do modelo, visão e controle.
  */
 public class Engine implements Runnable {
     private Tela tela;
@@ -56,17 +60,23 @@ public class Engine implements Runnable {
     private int menuSelection = 0;
     private boolean showQuitConfirmation = false;
 
+    /**
+     * @brief Define os possíveis estados do jogo, controlando a lógica principal.
+     */
     public enum GameState {
         JOGANDO,
-        DEATHBOMB_WINDOW,
+        DEATHBOMB_WINDOW, // Janela de tempo para usar uma bomba após ser atingido
         RESPAWNANDO,
         GAME_OVER,
         PAUSADO
     }
 
     /**
-     * @brief Construtor da Engine. Inicializa todos os componentes do jogo,
-     *        incluindo controladores, fases, herói e a interface gráfica.
+     * @brief Construtor da Engine.
+     * 
+     *        Inicializa todos os componentes essenciais do jogo, incluindo
+     *        controladores, gerenciador de fases, herói e a interface gráfica (Tela
+     *        e Cenario).
      */
     public Engine() {
         this.gerenciadorDeFases = new GerenciadorDeFases();
@@ -95,8 +105,10 @@ public class Engine implements Runnable {
     }
 
     /**
-     * @brief O loop principal do jogo, que controla a taxa de atualização e
-     *        renderização (FPS).
+     * @brief O loop principal do jogo (game loop).
+     * 
+     *        Controla a taxa de atualização (lógica) e renderização (gráficos)
+     *        para manter um FPS constante.
      */
     @Override
     public void run() {
@@ -119,8 +131,10 @@ public class Engine implements Runnable {
     }
 
     /**
-     * @brief Atualiza o estado do jogo com base na máquina de estados (jogando,
-     *        morrendo, etc.).
+     * @brief Atualiza o estado do jogo a cada frame.
+     * 
+     *        Contém a máquina de estados principal que delega a lógica para
+     *        diferentes estados, como JOGANDO, RESPAWNANDO, etc.
      */
     private synchronized void atualizar() {
         if (estadoAtual != GameState.PAUSADO) {
@@ -133,7 +147,8 @@ public class Engine implements Runnable {
                 controladorHeroi.processarInput(teclasPressionadas, hero, faseAtual, controleDeJogo);
                 faseAtual.atualizar(velocidadeScroll);
 
-                boolean foiAtingido = controleDeJogo.processaTudo(faseAtual.getHero(), faseAtual.getInimigos(), faseAtual.getProjeteis(), faseAtual.getItens(), faseAtual.getBombas(), false);
+                boolean foiAtingido = controleDeJogo.processaTudo(faseAtual.getHero(), faseAtual.getInimigos(),
+                        faseAtual.getProjeteis(), faseAtual.getItens(), faseAtual.getBombas(), false);
 
                 if (foiAtingido) {
                     estadoAtual = GameState.DEATHBOMB_WINDOW;
@@ -141,16 +156,21 @@ public class Engine implements Runnable {
                     SoundManager.getInstance().playSfx("se_pldead00", 1.5f);
                 }
                 break;
+
             case PAUSADO:
                 // A lógica do jogo está parada. A entrada do menu é tratada em
                 // configurarTeclado().
                 break;
+
+            // Estado ativado quando o herói é atingido, dando uma pequena janela
+            // de tempo para o jogador usar uma bomba e evitar a morte.
             case DEATHBOMB_WINDOW:
                 controladorHeroi.processarInput(teclasPressionadas, hero, faseAtual, controleDeJogo);
 
                 deathbombTimer--;
                 slowMotionCounter++;
 
+                // O jogo roda em câmera lenta durante a janela de deathbomb.
                 if (slowMotionCounter % Hero.SLOW_MOTION_FRAMES == 0) {
                     faseAtual.atualizar(velocidadeScroll);
                 }
@@ -173,15 +193,20 @@ public class Engine implements Runnable {
                     }
                 }
                 break;
+
+            // Estado de transição após a morte do herói, antes de ele reaparecer.
             case RESPAWNANDO:
                 respawnTimer--;
 
+                // No meio do tempo de respawn, remove todos os projéteis da tela
+                // para dar uma chance ao jogador.
                 if (respawnTimer == RESPAWN_TIME_FRAMES / 2) {
                     removeProjectiles = true;
                 }
 
                 faseAtual.atualizar(velocidadeScroll);
-                controleDeJogo.processaTudo(faseAtual.getHero(), faseAtual.getInimigos(), faseAtual.getProjeteis(), faseAtual.getItens(), faseAtual.getBombas(), removeProjectiles);
+                controleDeJogo.processaTudo(faseAtual.getHero(), faseAtual.getInimigos(), faseAtual.getProjeteis(),
+                        faseAtual.getItens(), faseAtual.getBombas(), removeProjectiles);
                 removeProjectiles = false;
 
                 if (respawnTimer <= 0) {
@@ -190,6 +215,7 @@ public class Engine implements Runnable {
                     estadoAtual = GameState.JOGANDO;
                 }
                 break;
+
             case GAME_OVER:
                 break;
         }
@@ -197,6 +223,9 @@ public class Engine implements Runnable {
 
     /**
      * @brief Gera os itens que são dropados pelo herói ao morrer.
+     * 
+     *        Uma parte do poder do jogador é convertida em itens de power-up
+     *        que são espalhados pela tela.
      */
     private void dropItensAoMorrer(int powerAtual) {
         int nMiniPowerUp = (int) (powerAtual * 0.9) % 5;
@@ -234,7 +263,7 @@ public class Engine implements Runnable {
             if (this.faseAtual.getScript() != null) {
                 this.faseAtual.getScript().setEngine(this);
             }
-            
+
             cenario.setFase(this.faseAtual);
             this.controleDeJogo.setItemPool(this.faseAtual.getItemPool());
 
@@ -290,10 +319,11 @@ public class Engine implements Runnable {
             @Override
             public void keyPressed(KeyEvent e) {
 
+                // Lógica de input para o menu de pausa.
                 if (estadoAtual == GameState.PAUSADO) {
                     if (showQuitConfirmation) {
                         if (e.getKeyCode() == ConfigTeclado.KEY_SELECT) {
-                            // Lógica para sair do jogo (ainda não implementada)
+
                             System.exit(0);
 
                         } else if (e.getKeyCode() == ConfigTeclado.KEY_CANCEL) {
@@ -334,7 +364,7 @@ public class Engine implements Runnable {
                         estadoAtual = GameState.PAUSADO;
                         menuSelection = 0;
                         showQuitConfirmation = false;
-                        
+
                         SoundManager.getInstance().pauseMusic();
                         SoundManager.getInstance().playSfx("se_pause", 6f);
                     }
@@ -356,6 +386,8 @@ public class Engine implements Runnable {
                 }
 
                 teclasPressionadas.add(e.getKeyCode());
+
+                // Combinações de teclas para debug.
                 if (teclasPressionadas.contains(KeyEvent.VK_G) && teclasPressionadas.contains(KeyEvent.VK_3)) {
                     DebugManager.toggle();
                 }
@@ -375,7 +407,7 @@ public class Engine implements Runnable {
                     System.out.println("---------------------------");
                 }
 
-                // Kate Cheatcode
+                // Cheatcode para ativar/desativar cheats do herói.
                 if (teclasPressionadas.contains(KeyEvent.VK_K) && teclasPressionadas.contains(KeyEvent.VK_A)
                         && teclasPressionadas.contains(KeyEvent.VK_T) && teclasPressionadas.contains(KeyEvent.VK_E)) {
                     hero.toggleCheats();
@@ -403,8 +435,10 @@ public class Engine implements Runnable {
     }
 
     /**
-     * @brief Salva um inimigo padrão em um arquivo .zip para testes de
-     *        drag-and-drop.
+     * @brief Salva um conjunto de inimigos em arquivos .zip para testes.
+     * 
+     *        Esta função é um utilitário de debug para gerar arquivos que podem ser
+     *        usados com a funcionalidade de drag-and-drop.
      */
     private void salvarInimigosParaTeste() {
         System.out.println("Salvando inimigos para teste...");
@@ -469,6 +503,9 @@ public class Engine implements Runnable {
         this.controleDeJogo.setItemPool(this.faseAtual.getItemPool());
     }
 
+    /**
+     * @brief Carrega a fase especial de créditos.
+     */
     public void carregarCreditos() {
         this.faseAtual = new Fase(new ScriptCreditos(this));
         this.faseAtual.adicionarPersonagem(hero);

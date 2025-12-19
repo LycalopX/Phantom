@@ -53,6 +53,21 @@
         <echo message="Release package created in 'release' directory"/>
         <echo message="To run: java -jar PrototipoProjetoPOO.jar"/>
     </target>
+    <target name="dist-fat" depends="compile" description="Create a fat JAR for distribution">
+        <property name="dist.jar.fat" value="${dist.dir}/Phantom.jar"/>
+        <echo>Creating fat JAR at ${dist.jar.fat}</echo>
+        <jar destfile="${dist.jar.fat}">
+            <manifest>
+                <attribute name="Main-Class" value="Main"/>
+            </manifest>
+            <fileset dir="${build.classes.dir}"/>
+            <zipfileset src="${file.reference.jlayer-1.0.1.jar}" excludes="META-INF/*"/>
+            <zipfileset src="${file.reference.tinysound.jar}" excludes="META-INF/*"/>
+            <zipfileset src="${file.reference.json-20250517.jar}" excludes="META-INF/*"/>
+            <zipfileset src="${file.reference.mp3spi-1.9.5-1.jar}" excludes="META-INF/*"/>
+            <zipfileset src="${file.reference.tritonus_share-0.3.6.jar}" excludes="META-INF/*"/>
+        </jar>
+    </target>
     <!--
 
     There exist several targets which are by default empty and which can be 

@@ -1,0 +1,18 @@
+{
+	"folders": [],
+	"settings": {
+		"files.associations": {
+			"stdlib.h": "c",
+			"stdint.h": "c",
+			"utils.h": "c",
+			"f4.h": "c",
+			"indice.h": "c",
+			"stdio.h": "c",
+			"pessoa.h": "c",
+			"segue.h": "c",
+			"arquivos.h": "c",
+			"atualizacao.h": "c"
+		},
+		"makefile.configureOnOpen": false
+	}
+}
